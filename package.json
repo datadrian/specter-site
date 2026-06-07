@@ -1,0 +1,12 @@
+{
+  "name": "specter-site",
+  "version": "1.0.0",
+  "description": "SPECTER Paranormal Imaging System — marketing site",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
+    "stripe": "^14.0.0"
+  }
+}
