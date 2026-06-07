@@ -6,7 +6,6 @@
     "dev": "netlify dev"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0",
     "stripe": "^14.0.0"
   }
 }
