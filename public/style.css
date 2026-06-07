@@ -746,3 +746,59 @@ a { color: var(--cyan); text-decoration: none; }
   .nav-links a:not(.nav-cta) { display: none; }
   .compare-table { font-size: 0.78rem; }
 }
+
+/* ── PITCH SECTION ── */
+.pitch { padding: 5rem 0; background: #070a0f; border-bottom: 1px solid rgba(0,229,255,0.08); }
+.pitch-inner { max-width: 780px; }
+.pitch-body { font-size: 1.05rem; color: #8a9bb0; line-height: 1.85; margin-bottom: 1.4rem; }
+.pitch-body.highlight { color: #c8d4e0; font-size: 1.1rem; border-left: 3px solid #00e5ff; padding-left: 1.2rem; }
+
+/* ── THREE-UP HARDWARE GRID ── */
+.hardware-cards.three-up { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .hardware-cards.three-up { grid-template-columns: 1fr; } }
+
+/* ── HW COST TAG ── */
+.hw-cost {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0,229,255,0.1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #00e5ff;
+  letter-spacing: 0.08em;
+}
+
+/* ── RIG NOTE ── */
+.rig-note {
+  margin-top: 2.5rem;
+  border: 1px solid rgba(0,229,255,0.2);
+  background: rgba(0,229,255,0.03);
+}
+.rig-note-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 1.5rem 2rem;
+}
+.rig-note-icon {
+  font-size: 1.4rem;
+  color: #00e5ff;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.rig-note p {
+  font-size: 0.88rem;
+  color: #8a9bb0;
+  line-height: 1.7;
+  margin: 0;
+}
+.rig-note p strong { color: #c8d4e0; }
+
+/* ── FEATURES SUBHEADING ── */
+.features-sub {
+  color: #667080;
+  font-size: 0.95rem;
+  max-width: 650px;
+  margin-bottom: 3rem;
+  line-height: 1.7;
+}
