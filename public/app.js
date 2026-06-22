@@ -14,7 +14,7 @@ if (demoForm) {
       team:  demoForm.team.value,
     };
     try {
-      const res = await fetch('/.netlify/functions/demo-request', {
+      const res = await fetch('/api/demo-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -39,7 +39,7 @@ if (checkoutBtn) {
     checkoutBtn.textContent = 'INITIALIZING...';
     checkoutBtn.style.pointerEvents = 'none';
     try {
-      const res = await fetch('/.netlify/functions/create-checkout', {
+      const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

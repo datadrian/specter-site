@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help — Setup &amp; Troubleshooting</title>
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <h1>HELP CENTER</h1>
+    <p class="tagline">Setup, sensors, licensing, and field troubleshooting</p>
+
+    <div class="help-toc">
+      <strong>On this page</strong>
+      <ul>
+        <li><a href="#quick">Quick start checklist</a></li>
+        <li><a href="#first-launch">First launch &amp; sensor selection</a></li>
+        <li><a href="#realsense">Intel RealSense D435i</a></li>
+        <li><a href="#kinect">Microsoft Kinect v2</a></li>
+        <li><a href="#webcam">Webcam / HDMI capture card</a></li>
+        <li><a href="#detectors">Detectors &amp; demo mode</a></li>
+        <li><a href="#license">License activation</a></li>
+        <li><a href="#remote">Remote monitor &amp; recording</a></li>
+        <li><a href="#performance">Performance tips</a></li>
+        <li><a href="#support">Still stuck?</a></li>
+      </ul>
+    </div>
+
+    <section id="quick">
+      <h2>QUICK START CHECKLIST</h2>
+      <ol class="steps">
+        <li>Install SPECTER on a <strong>Windows 10/11</strong> field unit with USB 3.0 ports.</li>
+        <li>Plug in your depth sensor <strong>before</strong> launching the app (D435i or Kinect v2).</li>
+        <li>On first launch, pick your sensor type on the setup screen.</li>
+        <li>Wait for the <strong>WARMING UP</strong> overlay to clear (RealSense sidecar — can take 30–90 seconds).</li>
+        <li>Press <code>S</code> if you need to change source — always pick the <strong>sidecar</strong> entry for RealSense, never the bare UVC camera.</li>
+        <li>All detectors start <strong>OFF</strong> each session — enable them when you are ready.</li>
+        <li>Activate your license in Settings → License (or use the 10-minute demo).</li>
+      </ol>
+    </section>
+
+    <section id="first-launch">
+      <h2>FIRST LAUNCH &amp; SENSOR SELECTION</h2>
+      <p>SPECTER asks you to choose a primary sensor on first run:</p>
+      <ul>
+        <li><strong>Kinect v2</strong> — depth + RGB + 25-joint body skeleton (Windows, Kinect SDK required).</li>
+        <li><strong>Intel D435i</strong> — depth + RGB via the RealSense sidecar (recommended for most installs).</li>
+        <li><strong>Webcam / HDMI</strong> — RGB only, no depth views.</li>
+      </ul>
+      <div class="callout ok">
+        You can change sensor later: source menu → <strong>Change sensor type</strong>, or reinstall preferences.
+      </div>
+      <p>A guided <strong>startup tour</strong> walks through every control. Replay it anytime from Settings → Interface.</p>
+    </section>
+
+    <section id="realsense">
+      <h2>INTEL REALSENSE D435i</h2>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li>USB <strong>3.0</strong> port (blue port or SS marking) — USB 2.0 will not stream reliably.</li>
+        <li>Intel RealSense SDK 2.0 installed on the field unit (see below).</li>
+        <li>D435i plugged in directly — avoid unpowered hubs when troubleshooting.</li>
+      </ul>
+
+      <h3>Install RealSense SDK</h3>
+      <ol class="steps">
+        <li>Download <strong>Intel RealSense SDK 2.0</strong> for Windows from Intel’s site.</li>
+        <li>Run the installer — include the depth camera drivers.</li>
+        <li>Verify in the <strong>Intel RealSense Viewer</strong> that depth + color streams work.</li>
+        <li>Close RealSense Viewer before launching SPECTER (exclusive camera access).</li>
+        <li>Launch SPECTER — the sidecar starts automatically and shows <strong>WARMING UP</strong> until ready.</li>
+      </ol>
+
+      <h3>Source picker — critical</h3>
+      <div class="callout">
+        <strong>Never select “Intel RealSense” as a normal webcam.</strong> That locks the camera to the app and crashes the sidecar pipeline. Always choose:<br>
+        <code>Intel RealSense D435i — RGB Camera (sidecar)</code>
+      </div>
+
+      <h3>Warming up / no feed</h3>
+      <ul>
+        <li>The sidecar may take <strong>30–90 seconds</strong> on cold boot — this is normal.</li>
+        <li>SPECTER retries silently; no action needed unless it exceeds several minutes.</li>
+        <li>Try a different USB 3.0 port or cable.</li>
+        <li>Reboot the field unit with the D435i already connected.</li>
+        <li>Settings → restart sidecar (if available) or relaunch SPECTER.</li>
+      </ul>
+
+      <h3>Depth views (DEPTH, point cloud, room map)</h3>
+      <p>Press <code>V</code> to cycle views. If you see “CONNECTING TO DEPTH SENSOR”, the sidecar is still booting or the device is unplugged.</p>
+    </section>
+
+    <section id="kinect">
+      <h2>MICROSOFT KINECT V2</h2>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li>Windows 10/11, Kinect for Windows v2 sensor + power adapter.</li>
+        <li><strong>Kinect for Windows SDK 2.0</strong> installed.</li>
+        <li>USB 3.0 controller (Kinect v2 is bandwidth-heavy).</li>
+      </ul>
+
+      <h3>Install Kinect SDK 2.0</h3>
+      <ol class="steps">
+        <li>Download and install <strong>Kinect for Windows SDK 2.0</strong> from Microsoft.</li>
+        <li>Connect Kinect power supply first, then USB 3.0.</li>
+        <li>Open Kinect Studio or the SDK configuration verifier — confirm all streams green.</li>
+        <li>Launch SPECTER and select <strong>Kinect v2</strong> on the setup screen.</li>
+        <li>In the source picker, choose <strong>Microsoft Kinect V2 (built-in)</strong>.</li>
+      </ol>
+
+      <h3>Common issues</h3>
+      <ul>
+        <li><strong>Not available in picker</strong> — SDK not installed, USB 2.0 port, or Kinect still booting (wait 5 s and press <code>S</code>).</li>
+        <li><strong>Image backwards</strong> — Settings → enable Kinect horizontal mirror.</li>
+        <li><strong>Low FPS</strong> — Settings → reduce Kinect JPEG resolution / interval.</li>
+        <li><strong>No skeleton</strong> — ensure body tracking enabled in Settings; stand 1.5–4 m from sensor.</li>
+      </ul>
+    </section>
+
+    <section id="webcam">
+      <h2>WEBCAM / HDMI CAPTURE CARD</h2>
+      <p>RGB-only mode — no depth, point cloud, or room map. Useful with a capture card feeding a production switcher.</p>
+      <ul>
+        <li>Enable <strong>Decouple RGB from depth</strong> in Settings to run a USB capture card for RGB while Kinect/RealSense provides depth in the background.</li>
+        <li>Set USB resolution/FPS to match your capture device (1080p30 typical).</li>
+      </ul>
+    </section>
+
+    <section id="detectors">
+      <h2>DETECTORS &amp; DEMO MODE</h2>
+      <p>Every session starts with <strong>all detectors OFF</strong> (Face, Body, Spectral, SLS wireframe). Toggle them on when ready.</p>
+
+      <h3>Demo mode (unlicensed)</h3>
+      <ul>
+        <li><strong>10 minutes</strong> total demo time from first launch.</li>
+        <li>Runs at ~<strong>25% sensitivity</strong> (fewer automatic hits).</li>
+        <li><strong>DEMO MODE</strong> badge shown at the bottom of the viewport.</li>
+        <li>After expiry, purchase at <a href="/">specter-imaging.com</a> and activate in Settings.</li>
+      </ul>
+
+      <h3>Licensed mode</h3>
+      <p>After activation, SPECTER runs the <strong>building cycle</strong> automatically:</p>
+      <ol class="steps">
+        <li><strong>0–4 min</strong> — silence (detectors off)</li>
+        <li><strong>4–29 min</strong> — gradual ramp (warm → tense)</li>
+        <li><strong>29–39 min</strong> — dark phase (detectors off, feed dims)</li>
+        <li>Repeats. Moving threshold sliders or remote presets disables the cycle for that session.</li>
+      </ol>
+    </section>
+
+    <section id="license">
+      <h2>LICENSE ACTIVATION</h2>
+      <ol class="steps">
+        <li>Purchase at <a href="/">specter-imaging.com</a> ($399 one-time).</li>
+        <li>Check email from <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a> for key <code>SPTR-XXXX-XXXX-XXXX-XXXX</code>.</li>
+        <li>SPECTER → Settings → License → enter email + key → <strong>Activate</strong>.</li>
+        <li>Each key binds to <strong>one computer</strong>. Offline use works after first activation.</li>
+      </ol>
+      <div class="callout ok">
+        Need a replacement key (new machine)? Contact <a href="/support.html">support</a> with your purchase email.
+      </div>
+    </section>
+
+    <section id="remote">
+      <h2>REMOTE MONITOR &amp; RECORDING</h2>
+      <ul>
+        <li><strong>Remote monitor</strong> — Settings shows the URL for phone control on the same Wi‑Fi.</li>
+        <li><strong>F9</strong> — toggle session recording.</li>
+        <li><strong>F7</strong> — snapshot to detection gallery.</li>
+        <li><strong>G</strong> — open gallery.</li>
+        <li>Recordings and detections folders: Settings → paths (open in Explorer).</li>
+      </ul>
+    </section>
+
+    <section id="performance">
+      <h2>PERFORMANCE TIPS</h2>
+      <ul>
+        <li>Close RealSense Viewer and other camera apps before SPECTER.</li>
+        <li>Lower Kinect JPEG quality / interval on i3-class hardware.</li>
+        <li>Disable 3D views if not needed (Settings → 3D views off).</li>
+        <li>Use wired power on the field laptop; disable battery saver.</li>
+        <li>Room map / point cloud are GPU/CPU heavy — use on capable hardware only.</li>
+      </ul>
+    </section>
+
+    <section id="support">
+      <h2>STILL STUCK?</h2>
+      <p>Email <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a> or open a ticket:</p>
+      <div class="btn-row">
+        <a class="btn" href="/support.html">Open support ticket</a>
+        <a class="btn secondary" href="/">Buy license</a>
+      </div>
+      <p class="fine">Include your sensor type, Windows version, and what you see on screen (e.g. WARMING UP, no feed, sidecar timeout).</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

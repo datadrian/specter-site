@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Admin</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div id="login-view" class="login-wrap">
+    <div class="login-card">
+      <h1>SPECTER ADMIN</h1>
+      <input type="password" id="login-password" placeholder="Admin password" autocomplete="current-password">
+      <button type="button" id="login-btn">Sign in</button>
+      <div id="login-error" class="err hidden"></div>
+    </div>
+  </div>
+
+  <div id="app-view" class="app hidden">
+    <header class="topbar">
+      <h1>SPECTER · OPERATIONS</h1>
+      <div class="topbar-actions">
+        <span id="admin-user" style="font-size:10px;color:var(--muted)">support@specter-imaging.com</span>
+        <button type="button" id="logout-btn">Sign out</button>
+      </div>
+    </header>
+    <div class="layout">
+      <nav class="sidebar">
+        <button type="button" data-panel="dashboard" class="active">Dashboard</button>
+        <button type="button" data-panel="licenses">Licenses</button>
+        <button type="button" data-panel="tickets">Support tickets</button>
+        <button type="button" data-panel="mint">Mint comp key</button>
+      </nav>
+      <main class="content">
+        <section id="panel-dashboard" class="panel active">
+          <div class="stats" id="stats-grid"></div>
+          <p style="font-size:11px;color:var(--muted)">Inbound email: configure Brevo to POST to <code>/api/inbound-email</code> (see docs).</p>
+        </section>
+
+        <section id="panel-licenses" class="panel">
+          <div class="toolbar">
+            <button type="button" id="refresh-licenses">Refresh</button>
+            <input type="search" id="license-search" placeholder="Search email or key…" style="min-width:220px">
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th><th>Type</th><th>Email</th><th>Machine</th><th>Created</th><th>Activated</th><th>Note</th>
+                </tr>
+              </thead>
+              <tbody id="licenses-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="panel-tickets" class="panel">
+          <div class="toolbar">
+            <button type="button" id="refresh-tickets">Refresh</button>
+            <select id="ticket-filter">
+              <option value="">All statuses</option>
+              <option value="open">Open</option>
+              <option value="waiting">Waiting on customer</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <table>
+            <thead><tr><th>ID</th><th>Status</th><th>Subject</th><th>From</th><th>Updated</th><th></th></tr></thead>
+            <tbody id="tickets-body"></tbody>
+          </table>
+          <div id="ticket-detail" class="ticket-detail hidden"></div>
+        </section>
+
+        <section id="panel-mint" class="panel">
+          <h2 style="font-size:12px;letter-spacing:0.15em;color:var(--accent);margin-top:0">MINT COMPLIMENTARY KEY</h2>
+          <p style="font-size:11px;color:var(--muted)">For comps, reviewers, and internal testing. Optionally email the key immediately.</p>
+          <div class="toolbar" style="flex-direction:column;align-items:stretch;max-width:480px">
+            <label style="font-size:10px;color:var(--muted)">Recipient email (optional)</label>
+            <input type="email" id="mint-email" placeholder="reviewer@example.com">
+            <label style="font-size:10px;color:var(--muted)">Note (internal)</label>
+            <input type="text" id="mint-note" placeholder="Comp — podcast review">
+            <label style="font-size:10px;color:var(--muted)">Type</label>
+            <select id="mint-type">
+              <option value="comp">Comp / review</option>
+              <option value="dev">Dev (internal)</option>
+            </select>
+            <button type="button" id="mint-btn" class="btn">Generate key</button>
+          </div>
+          <div id="mint-result" class="mint-result hidden"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Support</title>
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/">Buy</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html" class="active">Support</a>
+  </nav>
+
+  <main class="page page-wide">
+    <h1>SUPPORT</h1>
+    <p class="tagline">We typically respond within 1–2 business days</p>
+    <p class="lead">Email <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a> or submit the form below. You will receive a ticket ID by email.</p>
+
+    <div id="success-box" class="alert ok" hidden>
+      Ticket submitted — check your email for confirmation. Reference: <strong id="ticket-id"></strong>
+    </div>
+    <div id="error-box" class="alert err" hidden></div>
+
+    <form id="support-form" class="support-form">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Your name">
+
+      <label for="email">Email *</label>
+      <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email">
+
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="Sensor / connection">Sensor / connection</option>
+        <option value="RealSense D435i">RealSense D435i</option>
+        <option value="Kinect v2 / SDK">Kinect v2 / SDK</option>
+        <option value="License / activation">License / activation</option>
+        <option value="Detectors / false hits">Detectors / false hits</option>
+        <option value="Performance">Performance</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="subject">Subject *</label>
+      <input type="text" id="subject" name="subject" required placeholder="Brief summary">
+
+      <label for="message">Message *</label>
+      <textarea id="message" name="message" required placeholder="Describe the issue. Include sensor type, Windows version, and any on-screen messages (e.g. WARMING UP, no feed)."></textarea>
+
+      <input type="hidden" id="source" name="source" value="website">
+      <input type="hidden" id="machineId" name="machineId" value="">
+
+      <button type="submit" id="submit-btn">Submit ticket</button>
+    </form>
+
+    <p class="fine">Before submitting, check the <a href="/help/">help center</a> for SDK install steps and sensor setup.</p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.get('source')) document.getElementById('source').value = params.get('source');
+    if (params.get('machineId')) document.getElementById('machineId').value = params.get('machineId');
+    if (params.get('category')) document.getElementById('category').value = params.get('category');
+
+    document.getElementById('support-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errBox = document.getElementById('error-box');
+      const okBox = document.getElementById('success-box');
+      errBox.hidden = true;
+      okBox.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const category = document.getElementById('category').value;
+        const subject = `[${category}] ${document.getElementById('subject').value.trim()}`;
+        const res = await fetch('/api/support-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            subject,
+            message: document.getElementById('message').value.trim(),
+            source: document.getElementById('source').value,
+            machineId: document.getElementById('machineId').value || null,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Submit failed');
+        document.getElementById('ticket-id').textContent = data.ticketId;
+        okBox.hidden = false;
+        e.target.reset();
+      } catch (err) {
+        errBox.textContent = err.message || 'Could not submit ticket.';
+        errBox.hidden = false;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit ticket';
+      }
+    });
+  </script>
+</body>
+</html>

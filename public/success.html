@@ -1,86 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPECTER — License Confirmed</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    .success-page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    .success-card {
-      max-width: 520px;
-      width: 100%;
-      background: var(--bg2);
-      border: 1px solid var(--cyan);
-      box-shadow: 0 0 80px rgba(0,229,255,0.1);
-      padding: 3rem;
-      text-align: center;
-    }
-    .success-glyph {
-      font-size: 3rem;
-      color: var(--cyan);
-      text-shadow: 0 0 20px var(--cyan);
-      margin-bottom: 1rem;
-    }
-    .success-title {
-      font-family: var(--heading);
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.15em;
-      margin-bottom: 0.5rem;
-    }
-    .success-sub {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--cyan);
-      letter-spacing: 0.15em;
-      margin-bottom: 2rem;
-      opacity: 0.8;
-    }
-    .success-body {
-      color: var(--text-dim);
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin-bottom: 2rem;
-    }
-    .success-body strong { color: var(--text); }
-    .success-note {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      letter-spacing: 0.06em;
-      border-top: 1px solid var(--border);
-      padding-top: 1.5rem;
-      line-height: 1.7;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment received — SPECTER</title>
+  <link rel="stylesheet" href="/site.css">
 </head>
 <body>
-  <div class="hero-bg-grid"></div>
-  <div class="hero-scanline"></div>
-  <div class="success-page">
-    <div class="success-card">
-      <div class="success-glyph">◈</div>
-      <div class="success-title">LICENSE CONFIRMED</div>
-      <div class="success-sub">// PAYMENT RECEIVED // SPECTER FIELD LICENSE</div>
-      <div class="success-body">
-        <strong>Your activation key and download link are on their way.</strong><br/><br/>
-        Check your email — it typically arrives within a few minutes. If you don't see it, check your spam folder.
-      </div>
-      <a href="/" class="btn-ghost">RETURN TO SPECTER</a>
-      <div class="success-note">
-        Questions? Contact us at support@specterimaging.com<br/>
-        Include your order confirmation email for fastest response.
-      </div>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/">Buy</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+  <main class="page">
+    <div class="glyph ok">✓</div>
+    <h1>Payment received</h1>
+    <p class="lead">Check your email from <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a> for your license key (<code>SPTR-XXXX-XXXX-XXXX-XXXX</code>).</p>
+    <ol class="steps">
+      <li>Open SPECTER on your field unit</li>
+      <li>Settings → License</li>
+      <li>Paste your key and click <strong>Activate license</strong></li>
+    </ol>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn secondary" href="/help/">Setup help</a>
+      <a class="btn secondary" href="/support.html">Need help?</a>
     </div>
-  </div>
+    <p><a href="/">Back to home</a></p>
+  </main>
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
 </body>
 </html>

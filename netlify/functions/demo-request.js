@@ -1,26 +1,4 @@
-// Netlify Function: demo-request
-// Logs demo requests and notifies admin via Resend
-
-async function sendEmail({ to, subject, text }) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: `SPECTER Demo Requests <${process.env.FROM_EMAIL || 'license@specterimaging.com'}>`,
-      to: [to],
-      subject,
-      text,
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Resend error: ${err}`);
-  }
-  return res.json();
-}
+const { brevoSend, SUPPORT_EMAIL } = require('./_lib/send-email');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -35,16 +13,19 @@ exports.handler = async (event) => {
   }
 
   const { name, email, team } = data;
+  const notify = process.env.ADMIN_NOTIFY_EMAIL || SUPPORT_EMAIL;
 
   try {
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL || 'admin@specterimaging.com',
-      subject: `SPECTER // DEMO REQUEST — ${name}`,
-      text: `New demo request:\n\nName:  ${name}\nEmail: ${email}\nTeam:  ${team || 'Not provided'}\n\nReply to send the demo download link.`,
+    await brevoSend({
+      to: notify,
+      subject: `SPECTER demo request — ${name}`,
+      html: `<p><strong>Demo request</strong></p>
+        <p>Name: ${name}<br>Email: ${email}<br>Team: ${team || '—'}</p>
+        <p>Reply to send demo info or a comp key from <a href="https://specter-imaging.com/admin/">admin</a>.</p>`,
     });
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch (err) {
-    console.error('Resend error:', err.message);
+    console.error('Demo request email failed:', err.message);
     return { statusCode: 500, body: 'Email failed' };
   }
 };

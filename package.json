@@ -1,11 +1,12 @@
 {
   "name": "specter-site",
-  "version": "1.0.0",
-  "description": "SPECTER Paranormal Imaging System — marketing site",
+  "version": "2.0.0",
+  "description": "SPECTER — specter-imaging.com marketing, licensing, support, and admin",
   "scripts": {
     "dev": "netlify dev"
   },
   "dependencies": {
-    "stripe": "^14.0.0"
+    "@netlify/blobs": "^8.1.0",
+    "stripe": "^17.4.0"
   }
 }
