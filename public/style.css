@@ -827,3 +827,40 @@ a { color: var(--cyan); text-decoration: none; }
 .vm-shot img { display: block; width: 100%; height: auto; }
 .vm-shot figcaption { position: absolute; left: 0; right: 0; bottom: 0; font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 1.4rem 0.8rem 0.55rem; }
 @media (max-width: 720px) { .viewmodes-grid { grid-template-columns: 1fr; } }
+
+/* ---- ZOOM HINT ON SHOTS ---- */
+.screen-shot, .vm-shot { cursor: zoom-in; }
+.zoom-hint {
+  position: absolute; top: 0.6rem; right: 0.6rem;
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.12em;
+  color: var(--cyan); background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(0,229,255,0.4); padding: 0.25rem 0.5rem;
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.screen-shot:hover .zoom-hint, .vm-shot:hover .zoom-hint { opacity: 1; }
+
+/* ---- LIGHTBOX ---- */
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(2,6,10,0.92); backdrop-filter: blur(6px);
+  padding: 3vmin;
+}
+.lightbox.open { display: flex; animation: lbfade 0.18s ease; }
+@keyframes lbfade { from { opacity: 0; } to { opacity: 1; } }
+.lightbox-img {
+  max-width: 94vw; max-height: 86vh; width: auto; height: auto;
+  border: 1px solid var(--border); border-top: 2px solid var(--cyan);
+  box-shadow: 0 0 80px rgba(0,229,255,0.18);
+}
+.lightbox-cap {
+  position: absolute; bottom: 3vmin; left: 0; right: 0; text-align: center;
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+  color: var(--cyan); text-shadow: 0 0 8px var(--cyan);
+}
+.lightbox-close {
+  position: absolute; top: 2vmin; right: 3vmin;
+  background: none; border: none; color: #fff; font-size: 2.4rem;
+  line-height: 1; cursor: pointer; opacity: 0.8; transition: opacity 0.15s;
+}
+.lightbox-close:hover { opacity: 1; color: var(--cyan); }

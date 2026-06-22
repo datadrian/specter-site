@@ -56,3 +56,40 @@ if (checkoutBtn) {
     }
   });
 }
+
+/* ---- SCREENSHOT LIGHTBOX ---- */
+(function () {
+  var lb = document.getElementById('lightbox');
+  if (!lb) return;
+  var lbImg = document.getElementById('lightboxImg');
+  var lbCap = document.getElementById('lightboxCap');
+  var lbClose = document.getElementById('lightboxClose');
+
+  function openLb(src, caption) {
+    lbImg.src = src;
+    lbCap.textContent = caption || '';
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLb() {
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(function () { lbImg.src = ''; }, 200);
+  }
+
+  document.querySelectorAll('.screen-shot[data-full], .vm-shot[data-full]').forEach(function (fig) {
+    fig.style.cursor = 'zoom-in';
+    fig.addEventListener('click', function () {
+      var cap = fig.querySelector('figcaption');
+      openLb(fig.getAttribute('data-full'), cap ? cap.textContent : '');
+    });
+  });
+
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lb.classList.contains('open')) closeLb();
+  });
+})();
