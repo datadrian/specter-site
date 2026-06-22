@@ -15,6 +15,7 @@
       <div class="nav-logo">SPECTER<span class="nav-logo-sub">// PARANORMAL IMAGING SYSTEM</span></div>
       <div class="nav-links">
         <a href="#features">CAPABILITIES</a>
+        <a href="#detections">DETECTIONS</a>
         <a href="#depth">DEPTH &amp; 3D</a>
         <a href="#watch">WATCH</a>
         <a href="#hardware">BUILD YOUR RIG</a>
@@ -76,8 +77,8 @@
           <li>Gallery RGB / DEPTH / 3D bar plus Save view exports</li>
           <li>3D depth snapshots saved with every depth detection</li>
           <li>Stabilized depth range, no flicker in live views</li>
-          <li>MP4 recording with smaller files plus transcode progress</li>
-          <li>Performance presets: Light / Balanced / Show</li>
+          <li>Six-channel detection engine with a fused live Anomaly Index</li>
+          <li>RealSense IMU field-perturbation channel for invisible disturbance</li>
           <li>Permanent single-machine activation, no subscription</li>
         </ul>
       </div>
@@ -213,6 +214,103 @@
     </div>
   </section>
 
+  <!-- DETECTION CLASSES -->
+  <section class="detections" id="detections">
+    <div class="container">
+      <div class="section-tag">// DETECTION ENGINE</div>
+      <h2>Six detection channels. One fused Anomaly Index.</h2>
+      <p class="features-sub">SPECTER runs every channel in parallel against the live sensor feed. Each one watches a different physical signature and reports a normalized 0-100 confidence. When channels correlate, the fused Anomaly Index crosses a threshold and a CLASS event is logged with a full evidence capture.</p>
+
+      <div class="detect-grid">
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">◳</span>
+            <h3>SLS Skeletal Lock</h3>
+          </div>
+          <p>The classic structured-light signature. SPECTER runs a neural pose model over the depth field and flags articulated skeletal geometry that appears where no physical body is present.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Joint-confidence &gt; 0.62 on 8+ linked joints</li>
+            <li><span>METRIC</span> Skeletal persistence across 4 consecutive frames</li>
+            <li><span>SENSOR</span> Depth stereo + pose inference</li>
+          </ul>
+        </div>
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">⬡</span>
+            <h3>Depth Mass Anomaly</h3>
+          </div>
+          <p>Tracks volumetric depth returns that have no thermal or RGB counterpart. A solid form in the depth map with nothing in the visible channel reads as an unexplained mass.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Depth cluster &gt; 1,200 voxels, RGB delta &lt; 4%</li>
+            <li><span>METRIC</span> Volume-to-visibility ratio</li>
+            <li><span>SENSOR</span> Active IR stereo depth</li>
+          </ul>
+        </div>
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">⤳</span>
+            <h3>Field Disturbance Vector</h3>
+          </div>
+          <p>Dense optical-flow analysis across the full frame. Coordinated motion that does not match ambient drift, air currents, or camera shake is logged with direction and magnitude.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Coherent flow vector &gt; 0.35 m/s over 40+ px region</li>
+            <li><span>METRIC</span> Directional coherence vs. background noise floor</li>
+            <li><span>SENSOR</span> RGB + depth optical flow</li>
+          </ul>
+        </div>
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">◉</span>
+            <h3>IMU Field Perturbation</h3>
+          </div>
+          <p>The RealSense onboard gyroscope and accelerometer hold a baseline. Micro-perturbations that are not explained by operator movement register as a localized field disturbance.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Accel deviation &gt; 3.0 sigma off rolling baseline</li>
+            <li><span>METRIC</span> 6-axis variance, motion-compensated</li>
+            <li><span>SENSOR</span> Integrated IMU (gyro + accelerometer)</li>
+          </ul>
+        </div>
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">◐</span>
+            <h3>Thermal Gradient Break</h3>
+          </div>
+          <p>On thermal or full-spectrum HDMI input, SPECTER watches for cold or hot spots that form and dissipate faster than physical thermal mass allows, the signature of a non-physical gradient.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Localized delta &gt; 2.5 C forming in &lt; 800 ms</li>
+            <li><span>METRIC</span> Gradient formation rate vs. material constant</li>
+            <li><span>SENSOR</span> Thermal / FLIR via HDMI capture</li>
+          </ul>
+        </div>
+
+        <div class="detect-card">
+          <div class="detect-head">
+            <span class="detect-icon">◌</span>
+            <h3>Residual Coherence</h3>
+          </div>
+          <p>A rolling monitor for structured patterns that linger in a region after the trigger event has passed, distinguishing a genuine residual from a single-frame artifact or sensor noise.</p>
+          <ul class="detect-metrics">
+            <li><span>TRIGGER</span> Pattern autocorrelation &gt; 0.7 for 1.5 s+</li>
+            <li><span>METRIC</span> Temporal coherence decay curve</li>
+            <li><span>SENSOR</span> Multi-channel fusion</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="detect-classes">
+        <div class="detect-class"><span class="dc-tier dc-1">CLASS-I</span><span class="dc-thr">Index &ge; 40%</span><p>Single channel crosses threshold. Logged, lower confidence.</p></div>
+        <div class="detect-class"><span class="dc-tier dc-2">CLASS-II</span><span class="dc-thr">Index &ge; 60%</span><p>Two or more channels correlate on the same region.</p></div>
+        <div class="detect-class"><span class="dc-tier dc-3">CLASS-III</span><span class="dc-thr">Index &ge; 80%</span><p>Strong multi-channel agreement. Highest-confidence event.</p></div>
+      </div>
+    </div>
+  </section>
+
   <!-- DEPTH INTELLIGENCE -->
   <section class="depth-intel" id="depth">
     <div class="container">
@@ -285,26 +383,6 @@
     </div>
   </section>
 
-  <!-- RECORDING & DELIVERY -->
-  <section class="recording-delivery">
-    <div class="container">
-      <div class="section-tag">// RECORDING &amp; DELIVERY</div>
-      <h2>Capture the whole session, deliver smaller files.</h2>
-      <p class="features-sub">SPECTER records the field interface straight to MP4 with bitrates tuned for long investigations, so an all-night session does not fill a drive.</p>
-      <div class="features-grid two-up">
-        <div class="feature-card">
-          <div class="feature-icon">⏺</div>
-          <h3>MP4 RECORDING</h3>
-          <p>Sessions save as H.264 MP4 at optimized bitrates. Smaller files, broadcast-friendly format, ready to hand off or archive without a conversion step.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">▤</div>
-          <h3>TRANSCODE PROGRESS</h3>
-          <p>If the app falls back to a temporary capture, a progress bar runs until the final MP4 is ready. You always know when the file is safe to move.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- VIDEO DEMO -->
   <section class="video-demo" id="watch">
@@ -327,28 +405,6 @@
     </div>
   </section>
 
-  <!-- PERFORMANCE PRESETS -->
-  <section class="perf-presets">
-    <div class="container">
-      <div class="section-tag">// PERFORMANCE PRESETS</div>
-      <h2>Match the rig you brought.</h2>
-      <p class="features-sub">Three presets in Settings tune SPECTER to the hardware on hand, from a thin laptop to a full demo machine.</p>
-      <div class="preset-cards">
-        <div class="preset-card">
-          <div class="preset-name">LIGHT</div>
-          <p>Depth and skeleton only. The RGB feed and color ML run off. Best for weak laptops that need every cycle for depth.</p>
-        </div>
-        <div class="preset-card primary">
-          <div class="preset-name">BALANCED</div>
-          <p>The default. RGB and depth balanced for most investigations on typical field hardware.</p>
-        </div>
-        <div class="preset-card">
-          <div class="preset-name">SHOW</div>
-          <p>Highest quality. Enables the 3D views and the RGB-plus-depth blend mode in the view cycle for demo reels and capable machines.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
 
   <!-- BUILD YOUR RIG -->
@@ -356,43 +412,43 @@
     <div class="container">
       <div class="section-tag">// BUILD YOUR RIG</div>
       <h2>Three ways in. You choose your setup.</h2>
-      <p class="hardware-sub">SPECTER is software. Your sensor is your choice. Whether you're running a Kinect you've had for years, building a new lightweight rig around the RealSense, or feeding broadcast-grade camera footage through a capture card, SPECTER runs it all.</p>
+      <p class="hardware-sub">SPECTER is software. Your sensor is your choice. Run a Kinect you already own, build a modern lightweight rig around the Intel RealSense, or feed broadcast-grade camera footage through a capture card. SPECTER runs them all.</p>
 
       <div class="hardware-cards three-up">
-
-        <div class="hardware-card">
-          <div class="hw-badge">EXISTING RIG</div>
-          <h3>Kinect V2</h3>
-          <p>Already in more paranormal investigators' field kits than any other sensor. The Kinect V2 is still widely available online for $60-$100. If you own one, you're already halfway there. SPECTER replaces the free Xbox app with a system actually built for this work.</p>
-          <ul>
-            <li>✓ SLS neural entity tracking</li>
-            <li>✓ Depth field capture and archive</li>
-            <li>✓ Entity confidence scoring</li>
-            <li>✓ Still available new and used</li>
-            <li>⚠ Kinect for Windows Runtime required</li>
-          </ul>
-          <div class="hw-cost">Sensor cost: ~$60-$100</div>
-        </div>
 
         <div class="hardware-card primary">
           <div class="hw-badge">RECOMMENDED BUILD</div>
           <h3>Intel RealSense D435i</h3>
-          <p>The sensor SPECTER was engineered around. Industrial-grade stereo depth camera with integrated gyroscope and accelerometer. Runs plug-and-play from any laptop or tablet via USB-C, no bulk battery pack, no proprietary tablet required. A compact, lightweight rig purpose-built for field investigations.</p>
+          <p>The sensor SPECTER was engineered around, and the same depth camera trusted in robotics, autonomous drones, and industrial 3D scanning. Active stereo depth at up to 1280x720, 1080p RGB, and an onboard gyroscope and accelerometer in a body that runs plug-and-play over a single USB-C cable. This is current production hardware built for precision sensing, not a discontinued gaming peripheral.</p>
           <ul>
-            <li>✓ Full Anomaly Index, all 6 live metrics</li>
-            <li>✓ IMU telemetry, detects invisible field disturbance</li>
-            <li>✓ RGB-D depth map on every evidence capture</li>
-            <li>✓ Plug-and-play USB-C, runs off any laptop</li>
-            <li>✓ In production, new units available</li>
-            <li>✓ No bulk battery. No proprietary tablet.</li>
+            <li>✓ Higher-resolution stereo depth, up to 90 fps</li>
+            <li>✓ Stronger low-light performance via active IR stereo</li>
+            <li>✓ Onboard IMU, captures motion and field disturbance the eye misses</li>
+            <li>✓ Full Anomaly Index across all 6 live metrics</li>
+            <li>✓ RGB-D depth map fused into every evidence capture</li>
+            <li>✓ Plug-and-play USB-C, runs off any laptop, no battery pack</li>
           </ul>
           <div class="hw-cost">Sensor cost: ~$150-$200 new</div>
         </div>
 
         <div class="hardware-card">
+          <div class="hw-badge">EXISTING RIG</div>
+          <h3>Kinect V2</h3>
+          <p>The sensor most paranormal investigators already have in the kit, and still a perfectly capable depth camera. If you own one, you are already halfway there. SPECTER replaces the basic Xbox app with a system actually built for field work, so the hardware you have keeps earning its place.</p>
+          <ul>
+            <li>✓ SLS neural entity tracking</li>
+            <li>✓ Depth field capture and archive</li>
+            <li>✓ Entity confidence scoring</li>
+            <li>✓ Widely available new and used, $60-$100</li>
+            <li>⚠ Kinect for Windows Runtime required</li>
+          </ul>
+          <div class="hw-cost">Sensor cost: ~$60-$100</div>
+        </div>
+
+        <div class="hardware-card">
           <div class="hw-badge">ADVANCED // ANY CAMERA</div>
           <h3>HDMI Capture Input</h3>
-          <p>Using any USB capture card, SPECTER ingests live HDMI feed from virtually any camera. Route your full-spectrum night vision rig, a Sony FX3 for ultra-low-light investigations, a thermal imaging camera, or a broadcast IR camera directly into the SPECTER detection pipeline. If it outputs HDMI, SPECTER can analyze it.</p>
+          <p>With any USB capture card, SPECTER ingests a live HDMI feed from virtually any camera. Route a full-spectrum night vision rig, a Sony FX3 for ultra-low-light work, a thermal imager, or a broadcast IR camera straight into the detection pipeline. If it outputs HDMI, SPECTER can analyze it.</p>
           <ul>
             <li>✓ Sony FX3 / FX30, cinema-grade low-light</li>
             <li>✓ Full-spectrum converted DSLRs</li>
@@ -409,7 +465,7 @@
       <div class="rig-note">
         <div class="rig-note-inner">
           <span class="rig-note-icon">⟁</span>
-          <p><strong>The lightweight RealSense build:</strong> Intel RealSense D435i (~$175) + any Windows laptop or tablet + SPECTER license ($399). Total under $600. A professional-grade paranormal investigation system, no bulk battery pack, no proprietary tablet, no refurbished gaming hardware. Runs for hours on laptop battery alone.</p>
+          <p><strong>The modern RealSense build:</strong> an Intel RealSense D435i, any Windows laptop or tablet, and a SPECTER license. A professional-grade paranormal investigation system built on current production sensing hardware, with no bulk battery pack and no proprietary tablet. Runs for hours on laptop battery alone.</p>
         </div>
       </div>
     </div>
