@@ -18,7 +18,8 @@ The SPECTER desktop app lives in a separate repo: [spectral-imaging-unit](https:
 
 | URL | Purpose |
 |-----|---------|
-| `/` | Marketing + buy ($399) |
+| `/` | Marketing + download demo + buy ($399) |
+| `/download.html` | Windows installer download + 10-minute demo details |
 | `/help/` | Setup & troubleshooting |
 | `/support.html` | Support ticket form |
 | `/admin/` | Operator portal (licenses, tickets, comp keys) |

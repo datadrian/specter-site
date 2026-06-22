@@ -1,7 +1,7 @@
 // SPECTER — Frontend JS
-// Handles: demo form submission, Stripe checkout redirect
+// Handles: website question form submission, Stripe checkout redirect
 
-// ---- DEMO FORM ----
+// ---- QUESTION FORM ----
 const demoForm = document.getElementById('demoRequestForm');
 const demoSuccess = document.getElementById('demoSuccess');
 
@@ -23,10 +23,10 @@ if (demoForm) {
         demoForm.style.display = 'none';
         demoSuccess.style.display = 'block';
       } else {
-        alert('Submission failed. Please email us directly.');
+        alert('Submission failed. Please email support@specter-imaging.com directly.');
       }
     } catch {
-      alert('Network error. Please try again.');
+      alert('Network error. Please email support@specter-imaging.com directly.');
     }
   });
 }

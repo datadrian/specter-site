@@ -18,14 +18,14 @@ exports.handler = async (event) => {
   try {
     await brevoSend({
       to: notify,
-      subject: `SPECTER demo request — ${name}`,
-      html: `<p><strong>Demo request</strong></p>
+      subject: `SPECTER website question — ${name}`,
+      html: `<p><strong>Website question before download</strong></p>
         <p>Name: ${name}<br>Email: ${email}<br>Team: ${team || '—'}</p>
-        <p>Reply to send demo info or a comp key from <a href="https://specter-imaging.com/admin/">admin</a>.</p>`,
+        <p>The public demo download is available at <a href="https://specter-imaging.com/download.html">specter-imaging.com/download.html</a>.</p>`,
     });
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch (err) {
-    console.error('Demo request email failed:', err.message);
+    console.error('Website question email failed:', err.message);
     return { statusCode: 500, body: 'Email failed' };
   }
 };

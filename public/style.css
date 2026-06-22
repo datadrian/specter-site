@@ -565,6 +565,8 @@ a { color: var(--cyan); text-decoration: none; }
   margin-bottom: 1rem;
 }
 .demo-text p { color: var(--text-dim); line-height: 1.7; margin-bottom: 1.5rem; font-size: 0.95rem; }
+.demo-text strong { color: var(--text); }
+.demo-text .btn-primary, .demo-text .btn-ghost { margin: 0 0.75rem 0.75rem 0; }
 .demo-form { display: flex; flex-direction: column; gap: 0.75rem; }
 .demo-form input {
   background: var(--bg3);
