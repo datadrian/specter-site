@@ -260,15 +260,27 @@ a { color: var(--cyan); text-decoration: none; }
   position: relative;
   z-index: 1;
 }
-.screen-placeholder {
+.screen-shot {
+  margin: 0;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-top: 2px solid var(--cyan);
-  padding: 1.5rem;
-  box-shadow: 0 0 60px rgba(0,229,255,0.08), inset 0 0 40px rgba(0,0,0,0.4);
-  aspect-ratio: 16/10;
-  display: flex;
-  align-items: stretch;
+  box-shadow: 0 0 60px rgba(0,229,255,0.10), inset 0 0 40px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+}
+.screen-shot img { display: block; width: 100%; height: auto; }
+.shot-caption {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 1.2rem 0.85rem 0.6rem;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  margin: 0;
 }
 .screen-hud { width: 100%; display: flex; flex-direction: column; gap: 1rem; }
 .hud-top { display: flex; gap: 0.5rem; }
@@ -804,3 +816,14 @@ a { color: var(--cyan); text-decoration: none; }
   margin-bottom: 3rem;
   line-height: 1.7;
 }
+
+/* ---- LIVE VIEW MODES GALLERY ---- */
+.viewmodes { margin-top: 4rem; }
+.viewmodes-title { font-family: var(--display, var(--mono)); font-size: 1.6rem; text-align: center; margin: 0 0 0.6rem; }
+.viewmodes-sub { text-align: center; max-width: 680px; margin: 0 auto 2.2rem; color: var(--text-dim); font-size: 0.95rem; line-height: 1.6; }
+.viewmodes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+.vm-shot { margin: 0; position: relative; overflow: hidden; border: 1px solid var(--border); border-top: 2px solid var(--cyan); background: var(--bg2); box-shadow: 0 0 30px rgba(0,229,255,0.06); transition: transform 0.25s, box-shadow 0.25s; }
+.vm-shot:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0,229,255,0.16); }
+.vm-shot img { display: block; width: 100%; height: auto; }
+.vm-shot figcaption { position: absolute; left: 0; right: 0; bottom: 0; font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 1.4rem 0.8rem 0.55rem; }
+@media (max-width: 720px) { .viewmodes-grid { grid-template-columns: 1fr; } }
