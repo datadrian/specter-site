@@ -975,3 +975,23 @@ a { color: var(--cyan); text-decoration: none; }
   color: var(--text-dim); letter-spacing: 0.04em;
 }
 @media (max-width: 720px) { .program-arrow { transform: rotate(90deg); justify-content: center; } }
+
+/* ============ VIDEO DEMO ============ */
+.video-demo { padding: 6rem 0; }
+.video-demo h2 {
+  font-family: var(--heading); font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700; color: #fff; margin-bottom: 1rem;
+}
+.video-frame {
+  margin: 2.5rem 0 0; position: relative;
+  border: 1px solid var(--border); border-top: 2px solid var(--cyan);
+  background: #000; box-shadow: 0 0 40px rgba(0,229,255,0.08);
+}
+.video-frame video {
+  display: block; width: 100%; height: auto; background: #000;
+}
+.video-cap {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
+  color: var(--cyan); padding: 0.7rem 1rem; border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
