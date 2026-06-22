@@ -19,10 +19,33 @@
     return data;
   }
 
+  function initialPanel() {
+    const target = `${location.pathname} ${location.hash}`.toLowerCase();
+    if (target.includes('ticket')) return 'tickets';
+    if (target.includes('mint')) return 'mint';
+    if (target.includes('license') || target.includes('licence')) return 'licenses';
+    return 'dashboard';
+  }
+
+  function activatePanel(panel) {
+    const btn = document.querySelector(`.sidebar button[data-panel="${panel}"]`);
+    const panelEl = $(`panel-${panel}`);
+    if (!btn || !panelEl) return activatePanel('dashboard');
+
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    panelEl.classList.add('active');
+
+    if (panel === 'dashboard') loadDashboard();
+    if (panel === 'licenses') loadLicenses();
+    if (panel === 'tickets') loadTickets();
+  }
+
   function showApp() {
     $('login-view').classList.add('hidden');
     $('app-view').classList.remove('hidden');
-    loadDashboard();
+    activatePanel(initialPanel());
   }
 
   function logout() {
@@ -56,12 +79,7 @@
 
   document.querySelectorAll('.sidebar button').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      $(`panel-${btn.dataset.panel}`).classList.add('active');
-      if (btn.dataset.panel === 'licenses') loadLicenses();
-      if (btn.dataset.panel === 'tickets') loadTickets();
+      activatePanel(btn.dataset.panel);
     });
   });
 
