@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SPECTER Help — Troubleshooting</title>
+  <title>SPECTER Help: Troubleshooting</title>
   <meta name="description" content="SPECTER troubleshooting: depth and 3D views, gallery and exports, performance and presets, recording, and licensing.">
   <link rel="stylesheet" href="/site.css">
 </head>
@@ -37,13 +37,13 @@
       <table class="help-table">
         <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
         <tbody>
-          <tr><td>"CONNECTING TO DEPTH SENSOR" overlay</td><td>Sensor booting or unplugged</td><td>Wait 5–10 s; check USB 3.0; replug the sensor; verify the SDK/service for Kinect.</td></tr>
+          <tr><td>"CONNECTING TO DEPTH SENSOR" overlay</td><td>Sensor booting or unplugged</td><td>Wait 5-10 s; check USB 3.0; replug the sensor; verify the SDK/service for Kinect.</td></tr>
           <tr><td>DEPTH view black</td><td>No depth stream</td><td>Select the RealSense/Kinect source; check the performance preset isn't blocking depth.</td></tr>
           <tr><td>3D view empty</td><td>Intrinsics not loaded</td><td>Restart the app; confirm the sidecar/bridge is running (RealSense).</td></tr>
           <tr><td><strong>Flickering</strong> brightness/colors in live depth</td><td>Old build</td><td>Update to the latest build (range smoothing fix). Keep RANGE near <strong>center</strong>.</td></tr>
           <tr><td>Close objects white, far black (or reverse)</td><td>RANGE slider off-center</td><td>Reset RANGE to <strong>50</strong> (center).</td></tr>
           <tr><td>Gallery DEPTH looks flat / wrong</td><td>Static PNG vs raw</td><td>Use the <strong>DEPTH</strong> layer (re-rendered), not an old screenshot; move RANGE.</td></tr>
-          <tr><td>Gallery RANGE doesn't affect color depth</td><td>Old build</td><td>Update — RANGE now affects both mono and false-color.</td></tr>
+          <tr><td>Gallery RANGE doesn't affect color depth</td><td>Old build</td><td>Update, RANGE now affects both mono and false-color.</td></tr>
           <tr><td>No <strong>3D</strong> button in gallery</td><td>Old detection</td><td>Only detections captured after the 3D snapshot feature was added have one; capture new detections.</td></tr>
           <tr><td>No <strong>D</strong> / <strong>3D</strong> badge on a card</td><td>No depth saved for that hit</td><td>The sensor wasn't streaming depth at detection time.</td></tr>
         </tbody>
@@ -59,9 +59,9 @@
         <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
         <tbody>
           <tr><td>Save view fails</td><td>Confirm the detection folder is writable; check disk space.</td></tr>
-          <tr><td>No red box on a depth export</td><td>The bbox is stored in metadata — if missing, the detection predates bbox save.</td></tr>
+          <tr><td>No red box on a depth export</td><td>The bbox is stored in metadata, if missing, the detection predates bbox save.</td></tr>
           <tr><td>3D SAVE NEW missing</td><td>Open 3D from the gallery (not the PLY room scan); update the app.</td></tr>
-          <tr><td>Edited depth looks wrong with sepia/invert</td><td>Expected — depth is scientific viz. Use DEPTH COLOR + RANGE first, with minimal filters.</td></tr>
+          <tr><td>Edited depth looks wrong with sepia/invert</td><td>Expected, depth is scientific viz. Use DEPTH COLOR + RANGE first, with minimal filters.</td></tr>
         </tbody>
       </table>
       <p>Full workflow: <a href="/help/gallery-depth.html">Gallery RGB / DEPTH / 3D &amp; Save view</a>.</p>
@@ -74,8 +74,8 @@
         <tbody>
           <tr><td>Laggy 3D / low FPS</td><td>Switch the preset to <strong>Light</strong> or <strong>Balanced</strong>; disable ROOM_MAP.</td></tr>
           <tr><td>No DEPTH_3D in the view cycle</td><td>Enable the <strong>Show</strong> preset, or enable 3D views in advanced settings.</td></tr>
-          <tr><td>Detectors won't stay on in demo</td><td>Demo caps behavior — activate a license.</td></tr>
-          <tr><td>Detectors off at the start of a licensed session</td><td>Expected until the <strong>feed is active</strong> — wait for the first frame.</td></tr>
+          <tr><td>Detectors won't stay on in demo</td><td>Demo caps behavior, activate a license.</td></tr>
+          <tr><td>Detectors off at the start of a licensed session</td><td>Expected until the <strong>feed is active</strong>, wait for the first frame.</td></tr>
         </tbody>
       </table>
       <p>See <a href="/help/views-and-presets.html">view modes &amp; performance presets</a>.</p>
@@ -87,7 +87,7 @@
         <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
         <tbody>
           <tr><td>Recording won't start</td><td>Windows screen-capture permission; run as a normal user (not RDP-locked).</td></tr>
-          <tr><td>Long wait after stop</td><td>A transcode is in progress — watch the progress bar.</td></tr>
+          <tr><td>Long wait after stop</td><td>A transcode is in progress, watch the progress bar.</td></tr>
           <tr><td>Huge file</td><td>Use a medium bitrate in settings; update to the build with the ffmpeg pipe.</td></tr>
           <tr><td>No audio</td><td>Check the recording audio device in settings.</td></tr>
         </tbody>

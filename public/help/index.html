@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SPECTER Help — Setup &amp; Troubleshooting</title>
+  <title>SPECTER Help: Setup &amp; Troubleshooting</title>
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
@@ -50,9 +50,9 @@
         <li>Install SPECTER on a <strong>Windows 10/11</strong> field unit with USB 3.0 ports.</li>
         <li>Plug in your depth sensor <strong>before</strong> launching the app (D435i or Kinect v2).</li>
         <li>On first launch, pick your sensor type on the setup screen.</li>
-        <li>Wait for the <strong>WARMING UP</strong> overlay to clear (RealSense sidecar — can take 30–90 seconds).</li>
-        <li>Press <code>S</code> if you need to change source — always pick the <strong>sidecar</strong> entry for RealSense, never the bare UVC camera.</li>
-        <li>All detectors start <strong>OFF</strong> each session — enable them when you are ready.</li>
+        <li>Wait for the <strong>WARMING UP</strong> overlay to clear (RealSense sidecar, can take 30-90 seconds).</li>
+        <li>Press <code>S</code> if you need to change source, always pick the <strong>sidecar</strong> entry for RealSense, never the bare UVC camera.</li>
+        <li>All detectors start <strong>OFF</strong> each session, enable them when you are ready.</li>
         <li>Activate your license in Settings → License (or use the 10-minute demo).</li>
       </ol>
     </section>
@@ -61,12 +61,12 @@
       <h2>FEATURE GUIDES</h2>
       <p>Deep-dives on the depth, gallery, recording, and session features:</p>
       <ul>
-        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a> — the V-cycle and Light / Balanced / Show.</li>
-        <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a> — RANGE, DEPTH COLOR, orbit, saved viewpoint.</li>
-        <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a> — review and re-grade detections.</li>
-        <li><a href="/help/recording.html">Recording (MP4)</a> — F9, smaller files, transcode bar.</li>
-        <li><a href="/help/licensed-session.html">Licensed session program</a> — the silent ramp/dark arc.</li>
-        <li><a href="/help/troubleshooting.html">Troubleshooting index</a> — depth, gallery, performance, recording, licensing.</li>
+        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a>, the V-cycle and Light / Balanced / Show.</li>
+        <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>, RANGE, DEPTH COLOR, orbit, saved viewpoint.</li>
+        <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a>, review and re-grade detections.</li>
+        <li><a href="/help/recording.html">Recording (MP4)</a>, F9, smaller files, transcode bar.</li>
+        <li><a href="/help/licensed-session.html">Licensed session program</a>, the silent ramp/dark arc.</li>
+        <li><a href="/help/troubleshooting.html">Troubleshooting index</a>, depth, gallery, performance, recording, licensing.</li>
       </ul>
     </section>
 
@@ -74,9 +74,9 @@
       <h2>FIRST LAUNCH &amp; SENSOR SELECTION</h2>
       <p>SPECTER asks you to choose a primary sensor on first run:</p>
       <ul>
-        <li><strong>Kinect v2</strong> — depth + RGB + 25-joint body skeleton (Windows, Kinect SDK required).</li>
-        <li><strong>Intel D435i</strong> — depth + RGB via the RealSense sidecar (recommended for most installs).</li>
-        <li><strong>Webcam / HDMI</strong> — RGB only, no depth views.</li>
+        <li><strong>Kinect v2</strong>, depth + RGB + 25-joint body skeleton (Windows, Kinect SDK required).</li>
+        <li><strong>Intel D435i</strong>, depth + RGB via the RealSense sidecar (recommended for most installs).</li>
+        <li><strong>Webcam / HDMI</strong>, RGB only, no depth views.</li>
       </ul>
       <div class="callout ok">
         You can change sensor later: source menu → <strong>Change sensor type</strong>, or reinstall preferences.
@@ -89,29 +89,29 @@
 
       <h3>Requirements</h3>
       <ul>
-        <li>USB <strong>3.0</strong> port (blue port or SS marking) — USB 2.0 will not stream reliably.</li>
+        <li>USB <strong>3.0</strong> port (blue port or SS marking), USB 2.0 will not stream reliably.</li>
         <li>Intel RealSense SDK 2.0 installed on the field unit (see below).</li>
-        <li>D435i plugged in directly — avoid unpowered hubs when troubleshooting.</li>
+        <li>D435i plugged in directly, avoid unpowered hubs when troubleshooting.</li>
       </ul>
 
       <h3>Install RealSense SDK</h3>
       <ol class="steps">
         <li>Download <strong>Intel RealSense SDK 2.0</strong> for Windows from Intel’s site.</li>
-        <li>Run the installer — include the depth camera drivers.</li>
+        <li>Run the installer, include the depth camera drivers.</li>
         <li>Verify in the <strong>Intel RealSense Viewer</strong> that depth + color streams work.</li>
         <li>Close RealSense Viewer before launching SPECTER (exclusive camera access).</li>
-        <li>Launch SPECTER — the sidecar starts automatically and shows <strong>WARMING UP</strong> until ready.</li>
+        <li>Launch SPECTER, the sidecar starts automatically and shows <strong>WARMING UP</strong> until ready.</li>
       </ol>
 
-      <h3>Source picker — critical</h3>
+      <h3>Source picker, critical</h3>
       <div class="callout">
         <strong>Never select “Intel RealSense” as a normal webcam.</strong> That locks the camera to the app and crashes the sidecar pipeline. Always choose:<br>
-        <code>Intel RealSense D435i — RGB Camera (sidecar)</code>
+        <code>Intel RealSense D435i, RGB Camera (sidecar)</code>
       </div>
 
       <h3>Warming up / no feed</h3>
       <ul>
-        <li>The sidecar may take <strong>30–90 seconds</strong> on cold boot — this is normal.</li>
+        <li>The sidecar may take <strong>30-90 seconds</strong> on cold boot, this is normal.</li>
         <li>SPECTER retries silently; no action needed unless it exceeds several minutes.</li>
         <li>Try a different USB 3.0 port or cable.</li>
         <li>Reboot the field unit with the D435i already connected.</li>
@@ -136,23 +136,23 @@
       <ol class="steps">
         <li>Download and install <strong>Kinect for Windows SDK 2.0</strong> from Microsoft.</li>
         <li>Connect Kinect power supply first, then USB 3.0.</li>
-        <li>Open Kinect Studio or the SDK configuration verifier — confirm all streams green.</li>
+        <li>Open Kinect Studio or the SDK configuration verifier, confirm all streams green.</li>
         <li>Launch SPECTER and select <strong>Kinect v2</strong> on the setup screen.</li>
         <li>In the source picker, choose <strong>Microsoft Kinect V2 (built-in)</strong>.</li>
       </ol>
 
       <h3>Common issues</h3>
       <ul>
-        <li><strong>Not available in picker</strong> — SDK not installed, USB 2.0 port, or Kinect still booting (wait 5 s and press <code>S</code>).</li>
-        <li><strong>Image backwards</strong> — Settings → enable Kinect horizontal mirror.</li>
-        <li><strong>Low FPS</strong> — Settings → reduce Kinect JPEG resolution / interval.</li>
-        <li><strong>No skeleton</strong> — ensure body tracking enabled in Settings; stand 1.5–4 m from sensor.</li>
+        <li><strong>Not available in picker</strong>, SDK not installed, USB 2.0 port, or Kinect still booting (wait 5 s and press <code>S</code>).</li>
+        <li><strong>Image backwards</strong>, Settings → enable Kinect horizontal mirror.</li>
+        <li><strong>Low FPS</strong>, Settings → reduce Kinect JPEG resolution / interval.</li>
+        <li><strong>No skeleton</strong>, ensure body tracking enabled in Settings; stand 1.5-4 m from sensor.</li>
       </ul>
     </section>
 
     <section id="webcam">
       <h2>WEBCAM / HDMI CAPTURE CARD</h2>
-      <p>RGB-only mode — no depth, point cloud, or room map. Useful with a capture card feeding a production switcher.</p>
+      <p>RGB-only mode, no depth, point cloud, or room map. Useful with a capture card feeding a production switcher.</p>
       <ul>
         <li>Enable <strong>Decouple RGB from depth</strong> in Settings to run a USB capture card for RGB while Kinect/RealSense provides depth in the background.</li>
         <li>Set USB resolution/FPS to match your capture device (1080p30 typical).</li>
@@ -172,10 +172,10 @@
       </ul>
 
       <h3>Licensed mode</h3>
-      <p>After activation, licensed sessions run a <strong>silent session program</strong>. There is no on-screen timer, label, or countdown — it shapes the session underneath:</p>
+      <p>After activation, licensed sessions run a <strong>silent session program</strong>. There is no on-screen timer, label, or countdown. It shapes the session underneath:</p>
       <ol class="steps">
-        <li><strong>Ramp (~25 min)</strong> — detectors turn on once the camera feed is active; face and anomaly sensitivity gradually increase, so more surfaces over time. Body threshold follows your Settings.</li>
-        <li><strong>Dark (~10 min)</strong> — detectors rest and the picture dims.</li>
+        <li><strong>Ramp (~25 min)</strong>, detectors turn on once the camera feed is active; face and anomaly sensitivity gradually increase, so more surfaces over time. Body threshold follows your Settings.</li>
+        <li><strong>Dark (~10 min)</strong>, detectors rest and the picture dims.</li>
         <li>The arc repeats silently. Demo mode uses fixed demo sensitivity and does not run this program.</li>
       </ol>
       <div class="callout">
@@ -199,10 +199,10 @@
     <section id="remote">
       <h2>REMOTE MONITOR &amp; RECORDING</h2>
       <ul>
-        <li><strong>Remote monitor</strong> — Settings shows the URL for phone control on the same Wi‑Fi.</li>
-        <li><strong>F9</strong> — toggle session recording.</li>
-        <li><strong>F7</strong> — snapshot to detection gallery.</li>
-        <li><strong>G</strong> — open gallery.</li>
+        <li><strong>Remote monitor</strong>, Settings shows the URL for phone control on the same Wi‑Fi.</li>
+        <li><strong>F9</strong>, toggle session recording.</li>
+        <li><strong>F7</strong>, snapshot to detection gallery.</li>
+        <li><strong>G</strong>, open gallery.</li>
         <li>Recordings and detections folders: Settings → paths (open in Explorer).</li>
       </ul>
     </section>
@@ -214,7 +214,7 @@
         <li>Lower Kinect JPEG quality / interval on i3-class hardware.</li>
         <li>Disable 3D views if not needed (Settings → 3D views off).</li>
         <li>Use wired power on the field laptop; disable battery saver.</li>
-        <li>Room map / point cloud are GPU/CPU heavy — use on capable hardware only.</li>
+        <li>Room map / point cloud are GPU/CPU heavy, use on capable hardware only.</li>
       </ul>
     </section>
 

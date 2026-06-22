@@ -114,10 +114,10 @@
       <tr>
         <td><code>${r.key}</code></td>
         <td><span class="badge ${r.type || 'retail'}">${r.type || 'retail'}</span></td>
-        <td>${esc(r.email || '—')}</td>
-        <td>${r.machineId || '—'}</td>
+        <td>${esc(r.email || '-')}</td>
+        <td>${r.machineId || '-'}</td>
         <td>${fmtDate(r.purchasedAt)}</td>
-        <td>${r.activatedAt ? fmtDate(r.activatedAt) : '—'}</td>
+        <td>${r.activatedAt ? fmtDate(r.activatedAt) : '-'}</td>
         <td>${esc(licenseNote(r))}</td>
         <td>
           ${(r.type || 'retail') === 'comp' || r.type === 'dev'
@@ -228,7 +228,7 @@
     const box = $('mint-result');
     box.classList.remove('hidden');
     box.innerHTML = `<strong>Key:</strong> <code>${data.license.key}</code><br>
-      ${data.emailSent ? 'Emailed to recipient.' : 'Copy the key — no email sent.'}`;
+      ${data.emailSent ? 'Emailed to recipient.' : 'Copy the key, no email sent.'}`;
     loadDashboard();
   });
 
@@ -261,7 +261,7 @@
       box.classList.remove('hidden');
       box.innerHTML = `<strong>Replacement key:</strong> <code>${data.license.key}</code><br>
         <strong>Original:</strong> <code>${data.original.key}</code><br>
-        ${data.emailSent ? 'Emailed to purchaser.' : 'Copy the key — email was not sent.'}`;
+        ${data.emailSent ? 'Emailed to purchaser.' : 'Copy the key, email was not sent.'}`;
 
       loadDashboard();
       loadLicenses();
@@ -272,7 +272,7 @@
   }
 
   function fmtDate(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try { return new Date(iso).toLocaleString(); } catch { return iso; }
   }
 
