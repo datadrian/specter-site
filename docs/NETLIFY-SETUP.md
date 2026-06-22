@@ -44,8 +44,8 @@ Keys use format `SPTR-XXXX-XXXX-XXXX-XXXX`.
 
 ## Installer download
 
-The public download page links to the latest GitHub Release asset:
+The public download page links to the latest GitHub Release asset on this public website repo:
 
-`https://github.com/datadrian/spectral-imaging-unit/releases/latest/download/SPECTER-Setup.exe`
+`https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe`
 
-Build the installer from `spectral-imaging-unit` on Windows, create/update a release on that repo, and upload the EXE as `SPECTER-Setup.exe` so the website URL stays stable.
+Build the installer from the private `spectral-imaging-unit` repo on Windows, create/update a release on this public `specter-site` repo, and upload the EXE as `SPECTER-Setup.exe` so the website URL stays stable without making the app source public.
