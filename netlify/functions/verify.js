@@ -1,5 +1,5 @@
 const { validateKey } = require('./_lib/license-key');
-const { getRecord } = require('./_lib/license-store');
+const { configureStore, getRecord } = require('./_lib/license-store');
 const { json, corsPreflight, readJson } = require('./_lib/http');
 
 exports.handler = async (event) => {
@@ -7,6 +7,7 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
   }
+  configureStore(event);
 
   const body = readJson(event);
 

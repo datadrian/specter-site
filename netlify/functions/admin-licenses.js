@@ -1,6 +1,6 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
-const { listRecords, mintAndSave } = require('./_lib/license-store');
+const { configureStore, listRecords, mintAndSave } = require('./_lib/license-store');
 const { sendLicenseEmail } = require('./_lib/send-email');
 
 exports.handler = async (event) => {
@@ -8,6 +8,7 @@ exports.handler = async (event) => {
 
   const auth = requireAdmin(event);
   if (!auth.authorized) return auth.response;
+  configureStore(event);
 
   if (event.httpMethod === 'GET') {
     const records = await listRecords();

@@ -1,8 +1,9 @@
 const Stripe = require('stripe');
-const { mintAndSave } = require('./_lib/license-store');
+const { configureStore, mintAndSave } = require('./_lib/license-store');
 const { sendLicenseEmail } = require('./_lib/send-email');
 
 exports.handler = async (event) => {
+  configureStore(event);
   const secret = process.env.STRIPE_SECRET_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret || !webhookSecret) {
