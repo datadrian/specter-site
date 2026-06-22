@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help — Recording (MP4)</title>
+  <meta name="description" content="Record SPECTER sessions to MP4 (H.264) with the F9 hotkey, smaller optimized files, and a transcode progress bar on fallback.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>RECORDING</h1>
+    <p class="tagline">Capture the field interface to MP4</p>
+
+    <section id="record">
+      <h2>RECORD A SESSION</h2>
+      <ol class="steps">
+        <li>Click <strong>REC</strong> or press <code>F9</code>.</li>
+        <li>SPECTER captures the app window to <strong>MP4</strong> (H.264).</li>
+        <li>Stop again with <code>F9</code> or REC.</li>
+        <li>If a fallback transcode runs, wait for the <strong>progress bar</strong> to finish before closing the app.</li>
+      </ol>
+      <div class="callout ok">
+        Bitrates are optimized for smaller files on long investigations, so an all-night session does not fill a drive.
+      </div>
+    </section>
+
+    <section id="transcode">
+      <h2>TRANSCODE PROGRESS</h2>
+      <p>If the app has to fall back to a temporary WebM capture, it converts the file to MP4 after you stop. A <strong>transcode progress bar</strong> appears until the MP4 is ready. Do not close SPECTER until it finishes, or the final file may be incomplete.</p>
+    </section>
+
+    <section id="trouble">
+      <h2>TROUBLESHOOTING</h2>
+      <table class="help-table">
+        <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Recording won't start</td><td>Check Windows screen-capture permission; run as a normal user (not an RDP-locked session).</td></tr>
+          <tr><td>Long wait after stop</td><td>A transcode is in progress — watch the progress bar.</td></tr>
+          <tr><td>Huge file</td><td>Use a medium bitrate in settings; update to the build with the ffmpeg pipe.</td></tr>
+          <tr><td>No audio</td><td>Check the recording audio device in settings.</td></tr>
+        </tbody>
+      </table>
+      <p>More in the <a href="/help/troubleshooting.html">troubleshooting index</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>
