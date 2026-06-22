@@ -1052,3 +1052,35 @@ a { color: var(--cyan); text-decoration: none; }
 @media (max-width: 880px) {
   .detect-grid, .detect-classes { grid-template-columns: 1fr; }
 }
+
+/* ============ ANOMALY TYPES (on-screen classifications) ============ */
+.anomalies { padding: 5rem 0; background: var(--bg2); }
+.anomaly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.anomaly-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-left: 3px solid var(--ac, var(--cyan));
+  padding: 1.4rem 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.anomaly-card:hover { box-shadow: 0 0 24px rgba(0,229,255,0.05); }
+.anomaly-tag {
+  display: inline-block; font-family: var(--mono); font-size: 0.66rem;
+  font-weight: 700; letter-spacing: 0.12em;
+  color: var(--ac, var(--cyan));
+  border: 1px solid var(--ac, var(--cyan));
+  border-radius: 2px; padding: 0.18rem 0.5rem; margin-bottom: 0.85rem;
+}
+.anomaly-card h3 {
+  font-family: var(--heading); font-size: 1.05rem; font-weight: 700;
+  letter-spacing: 0.02em; color: var(--text); margin: 0 0 0.55rem;
+}
+.anomaly-card p { color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; margin: 0; }
+.anomaly-note {
+  margin-top: 2rem; font-family: var(--mono); font-size: 0.76rem;
+  color: var(--text-dim); line-height: 1.7; max-width: 760px;
+}

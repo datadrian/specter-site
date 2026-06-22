@@ -16,6 +16,7 @@
       <div class="nav-links">
         <a href="#features">CAPABILITIES</a>
         <a href="#detections">DETECTIONS</a>
+        <a href="#anomalies">ANOMALIES</a>
         <a href="#depth">DEPTH &amp; 3D</a>
         <a href="#watch">WATCH</a>
         <a href="#hardware">BUILD YOUR RIG</a>
@@ -308,6 +309,70 @@
         <div class="detect-class"><span class="dc-tier dc-2">CLASS-II</span><span class="dc-thr">Index &ge; 60%</span><p>Two or more channels correlate on the same region.</p></div>
         <div class="detect-class"><span class="dc-tier dc-3">CLASS-III</span><span class="dc-thr">Index &ge; 80%</span><p>Strong multi-channel agreement. Highest-confidence event.</p></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ANOMALY TYPES -->
+  <section class="anomalies" id="anomalies">
+    <div class="container">
+      <div class="section-tag">// ON-SCREEN CLASSIFICATIONS</div>
+      <h2>Ten anomaly types, labeled live on the feed.</h2>
+      <p class="features-sub">When the detection engine logs an event, SPECTER classifies it and draws a labeled, color-coded bounding box right on the frame. Every capture in your archive carries its type, so a reviewer can read the session at a glance.</p>
+
+      <div class="anomaly-grid">
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ff4d4f">SPECTRAL</span>
+          <h3>Spectral Anomaly</h3>
+          <p>A broad spectral signature in the field that matches no physical source. The default classification when an event is real but does not fit a narrower type.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#9fdcff">ORB</span>
+          <h3>Orb</h3>
+          <p>A discrete, self-luminous blob moving independently of dust or insects. Flagged on bright-point isolation against the depth background.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#8fb6ff">COLD</span>
+          <h3>Cold Spot</h3>
+          <p>A localized, sudden drop in the luminance baseline, the classic temperature-anomaly signature, logged the instant the field cools faster than the room.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ffb6c8">PARTIAL</span>
+          <h3>Partial Apparition</h3>
+          <p>A partial human form, less than half the expected skeletal keypoints present. A figure resolving only in part.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#c7d8e3">VAPOR</span>
+          <h3>Vapor Anomaly</h3>
+          <p>A diffuse, mist-like mass with no thermal source, distinguished from ambient haze by its formation rate and edge coherence.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#c7a8ff">CHROMA</span>
+          <h3>Chromatic Signature</h3>
+          <p>An anomaly isolated to a single color channel, a chromatic shift in the field that the RGB pipeline flags as non-physical.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ffd073">VORTEX</span>
+          <h3>Energy Vortex</h3>
+          <p>A sharp collapse in field coherence over a tight region, the rotational signature associated with concentrated energy disturbance.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ffb673">FACE</span>
+          <h3>Disembodied Face</h3>
+          <p>A facial structure appearing where no body is present, caught the moment a face resolves after a gap in the frame.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ff4d4f">FACIAL</span>
+          <h3>Facial Anomaly</h3>
+          <p>A sustained facial signature locked by the neural face model on the live feed. Fires only on a genuine on-camera face detection.</p>
+        </div>
+        <div class="anomaly-card">
+          <span class="anomaly-tag" style="--ac:#ff4d4f">HUMANOID</span>
+          <h3>Humanoid Figure</h3>
+          <p>A full articulated human form resolved by the neural pose model, the majority of skeletal keypoints locked. The highest-order figure classification.</p>
+        </div>
+      </div>
+
+      <p class="anomaly-note">FACIAL and HUMANOID classifications fire only when the onboard neural models lock a real form on the live feed. The remaining types are drawn from field-signature analysis across the depth, RGB, and motion channels.</p>
     </div>
   </section>
 
