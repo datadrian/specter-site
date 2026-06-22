@@ -888,11 +888,11 @@ a { color: var(--cyan); text-decoration: none; }
 }
 
 /* ============ DEPTH INTELLIGENCE / EVIDENCE GALLERY (reuse features) ============ */
-.depth-intel, .evidence-gallery, .recording-delivery, .perf-presets, .field-program {
+.depth-intel, .evidence-gallery, .recording-delivery, .perf-presets {
   padding: 6rem 0;
 }
 .depth-intel h2, .evidence-gallery h2, .recording-delivery h2,
-.perf-presets h2, .field-program h2 {
+.perf-presets h2 {
   font-family: var(--heading); font-size: clamp(2rem, 4vw, 2.8rem);
   font-weight: 700; color: #fff; margin-bottom: 1rem;
 }
@@ -954,27 +954,6 @@ a { color: var(--cyan); text-decoration: none; }
 .preset-card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.7; }
 
 /* ============ LICENSED FIELD PROGRAM ============ */
-.program-flow {
-  display: flex; align-items: stretch; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;
-}
-.program-step {
-  flex: 1; min-width: 280px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-left: 2px solid var(--cyan); padding: 2rem;
-}
-.program-phase {
-  font-family: var(--mono); font-size: 0.95rem; letter-spacing: 0.2em;
-  color: var(--cyan); margin-bottom: 1rem; text-shadow: 0 0 10px var(--cyan-glow);
-}
-.program-step p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; }
-.program-arrow {
-  display: flex; align-items: center; color: var(--cyan); font-size: 2rem;
-}
-.program-note {
-  margin-top: 2rem; font-family: var(--mono); font-size: 0.78rem;
-  color: var(--text-dim); letter-spacing: 0.04em;
-}
-@media (max-width: 720px) { .program-arrow { transform: rotate(90deg); justify-content: center; } }
 
 /* ============ VIDEO DEMO ============ */
 .video-demo { padding: 6rem 0; }

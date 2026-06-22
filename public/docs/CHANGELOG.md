@@ -26,9 +26,8 @@ _Operator-facing changelog. June 2026._
 - **Performance presets:** Light (depth-only), Balanced (default), Show (full quality + 3D views and depth blend in the view cycle).
 
 ## Licensed sessions
-- Licensed sessions run a **silent session program**, a hands-off ramp (~25 min) and dark (~10 min) arc.
-- **No on-screen timer, label, or countdown** by design.
-- Demo mode uses fixed demo sensitivity and does not run this program.
+- **No time limit:** run sessions of any length, with no DEMO MODE countdown.
+- Detector behavior is governed entirely by your **Settings** thresholds on the live sensor feed.
 
 ## Demo & licensing
 - **10-minute demo** per machine install, full UI.
