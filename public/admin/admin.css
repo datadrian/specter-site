@@ -68,7 +68,10 @@ code { font-size: 10px; color: var(--accent); }
 .badge.open { background: rgba(240,182,94,0.15); color: var(--warn); }
 .badge.waiting { background: rgba(106,215,168,0.12); color: var(--accent); }
 .badge.closed { background: rgba(120,120,120,0.15); color: var(--muted); }
+.badge.retail { background: rgba(106,215,168,0.12); color: var(--accent); }
 .badge.comp { background: rgba(160,120,255,0.12); color: #b8a0ff; }
+.badge.dev { background: rgba(120,180,255,0.12); color: #9dc8ff; }
+.badge.replacement { background: rgba(240,182,94,0.15); color: var(--warn); }
 
 .ticket-detail { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-top: 16px; }
 .msg { border-left: 3px solid var(--line); padding: 10px 12px; margin: 10px 0; font-size: 11px; }

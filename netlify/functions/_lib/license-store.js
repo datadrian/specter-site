@@ -84,7 +84,7 @@ async function listRecords() {
   return Array.from(mem.values()).sort((a, b) => new Date(b.purchasedAt || 0) - new Date(a.purchasedAt || 0));
 }
 
-async function mintAndSave({ email, type, note, stripeSessionId }) {
+async function mintAndSave({ email, type, note, stripeSessionId, replacementFor }) {
   const key = mintLicenseKey(process.env.LICENSE_SALT);
   const record = {
     key,
@@ -95,6 +95,7 @@ async function mintAndSave({ email, type, note, stripeSessionId }) {
     purchasedAt: new Date().toISOString(),
     activatedAt: null,
     stripeSessionId: stripeSessionId || null,
+    replacementFor: replacementFor || null,
   };
   await saveRecord(key, record);
   return record;
@@ -109,6 +110,7 @@ async function getStats() {
     retail: all.filter(r => (r.type || 'retail') === 'retail').length,
     comp: all.filter(r => r.type === 'comp').length,
     dev: all.filter(r => r.type === 'dev').length,
+    replacement: all.filter(r => r.type === 'replacement').length,
   };
 }
 

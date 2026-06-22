@@ -30,6 +30,7 @@
         <button type="button" data-panel="licenses">Licenses</button>
         <button type="button" data-panel="tickets">Support tickets</button>
         <button type="button" data-panel="mint">Mint comp key</button>
+        <button type="button" data-panel="replacement">Issue replacement</button>
       </nav>
       <main class="content">
         <section id="panel-dashboard" class="panel active">
@@ -46,7 +47,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>Key</th><th>Type</th><th>Email</th><th>Machine</th><th>Created</th><th>Activated</th><th>Note</th>
+                  <th>Key</th><th>Type</th><th>Email</th><th>Machine</th><th>Created</th><th>Activated</th><th>Note</th><th></th>
                 </tr>
               </thead>
               <tbody id="licenses-body"></tbody>
@@ -87,6 +88,21 @@
             <button type="button" id="mint-btn" class="btn">Generate key</button>
           </div>
           <div id="mint-result" class="mint-result hidden"></div>
+        </section>
+
+        <section id="panel-replacement" class="panel">
+          <h2 style="font-size:12px;letter-spacing:0.15em;color:var(--accent);margin-top:0">ISSUE REPLACEMENT KEY</h2>
+          <p style="font-size:11px;color:var(--muted)">For customers who already bought SPECTER and need a fresh key for a new machine or recovery. Enter the original key if available, or the purchase email.</p>
+          <div class="toolbar" style="flex-direction:column;align-items:stretch;max-width:520px">
+            <label style="font-size:10px;color:var(--muted)">Original license key (preferred)</label>
+            <input type="text" id="replace-original-key" placeholder="SPTR-XXXX-XXXX-XXXX-XXXX">
+            <label style="font-size:10px;color:var(--muted)">Purchase email (used if key is blank)</label>
+            <input type="email" id="replace-email" placeholder="buyer@example.com">
+            <label style="font-size:10px;color:var(--muted)">Reason / note</label>
+            <input type="text" id="replace-note" placeholder="New field laptop / recovery">
+            <button type="button" id="replace-btn" class="btn">Issue replacement key</button>
+          </div>
+          <div id="replace-result" class="mint-result hidden"></div>
         </section>
       </main>
     </div>

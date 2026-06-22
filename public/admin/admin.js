@@ -23,6 +23,7 @@
     const target = `${location.pathname} ${location.hash}`.toLowerCase();
     if (target.includes('ticket')) return 'tickets';
     if (target.includes('mint')) return 'mint';
+    if (target.includes('replace')) return 'replacement';
     if (target.includes('license') || target.includes('licence')) return 'licenses';
     return 'dashboard';
   }
@@ -92,6 +93,7 @@
       <div class="stat"><div class="stat-n">${s.activated}</div><div class="stat-l">ACTIVATED</div></div>
       <div class="stat"><div class="stat-n">${s.unactivated}</div><div class="stat-l">UNACTIVATED</div></div>
       <div class="stat"><div class="stat-n">${s.comp}</div><div class="stat-l">COMP KEYS</div></div>
+      <div class="stat"><div class="stat-n">${s.replacement || 0}</div><div class="stat-l">REPLACEMENTS</div></div>
       <div class="stat"><div class="stat-n">${t.open}</div><div class="stat-l">OPEN TICKETS</div></div>
       <div class="stat"><div class="stat-n">${t.total}</div><div class="stat-l">ALL TICKETS</div></div>
     `;
@@ -111,14 +113,28 @@
     $('licenses-body').innerHTML = rows.map(r => `
       <tr>
         <td><code>${r.key}</code></td>
-        <td><span class="badge ${r.type === 'comp' ? 'comp' : ''}">${r.type || 'retail'}</span></td>
-        <td>${r.email || '—'}</td>
+        <td><span class="badge ${r.type || 'retail'}">${r.type || 'retail'}</span></td>
+        <td>${esc(r.email || '—')}</td>
         <td>${r.machineId || '—'}</td>
         <td>${fmtDate(r.purchasedAt)}</td>
         <td>${r.activatedAt ? fmtDate(r.activatedAt) : '—'}</td>
-        <td>${r.note || ''}</td>
+        <td>${esc(licenseNote(r))}</td>
+        <td>
+          ${(r.type || 'retail') === 'comp' || r.type === 'dev'
+            ? ''
+            : `<button type="button" class="btn secondary" data-replace-key="${r.key}" data-replace-email="${escAttr(r.email || '')}">Replace</button>`}
+        </td>
       </tr>
-    `).join('') || '<tr><td colspan="7">No licenses yet</td></tr>';
+    `).join('') || '<tr><td colspan="8">No licenses yet</td></tr>';
+
+    $('licenses-body').querySelectorAll('[data-replace-key]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $('replace-original-key').value = btn.dataset.replaceKey;
+        $('replace-email').value = btn.dataset.replaceEmail || '';
+        $('replace-note').value = 'Replacement requested by customer';
+        activatePanel('replacement');
+      });
+    });
   }
 
   $('refresh-licenses').addEventListener('click', loadLicenses);
@@ -216,6 +232,45 @@
     loadDashboard();
   });
 
+  $('replace-btn').addEventListener('click', issueReplacement);
+
+  async function issueReplacement() {
+    const originalKey = $('replace-original-key').value.trim();
+    const email = $('replace-email').value.trim();
+    const note = $('replace-note').value.trim();
+    const box = $('replace-result');
+    box.classList.add('hidden');
+
+    if (!originalKey && !email) {
+      box.classList.remove('hidden');
+      box.innerHTML = 'Enter either the original key or the purchase email.';
+      return;
+    }
+
+    try {
+      const data = await api('admin-licenses', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'replacement',
+          originalKey,
+          email,
+          note,
+        }),
+      });
+
+      box.classList.remove('hidden');
+      box.innerHTML = `<strong>Replacement key:</strong> <code>${data.license.key}</code><br>
+        <strong>Original:</strong> <code>${data.original.key}</code><br>
+        ${data.emailSent ? 'Emailed to purchaser.' : 'Copy the key — email was not sent.'}`;
+
+      loadDashboard();
+      loadLicenses();
+    } catch (e) {
+      box.classList.remove('hidden');
+      box.innerHTML = esc(e.message || 'Could not issue replacement key.');
+    }
+  }
+
   function fmtDate(iso) {
     if (!iso) return '—';
     try { return new Date(iso).toLocaleString(); } catch { return iso; }
@@ -223,6 +278,18 @@
 
   function esc(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function escAttr(s) {
+    return esc(s).replace(/"/g, '&quot;');
+  }
+
+  function licenseNote(r) {
+    const parts = [];
+    if (r.note) parts.push(r.note);
+    if (r.replacementFor) parts.push(`replaces ${r.replacementFor}`);
+    if (r.replacedBy) parts.push(`replaced by ${r.replacedBy}`);
+    return parts.join(' · ');
   }
 
   if (token) {
