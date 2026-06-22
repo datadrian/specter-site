@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help — Gallery: RGB / DEPTH / 3D &amp; Save View</title>
+  <meta name="description" content="Review detections in the SPECTER gallery: RGB / DEPTH / 3D layer bar, depth re-rendering, edit tools, Save view exports, and the 3D depth modal.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>GALLERY: REVIEWING A DETECTION</h1>
+    <p class="tagline">RGB / DEPTH / 3D on one bar, with edit tools and Save view</p>
+
+    <section id="opening">
+      <h2>OPENING A DETECTION</h2>
+      <p>Open the gallery (<code>G</code>), then click a detection card to open the fullscreen viewer.</p>
+    </section>
+
+    <section id="layer-bar">
+      <h2>BOTTOM LAYER BAR</h2>
+      <table class="help-table">
+        <thead><tr><th>Button</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RGB</strong></td><td>Annotated still (detection box baked onto the image).</td></tr>
+          <tr><td><strong>DEPTH</strong></td><td>Depth map re-rendered from raw sensor data (editable).</td></tr>
+          <tr><td><strong>3D</strong></td><td>Opens the orbitable 3D depth snapshot modal.</td></tr>
+        </tbody>
+      </table>
+      <p>Keyboard: <code>D</code> toggles RGB ↔ DEPTH (not 3D).</p>
+    </section>
+
+    <section id="edit">
+      <h2>EDIT PANEL (✎ EDIT)</h2>
+      <h3>Image tools (RGB and DEPTH)</h3>
+      <ul>
+        <li>Brightness, contrast, saturation</li>
+        <li>B&amp;W, sepia, invert</li>
+        <li>Rotate, flip, enhance preset</li>
+        <li>Mouse-wheel zoom and drag-pan on the image</li>
+      </ul>
+      <h3>Depth tools (visible when the DEPTH layer is active)</h3>
+      <ul>
+        <li><strong>RANGE</strong> — same semantics as the live view (center = full scene)</li>
+        <li><strong>DEPTH COLOR ON/OFF</strong> — false-color vs mono grey</li>
+      </ul>
+      <div class="callout">
+        On the DEPTH layer, the red <strong>detection box</strong> is drawn from saved metadata onto the rendered depth map.
+      </div>
+    </section>
+
+    <section id="saving">
+      <h2>SAVING</h2>
+      <table class="help-table">
+        <thead><tr><th>Button</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Save view</strong></td><td><code>gallery_view_NN.png</code> + <code>gallery_view_NN.json</code> sidecar (layer, filters, range, color mode, bbox info).</td></tr>
+          <tr><td><strong>Save as new version</strong></td><td><code>snapshot_edited_NN.png</code> — a classic flattened PNG export.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="modal-3d">
+      <h2>3D DEPTH MODAL (FROM GALLERY 3D)</h2>
+      <table class="help-table">
+        <thead><tr><th>Control</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RGB / HEAT / MONO</strong></td><td>Color mode — RGB uses the saved color-at-depth JPEG if present.</td></tr>
+          <tr><td><strong>RANGE</strong></td><td>Affects <strong>both</strong> HEAT and MONO (not the RGB camera mode).</td></tr>
+          <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>Quick toggle between heatmap and mono.</td></tr>
+          <tr><td><strong>↻ RESET / ⊡ SAVE VIEW</strong></td><td>Orbit default for the gallery 3D modal (global setting).</td></tr>
+          <tr><td><strong>⊟ SAVE NEW</strong></td><td>Screenshot of the current 3D view + JSON state into the detection folder.</td></tr>
+        </tbody>
+      </table>
+      <p>Mouse control in the gallery 3D modal matches live DEPTH_3D (vertical drag direction aligned with the main viewer).</p>
+    </section>
+
+    <section id="saved-files">
+      <h2>WHAT GETS SAVED WITH A DETECTION</h2>
+      <p>On a depth-capable sensor, each auto-detection folder may contain:</p>
+      <table class="help-table">
+        <thead><tr><th>File</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>snapshot.png</code></td><td>Clean RGB plate</td></tr>
+          <tr><td><code>snapshot_annotated.png</code></td><td>RGB + overlays + red detection box</td></tr>
+          <tr><td><code>snapshot_depth.png</code></td><td>2D depth heatmap at capture time</td></tr>
+          <tr><td><code>depth_raw.bin</code></td><td>Raw uint16 depth grid</td></tr>
+          <tr><td><code>depth_rgb.jpg</code></td><td>RGB image registered to depth resolution</td></tr>
+          <tr><td><code>depth_intrinsics.json</code></td><td>Camera geometry for 3D rebuild</td></tr>
+          <tr><td><code>metadata.json</code></td><td>Scores, bbox, mode, flags</td></tr>
+          <tr><td><code>clip.mp4</code></td><td>Pre-event video buffer</td></tr>
+          <tr><td><code>gallery_view_*.png</code></td><td>Optional user exports from the gallery</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">
+        Badge legend on gallery cards: <strong>D</strong> = a 2D depth heatmap was saved; <strong>3D</strong> = an orbitable 3D depth snapshot (<code>depth_raw.bin</code>) was saved.
+      </div>
+    </section>
+
+    <section>
+      <h2>RELATED</h2>
+      <div class="btn-row">
+        <a class="btn" href="/help/depth-3d.html">DEPTH &amp; 3D controls</a>
+        <a class="btn secondary" href="/help/troubleshooting.html">Troubleshooting</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

@@ -864,3 +864,114 @@ a { color: var(--cyan); text-decoration: none; }
   line-height: 1; cursor: pointer; opacity: 0.8; transition: opacity 0.15s;
 }
 .lightbox-close:hover { opacity: 1; color: var(--cyan); }
+
+/* ============ WHAT'S NEW STRIP ============ */
+.whatsnew {
+  background: linear-gradient(90deg, rgba(0,229,255,0.05), rgba(0,229,255,0.01));
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2.2rem 0;
+}
+.whatsnew-tag {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.2em;
+  color: var(--cyan); text-shadow: 0 0 10px var(--cyan); margin-bottom: 1rem;
+}
+.whatsnew-list {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; padding: 0; margin: 0;
+}
+.whatsnew-list li {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em;
+  color: var(--text); position: relative; padding-left: 1rem;
+}
+.whatsnew-list li::before {
+  content: "▹"; position: absolute; left: 0; color: var(--cyan);
+}
+
+/* ============ DEPTH INTELLIGENCE / EVIDENCE GALLERY (reuse features) ============ */
+.depth-intel, .evidence-gallery, .recording-delivery, .perf-presets, .field-program {
+  padding: 6rem 0;
+}
+.depth-intel h2, .evidence-gallery h2, .recording-delivery h2,
+.perf-presets h2, .field-program h2 {
+  font-family: var(--heading); font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700; color: #fff; margin-bottom: 1rem;
+}
+.evidence-gallery { background: var(--bg2); }
+.features-grid.two-up { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+
+/* gallery columns */
+.gallery-cols {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem; margin-top: 2.5rem;
+}
+.gallery-col {
+  background: var(--bg); border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan); padding: 2rem;
+}
+.gallery-col h3 {
+  font-family: var(--heading); font-size: 1rem; font-weight: 700; color: #fff;
+  letter-spacing: 0.1em; margin-bottom: 1.2rem;
+}
+.check-list { list-style: none; padding: 0; margin: 0; }
+.check-list li {
+  color: var(--text-dim); font-size: 0.88rem; line-height: 1.6;
+  position: relative; padding-left: 1.5rem; margin-bottom: 0.9rem;
+}
+.check-list li::before {
+  content: "✓"; position: absolute; left: 0; color: var(--cyan); font-weight: 700;
+}
+.check-list strong { color: var(--text); }
+
+/* badge legend */
+.badge-legend { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 2.5rem; }
+.badge-chip {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
+}
+.badge-d, .badge-3d {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.8rem; height: 1.8rem; padding: 0 0.4rem;
+  font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+  border: 1px solid var(--cyan); color: var(--cyan);
+  background: var(--cyan-glow); border-radius: 2px;
+}
+
+/* ============ PERFORMANCE PRESETS ============ */
+.perf-presets { background: var(--bg2); }
+.preset-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem; margin-top: 2.5rem;
+}
+.preset-card {
+  background: var(--bg); border: 1px solid var(--border); padding: 2rem;
+  border-top: 2px solid var(--text-dim);
+}
+.preset-card.primary { border-top-color: var(--cyan); box-shadow: 0 0 30px rgba(0,229,255,0.06); }
+.preset-name {
+  font-family: var(--mono); font-size: 1.1rem; letter-spacing: 0.18em;
+  color: var(--cyan); margin-bottom: 1rem; text-shadow: 0 0 10px var(--cyan-glow);
+}
+.preset-card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.7; }
+
+/* ============ LICENSED FIELD PROGRAM ============ */
+.program-flow {
+  display: flex; align-items: stretch; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;
+}
+.program-step {
+  flex: 1; min-width: 280px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 2px solid var(--cyan); padding: 2rem;
+}
+.program-phase {
+  font-family: var(--mono); font-size: 0.95rem; letter-spacing: 0.2em;
+  color: var(--cyan); margin-bottom: 1rem; text-shadow: 0 0 10px var(--cyan-glow);
+}
+.program-step p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; }
+.program-arrow {
+  display: flex; align-items: center; color: var(--cyan); font-size: 2rem;
+}
+.program-note {
+  margin-top: 2rem; font-family: var(--mono); font-size: 0.78rem;
+  color: var(--text-dim); letter-spacing: 0.04em;
+}
+@media (max-width: 720px) { .program-arrow { transform: rotate(90deg); justify-content: center; } }

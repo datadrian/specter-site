@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help — DEPTH &amp; 3D Depth Controls</title>
+  <meta name="description" content="How SPECTER's DEPTH and DEPTH_3D views work: RANGE slider, DEPTH COLOR (false-color vs mono), orbit navigation, and saved viewpoint.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>DEPTH &amp; 3D DEPTH CONTROLS</h1>
+    <p class="tagline">Read the scene as distance, live and in 3D</p>
+
+    <section id="depth-2d">
+      <h2>LIVE 2D DEPTH</h2>
+      <p>In the <strong>DEPTH</strong> view, controls appear at the bottom center of the frame. Depth is rendered straight from the sensor — color always represents <strong>distance</strong>, never the camera image.</p>
+      <table class="help-table">
+        <thead><tr><th>Control</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RANGE</strong> slider</td><td>Maps scene depth to the display. <strong>Center (50)</strong> auto-fits the full scene, near and far. Left emphasizes close objects; right emphasizes far objects.</td></tr>
+          <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>ON = false-color by distance (red through blue). OFF = mono grey by distance.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="depth-3d">
+      <h2>LIVE 3D DEPTH (DEPTH_3D)</h2>
+      <p>The <strong>DEPTH_3D</strong> view renders the depth sensor as an orbitable point cloud. The control bar sits over the 3D canvas.</p>
+      <table class="help-table">
+        <thead><tr><th>Control</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RANGE</strong></td><td>Same as 2D — affects both mono and false-color in 3D.</td></tr>
+          <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>False-color vs mono grey point cloud.</td></tr>
+          <tr><td><strong>↻ RESET</strong></td><td>Return to the saved default camera angle (or auto-fit if none saved).</td></tr>
+          <tr><td><strong>⊡ SAVE VIEW</strong></td><td>Store the current orbit as the startup default for 3D depth.</td></tr>
+        </tbody>
+      </table>
+      <h3>Navigation</h3>
+      <ul>
+        <li><strong>Drag</strong> — rotate</li>
+        <li><strong>Scroll</strong> — zoom</li>
+        <li><strong>Right-click drag</strong> — pan</li>
+      </ul>
+      <div class="callout ok">
+        The stats line (points, heatmap) and hint text are <strong>hidden</strong> in DEPTH_3D for a clean field view. POINT_CLOUD and ROOM_MAP still show stats.
+      </div>
+    </section>
+
+    <section id="range-behavior">
+      <h2>HOW THE DEPTH RANGE BEHAVES</h2>
+      <ul>
+        <li>SPECTER <strong>automatically</strong> finds the nearest and farthest valid depth in the scene each frame, then <strong>smooths</strong> that range so the image does not flicker.</li>
+        <li><strong>RANGE at center</strong> is the recommended default for seeing everything at once.</li>
+        <li>In <strong>false-color mode</strong>, the full palette spreads across that range, so close objects and far walls can both be visible when RANGE is centered.</li>
+        <li>This is <strong>not</strong> the same as POINT_CLOUD mode, which textures its points from the <strong>live camera</strong>. In DEPTH and DEPTH_3D, color means distance only.</li>
+      </ul>
+      <div class="callout">
+        Seeing flicker on an older build? Update to the latest build (range smoothing fix) and keep RANGE near <strong>center</strong>.
+      </div>
+    </section>
+
+    <section id="saved-view">
+      <h2>SAVED VIEWPOINT</h2>
+      <p>Use <strong>⊡ SAVE VIEW</strong> to store your preferred 3D camera angle. SPECTER restores it on the next launch, so you walk into a venue with the depth view already framed. <strong>↻ RESET</strong> returns to that saved angle at any time.</p>
+    </section>
+
+    <section>
+      <h2>RELATED</h2>
+      <div class="btn-row">
+        <a class="btn" href="/help/gallery-depth.html">Gallery RGB / DEPTH / 3D</a>
+        <a class="btn secondary" href="/help/troubleshooting.html">Troubleshooting</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

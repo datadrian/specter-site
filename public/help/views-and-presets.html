@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help — View Modes &amp; Performance Presets</title>
+  <meta name="description" content="SPECTER view modes (RGB, DEPTH, 3D, point cloud, room map) and Light / Balanced / Show performance presets.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>VIEW MODES &amp; PERFORMANCE PRESETS</h1>
+    <p class="tagline">Cycle the views with V, and tune SPECTER to your hardware</p>
+
+    <section id="views">
+      <h2>VIEW MODES</h2>
+      <p>Press <code>V</code> to cycle through the available views. The exact order depends on your sensor and performance preset.</p>
+      <table class="help-table">
+        <thead><tr><th>View</th><th>What you see</th><th>Requires</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RGB</strong></td><td>Live color feed with overlays</td><td>RGB source</td></tr>
+          <tr><td><strong>DEPTH</strong></td><td>False-color or mono depth map</td><td>Depth sensor</td></tr>
+          <tr><td><strong>DEPTH_3D</strong></td><td>Orbitable 3D depth point cloud</td><td>Depth sensor</td></tr>
+          <tr><td><strong>POINT_CLOUD</strong></td><td>3D cloud colored from the live RGB feed</td><td>Depth + RGB</td></tr>
+          <tr><td><strong>ROOM_MAP</strong></td><td>Accumulating 3D room scan</td><td>Depth + ROOM MAP mode</td></tr>
+          <tr><td><strong>DEPTH_BLEND</strong> <em>(optional)</em></td><td>RGB with semi-transparent depth on top</td><td>Enable depth blend view in Settings</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">
+        The <strong>Show</strong> performance preset enables the 3D views and DEPTH_BLEND in the cycle.
+      </div>
+      <p>For DEPTH and DEPTH_3D controls (RANGE, DEPTH COLOR, RESET, SAVE VIEW), see <a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>.</p>
+    </section>
+
+    <section id="presets">
+      <h2>PERFORMANCE PRESETS</h2>
+      <p>Open <strong>Settings → Performance preset</strong> and choose the option that matches your machine.</p>
+      <table class="help-table">
+        <thead><tr><th>Preset</th><th>Use when</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Light</strong></td><td>Laptop is struggling — depth-only path; RGB feed and color ML off.</td></tr>
+          <tr><td><strong>Balanced</strong></td><td>Default — RGB and depth balanced for most investigations.</td></tr>
+          <tr><td><strong>Show</strong></td><td>Demo reel or max quality — turns on the 3D views and DEPTH_BLEND in the view cycle.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        Changing preset may require a feed restart. If views do not update, switch source (press <code>S</code>) or restart the app.
+      </div>
+    </section>
+
+    <section>
+      <h2>RELATED</h2>
+      <div class="btn-row">
+        <a class="btn" href="/help/depth-3d.html">DEPTH &amp; 3D controls</a>
+        <a class="btn secondary" href="/help/troubleshooting.html">Troubleshooting</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

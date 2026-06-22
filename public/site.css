@@ -158,3 +158,37 @@ h3 { font-size: 12px; color: var(--text); margin: 20px 0 8px; letter-spacing: 0.
 .alert { padding: 12px; border-radius: 4px; margin: 12px 0; font-size: 12px; }
 .alert.ok { background: rgba(106,215,168,0.12); border: 1px solid var(--accent); color: var(--accent); }
 .alert.err { background: rgba(240,100,100,0.1); border: 1px solid #c05050; color: #e08080; }
+
+/* ===== HELP TABLES (feature/troubleshooting articles) ===== */
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 13px;
+}
+.help-table th,
+.help-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+}
+.help-table thead th {
+  background: var(--card);
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.help-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+.help-table td code,
+.help-table th code { font-size: 12px; }
+.help-table strong { color: var(--text); }
+@media (max-width: 640px) {
+  .help-table, .help-table thead, .help-table tbody,
+  .help-table th, .help-table td, .help-table tr { display: block; }
+  .help-table thead { display: none; }
+  .help-table tr { margin-bottom: 12px; border: 1px solid var(--line); }
+  .help-table td { border: none; border-bottom: 1px solid var(--line); }
+}
