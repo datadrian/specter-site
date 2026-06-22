@@ -51,24 +51,10 @@
       </div>
     </div>
     <div class="hero-screen">
-      <div class="screen-placeholder">
-        <div class="screen-hud">
-          <div class="hud-top">
-            <span class="hud-chip active">APPARITION</span>
-            <span class="hud-chip active">SLS</span>
-            <span class="hud-chip">RESIDUAL</span>
-            <span class="hud-chip active">DEPTH</span>
-          </div>
-          <div class="hud-meters">
-            <div class="meter-row"><span class="meter-label">ANOMALY INDEX</span><div class="meter-bar"><div class="meter-fill" style="width:67%"></div></div><span class="meter-val">67%</span></div>
-            <div class="meter-row"><span class="meter-label">FIELD COHERENCE</span><div class="meter-bar"><div class="meter-fill amber" style="width:42%"></div></div><span class="meter-val">0.42σ</span></div>
-            <div class="meter-row"><span class="meter-label">BASELINE DEVIATION</span><div class="meter-bar"><div class="meter-fill red" style="width:81%"></div></div><span class="meter-val">+0.81Δ</span></div>
-            <div class="meter-row"><span class="meter-label">MANIFESTATION DENSITY</span><div class="meter-bar"><div class="meter-fill" style="width:55%"></div></div><span class="meter-val">3.2H</span></div>
-          </div>
-          <div class="hud-event">⬡ DETECTION EVENT // CLASS-III ENTITY MANIFESTATION // 67% CONFIDENCE</div>
-          <div class="hud-note">[ REPLACE WITH APP SCREENSHOT ]</div>
-        </div>
-      </div>
+      <figure class="screen-shot">
+        <img src="/assets/screenshots/specter-identify.png" alt="SPECTER live interface identifying objects in a room: neural-network detection labelling a chair and potted plants with confidence scores, alongside the live Anomaly Index and depth telemetry." loading="eager" width="1024" height="616" />
+        <figcaption class="shot-caption">LIVE // NEURAL ENTITY + OBJECT IDENTIFICATION</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -172,6 +158,30 @@
           <div class="feature-icon">⟁</div>
           <h3>AUTONOMOUS EVIDENCE ARCHIVE</h3>
           <p>Every detection event catalogued without investigator intervention: snapshot, detection class, entity confidence score, full field metrics at time of event. Nothing escapes the archive. Your entire investigation — retrievable, shareable, documented.</p>
+        </div>
+      </div>
+
+      <!-- LIVE VIEW MODES -->
+      <div class="viewmodes">
+        <h3 class="viewmodes-title">Every channel. Every view. One instrument.</h3>
+        <p class="viewmodes-sub">SPECTER renders the room however the investigation demands: live RGB with anomaly overlay, fused depth blend, dense point cloud, and full 3D depth reconstruction. Switch instantly, mid-session.</p>
+        <div class="viewmodes-grid">
+          <figure class="vm-shot">
+            <img src="/assets/screenshots/specter-anomaly-rgb.png" alt="SPECTER live RGB view with Anomaly Index overlay reading a room through the depth sensor." loading="lazy" width="1024" height="616" />
+            <figcaption>RGB // ANOMALY OVERLAY</figcaption>
+          </figure>
+          <figure class="vm-shot">
+            <img src="/assets/screenshots/specter-depth-blend.png" alt="SPECTER depth-blend view fusing depth data over the live visual frame." loading="lazy" width="1024" height="616" />
+            <figcaption>DEPTH BLEND // FUSED FIELD</figcaption>
+          </figure>
+          <figure class="vm-shot">
+            <img src="/assets/screenshots/specter-point-cloud.png" alt="SPECTER point cloud view reconstructing the room as dense 3D spatial geometry." loading="lazy" width="1024" height="616" />
+            <figcaption>POINT CLOUD // SPATIAL CAPTURE</figcaption>
+          </figure>
+          <figure class="vm-shot">
+            <img src="/assets/screenshots/specter-depth-3d.png" alt="SPECTER full 3D depth reconstruction of the room rendered from the sensor depth map." loading="lazy" width="1024" height="616" />
+            <figcaption>DEPTH 3D // RECONSTRUCTION</figcaption>
+          </figure>
         </div>
       </div>
     </div>
