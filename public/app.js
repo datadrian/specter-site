@@ -1,4 +1,4 @@
-// SPECTER — Frontend JS
+// SPECTER, Frontend JS
 // Handles: website question form submission, Stripe checkout redirect
 
 // ---- QUESTION FORM ----
@@ -50,7 +50,7 @@ if (checkoutBtn) {
         throw new Error('No URL returned');
       }
     } catch {
-      checkoutBtn.textContent = 'ACQUIRE LICENSE — $399';
+      checkoutBtn.textContent = 'ACQUIRE LICENSE, $399';
       checkoutBtn.style.pointerEvents = 'auto';
       alert('Checkout failed to initialize. Please try again.');
     }

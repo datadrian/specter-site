@@ -1,12 +1,12 @@
 /* ============================================================
-   SPECTER — PARANORMAL IMAGING SYSTEM
+   SPECTER, PARANORMAL IMAGING SYSTEM
    Marketing Site Stylesheet
    ============================================================ */
 
 :root {
-  --bg:        #070a0f;
-  --bg2:       #0c1018;
-  --bg3:       #111620;
+  --bg:        #060b16;
+  --bg2:       #0b1426;
+  --bg3:       #122036;
   --cyan:      #00e5ff;
   --cyan-dim:  #00b4c8;
   --cyan-glow: rgba(0,229,255,0.15);
@@ -994,4 +994,35 @@ a { color: var(--cyan); text-decoration: none; }
   font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
   color: var(--cyan); padding: 0.7rem 1rem; border-top: 1px solid var(--border);
   background: var(--bg2);
+}
+
+/* ============ HERO VIDEO BACKGROUND ============ */
+.hero-video {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100vw; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.hero-video-overlay {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100vw; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(6,11,22,0.55) 0%, rgba(6,11,22,0.78) 60%, var(--bg) 100%),
+    radial-gradient(ellipse at 30% 40%, rgba(6,11,22,0.25) 0%, rgba(6,11,22,0.8) 100%);
+}
+/* Lift the grid/scanline/content above the video */
+.hero-bg-grid, .hero-scanline { z-index: 1; }
+.hero-content { z-index: 2; }
+.hero-screen { position: relative; z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-video { display: none; }
 }
