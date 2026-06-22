@@ -1,13 +1,14 @@
 const { validateKey } = require('./_lib/license-key');
 const { getRecord } = require('./_lib/license-store');
+const { json, corsPreflight, readJson } = require('./_lib/http');
 
 exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return corsPreflight();
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return json(405, { error: 'Method not allowed' });
   }
 
-  let body = {};
-  try { body = JSON.parse(event.body || '{}'); } catch (_) {}
+  const body = readJson(event);
 
   const fmt = validateKey(body.key, process.env.LICENSE_SALT);
   if (!fmt.ok) {
@@ -25,11 +26,3 @@ exports.handler = async (event) => {
 
   return json(200, { ok: true, plan: 'standard', expiresAt: null });
 };
-
-function json(status, body) {
-  return {
-    statusCode: status,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  };
-}
