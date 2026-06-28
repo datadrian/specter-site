@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Technical Field Guide: Operations Manual</title>
+  <meta name="description" content="The Spectral Imaging Unit Technical Operations Manual. Full field reference for the SPECTER detection engine, system meters, SLS mode, the detection archive, and field protocols. Read online or download the print PDF.">
+  <meta property="og:title" content="SPECTER Technical Field Guide">
+  <meta property="og:description" content="The complete operations manual for the Spectral Imaging Unit. System meters, SLS mode, detection archive, and field protocols.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://specter-imaging.com/help/field-guide.html">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    /* ===== TECHNICAL MANUAL document treatment (sits inside the site, reads as a standalone manual) ===== */
+    .manual { max-width: 880px; }
+    .manual-masthead {
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--accent);
+      background: var(--card);
+      padding: 28px 30px 22px;
+      margin-bottom: 10px;
+    }
+    .manual-masthead .doc-kicker {
+      font-size: 10px; letter-spacing: 0.32em; color: var(--accent);
+      margin: 0 0 14px;
+    }
+    .manual-masthead h1 {
+      text-align: left; font-size: 30px; letter-spacing: 0.14em;
+      margin: 0 0 16px; line-height: 1.1;
+    }
+    .doc-meta {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px;
+      font-size: 11px; letter-spacing: 0.06em;
+    }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #07120d; font-weight: 700;
+      font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px;
+      border: 1px solid var(--accent);
+    }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-print {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--line); color: var(--muted);
+      font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px; background: transparent;
+      cursor: pointer; font-family: inherit;
+    }
+    .doc-print:hover { color: var(--accent); border-color: var(--accent); }
+
+    .manual h2 {
+      font-size: 14px; letter-spacing: 0.12em; color: var(--text);
+      border-bottom: 1px solid var(--line); padding-bottom: 8px;
+      margin: 38px 0 14px;
+    }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 12px; color: var(--text); letter-spacing: 0.08em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); }
+
+    .meter {
+      border-left: 2px solid var(--accent);
+      padding: 4px 0 4px 16px; margin: 18px 0;
+    }
+    .meter .meter-name {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: var(--text);
+    }
+    .meter .meter-unit { color: var(--muted); font-weight: 400; letter-spacing: 0.04em; }
+    .meter p { font-size: 12.5px; margin: 7px 0; color: var(--muted); }
+    .meter .k { color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+    .manual .doc-list { color: var(--muted); font-size: 13px; line-height: 1.75; padding-left: 20px; }
+    .manual .doc-list .k { color: var(--text); font-weight: 700; }
+    .doc-note {
+      border: 1px solid var(--line); background: var(--card);
+      padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0;
+    }
+    .doc-foot {
+      margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px;
+      font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center;
+    }
+    @media print {
+      .site-nav, .doc-actions, .site-footer { display: none !important; }
+      body { background: #fff; color: #111; }
+      .manual-masthead { background: #fff; border-color: #111; }
+      .manual-masthead h1, .manual h2, .manual h3, .manual p, .doc-meta div strong { color: #111; }
+      .meter p, .manual .doc-list, .doc-meta div span { color: #333; }
+      .manual h2 { border-color: #999; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// TECHNICAL FIELD GUIDE</p>
+      <h1>SPECTRAL IMAGING UNIT</h1>
+      <div class="doc-meta">
+        <div><span>DOCUMENT</span><strong>Technical Operations Manual</strong></div>
+        <div><span>REVISION</span><strong>4.2.0</strong></div>
+        <div><span>FORMAT</span><strong>Field reference</strong></div>
+        <div><span>PLATFORM</span><strong>Windows 10 / 11</strong></div>
+      </div>
+    </div>
+
+    <div class="doc-actions">
+      <a class="doc-dl" href="/assets/docs/specter-technical-manual.pdf" download>⬇ DOWNLOAD PDF (PRINT)</a>
+      <button class="doc-print" onclick="window.print()">⎙ PRINT THIS PAGE</button>
+    </div>
+
+    <section>
+      <h2><span class="num">1.0</span>SYSTEM OVERVIEW</h2>
+      <p class="lead">This manual is the primary field reference for the Spectral Imaging Unit. It covers all operational procedures, interface elements, and system protocols required for active deployment.</p>
+      <p>The device is a multi-sensor spatial imaging unit running on dedicated processing hardware. It fuses a wide-spectrum imaging camera, depth sensor arrays, and Structured Light Sensor (SLS) data against an Environmental Anomaly Index. This index mathematically compares the current frame against a continuously updated baseline of the physical environment. When the index drifts past a calibrated threshold, the unit registers a DETECTION EVENT.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>PRIMARY INTERFACE ANATOMY</h2>
+      <p>The interface is divided into functional operational regions. The primary display provides a direct visual reference of the active tracking state.</p>
+      <h3>2.1 Top bar and detector control</h3>
+      <p><strong>Top Bar.</strong> System glyph, active source label, current MODE (ANOMALY / SLS), current VIEW (RGB / DEPTH), current ENV preset, current CLASS, and a live frame counter.</p>
+      <p><strong>Detector Bar.</strong> Four primary status chips: FACE, BODY, SPECTRAL, and SLS. Each chip glows cyan when that specific detector array is armed. Tap a chip to toggle that telemetry channel on or off.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>SYSTEM METERS (LEFT RAIL)</h2>
+      <p>Live instrument readouts showing continuous environmental updates. The system tracks the following baseline metrics.</p>
+
+      <div class="meter">
+        <div class="meter-name">LUMINANCE FLUX <span class="meter-unit">/ cd/m2 with sparkline</span></div>
+        <p><span class="k">Technical.</span> Mean brightness of the frame (0 to 255), plus the delta from the moving-average baseline. Literally counts photons hitting the camera sensor. "cd/m2" is a real photometric unit.</p>
+        <p><span class="k">Watch for.</span> Sudden drops of more than 5 below baseline mean something occluded the lens. Sudden spikes mean a brief light source appeared. Sustained drift over time means the room's lighting is actually changing, not paranormal.</p>
+      </div>
+
+      <div class="meter">
+        <div class="meter-name">SPECTRAL DENSITY <span class="meter-unit">/ H</span></div>
+        <p><span class="k">Technical.</span> Shannon entropy of the RGB histogram, averaged across the three color channels. Measures how dispersed vs. concentrated the frame's colors are. "H" is the standard symbol for entropy.</p>
+        <p><span class="k">Watch for.</span> Sudden collapse means a uniform thing entered the frame (a hand, or a cloud of smoke thickening). Sudden expansion means something with a different color palette appeared (a face, a new object). Steady-state oscillation is just smoke moving; ignore it.</p>
+      </div>
+
+      <div class="meter">
+        <div class="meter-name">PARTICULATE FLOW VECTOR <span class="meter-unit">/ direction + magnitude</span></div>
+        <p><span class="k">Technical.</span> Dense optical flow. For every block of pixels, compute where it was one frame ago. The dominant direction (degrees, 0 = right) and magnitude (pixels/frame) tell you which way the smoke is drifting and how fast.</p>
+        <p><span class="k">Watch for.</span> Direction stays consistent for 5+ seconds then suddenly rotates 90 degrees or more means something disturbed the flow. Magnitude doubles or more means something moved through the smoke that was not part of the smoke.</p>
+      </div>
+
+      <div class="meter">
+        <div class="meter-name">FIELD COHERENCE <span class="meter-unit">/ sigma</span></div>
+        <p><span class="k">Technical.</span> Variance of the optical flow field, how aligned all the local motion vectors are. 1.0 = every block moving in lockstep; 0.0 = pure chaos. Sigma is statistical standard deviation.</p>
+        <p><span class="k">Watch for.</span> This is the primary spatial disturbance meter. A clean smoke cloud moves as one body (coherence near 1.0). When an object pushes through it, the smoke separates around the object and coherence drops sharply. Drop below 0.5 for more than half a second means something is genuinely disturbing the flow.</p>
+      </div>
+
+      <div class="meter">
+        <div class="meter-name">BASELINE DEVIATION <span class="meter-unit">/ delta</span></div>
+        <p><span class="k">Technical.</span> L2 distance (pixel-wise) between the current frame and the exponentially-weighted moving average of recent frames. Tells you how different now is vs. what has been typical for the last few seconds.</p>
+        <p><span class="k">Watch for.</span> The detector's adapt-to-the-room mechanism. Anything new in the room makes this spike. Climbs and stays elevated means something new entered the scene and stayed. Spikes briefly then returns means something flashed through.</p>
+      </div>
+
+      <div class="meter">
+        <div class="meter-name">ANOMALY INDEX <span class="meter-unit">/ percentage</span></div>
+        <p><span class="k">Technical.</span> Composite confidence score. A weighted blend of the best candidate region's score (50%) multiplied by inverse field coherence (30%) multiplied by normalized baseline deviation (20%). The unified "is something happening" number.</p>
+        <p><span class="k">Watch for.</span> This is the meter that drives auto-detection. Above the threshold (default 40%) the system fires a SPECTRAL ANOMALY detection. Above 60% is a strong hit. Above 80% is exceptional. The threshold is set in CONFIG.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>SLS MODE (RIGHT-RAIL TRIO)</h2>
+      <p>Visible only when the unit is shifted into SLS tracking mode.</p>
+      <ul class="doc-list">
+        <li><span class="k">Subjects tracked.</span> Number of human bodies currently detected by the neural network with at least one valid keypoint. Watch for: count exceeds visible people in frame means an unexplained figure.</li>
+        <li><span class="k">Avg confidence.</span> Mean confidence score across all detected keypoints (joints). Higher is more clearly humanoid. Watch for: sustained over 60% on a figure that should not exist.</li>
+        <li><span class="k">Kinematic coherence.</span> Inverse-variance of keypoint confidences. Penalizes "Frankensteined" detections where some joints are super-confident and others are noise. Watch for: above 0.7 on a detected figure that should not be there means the detection is internally consistent, not just noise pretending to be a person.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>DATA ARCHIVE AND RECALL</h2>
+      <p>All detection events are automatically logged to the internal solid-state drive for post-operation review.</p>
+      <h3>5.1 The detection archive (gallery)</h3>
+      <p>Pressing G or tapping the GALLERY button opens the master database.</p>
+      <ul class="doc-list">
+        <li><span class="k">Grid view.</span> Displays all session data cards, sorted chronologically. Each card shows a snapshot thumbnail, detection type, intensity class, and confidence percentage.</li>
+        <li><span class="k">Depth badge.</span> A cyan "D" badge indicates that the capture successfully paired visual data with a complete spatial depth map.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>FIELD PROTOCOLS</h2>
+      <ul class="doc-list">
+        <li><span class="k">Reset the baseline in new sectors.</span> Step into a new physical room, wait six seconds, and verify that the log displays BASELINE NOMINAL before beginning your sweep.</li>
+        <li><span class="k">Event documentation.</span> When a detection event occurs, the system logs the data autonomously. The unit's sensors process anomalies across a wide spectrum, so visual confirmation with the naked eye is not required for a valid reading.</li>
+        <li><span class="k">Sensor accuracy.</span> The unit mathematically processes exactly what its physical sensors record. Avoid dismissing readings as system errors. Investigate environmental variables that may have triggered the mathematical response.</li>
+      </ul>
+
+      <div class="doc-note">
+        Looking for setup, sensor install, or licensing steps? See the <a href="/help/">Help Center</a> for the quick-start checklist, RealSense and Kinect setup, and license activation.
+      </div>
+    </section>
+
+    <div class="doc-foot">SPECTRAL IMAGING UNIT &middot; TECHNICAL OPERATIONS MANUAL &middot; REV 4.2.0 &middot; specter-imaging.com</div>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

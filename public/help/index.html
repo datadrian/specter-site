@@ -19,6 +19,11 @@
     <h1>HELP CENTER</h1>
     <p class="tagline">Setup, sensors, licensing, and field troubleshooting</p>
 
+    <div class="callout ok" style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;">
+      <span><strong>SPECTER Technical Field Guide.</strong> The full operations manual: system meters, SLS mode, the detection archive, and field protocols. Read online or download the print PDF.</span>
+      <a class="btn" href="/help/field-guide.html" style="white-space:nowrap;">Open field guide</a>
+    </div>
+
     <div class="help-toc">
       <strong>On this page</strong>
       <ul>
@@ -35,6 +40,7 @@
       </ul>
       <strong>Feature guides</strong>
       <ul>
+        <li><a href="/help/field-guide.html"><strong>Technical Field Guide</strong> (operations manual + PDF)</a></li>
         <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a></li>
         <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a></li>
         <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a></li>
@@ -60,6 +66,7 @@
       <h2>FEATURE GUIDES</h2>
       <p>Deep-dives on the depth, gallery, recording, and session features:</p>
       <ul>
+        <li><a href="/help/field-guide.html"><strong>Technical Field Guide</strong></a>, the complete operations manual with downloadable print PDF.</li>
         <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a>, the V-cycle and Light / Balanced / Show.</li>
         <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>, RANGE, DEPTH COLOR, orbit, saved viewpoint.</li>
         <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a>, review and re-grade detections.</li>
@@ -150,7 +157,7 @@
 
     <section id="webcam">
       <h2>WEBCAM / HDMI CAPTURE CARD</h2>
-      <p>RGB-only mode, no depth, point cloud, or room map. Useful with a capture card feeding a production switcher.</p>
+      <p>RGB-only mode, no depth, point cloud, or room map. Useful with a capture card feeding a live HDMI source into the detection pipeline.</p>
       <ul>
         <li>Enable <strong>Decouple RGB from depth</strong> in Settings to run a USB capture card for RGB while Kinect/RealSense provides depth in the background.</li>
         <li>Set USB resolution/FPS to match your capture device (1080p30 typical).</li>
