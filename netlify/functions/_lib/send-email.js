@@ -49,7 +49,7 @@ async function sendLicenseEmail({ to, key, type }) {
     to,
     subject: 'Your SPECTER License Key',
     html: `
-      <p>Thank you — here is your ${label} SPECTER license key.</p>
+      <p>Thank you, here is your ${label} SPECTER license key.</p>
       <p><strong>License key:</strong> <code style="font-size:16px;letter-spacing:0.08em">${key}</code></p>
       <ol>
         <li>Open SPECTER on your field unit</li>
