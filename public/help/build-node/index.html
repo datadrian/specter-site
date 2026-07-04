@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.4-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.5-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -326,6 +326,7 @@
 #include &lt;ArduinoJson.h&gt;        // v6 or v7
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
+#include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) — FastLED does NOT support RGBW
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
@@ -355,7 +356,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;middot; standalone&lt;/div&gt;&lt;/div&gt;&lt;div class=conn id=conn&gt;&lt;span class=dot&gt;&lt;/span&gt;&lt;span id=conn-t&gt;CONNECTING&amp;hellip;&lt;/span&gt;&lt;/div&gt;&lt;/header&gt;
 &lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grid&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;div class=xyz id=proxdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;delta &amp;mdash; / thr &amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x &amp;mdash; y &amp;mdash; z &amp;mdash;&lt;/div&gt;&lt;div class=xyz id=magdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;sensor &amp;mdash; &amp;middot; delta &amp;mdash; / thr &amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u id=ssid&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
@@ -365,7 +366,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -403,7 +404,12 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Mag threshold &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=200 max=6000 step=50&gt;
-&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=200 max=4000 step=50&gt;&lt;/div&gt;
+&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=0 max=4000 step=50&gt;&lt;/div&gt;
+&lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;&lt;input type=checkbox id=rf-arm&gt; Suppress matching signals&lt;/label&gt;
+&lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
@@ -438,7 +444,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=row&gt;&lt;button id=upd-check&gt;CHECK FOR UPDATES&lt;/button&gt;&lt;button id=upd-install disabled&gt;INSTALL UPDATE&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
-var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=2000;
+var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=0;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
 function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;\u2014&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;\u2014&#x27;;if(m.thresholds){thrMag=m.thresholds.mag;thrProx=m.thresholds.prox;syncThr()}}}
@@ -446,6 +452,12 @@ function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).
 $(&#x27;baseline&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;rebaseline&#x27;})};$(&#x27;identify&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
 var mt,pt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
 $(&#x27;thr-prox&#x27;).oninput=function(e){thrProx=+e.target.value;$(&#x27;thr-prox-v&#x27;).textContent=thrProx;clearTimeout(pt);pt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;prox&#x27;,value:thrProx})},250)};
+function rfPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
+function rfStat(){fetch(&#x27;/rf/status&#x27;).then(function(r){return r.json()}).then(function(d){var a=$(&#x27;rf-arm&#x27;);if(a)a.checked=!!d.active;var db=$(&#x27;rf-dbg&#x27;);if(db){if(d.capturing){db.textContent=&#x27;capturing... key your radio now&#x27;;db.style.color=&#x27;#fbbf24&#x27;}else if(d.magPeak&gt;0||d.proxPeak&gt;0){db.textContent=&#x27;signature: mag &#x27;+d.magPeak+&#x27; / prox &#x27;+d.proxPeak+(d.active?&#x27; \u00b7 ARMED&#x27;:&#x27; \u00b7 off&#x27;);db.style.color=d.active?&#x27;#4ade80&#x27;:&#x27;var(--text-2)&#x27;}else{db.textContent=&#x27;no signature captured&#x27;;db.style.color=&#x27;var(--text-2)&#x27;}}}).catch(function(){})}
+if($(&#x27;rf-cap&#x27;)){var cap=$(&#x27;rf-cap&#x27;);var down=function(e){e.preventDefault();rfPost(&#x27;/rf/capture?action=start&#x27;).then(rfStat)};var up=function(e){e.preventDefault();rfPost(&#x27;/rf/capture?action=stop&#x27;).then(rfStat)};cap.addEventListener(&#x27;mousedown&#x27;,down);cap.addEventListener(&#x27;touchstart&#x27;,down);cap.addEventListener(&#x27;mouseup&#x27;,up);cap.addEventListener(&#x27;mouseleave&#x27;,up);cap.addEventListener(&#x27;touchend&#x27;,up);}
+if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;/rf/clear&#x27;).then(rfStat)}}
+if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
+rfStat();setInterval(rfStat,1500);
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
@@ -498,7 +510,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.4-maker&quot;
+#define FW_VERSION   &quot;2.4.5-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -616,8 +628,11 @@ CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-ord
 // pack the bytes ourselves in ledShow().
 #define RGBW_RAW_BYTES (LED_MAX*4)
 #define RGBW_RAW_CRGB  ((RGBW_RAW_BYTES + 2) / 3 + 1)  // ceil to whole CRGB + guard
-CRGB physRGBW[RGBW_RAW_CRGB];  // raw 4B/pixel byte span, viewed as CRGB triplets
-bool ledIsRGBW = false;       // true when chipset == SK6812RGBW
+CRGB physRGBW[RGBW_RAW_CRGB];  // (legacy, unused) raw span kept so old refs compile
+bool ledIsRGBW = false;        // true when chipset == SK6812RGBW
+// RGBW is driven by Adafruit NeoPixel (native 4-byte GRBW), NOT FastLED.
+Adafruit_NeoPixel* rgbwStrip = nullptr;
+uint16_t rgbwNeoFlag = NEO_GRBW + NEO_KHZ800;   // BTF-LIGHTING SK6812 is GRBW
 Preferences prefs;
 volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
@@ -630,8 +645,20 @@ volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
 volatile int     ledTestReq   = 0;   // 0 none,1 boot,2 mag,3 prox,4 red,5 green,6 blue,7 white (portal preview)
-volatile int     threshProx = 1400;   // capacitance RISES as an object nears; ABOVE this = detection
+volatile int     threshProx = 0;      // capacitance RISES as an object nears; ABOVE this = detection
 volatile int     threshMag  = 1500;   // vector delta (LSB)
+// ---- Walkie-talkie / RF interference cancel (on-device) ----
+// A keyed two-way radio induces a repeatable spike on the antenna + mag. We let the
+// operator CAPTURE that signature (peak magDelta + proxDelta), persist it, then
+// suppress any event whose peaks fall within tolerance of the captured signature —
+// so the node stays quiet (no buzzer/LED) when someone keys a radio nearby.
+volatile bool    rfActive   = false;   // suppression on/off
+volatile int     rfMagPeak  = 0;       // captured mag signature (LSB delta)
+volatile int     rfProxPeak = 0;       // captured prox signature (delta)
+float            rfTolerance = 0.35f;  // +/- 35% band
+volatile bool    rfCapturing = false;  // true while HOLD-capturing a signature
+volatile int     rfCapMag = 0, rfCapProx = 0;  // running peak during capture
+uint32_t         rfSuppressUntil = 0;  // debounce window so one key-up = one suppression
 volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
 
 #define QMC5883L_ADDR 0x0D   // older QMC5883L (chip id reg 0x0D == 0xFF)
@@ -709,31 +736,20 @@ void ledShow() {
     int n = constrain(ledCfg.count, 0, LED_MAX);
     const char* o = ledCfg.order;   // e.g. &quot;GRB&quot;,&quot;RGB&quot;,&quot;BGR&quot;...
     if (ledIsRGBW) {
-        // 4 bytes/pixel. The order string tells us the byte order of the R,G,B part
-        // (W is always the 4th byte on SK6812RGBW). If the operator picked a 3-char
-        // order (e.g. GRB) we append &#x27;W&#x27;; a 4-char order (GRBW/RGBW) is used as-is.
-        uint8_t* raw = (uint8_t*)physRGBW;
-        memset(raw, 0, RGBW_RAW_CRGB * 3);          // clear the WHOLE span so tail pixels are black
-        char ord[5] = { &#x27;G&#x27;,&#x27;R&#x27;,&#x27;B&#x27;,&#x27;W&#x27;, 0 };       // sensible RGBW default = GRBW
-        if (o &amp;&amp; o[0]) {
-            ord[0]=o[0]; ord[1]=o[1]?o[1]:&#x27;R&#x27;; ord[2]=o[2]?o[2]:&#x27;B&#x27;;
-            ord[3]=(o[3])?o[3]:&#x27;W&#x27;; ord[4]=0;
-        }
-        for (int i = 0; i &lt; n; i++) {                // only up to count; rest already 0 (black)
-            uint8_t r=leds[i].r, g=leds[i].g, b=leds[i].b;
+        // RGBW driven by Adafruit NeoPixel (native GRBW). We hand it plain R,G,B + a
+        // computed White; NeoPixel applies the byte order (set at bind from ledCfg.order).
+        if (!rgbwStrip) return;
+        uint8_t br = ledCfg.bright;
+        for (int i = 0; i &lt; LED_MAX; i++) {
+            uint8_t r=0,g=0,b=0;
+            if (i &lt; n) { r=leds[i].r; g=leds[i].g; b=leds[i].b; }
+            // scale by brightness (NeoPixel has no global setBrightness that plays nice here)
+            r=(uint8_t)((r*br)/255); g=(uint8_t)((g*br)/255); b=(uint8_t)((b*br)/255);
             uint8_t w = (uint8_t)min((int)r, min((int)g, (int)b));  // pull common white out
             uint8_t cr=(r&gt;=w)?r-w:0, cg=(g&gt;=w)?g-w:0, cb=(b&gt;=w)?b-w:0;
-            int base = i*4;
-            for (int k=0;k&lt;4;k++){
-                char ch=ord[k]; uint8_t v;
-                if      (ch==&#x27;R&#x27;||ch==&#x27;r&#x27;) v=cr;
-                else if (ch==&#x27;G&#x27;||ch==&#x27;g&#x27;) v=cg;
-                else if (ch==&#x27;B&#x27;||ch==&#x27;b&#x27;) v=cb;
-                else                       v=w;      // &#x27;W&#x27; or anything else -&gt; white channel
-                raw[base+k]=v;
-            }
+            rgbwStrip-&gt;setPixelColor(i, cr, cg, cb, w);
         }
-        FastLED.show();
+        rgbwStrip-&gt;show();
         return;
     }
     for (int i = 0; i &lt; LED_MAX; i++) {
@@ -924,9 +940,16 @@ void hardwareTask(void* pv) {
         String cs = String(ledCfg.chipset); cs.toUpperCase();
         ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
         if (ledIsRGBW) {
-            // Drive the RGBW strip as a raw byte span: RGBW_RAW_CRGB triplets = LED_MAX*4 bytes.
-            // Timing matches SK6812/WS2812. ledShow() packs R,G,B,W per pixel into this span.
-            FastLED.addLeds&lt;SK6812, LED_DATA_PIN, RGB&gt;(physRGBW, RGBW_RAW_CRGB);
+            // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
+            // Pick the NeoPixel byte order from the portal color-order string.
+            const char* o = ledCfg.order;
+            if      (!strcmp(o,&quot;RGBW&quot;) || !strcmp(o,&quot;RGB&quot;)) rgbwNeoFlag = NEO_RGBW + NEO_KHZ800;
+            else if (!strcmp(o,&quot;BGRW&quot;) || !strcmp(o,&quot;BGR&quot;)) rgbwNeoFlag = NEO_BGRW + NEO_KHZ800;
+            else                                            rgbwNeoFlag = NEO_GRBW + NEO_KHZ800; // default/GRBW
+            if (rgbwStrip) { delete rgbwStrip; rgbwStrip = nullptr; }
+            rgbwStrip = new Adafruit_NeoPixel(LED_MAX, LED_DATA_PIN, rgbwNeoFlag);
+            rgbwStrip-&gt;begin();
+            rgbwStrip-&gt;show();   // all off
         }
         else if (cs == &quot;SK6812&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
         else if (cs == &quot;WS2811&quot;)                        FastLED.addLeds&lt;WS2811,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
@@ -989,21 +1012,45 @@ void hardwareTask(void* pv) {
             baseProx = proxVal; proxAvg = proxVal; proxInit = true;
             recalibrate = false;
         }
-        if (proxInit) proxAvg = proxAvg * 0.999f + proxVal * 0.001f;
-        baseProx = (int)proxAvg;
-
+        // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
+        // a touch is active so the baseline doesn&#x27;t creep toward the touched value.
         int dX = magX - baseMagX, dY = magY - baseMagY, dZ = magZ - baseMagZ;
         magDelta = (int)sqrtf((float)dX * dX + (float)dY * dY + (float)dZ * dZ);
 
-        bool proxAlert = (proxVal &gt; threshProx);   // capacitance RISES as an object nears
+        // Proximity as a DEVIATION from baseline — direction-agnostic. On the classic
+        // ESP32, touchRead() DROPS when the antenna is touched/approached, so the touched
+        // delta is (baseline - current). We take the absolute deviation so it works
+        // whichever way the hardware moves, and expose it as proxDelta.
+        int proxDelta = baseProx - proxVal;          // positive when touched (value dropped)
+        if (proxDelta &lt; 0) proxDelta = 0;            // only count drops (approach), ignore rises
+        bool proxAlert = (proxDelta &gt; threshProx);
         bool magAlert  = (magDelta &gt; threshMag);
+
+        // --- Walkie/RF cancel ---
+        // While capturing, track the PEAK deltas so a key-up defines the signature.
+        if (rfCapturing) {
+            if (magDelta  &gt; rfCapMag)  rfCapMag  = magDelta;
+            if (proxDelta &gt; rfCapProx) rfCapProx = proxDelta;
+        }
+        // If suppression is armed and this spike matches the captured RF signature,
+        // treat it as interference: kill the alert this cycle (no buzzer/LED/event).
+        bool rfSuppress = false;
+        if (rfActive &amp;&amp; (rfMagPeak &gt; 0 || rfProxPeak &gt; 0) &amp;&amp; (proxAlert || magAlert)) {
+            bool mOk = (rfMagPeak  &lt;= 0) || (fabsf((float)(magDelta  - rfMagPeak))  &lt;= rfMagPeak  * rfTolerance);
+            bool pOk = (rfProxPeak &lt;= 0) || (fabsf((float)(proxDelta - rfProxPeak)) &lt;= rfProxPeak * rfTolerance);
+            if (mOk &amp;&amp; pOk) { rfSuppress = true; rfSuppressUntil = millis() + 400; }
+        }
+        if (rfSuppress) { ledIdle(); FastLED.setBrightness(ledCfg.bright); ledShow(); vTaskDelay(pdMS_TO_TICKS(10)); continue; }
+        // Freeze baseline during an active touch so it can&#x27;t drift onto the touched level.
+        if (proxInit &amp;&amp; !proxAlert) proxAvg = proxAvg * 0.999f + proxVal * 0.001f;
+        baseProx = (int)proxAvg;
 
         if (proxAlert || magAlert) {
             const char* sev = &quot;low&quot;;
-            if (proxVal &gt; threshProx + 1000 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
-            else if (proxVal &gt; threshProx + 500 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
+            if (proxDelta &gt; threshProx + 1000 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
+            else if (proxDelta &gt; threshProx + 500 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
             const char* ch = magAlert ? &quot;mag&quot; : &quot;prox&quot;;
-            int val = magAlert ? magDelta : proxVal;
+            int val = magAlert ? magDelta : proxDelta;
             int thr = magAlert ? threshMag : threshProx;
             const char* kind = magAlert ? &quot;mag_anomaly&quot; : &quot;proximity&quot;;
             if (!eventPending) {
@@ -1012,7 +1059,7 @@ void hardwareTask(void* pv) {
                 strncpy(evtKind, kind, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
                 evtValue = val; evtThreshold = thr; eventPending = true;
             }
-            int pitch = constrain(map(proxVal, threshProx, threshProx + 2000, 400, 2000), 400, 2000);
+            int pitch = constrain(map(proxDelta, threshProx, threshProx + 2000, 400, 2000), 400, 2000);
             tone(BUZZER_PIN, pitch, 40);
             // severity -&gt; intensity scale (low ~150, med ~205, high 255)
             uint8_t sevScale = 150;
@@ -1034,7 +1081,7 @@ void hardwareTask(void* pv) {
                 // PROX: fade the ring UP toward 100% as the reading approaches/passes
                 // the trigger. approach 0 at the threshold edge, 1.0 when very close.
                 if (ledCfg.proxAnim == 0) {
-                    float approach = (float)(proxVal - threshProx) / (float)(threshProx &gt; 0 ? threshProx : 1);
+                    float approach = (float)(proxDelta - threshProx) / (float)(threshProx &gt; 0 ? threshProx : 200);
                     approach = 0.15f + approach * 1.15f;   // slight floor so a bare trigger still shows
                     renderProxFade(ledCfg.proxColor, approach);
                 } else {
@@ -1139,7 +1186,10 @@ void setupNetwork() {
     targetPASS  = prefs.getString(&quot;pass&quot;, &quot;&quot;);
     targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
     threshMag   = prefs.getInt(&quot;mag&quot;, 1500);
-    threshProx  = prefs.getInt(&quot;prox&quot;, 2000);
+    threshProx  = prefs.getInt(&quot;prox&quot;, 0);
+    rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
+    rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
+    rfActive    = prefs.getInt(&quot;rfOn&quot;, 0) == 1;
     telemetryHz = prefs.getInt(&quot;hz&quot;, TELEMETRY_HZ_DEFAULT);
     prefs.getString(&quot;name&quot;, &quot;&quot;).toCharArray(nodeName, sizeof(nodeName));
     if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;REM-Pod A&quot;, sizeof(nodeName));
@@ -1297,6 +1347,48 @@ void setupNetwork() {
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
+    // ---- Walkie-talkie / RF interference cancel API ----
+    // GET  /rf/status              -&gt; current signature + armed state
+    // POST /rf/capture?action=start|stop   -&gt; capture a signature (key the radio during &#x27;start&#x27;)
+    // POST /rf/arm?on=1|0          -&gt; enable/disable suppression
+    // POST /rf/clear               -&gt; forget the signature
+    server.on(&quot;/rf/status&quot;, []() {
+        String j = &quot;{&quot;;
+        j += &quot;\&quot;active\&quot;:&quot; + String(rfActive ? &quot;true&quot;:&quot;false&quot;);
+        j += &quot;,\&quot;capturing\&quot;:&quot; + String(rfCapturing ? &quot;true&quot;:&quot;false&quot;);
+        j += &quot;,\&quot;magPeak\&quot;:&quot; + String(rfMagPeak);
+        j += &quot;,\&quot;proxPeak\&quot;:&quot; + String(rfProxPeak);
+        j += &quot;}&quot;;
+        server.send(200, &quot;application/json&quot;, j);
+    });
+    server.on(&quot;/rf/capture&quot;, HTTP_POST, []() {
+        String a = server.hasArg(&quot;action&quot;) ? server.arg(&quot;action&quot;) : &quot;&quot;;
+        if (a == &quot;start&quot;) {
+            rfCapMag = 0; rfCapProx = 0; rfCapturing = true;
+            server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;capturing\&quot;:true}&quot;);
+        } else { // stop -&gt; commit the captured peaks as the signature
+            rfCapturing = false;
+            rfMagPeak = rfCapMag; rfProxPeak = rfCapProx;
+            rfActive = (rfMagPeak &gt; 0 || rfProxPeak &gt; 0);   // auto-arm once we have a signature
+            prefs.begin(&quot;node&quot;, false);
+            prefs.putInt(&quot;rfMag&quot;, rfMagPeak); prefs.putInt(&quot;rfProx&quot;, rfProxPeak);
+            prefs.putInt(&quot;rfOn&quot;, rfActive ? 1 : 0);
+            prefs.end();
+            String j = &quot;{\&quot;ok\&quot;:true,\&quot;magPeak\&quot;:&quot; + String(rfMagPeak) + &quot;,\&quot;proxPeak\&quot;:&quot; + String(rfProxPeak) + &quot;,\&quot;active\&quot;:&quot; + String(rfActive?&quot;true&quot;:&quot;false&quot;) + &quot;}&quot;;
+            server.send(200, &quot;application/json&quot;, j);
+        }
+    });
+    server.on(&quot;/rf/arm&quot;, HTTP_POST, []() {
+        rfActive = server.hasArg(&quot;on&quot;) &amp;&amp; server.arg(&quot;on&quot;) == &quot;1&quot;;
+        prefs.begin(&quot;node&quot;, false); prefs.putInt(&quot;rfOn&quot;, rfActive ? 1 : 0); prefs.end();
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;active\&quot;:&quot;) + (rfActive?&quot;true&quot;:&quot;false&quot;) + &quot;}&quot;);
+    });
+    server.on(&quot;/rf/clear&quot;, HTTP_POST, []() {
+        rfMagPeak = 0; rfProxPeak = 0; rfActive = false; rfCapturing = false;
+        prefs.begin(&quot;node&quot;, false); prefs.putInt(&quot;rfMag&quot;,0); prefs.putInt(&quot;rfProx&quot;,0); prefs.putInt(&quot;rfOn&quot;,0); prefs.end();
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
+    });
+
     // ---- OTA self-update API (portal-driven) ----
     server.on(&quot;/update/status&quot;, []() {
         JsonDocument d;
@@ -1339,7 +1431,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
