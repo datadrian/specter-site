@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.0.0-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.1.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -350,6 +350,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding-bot
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.tile{background:var(--bg-1);border:1px solid var(--line);border-radius:4px;padding:14px}.tile .k{font-size:9px;letter-spacing:.18em;color:var(--text-2);text-transform:uppercase}.tile .v{font-size:26px;margin-top:6px}.tile .u{font-size:10px;color:var(--text-dim)}
 .bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .12s linear}.xyz{font-size:10px;color:var(--text-1);margin-top:6px}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
+button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
 &lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;middot; standalone&lt;/div&gt;&lt;/div&gt;&lt;div class=conn id=conn&gt;&lt;span class=dot&gt;&lt;/span&gt;&lt;span id=conn-t&gt;CONNECTING&amp;hellip;&lt;/span&gt;&lt;/div&gt;&lt;/header&gt;
 &lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
@@ -414,7 +415,20 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Right&lt;/label&gt;&lt;input type=text id=led-right&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Back&lt;/label&gt;&lt;input type=text id=led-back&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Left&lt;/label&gt;&lt;input type=text id=led-left&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=status id=led-status&gt;Brightness &amp;amp; map apply live. Chipset / order / pin / count save now and take effect on the next reboot.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;TEST (BLINK)&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;PREVIEW BOOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Detection LED themes&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=status&gt;Pick a color + animation for each detection type. Applies live.&lt;/div&gt;
+&lt;label&gt;Magnetic anomaly&lt;/label&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Solid&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;label&gt;Proximity&lt;/label&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Solid&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=status id=ev-status&gt;Higher-severity hits automatically brighten and tint toward white.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=ev-save&gt;SAVE THEMES&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Boot animation&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Build color&lt;/label&gt;&lt;input type=color id=boot-a&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Sweep color&lt;/label&gt;&lt;input type=color id=boot-b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;label&gt;&lt;input type=checkbox id=boot-en style=&quot;width:auto;vertical-align:middle&quot;&gt; Play boot animation on startup&lt;/label&gt;
+&lt;div class=status&gt;On power-up the ring builds 1&amp;rarr;N, sweeps your two colors, then goes dark until a detection.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=boot-save&gt;SAVE BOOT&lt;/button&gt;&lt;button id=boot-test class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
@@ -437,15 +451,28 @@ $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).va
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
  $(&#x27;led-chip&#x27;).value=d.chipset||&#x27;WS2812B&#x27;;$(&#x27;led-order&#x27;).value=d.order||&#x27;GRB&#x27;;
- $(&#x27;led-data&#x27;).value=(d.dataPin!=null?d.dataPin:13);$(&#x27;led-count&#x27;).value=(d.count!=null?d.count:12);
+ $(&#x27;led-data&#x27;).value=(d.dataPin!=null?d.dataPin:13);$(&#x27;led-count&#x27;).value=(d.count!=null?d.count:16);
  $(&#x27;led-bright&#x27;).value=(d.bright!=null?d.bright:100);$(&#x27;led-bright-v&#x27;).textContent=(d.bright!=null?d.bright:100);
  var m=d.map||{};$(&#x27;led-front&#x27;).value=(m.front!=null?m.front:&#x27;&#x27;);$(&#x27;led-right&#x27;).value=(m.right!=null?m.right:&#x27;&#x27;);
  $(&#x27;led-back&#x27;).value=(m.back!=null?m.back:&#x27;&#x27;);$(&#x27;led-left&#x27;).value=(m.left!=null?m.left:&#x27;&#x27;);
+ var ev=d.events||{},bt=d.boot||{};
+ if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:1);
+  $(&#x27;ev-prox-c&#x27;).value=&#x27;#&#x27;+(ev.proxColor||&#x27;20E0FF&#x27;);$(&#x27;ev-prox-a&#x27;).value=(ev.proxAnim!=null?ev.proxAnim:2);
+  $(&#x27;boot-a&#x27;).value=&#x27;#&#x27;+(bt.colorA||&#x27;1030FF&#x27;);$(&#x27;boot-b&#x27;).value=&#x27;#&#x27;+(bt.colorB||&#x27;10FF80&#x27;);$(&#x27;boot-en&#x27;).checked=(bt.enable!=0);}
 }).catch(function(){})}
 $(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
-$(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||12,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
+$(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||16,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
  fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){$(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;led-status&#x27;).textContent=d.rebootNeeded?&#x27;Saved. Chipset/pin/count changes apply after a reboot.&#x27;:&#x27;Saved — applied live.&#x27;}).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
-$(&#x27;led-test&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
+$(&#x27;led-test&#x27;).onclick=function(){ledPreview(&#x27;boot&#x27;)};
+function hx6(v){return (v||&#x27;&#x27;).replace(&#x27;#&#x27;,&#x27;&#x27;).toUpperCase()}
+function ledPreview(what){fetch(&#x27;/led/test&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({what:what})}).catch(function(){})}
+function themeSave(cb){var b=new URLSearchParams({magColor:hx6($(&#x27;ev-mag-c&#x27;).value),magAnim:$(&#x27;ev-mag-a&#x27;).value,proxColor:hx6($(&#x27;ev-prox-c&#x27;).value),proxAnim:$(&#x27;ev-prox-a&#x27;).value});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
+function bootSave(cb){var b=new URLSearchParams({bootColorA:hx6($(&#x27;boot-a&#x27;).value),bootColorB:hx6($(&#x27;boot-b&#x27;).value),bootEnable:$(&#x27;boot-en&#x27;).checked?1:0});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
+if($(&#x27;ev-save&#x27;)){$(&#x27;ev-save&#x27;).onclick=function(){themeSave(function(){$(&#x27;ev-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;ev-status&#x27;).textContent=&#x27;Themes saved.&#x27;})};}
+if($(&#x27;ev-mag-t&#x27;)){$(&#x27;ev-mag-t&#x27;).onclick=function(){themeSave(function(){ledPreview(&#x27;mag&#x27;)})};}
+if($(&#x27;ev-prox-t&#x27;)){$(&#x27;ev-prox-t&#x27;).onclick=function(){themeSave(function(){ledPreview(&#x27;prox&#x27;)})};}
+if($(&#x27;boot-save&#x27;)){$(&#x27;boot-save&#x27;).onclick=function(){bootSave(function(){})};}
+if($(&#x27;boot-test&#x27;)){$(&#x27;boot-test&#x27;).onclick=function(){bootSave(function(){ledPreview(&#x27;boot&#x27;)})};}
 // ---- firmware update ----
 function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;
  if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error;return}
@@ -459,7 +486,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.0.0-maker&quot;
+#define FW_VERSION   &quot;2.1.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -477,15 +504,15 @@ static char nodeName[32] = &quot;REM-Pod A&quot;;
 #define LED_COLOR_ORD GRB
 #define LED_DATA_PIN  13
 // #define LED_CLK_PIN   14   // uncomment for clocked chips (APA102 / SK9822)
-#define NUM_LEDS      12
+#define NUM_LEDS      16
 #define LED_BRIGHT    100
 
 // Positional map — which LED index points which way (-1 = unset).
 // Face the antenna FORWARD; SPECTER lights the side toward a source.
 #define LED_FRONT     0
-#define LED_RIGHT     3
-#define LED_BACK      6
-#define LED_LEFT      9
+#define LED_RIGHT     4
+#define LED_BACK      8
+#define LED_LEFT      12
 
 // ── Runtime LED config (portal-editable, persisted to Preferences) ──
 // NOTE: FastLED templates the CHIPSET + COLOR ORDER at COMPILE time, so those
@@ -500,9 +527,19 @@ struct LedCfg {
   int  count;         // applied on reboot
   int  bright;        // applied live
   int  mFront, mRight, mBack, mLeft;   // positional map (applied live)
+  // Per-event theming (applied live, persisted). Colors are 0xRRGGBB.
+  // anim: 0=solid 1=pulse 2=spin 3=blink. Severity brightens via value.
+  uint32_t magColor;   int magAnim;    // magnetic anomaly event
+  uint32_t proxColor;  int proxAnim;   // proximity event
+  uint32_t bootColorA; uint32_t bootColorB;  // boot sweep colors
+  int  bootEnable;     // 1 = play boot animation
 };
 LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
-                  LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT };
+                  LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT,
+                  /*magColor*/  0xFF2020, /*magAnim*/  1,   // red pulse
+                  /*proxColor*/ 0x20E0FF, /*proxAnim*/ 2,   // cyan spin
+                  /*bootColorA*/0x1030FF, /*bootColorB*/0x10FF80, // blue+green
+                  /*bootEnable*/1 };
 
 // ── OTA self-update (mirrors full firmware) ──
 #define UPDATE_MANIFEST_DEFAULT &quot;https://specter-imaging.com/firmware/node/latest.json&quot;
@@ -567,6 +604,7 @@ char             evtChannel[8] = &quot;mag&quot;, evtSeverity[8] = &quot;low&quo
 volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
+volatile int     ledTestReq   = 0;   // 0 none, 1 boot, 2 mag, 3 prox (portal preview)
 volatile int     threshProx = 2000;   // capacitance DROPS as an object nears
 volatile int     threshMag  = 1500;   // vector delta (LSB)
 volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
@@ -590,6 +628,92 @@ void readQMC5883L() {
     }
 }
 
+// ---- LED animation engine ----
+static inline CRGB hex2crgb(uint32_t h){ return CRGB((h&gt;&gt;16)&amp;0xFF,(h&gt;&gt;8)&amp;0xFF,h&amp;0xFF); }
+
+// Boot animation: build 1..N, then a blue/green circular sweep, then dark.
+void playBootAnimation() {
+    int n = constrain(ledCfg.count, 1, NUM_LEDS);
+    CRGB a = hex2crgb(ledCfg.bootColorA);   // blue
+    CRGB b = hex2crgb(ledCfg.bootColorB);   // green
+    FastLED.setBrightness(ledCfg.bright);
+
+    // 1) build-up 1 -&gt; n, each pixel eases in blue
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    for (int i = 0; i &lt; n; i++) {
+        leds[i] = a;
+        // gentle trailing dim so it reads as a growing arc, not a hard fill
+        if (i &gt; 0) leds[i-1].nscale8(180);
+        FastLED.show();
+        tone(BUZZER_PIN, 600 + i * 45, 18);
+        delay(38);
+    }
+    delay(90);
+
+    // 2) two smooth blue-&gt;green circular sweeps
+    for (int lap = 0; lap &lt; 2; lap++) {
+        for (int step = 0; step &lt; n; step++) {
+            for (int i = 0; i &lt; n; i++) {
+                // blend across the ring so the seam is a moving blue/green gradient
+                uint8_t mix = sin8((i * 255 / n) + step * (256 / n));
+                leds[i] = blend(a, b, mix);
+            }
+            FastLED.show();
+            delay(22);
+        }
+    }
+    tone(BUZZER_PIN, 1400, 60);
+
+    // 3) fade to dark — idle until first detection
+    for (int f = 255; f &gt;= 0; f -= 15) {
+        FastLED.setBrightness(scale8(ledCfg.bright, f));
+        FastLED.show();
+        delay(16);
+    }
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    FastLED.setBrightness(ledCfg.bright);
+    FastLED.show();
+}
+
+// Render one detection event with its themed color + animation.
+// sevScale 0..255 lets severity push brightness/intensity.
+void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t nowMs) {
+    int n = constrain(ledCfg.count, 1, NUM_LEDS);
+    CRGB c = hex2crgb(colorHex);
+    switch (anim) {
+        case 1: { // pulse — whole ring breathes
+            uint8_t b = scale8(sin8(nowMs / 4), 200) + 55;
+            b = scale8(b, sevScale);
+            fill_solid(leds, NUM_LEDS, CRGB::Black);
+            for (int i = 0; i &lt; n; i++) leds[i] = c;
+            fadeToBlackBy(leds, NUM_LEDS, 255 - b);
+            break;
+        }
+        case 2: { // spin — a comet chases around the ring
+            fill_solid(leds, NUM_LEDS, CRGB::Black);
+            int head = (nowMs / 45) % n;
+            for (int t = 0; t &lt; 5; t++) {
+                int idx = (head - t + n) % n;
+                CRGB cc = c; cc.nscale8(255 - t * 55);
+                leds[idx] = cc;
+            }
+            break;
+        }
+        case 3: { // blink — hard on/off
+            bool on = (nowMs / 120) &amp; 1;
+            fill_solid(leds, NUM_LEDS, on ? c : CRGB::Black);
+            break;
+        }
+        default: { // 0 solid
+            fill_solid(leds, NUM_LEDS, c);
+            break;
+        }
+    }
+    // severity tint toward white on the brightest events
+    if (sevScale &gt; 210 &amp;&amp; anim != 1)
+        for (int i = 0; i &lt; NUM_LEDS; i++) leds[i] += CRGB(30, 30, 30);
+}
+
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
 void hardwareTask(void* pv) {
     initSensors();
@@ -601,12 +725,35 @@ void hardwareTask(void* pv) {
     ledCfg.mRight = prefs.getInt(&quot;ledRight&quot;, ledCfg.mRight);
     ledCfg.mBack  = prefs.getInt(&quot;ledBack&quot;,  ledCfg.mBack);
     ledCfg.mLeft  = prefs.getInt(&quot;ledLeft&quot;,  ledCfg.mLeft);
+    ledCfg.magColor   = prefs.getUInt(&quot;ledMagC&quot;,  ledCfg.magColor);
+    ledCfg.magAnim    = prefs.getInt(&quot;ledMagA&quot;,   ledCfg.magAnim);
+    ledCfg.proxColor  = prefs.getUInt(&quot;ledPrxC&quot;,  ledCfg.proxColor);
+    ledCfg.proxAnim   = prefs.getInt(&quot;ledPrxA&quot;,   ledCfg.proxAnim);
+    ledCfg.bootColorA = prefs.getUInt(&quot;ledBootA&quot;, ledCfg.bootColorA);
+    ledCfg.bootColorB = prefs.getUInt(&quot;ledBootB&quot;, ledCfg.bootColorB);
+    ledCfg.bootEnable = prefs.getInt(&quot;ledBoot&quot;,   ledCfg.bootEnable);
     prefs.end();
     FastLED.addLeds&lt;LED_CHIPSET, LED_DATA_PIN, LED_COLOR_ORD&gt;(leds, NUM_LEDS);
     FastLED.setBrightness(ledCfg.bright);
+    if (ledCfg.bootEnable) playBootAnimation();   // build 1..N, blue/green sweep, dark
     float proxAvg = 0; bool proxInit = false;
 
     for (;;) {
+        if (ledTestReq) {
+            int req = ledTestReq; ledTestReq = 0;
+            if (req == 1) playBootAnimation();
+            else {
+                // ~1.4s themed preview of a high-severity event
+                uint32_t t0 = millis();
+                while (millis() - t0 &lt; 1400) {
+                    if (req == 2) renderEventLeds(ledCfg.magColor,  ledCfg.magAnim,  255, millis());
+                    else          renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, 255, millis());
+                    FastLED.setBrightness(ledCfg.bright); FastLED.show();
+                    delay(16);
+                }
+                fill_solid(leds, NUM_LEDS, CRGB::Black); FastLED.show();
+            }
+        }
         proxVal = touchRead(TOUCH_PIN);
         readQMC5883L();
 
@@ -640,9 +787,14 @@ void hardwareTask(void* pv) {
             }
             int pitch = constrain(map(proxVal, threshProx, 0, 400, 2000), 400, 2000);
             tone(BUZZER_PIN, pitch, 40);
-            fill_solid(leds, NUM_LEDS, magAlert ? CRGB::Red : CRGB::Cyan);
+            // severity -&gt; intensity scale (low ~150, med ~205, high 255)
+            uint8_t sevScale = 150;
+            if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
+            else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
+            if (magAlert) renderEventLeds(ledCfg.magColor,  ledCfg.magAnim,  sevScale, millis());
+            else          renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, millis());
         } else {
-            fill_solid(leds, NUM_LEDS, CRGB::Black);
+            fill_solid(leds, NUM_LEDS, CRGB::Black);   // idle: dark until detection
         }
         FastLED.setBrightness(ledCfg.bright);
         FastLED.show();
@@ -828,8 +980,17 @@ void setupNetwork() {
         m[&quot;front&quot;] = ledCfg.mFront; m[&quot;right&quot;] = ledCfg.mRight;
         m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
         d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = NUM_LEDS;
-        // brightness + map apply live; the rest need a reboot to take effect.
-        d[&quot;liveFields&quot;] = &quot;bright,map&quot;; d[&quot;rebootFields&quot;] = &quot;chipset,order,dataPin,clkPin,count&quot;;
+        // per-event theming (live) — colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
+        char hx[8];
+        JsonObject ev = d[&quot;events&quot;].to&lt;JsonObject&gt;();
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColor);  ev[&quot;magColor&quot;]=hx;  ev[&quot;magAnim&quot;]=ledCfg.magAnim;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.proxColor); ev[&quot;proxColor&quot;]=hx; ev[&quot;proxAnim&quot;]=ledCfg.proxAnim;
+        JsonObject bt = d[&quot;boot&quot;].to&lt;JsonObject&gt;();
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.bootColorA); bt[&quot;colorA&quot;]=hx;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.bootColorB); bt[&quot;colorB&quot;]=hx;
+        bt[&quot;enable&quot;]=ledCfg.bootEnable;
+        // brightness + map + events + boot apply live; the rest need a reboot.
+        d[&quot;liveFields&quot;] = &quot;bright,map,events,boot&quot;; d[&quot;rebootFields&quot;] = &quot;chipset,order,dataPin,clkPin,count&quot;;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/led/config&quot;, HTTP_POST, []() {
@@ -846,10 +1007,28 @@ void setupNetwork() {
         if (server.hasArg(&quot;dataPin&quot;)){ ledCfg.dataPin = server.arg(&quot;dataPin&quot;).toInt(); prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); reboot=true; }
         if (server.hasArg(&quot;clkPin&quot;)) { ledCfg.clkPin = server.arg(&quot;clkPin&quot;).toInt(); prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin); reboot=true; }
         if (server.hasArg(&quot;count&quot;))  { ledCfg.count = server.arg(&quot;count&quot;).toInt(); prefs.putInt(&quot;ledCount&quot;, ledCfg.count); reboot=true; }
+        // per-event theming + boot (live, no reboot). Colors accepted as hex &quot;RRGGBB&quot; or &quot;#RRGGBB&quot;.
+        auto parseHex = [](String v)-&gt;uint32_t{ if(v.startsWith(&quot;#&quot;)) v=v.substring(1); return (uint32_t) strtoul(v.c_str(), nullptr, 16); };
+        if (server.hasArg(&quot;magColor&quot;)) { ledCfg.magColor = parseHex(server.arg(&quot;magColor&quot;)); prefs.putUInt(&quot;ledMagC&quot;, ledCfg.magColor); }
+        if (server.hasArg(&quot;magAnim&quot;))  { ledCfg.magAnim  = constrain(server.arg(&quot;magAnim&quot;).toInt(),0,3); prefs.putInt(&quot;ledMagA&quot;, ledCfg.magAnim); }
+        if (server.hasArg(&quot;proxColor&quot;)){ ledCfg.proxColor= parseHex(server.arg(&quot;proxColor&quot;)); prefs.putUInt(&quot;ledPrxC&quot;, ledCfg.proxColor); }
+        if (server.hasArg(&quot;proxAnim&quot;)) { ledCfg.proxAnim = constrain(server.arg(&quot;proxAnim&quot;).toInt(),0,3); prefs.putInt(&quot;ledPrxA&quot;, ledCfg.proxAnim); }
+        if (server.hasArg(&quot;bootColorA&quot;)){ ledCfg.bootColorA=parseHex(server.arg(&quot;bootColorA&quot;)); prefs.putUInt(&quot;ledBootA&quot;, ledCfg.bootColorA); }
+        if (server.hasArg(&quot;bootColorB&quot;)){ ledCfg.bootColorB=parseHex(server.arg(&quot;bootColorB&quot;)); prefs.putUInt(&quot;ledBootB&quot;, ledCfg.bootColorB); }
+        if (server.hasArg(&quot;bootEnable&quot;)){ ledCfg.bootEnable=server.arg(&quot;bootEnable&quot;).toInt()?1:0; prefs.putInt(&quot;ledBoot&quot;, ledCfg.bootEnable); }
         prefs.end();
         FastLED.setBrightness(ledCfg.bright);
         JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
+    });
+    // Preview a theme/boot animation live on the ring (portal PREVIEW buttons).
+    server.on(&quot;/led/test&quot;, HTTP_POST, []() {
+        String what = server.hasArg(&quot;what&quot;) ? server.arg(&quot;what&quot;) : &quot;boot&quot;;
+        ledTestReq = 0;
+        if (what == &quot;boot&quot;) ledTestReq = 1;
+        else if (what == &quot;mag&quot;) ledTestReq = 2;
+        else if (what == &quot;prox&quot;) ledTestReq = 3;
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
     // ---- OTA self-update API (portal-driven) ----
