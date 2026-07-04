@@ -281,7 +281,8 @@
 
     <div class="bn-sec" id="code">
       <h2>The code</h2>
-      <p>This is the complete firmware. Paste it into the Arduino IDE (or PlatformIO), install the three libraries below, select your ESP32 board, and upload.</p>
+      <p>This is the <b>complete firmware in a single file</b> &mdash; the on-device dashboard (live telemetry, the 3D field-vector graph, Wi-Fi setup and settings) is built right into it. No separate data upload, no extra plugins. Just paste it into the Arduino IDE, install the three libraries below, select your ESP32 board, and hit Upload.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin:8px 0 0;">After it uploads, the node hosts a Wi-Fi network called <b>SPECTER-NODE-01</b>. Join it from your phone, open <b>192.168.4.1</b> in a browser, and you&rsquo;ll land on the live telemetry page. Tap <b>Settings</b> to connect the node to your home Wi-Fi and tune it.</p>
       <h3>1 · Install libraries</h3>
       <p>In the Arduino IDE, open <em>Tools → Manage Libraries</em> and install:</p>
       <div class="bn-step"><span class="num">1</span><div><strong>WebSockets</strong> by Markus Sattler (links2004)</div></div>
@@ -326,6 +327,96 @@
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
 #include &lt;math.h&gt;
+// ---- embedded portal pages (index + settings) ----
+// portal_pages.h — SPECTER maker-node portal, embedded so there is NO separate
+// LittleFS/data upload. One .ino, one Upload button. Served from PROGMEM.
+//   PAGE_INDEX    -&gt; &quot;/&quot;          live telemetry + 3D field-vector graph
+//   PAGE_SETTINGS -&gt; &quot;/settings&quot;  Wi-Fi, calibrate, thresholds, firmware info
+
+const char PAGE_INDEX[] PROGMEM = R&quot;HTMLPAGE(
+&lt;!DOCTYPE html&gt;&lt;html lang=en&gt;&lt;head&gt;&lt;meta charset=utf-8&gt;
+&lt;meta name=viewport content=&quot;width=device-width,initial-scale=1,maximum-scale=1&quot;&gt;
+&lt;title&gt;SPECTER NODE&lt;/title&gt;&lt;style&gt;
+:root{--bg-0:#07090b;--bg-1:#0a0d10;--bg-2:#0f1318;--line:#1c2329;--text-0:#c6d4dc;--text-1:#889aa3;--text-2:#586872;--text-dim:#3b4750;--accent:#6ad7a8;--alert:#ff4d4f;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg-0);color:var(--text-0);font-family:var(--mono);font-size:14px}body{padding:16px 16px 90px;user-select:none}
+header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.brand{font-size:12px;font-weight:700;letter-spacing:.22em}.sub{font-size:10px;color:var(--text-dim);letter-spacing:.15em}
+.conn{font-size:10px;letter-spacing:.18em;color:var(--text-2);display:inline-flex;gap:6px;align-items:center}.conn .dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim)}.conn.live .dot{background:var(--accent);box-shadow:0 0 6px rgba(106,215,168,.7)}.conn.live{color:var(--accent)}.conn.alert .dot{background:var(--alert);box-shadow:0 0 8px rgba(255,77,79,.8)}.conn.alert{color:var(--alert)}
+.viz-wrap{position:relative;background:var(--bg-1);border:1px solid var(--line);border-radius:6px;height:280px;margin-bottom:14px;overflow:hidden}#viz{display:block;width:100%;height:100%}
+.viz-tag{position:absolute;top:10px;left:12px;font-size:9px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase}.viz-amp{position:absolute;top:10px;right:12px;font-size:9px;letter-spacing:.14em;color:var(--accent)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.tile{background:var(--bg-1);border:1px solid var(--line);border-radius:4px;padding:14px}.tile .k{font-size:9px;letter-spacing:.18em;color:var(--text-2);text-transform:uppercase}.tile .v{font-size:26px;margin-top:6px}.tile .u{font-size:10px;color:var(--text-dim)}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .12s linear}.xyz{font-size:10px;color:var(--text-1);margin-top:6px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;middot; standalone&lt;/div&gt;&lt;/div&gt;&lt;div class=conn id=conn&gt;&lt;span class=dot&gt;&lt;/span&gt;&lt;span id=conn-t&gt;CONNECTING&amp;hellip;&lt;/span&gt;&lt;/div&gt;&lt;/header&gt;
+&lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=grid&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x &amp;mdash; y &amp;mdash; z &amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u id=ssid&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;nav&gt;&lt;a class=on href=/&gt;TELEMETRY&lt;/a&gt;&lt;a href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
+&lt;script&gt;
+var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
+function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
+function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,100-(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
+function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
+function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
+function drawViz(){var w=cv.width,h=cv.height,cxp=w/2,cyp=h/2;cx.clearRect(0,0,w,h);var R=Math.min(w,h)*0.34;vec.x+=(target.x-vec.x)*0.15;vec.y+=(target.y-vec.y)*0.15;vec.z+=(target.z-vec.z)*0.15;var mg=Math.sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z)||1,nx=vec.x/mg,ny=vec.y/mg,nz=vec.z/mg,hot=alertOn,ac=hot?&#x27;#ff4d4f&#x27;:&#x27;#6ad7a8&#x27;;cx.lineWidth=dpr;
+for(var ring=0;ring&lt;3;ring++){cx.strokeStyle=(hot?&#x27;rgba(255,77,79,&#x27;:&#x27;rgba(106,215,168,&#x27;)+(0.11-ring*0.02)+&#x27;)&#x27;;cx.beginPath();for(var a=0;a&lt;=64;a++){var tt=a/64*Math.PI*2,px,py,pz;if(ring===0){px=Math.cos(tt);py=0;pz=Math.sin(tt)}else if(ring===1){px=Math.cos(tt);py=Math.sin(tt);pz=0}else{px=0;py=Math.cos(tt);pz=Math.sin(tt)}var p=proj(px,py,pz,cxp,cyp,R);a===0?cx.moveTo(p[0],p[1]):cx.lineTo(p[0],p[1])}cx.stroke()}
+cx.strokeStyle=&#x27;rgba(88,104,114,0.35)&#x27;;[[1,0,0],[0,1,0],[0,0,1]].forEach(function(v){var p0=proj(-v[0],-v[1],-v[2],cxp,cyp,R),p1=proj(v[0],v[1],v[2],cxp,cyp,R);cx.beginPath();cx.moveTo(p0[0],p0[1]);cx.lineTo(p1[0],p1[1]);cx.stroke()});
+var o=proj(0,0,0,cxp,cyp,R),ln=Math.min(1,mg/3000),tp=proj(nx*ln,ny*ln,nz*ln,cxp,cyp,R),g=cx.createLinearGradient(o[0],o[1],tp[0],tp[1]);g.addColorStop(0,&#x27;rgba(106,215,168,0.15)&#x27;);g.addColorStop(1,ac);cx.strokeStyle=g;cx.lineWidth=3*dpr;cx.lineCap=&#x27;round&#x27;;cx.beginPath();cx.moveTo(o[0],o[1]);cx.lineTo(tp[0],tp[1]);cx.stroke();
+cx.fillStyle=ac;cx.beginPath();cx.arc(tp[0],tp[1],5*dpr+ln*4*dpr,0,Math.PI*2);cx.fill();cx.strokeStyle=ac;cx.globalAlpha=0.4+0.3*Math.sin(Date.now()/240);cx.lineWidth=dpr;cx.beginPath();cx.arc(tp[0],tp[1],(10+ln*10)*dpr,0,Math.PI*2);cx.stroke();cx.globalAlpha=1;rot+=0.008;requestAnimationFrame(drawViz)}
+drawViz();connect();
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
+)HTMLPAGE&quot;;
+
+const char PAGE_SETTINGS[] PROGMEM = R&quot;HTMLPAGE(
+&lt;!DOCTYPE html&gt;&lt;html lang=en&gt;&lt;head&gt;&lt;meta charset=utf-8&gt;
+&lt;meta name=viewport content=&quot;width=device-width,initial-scale=1,maximum-scale=1&quot;&gt;
+&lt;title&gt;SPECTER NODE &amp;middot; Settings&lt;/title&gt;&lt;style&gt;
+:root{--bg-0:#07090b;--bg-1:#0a0d10;--bg-2:#0f1318;--line:#1c2329;--text-0:#c6d4dc;--text-1:#889aa3;--text-2:#586872;--text-dim:#3b4750;--accent:#6ad7a8;--warn:#f0b65e;--alert:#ff4d4f;--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg-0);color:var(--text-0);font-family:var(--mono);font-size:14px}body{padding:16px 16px 90px;user-select:none}
+header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:8px}.brand{font-size:12px;font-weight:700;letter-spacing:.22em}.sub{font-size:10px;color:var(--text-dim);letter-spacing:.15em}
+h4{font-size:10px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase;margin:22px 0 8px}.card{background:var(--bg-1);border:1px solid var(--line);border-radius:5px;padding:14px}
+button{font-family:var(--mono);background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);padding:11px 12px;border-radius:3px;font-size:11px;letter-spacing:.12em;cursor:pointer}button:active,button.on{border-color:var(--accent);color:var(--accent)}button[disabled]{opacity:.4}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row&gt;button{flex:1}label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text-2);margin:12px 0 4px;text-transform:uppercase}
+input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[type=password]{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:10px;border-radius:3px}.val{color:var(--text-0);font-size:12px}
+.wifi-list{margin:4px 0;max-height:190px;overflow:auto}.wifi{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:3px;margin-bottom:6px;cursor:pointer;font-size:12px}.wifi:active,.wifi.sel{border-color:var(--accent)}.wifi .rssi{color:var(--text-2);font-size:10px}.wifi .lock{color:var(--text-dim);font-size:10px;margin-left:6px}
+.status{font-size:11px;color:var(--text-1);margin:8px 0;min-height:14px}.ok{color:var(--accent)}.warn{color:var(--warn)}.err{color:var(--alert)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub&gt;SETTINGS&lt;/div&gt;&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;mdash;&lt;/div&gt;&lt;/header&gt;
+&lt;h4&gt;Wi-Fi&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=status id=wifi-cur&gt;Current: &amp;mdash;&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=wifi-scan&gt;SCAN NETWORKS&lt;/button&gt;&lt;/div&gt;&lt;div class=wifi-list id=wifi-list&gt;&lt;/div&gt;
+&lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
+&lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
+&lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
+&lt;label&gt;Mag threshold &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=200 max=6000 step=50&gt;
+&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=200 max=4000 step=50&gt;&lt;/div&gt;
+&lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=status warn&gt;Maker build &amp;mdash; update by re-flashing from the build guide.&lt;/div&gt;&lt;/div&gt;
+&lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
+&lt;script&gt;
+var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=2000;
+function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
+function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
+function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;\u2014&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;\u2014&#x27;;if(m.thresholds){thrMag=m.thresholds.mag;thrProx=m.thresholds.prox;syncThr()}}}
+function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;$(&#x27;thr-prox&#x27;).value=thrProx;$(&#x27;thr-prox-v&#x27;).textContent=thrProx}
+$(&#x27;baseline&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;rebaseline&#x27;})};$(&#x27;identify&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
+var mt,pt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
+$(&#x27;thr-prox&#x27;).oninput=function(e){thrProx=+e.target.value;$(&#x27;thr-prox-v&#x27;).textContent=thrProx;clearTimeout(pt);pt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;prox&#x27;,value:thrProx})},250)};
+function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
+$(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
+$(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+syncThr();wifiStatus();connect();
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
+)HTMLPAGE&quot;;
 
 // ---- identity / version ----
 #define FW_VERSION   &quot;2.0.0-maker&quot;
@@ -506,8 +597,22 @@ void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
         JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc);
     }
 }
+void sendHelloTo(uint8_t num) {
+    // Same identity/thresholds the app gets, so the standalone portal can prefill.
+    JsonDocument doc;
+    doc[&quot;t&quot;] = &quot;hello&quot;; doc[&quot;device&quot;] = DEVICE_TYPE; doc[&quot;fw&quot;] = FW_VERSION;
+    doc[&quot;name&quot;] = nodeName;
+    JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
+    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;);
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;;
+    JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
+    th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
+    String out; serializeJson(doc, out); localWS.sendTXT(num, out);
+}
+
 void localWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-    if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc); }
+    if (type == WStype_CONNECTED) { sendHelloTo(num); }
+    else if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc); }
 }
 
 void connectToApp(const String&amp; ip, int port) {
@@ -546,26 +651,60 @@ void setupNetwork() {
         }
         if (targetAppIP != &quot;&quot;) connectToApp(targetAppIP, APP_WS_PORT);
     }
-    // Minimal Wi-Fi config portal on the pod&#x27;s AP.
-    server.on(&quot;/&quot;, []() {
-        String h = &quot;&lt;!DOCTYPE html&gt;&lt;meta name=viewport content=&#x27;width=device-width,initial-scale=1&#x27;&gt;&quot;
-          &quot;&lt;body style=&#x27;background:#07090b;color:#c6d4dc;font-family:monospace;padding:20px&#x27;&gt;&quot;
-          &quot;&lt;h3 style=&#x27;letter-spacing:.2em&#x27;&gt;SPECTER NODE&lt;/h3&gt;&lt;p&gt;fw &quot; FW_VERSION &quot;&lt;/p&gt;&quot;
-          &quot;&lt;form method=POST action=/save&gt;&quot;
-          &quot;Wi-Fi SSID&lt;br&gt;&lt;input name=ssid style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
-          &quot;Password&lt;br&gt;&lt;input name=pass type=password style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
-          &quot;App IP (optional)&lt;br&gt;&lt;input name=appip style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
-          &quot;&lt;button style=&#x27;margin-top:10px;padding:10px 16px;background:#0f1318;color:#6ad7a8;border:1px solid #6ad7a8&#x27;&gt;SAVE + REBOOT&lt;/button&gt;&lt;/form&gt;&lt;/body&gt;&quot;;
-        server.send(200, &quot;text/html&quot;, h);
+    // ---- Standalone portal (embedded, no LittleFS) ----
+    // &quot;/&quot;         live telemetry + 3D field-vector graph
+    // &quot;/settings&quot; Wi-Fi, calibrate, thresholds, firmware info
+    server.on(&quot;/&quot;, []()          { server.send_P(200, &quot;text/html&quot;, PAGE_INDEX); });
+    server.on(&quot;/settings&quot;, []()  { server.send_P(200, &quot;text/html&quot;, PAGE_SETTINGS); });
+
+    // ---- Wi-Fi management API (used by the settings page) ----
+    server.on(&quot;/wifi/status&quot;, []() {
+        JsonDocument d;
+        bool up = (WiFi.status() == WL_CONNECTED);
+        d[&quot;connected&quot;] = up;
+        d[&quot;ssid&quot;] = up ? WiFi.SSID() : String(&quot;&quot;);
+        d[&quot;rssi&quot;] = up ? WiFi.RSSI() : 0;
+        d[&quot;ip&quot;]   = up ? WiFi.localIP().toString() : String(&quot;&quot;);
+        d[&quot;ap&quot;]   = WiFi.softAPSSID();
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
-    server.on(&quot;/save&quot;, HTTP_POST, []() {
-        prefs.begin(&quot;specter&quot;, false);
-        if (server.hasArg(&quot;ssid&quot;))  prefs.putString(&quot;ssid&quot;,  server.arg(&quot;ssid&quot;));
-        if (server.hasArg(&quot;pass&quot;))  prefs.putString(&quot;pass&quot;,  server.arg(&quot;pass&quot;));
-        if (server.hasArg(&quot;appip&quot;)) prefs.putString(&quot;appip&quot;, server.arg(&quot;appip&quot;));
-        prefs.end();
-        server.send(200, &quot;text/html&quot;, &quot;&lt;meta http-equiv=refresh content=&#x27;2;url=/&#x27;&gt;Saved. Rebooting…&quot;);
-        delay(400); ESP.restart();
+    server.on(&quot;/wifi/scan&quot;, []() {
+        int n = WiFi.scanNetworks();
+        JsonDocument d; JsonArray arr = d.to&lt;JsonArray&gt;();
+        for (int i = 0; i &lt; n &amp;&amp; i &lt; 40; i++) {
+            String ss = WiFi.SSID(i);
+            if (ss.length() == 0) continue;
+            bool seen = false;
+            for (JsonObject o : arr) { if (o[&quot;ssid&quot;] == ss) { seen = true; break; } }
+            if (seen) continue;
+            JsonObject o = arr.add&lt;JsonObject&gt;();
+            o[&quot;ssid&quot;] = ss; o[&quot;rssi&quot;] = WiFi.RSSI(i);
+            o[&quot;enc&quot;] = (WiFi.encryptionType(i) != WIFI_AUTH_OPEN);
+            if (arr.size() &gt;= 24) break;
+        }
+        WiFi.scanDelete();
+        String out; serializeJson(d, out); server.send(200, &quot;application/json&quot;, out);
+    });
+    server.on(&quot;/wifi/save&quot;, HTTP_POST, []() {
+        String ssid = server.hasArg(&quot;ssid&quot;) ? server.arg(&quot;ssid&quot;) : &quot;&quot;;
+        String pass = server.hasArg(&quot;pass&quot;) ? server.arg(&quot;pass&quot;) : &quot;&quot;;
+        ssid.trim();
+        if (ssid.length() == 0) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;no ssid\&quot;}&quot;); return; }
+        WiFi.mode(WIFI_AP_STA);                 // keep AP up so the portal stays reachable
+        WiFi.begin(ssid.c_str(), pass.c_str());
+        int t = 0;
+        while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 24) { delay(500); t++; }
+        JsonDocument d;
+        if (WiFi.status() == WL_CONNECTED) {
+            targetSSID = ssid; targetPASS = pass;
+            prefs.begin(&quot;specter&quot;, false);
+            prefs.putString(&quot;ssid&quot;, ssid); prefs.putString(&quot;pass&quot;, pass);
+            prefs.end();
+            d[&quot;ok&quot;] = true; d[&quot;ip&quot;] = WiFi.localIP().toString();
+        } else {
+            d[&quot;ok&quot;] = false; d[&quot;error&quot;] = &quot;auth or out of range&quot;;
+        }
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.begin();
     localWS.begin(); localWS.onEvent(localWsEvent);
