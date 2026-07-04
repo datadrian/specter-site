@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.6-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.7-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -366,7 +366,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -405,6 +405,13 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Mag threshold &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=200 max=6000 step=50&gt;
 &lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
+&lt;h4&gt;Antenna / proximity&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;&amp;mdash;&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;&amp;mdash;&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;&amp;mdash;&lt;/b&gt;&lt;/div&gt;
+&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
+&lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
+&lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=2&gt;GPIO2 (T2)&lt;/option&gt;&lt;option value=15&gt;GPIO15 (T3)&lt;/option&gt;&lt;option value=14&gt;GPIO14 (T6)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;/select&gt;
+&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE BASELINE&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; try another GPIO, then RECALIBRATE with your hand away.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
@@ -420,16 +427,16 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Positional map (LED index toward each side)&lt;/label&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Right&lt;/label&gt;&lt;input type=text id=led-right&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Back&lt;/label&gt;&lt;input type=text id=led-back&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Left&lt;/label&gt;&lt;input type=text id=led-left&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash. With the Solid animation, proximity fades the ring up to 100% as you get closer, and magnetic hits glow on the side nearest the source (uses your positional map).&lt;/div&gt;
+&lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash. With the Solid animation, proximity fades the ring up to 100% as you get closer, and magnetic hits glow on the side nearest the source using your positional map. Set the mag animation to &quot;Directional&quot; (default) and set the FRONT/RIGHT/BACK/LEFT pixel indices below to your physical layout, or all hits glow the whole strip.&lt;/div&gt;
 &lt;div class=status id=led-test-hint&gt;Test the ring: fires a solid color on all &lt;span class=val id=led-count-echo&gt;16&lt;/span&gt; pixels for 2s. If only some light up, check your Count; if the color is wrong, change Color order.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=t-red class=mini style=&quot;border-color:#c0392b&quot;&gt;RED&lt;/button&gt;&lt;button id=t-grn class=mini style=&quot;border-color:#27ae60&quot;&gt;GREEN&lt;/button&gt;&lt;button id=t-blu class=mini style=&quot;border-color:#2980b9&quot;&gt;BLUE&lt;/button&gt;&lt;button id=t-wht class=mini&gt;WHITE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;PREVIEW BOOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection LED themes&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Pick a color + animation for each detection type. Applies live.&lt;/div&gt;
 &lt;label&gt;Magnetic anomaly&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Solid&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;label&gt;Proximity&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Solid&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=status id=ev-status&gt;Higher-severity hits automatically brighten and tint toward white.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=ev-save&gt;SAVE THEMES&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Boot animation&lt;/h4&gt;&lt;div class=card&gt;
@@ -458,6 +465,10 @@ if($(&#x27;rf-cap&#x27;)){var cap=$(&#x27;rf-cap&#x27;);var down=function(e){e.p
 if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;/rf/clear&#x27;).then(rfStat)}}
 if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
 rfStat();setInterval(rfStat,1500);
+function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
+if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=true;$(&#x27;prox-pin&#x27;).onchange=function(e){var v=e.target.value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v)})}}
+if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
+
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
@@ -470,7 +481,7 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
  var m=d.map||{};$(&#x27;led-front&#x27;).value=(m.front!=null?m.front:&#x27;&#x27;);$(&#x27;led-right&#x27;).value=(m.right!=null?m.right:&#x27;&#x27;);
  $(&#x27;led-back&#x27;).value=(m.back!=null?m.back:&#x27;&#x27;);$(&#x27;led-left&#x27;).value=(m.left!=null?m.left:&#x27;&#x27;);
  var ev=d.events||{},bt=d.boot||{};
- if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:1);
+ if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:0);
   $(&#x27;ev-prox-c&#x27;).value=&#x27;#&#x27;+(ev.proxColor||&#x27;20E0FF&#x27;);$(&#x27;ev-prox-a&#x27;).value=(ev.proxAnim!=null?ev.proxAnim:2);
   $(&#x27;boot-a&#x27;).value=&#x27;#&#x27;+(bt.colorA||&#x27;1030FF&#x27;);$(&#x27;boot-b&#x27;).value=&#x27;#&#x27;+(bt.colorB||&#x27;10FF80&#x27;);$(&#x27;boot-en&#x27;).checked=(bt.enable!=0);}
  var ce=$(&#x27;led-count-echo&#x27;);if(ce)ce.textContent=(d.count!=null?d.count:16);
@@ -510,12 +521,15 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.6-maker&quot;
+#define FW_VERSION   &quot;2.4.7-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
 // ---- pins ----
-#define TOUCH_PIN       4    // T0 — capacitive telescopic antenna
+#define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) — capacitive telescopic antenna
+// Runtime-selectable touch pin (portal). Touch-capable &amp; free on classic ESP32:
+//   4(T0) 2(T2) 15(T3) 14(T6) 27(T7) 33(T8) 32(T9). Avoid 13(LED)/12(buzzer).
+volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SDA        21
 #define I2C_SCL        22
 #define BUZZER_PIN     12
@@ -560,7 +574,7 @@ struct LedCfg {
 };
 LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
                   LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT,
-                  /*magColor*/  0xFF2020, /*magAnim*/  1,   // red pulse
+                  /*magColor*/  0xFF2020, /*magAnim*/  0,   // red, directional
                   /*proxColor*/ 0x20E0FF, /*proxAnim*/ 2,   // cyan spin
                   /*bootColorA*/0x1030FF, /*bootColorB*/0x10FF80, // blue+green
                   /*bootEnable*/1 };
@@ -633,6 +647,24 @@ bool ledIsRGBW = false;        // true when chipset == SK6812RGBW
 // RGBW is driven by Adafruit NeoPixel (native 4-byte GRBW), NOT FastLED.
 Adafruit_NeoPixel* rgbwStrip = nullptr;
 uint16_t rgbwNeoFlag = NEO_GRBW + NEO_KHZ800;   // BTF-LIGHTING SK6812 is GRBW
+
+// (Re)bind the Adafruit NeoPixel RGBW strip using the current ledCfg.order. Called at
+// chipset bind AND whenever the order dropdown changes, so GRBW/RGBW/BGRW apply LIVE.
+void rebindRgbw() {
+    char o[6]; strncpy(o, ledCfg.order, sizeof(o)-1); o[sizeof(o)-1]=0;
+    for (char* q=o; *q; ++q) *q = toupper(*q);
+    if      (!strcmp(o,&quot;RGBW&quot;) || !strcmp(o,&quot;RGB&quot;)) rgbwNeoFlag = NEO_RGBW + NEO_KHZ800;
+    else if (!strcmp(o,&quot;BGRW&quot;) || !strcmp(o,&quot;BGR&quot;)) rgbwNeoFlag = NEO_BGRW + NEO_KHZ800;
+    else if (!strcmp(o,&quot;GRBW&quot;) || !strcmp(o,&quot;GRB&quot;)) rgbwNeoFlag = NEO_GRBW + NEO_KHZ800;
+    else if (!strcmp(o,&quot;BRGW&quot;) || !strcmp(o,&quot;BRG&quot;)) rgbwNeoFlag = NEO_BRGW + NEO_KHZ800;
+    else if (!strcmp(o,&quot;RBGW&quot;) || !strcmp(o,&quot;RBG&quot;)) rgbwNeoFlag = NEO_RBGW + NEO_KHZ800;
+    else if (!strcmp(o,&quot;GBRW&quot;) || !strcmp(o,&quot;GBR&quot;)) rgbwNeoFlag = NEO_GBRW + NEO_KHZ800;
+    else                                            rgbwNeoFlag = NEO_GRBW + NEO_KHZ800;
+    if (rgbwStrip) { delete rgbwStrip; rgbwStrip = nullptr; }
+    rgbwStrip = new Adafruit_NeoPixel(LED_MAX, LED_DATA_PIN, rgbwNeoFlag);
+    rgbwStrip-&gt;begin();
+    rgbwStrip-&gt;show();
+}
 Preferences prefs;
 volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
@@ -685,6 +717,13 @@ static bool i2cReg(uint8_t addr, uint8_t reg, uint8_t&amp; out) {
     out = Wire.read(); return true;
 }
 void initSensors() {
+    // --- Capacitive touch sensitivity tuning ---
+    // A long telescopic antenna adds a big fixed capacitance that pulls touchRead()&#x27;s
+    // baseline way down and saturates it (tiny range left for a hand). Widening the
+    // measurement window recovers dynamic range so an APPROACHING hand shows up.
+    // touchSetCycles(measure, sleep): bigger &#x27;measure&#x27; = more charge/discharge cycles
+    // counted per read = larger, more sensitive values. Default is ~0x1000; we push it up.
+    touchSetCycles(0x6000, 0x1000);
     Wire.begin(I2C_SDA, I2C_SCL);
     Wire.setClock(400000);
     magType = 0; magPresent = false;
@@ -941,15 +980,7 @@ void hardwareTask(void* pv) {
         ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812RGB&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
         if (ledIsRGBW) {
             // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
-            // Pick the NeoPixel byte order from the portal color-order string.
-            const char* o = ledCfg.order;
-            if      (!strcmp(o,&quot;RGBW&quot;) || !strcmp(o,&quot;RGB&quot;)) rgbwNeoFlag = NEO_RGBW + NEO_KHZ800;
-            else if (!strcmp(o,&quot;BGRW&quot;) || !strcmp(o,&quot;BGR&quot;)) rgbwNeoFlag = NEO_BGRW + NEO_KHZ800;
-            else                                            rgbwNeoFlag = NEO_GRBW + NEO_KHZ800; // default/GRBW
-            if (rgbwStrip) { delete rgbwStrip; rgbwStrip = nullptr; }
-            rgbwStrip = new Adafruit_NeoPixel(LED_MAX, LED_DATA_PIN, rgbwNeoFlag);
-            rgbwStrip-&gt;begin();
-            rgbwStrip-&gt;show();   // all off
+            rebindRgbw();   // builds the strip using the current ledCfg.order flag
         }
         else if (cs == &quot;SK6812&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
         else if (cs == &quot;WS2811&quot;)                        FastLED.addLeds&lt;WS2811,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
@@ -1009,7 +1040,7 @@ void hardwareTask(void* pv) {
         // and a real hand-approach stands out cleanly.
         {
             int sm[9];
-            for (int k = 0; k &lt; 9; k++) { sm[k] = touchRead(TOUCH_PIN); delayMicroseconds(200); }
+            for (int k = 0; k &lt; 9; k++) { sm[k] = touchRead(touchPin); delayMicroseconds(200); }
             for (int a = 0; a &lt; 9; a++) for (int b = a+1; b &lt; 9; b++) if (sm[b] &lt; sm[a]) { int t=sm[a]; sm[a]=sm[b]; sm[b]=t; }
             proxVal = sm[4];   // median
         }
@@ -1199,6 +1230,7 @@ void setupNetwork() {
     targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
     threshMag   = prefs.getInt(&quot;mag&quot;, 1500);
     threshProx  = prefs.getInt(&quot;prox&quot;, 8);
+    touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
     rfActive    = prefs.getInt(&quot;rfOn&quot;, 0) == 1;
@@ -1326,7 +1358,7 @@ void setupNetwork() {
         // count + order apply LIVE (count = pixels driven; order remapped in software).
         bool reboot=false;
         if (server.hasArg(&quot;chipset&quot;)){ strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; prefs.putString(&quot;ledChip&quot;, ledCfg.chipset); reboot=true; }
-        if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); }  // live (software remap)
+        if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); if (ledIsRGBW) rebindRgbw(); }  // live: RGB software-remap, RGBW rebinds NeoPixel
         if (server.hasArg(&quot;dataPin&quot;)){ ledCfg.dataPin = server.arg(&quot;dataPin&quot;).toInt(); prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); reboot=true; }
         if (server.hasArg(&quot;clkPin&quot;)) { ledCfg.clkPin = server.arg(&quot;clkPin&quot;).toInt(); prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin); reboot=true; }
         if (server.hasArg(&quot;count&quot;))  { ledCfg.count = constrain(server.arg(&quot;count&quot;).toInt(),1,LED_MAX); prefs.putInt(&quot;ledCount&quot;, ledCfg.count); }  // live (drives 0..count-1)
@@ -1401,6 +1433,26 @@ void setupNetwork() {
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
+    // Change which GPIO the antenna is read from (live, no reflash). Forces a recal.
+    server.on(&quot;/prox/pin&quot;, HTTP_POST, []() {
+        if (server.hasArg(&quot;pin&quot;)) {
+            int np = server.arg(&quot;pin&quot;).toInt();
+            // allow only touch-capable, non-conflicting pins
+            const int ok[] = {4,2,15,14,27,33,32};
+            bool valid = false; for (int i=0;i&lt;7;i++) if (ok[i]==np) valid=true;
+            if (valid) {
+                touchPin = np;
+                prefs.begin(&quot;node&quot;, false); prefs.putInt(&quot;touchPin&quot;, np); prefs.end();
+                recalibrate = true;   // rebaseline on the new pin
+            }
+        }
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;pin\&quot;:&quot;) + touchPin + &quot;}&quot;);
+    });
+    server.on(&quot;/prox/recal&quot;, HTTP_POST, []() {
+        recalibrate = true;
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
+    });
+
     // ---- OTA self-update API (portal-driven) ----
     server.on(&quot;/update/status&quot;, []() {
         JsonDocument d;
@@ -1443,7 +1495,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
