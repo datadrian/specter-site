@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.9-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.5.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -527,7 +527,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.9-maker&quot;
+#define FW_VERSION   &quot;2.5.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -1071,10 +1071,31 @@ void hardwareTask(void* pv) {
         // absorbed into the baseline. Fast-settle for the first 3s after boot/recal.
         {
             static uint32_t magSettleStart = 0;
-            static bool magSettleInit = false;
+            static bool     magSettleInit  = false;
+            static uint32_t magHitStart    = 0;   // when the current sustained hit began
             if (!magSettleInit) { magSettleStart = millis(); magSettleInit = true; }
-            if (recalibrate) magSettleStart = millis();
+            if (recalibrate)    { magSettleStart = millis(); magHitStart = 0; }
             bool magHitActive = (magDelta &gt; threshMag);
+
+            // STUCK-ALERT AUTO-RECALIBRATION: if a hit stays active longer than
+            // MAG_HOLD_MS (a magnet parked next to the antenna, or the ambient
+            // field genuinely shifted), snap the baseline to the CURRENT field so
+            // the node stops screaming forever. Removing the magnet then produces
+            // a brief opposite blip that re-settles in a couple seconds instead of
+            // latching on until a manual reset.
+            const uint32_t MAG_HOLD_MS = 6000;
+            if (magHitActive) {
+                if (magHitStart == 0) magHitStart = millis();
+                if (millis() - magHitStart &gt; MAG_HOLD_MS) {
+                    baseMagX = magX; baseMagY = magY; baseMagZ = magZ;   // hard re-zero
+                    magHitStart = 0;
+                    magSettleStart = millis();                            // fast-settle after
+                }
+            } else {
+                magHitStart = 0;
+            }
+
+            // Normal slow baseline tracking while NOT in a hit (fast-settle 3s after boot/recal).
             float a = (millis() - magSettleStart &lt; 3000) ? 0.05f : 0.002f;
             if (!magHitActive) {
                 baseMagX = (int16_t)(baseMagX + a * (magX - baseMagX));
@@ -1117,6 +1138,23 @@ void hardwareTask(void* pv) {
         // Freeze baseline during an active touch so it can&#x27;t drift onto the touched level.
         // Baseline: settle FAST for the first ~2s (so boot noise doesn&#x27;t poison it),
         // then hold SLOWLY so a lingering hand doesn&#x27;t get absorbed into the baseline.
+        // STUCK-ALERT AUTO-RECALIBRATION (mirrors mag): if a prox hit stays active
+        // longer than PROX_HOLD_MS, snap the baseline to the current reading so a
+        // parked hand / permanent capacitance shift stops latching the alarm on.
+        {
+            static uint32_t proxHitStart = 0;
+            const uint32_t  PROX_HOLD_MS = 6000;
+            if (proxAlert) {
+                if (proxHitStart == 0) proxHitStart = millis();
+                if (millis() - proxHitStart &gt; PROX_HOLD_MS) {
+                    proxAvg = (float)proxVal;         // hard re-zero to current
+                    proxHitStart = 0;
+                    proxSettleStart = millis();       // fast-settle after
+                }
+            } else {
+                proxHitStart = 0;
+            }
+        }
         if (proxInit &amp;&amp; !proxAlert) {
             float a = (millis() - proxSettleStart &lt; 2000) ? 0.05f : 0.001f;
             proxAvg = proxAvg * (1.0f - a) + (float)proxVal * a;
