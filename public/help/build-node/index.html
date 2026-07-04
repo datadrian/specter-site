@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.3-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.4-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -365,7 +365,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:&#x27;ok&#x27;;var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -408,7 +408,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
 &lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;/select&gt;
+&lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;option&gt;GRBW&lt;/option&gt;&lt;option&gt;RGBW&lt;/option&gt;&lt;option&gt;BGRW&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Data pin&lt;/label&gt;&lt;input type=text id=led-data&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Count&lt;/label&gt;&lt;input type=text id=led-count&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;label&gt;Brightness &lt;span class=val id=led-bright-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=led-bright min=0 max=255 step=1&gt;
 &lt;label&gt;Positional map (LED index toward each side)&lt;/label&gt;
@@ -498,7 +498,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.3-maker&quot;
+#define FW_VERSION   &quot;2.4.4-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -614,7 +614,8 @@ CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-ord
 // pushes 3, which misaligns the stream (symptom: RED shows as alternating colors).
 // For RGBW we drive a raw 4-bytes/pixel span as (LED_MAX*4/3 +1) RGB &quot;pixels&quot; and
 // pack the bytes ourselves in ledShow().
-#define RGBW_RAW_CRGB ((LED_MAX*4)/3 + 2)
+#define RGBW_RAW_BYTES (LED_MAX*4)
+#define RGBW_RAW_CRGB  ((RGBW_RAW_BYTES + 2) / 3 + 1)  // ceil to whole CRGB + guard
 CRGB physRGBW[RGBW_RAW_CRGB];  // raw 4B/pixel byte span, viewed as CRGB triplets
 bool ledIsRGBW = false;       // true when chipset == SK6812RGBW
 Preferences prefs;
@@ -633,7 +634,10 @@ volatile int     threshProx = 1400;   // capacitance RISES as an object nears; A
 volatile int     threshMag  = 1500;   // vector delta (LSB)
 volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
 
-#define QMC5883L_ADDR 0x0D
+#define QMC5883L_ADDR 0x0D   // older QMC5883L (chip id reg 0x0D == 0xFF)
+#define QMC5883P_ADDR 0x2C   // newer QMC5883P / &quot;HP5883&quot; (chip id reg 0x00 == 0x80)
+uint8_t magAddr = QMC5883L_ADDR;   // active address, chosen at init
+uint8_t magType = 0;               // 0 none, 1 = 5883L, 2 = 5883P
 
 // QMC5883L bring-up. Registers per datasheet:
 //   0x0B SET/RESET period -&gt; 0x01 (recommended, required for correct operation)
@@ -641,24 +645,53 @@ volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
 //   0x09 control 1        -&gt; mode=continuous, ODR=200Hz, RNG=8G, OSR=512 = 0x1D
 // NOTE: DRDY is NOT wired — we poll the data registers over I2C, so only
 // VCC / GND / SDA / SCL are needed. The extra DRDY pad on the breakout is optional.
+// Bring up the magnetometer. Two very different chips ship on GY-271/GY-273 boards:
+//  - QMC5883L  @ 0x0D  (chip-id register 0x0D reads 0xFF)
+//  - QMC5883P  @ 0x2C  (a.k.a. &quot;HP5883&quot;; chip-id register 0x00 reads 0x80,
+//                       DIFFERENT register map: mode 0x0A, config 0x0B, data 0x01..0x06)
+// We probe 0x2C (the newer/&quot;fake&quot; part most boards now use) first, then 0x0D.
+static bool i2cReg(uint8_t addr, uint8_t reg, uint8_t&amp; out) {
+    Wire.beginTransmission(addr); Wire.write(reg);
+    if (Wire.endTransmission(false) != 0) return false;
+    Wire.requestFrom((uint16_t)addr, (uint8_t)1);
+    if (!Wire.available()) return false;
+    out = Wire.read(); return true;
+}
 void initSensors() {
     Wire.begin(I2C_SDA, I2C_SCL);
     Wire.setClock(400000);
-    // soft reset first so a half-configured chip after a warm reboot comes up clean
-    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0A); Wire.write(0x80); Wire.endTransmission();
+    magType = 0; magPresent = false;
+
+    // --- Try QMC5883P @ 0x2C ---
+    uint8_t id = 0;
+    if (i2cReg(QMC5883P_ADDR, 0x00, id) &amp;&amp; id == 0x80) {
+        magAddr = QMC5883P_ADDR; magType = 2;
+        // Mode reg 0x0A = 0xCF (continuous, 200Hz ODR). Config reg 0x0B = 0x08 (set/reset on, +/-8G).
+        Wire.beginTransmission(magAddr); Wire.write(0x0A); Wire.write(0xCF); Wire.endTransmission();
+        Wire.beginTransmission(magAddr); Wire.write(0x0B); Wire.write(0x08); Wire.endTransmission();
+        magPresent = true;
+        return;
+    }
+
+    // --- Fall back to QMC5883L @ 0x0D ---
+    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0A); Wire.write(0x80); Wire.endTransmission();  // soft reset
     delay(10);
     Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0B); Wire.write(0x01); Wire.endTransmission();
     Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0A); Wire.write(0x00); Wire.endTransmission();
     Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x09); Wire.write(0x1D); Wire.endTransmission();
-    // presence check: read the chip-id register (0x0D should be 0xFF on QMC5883L)
-    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0D); Wire.endTransmission(false);
-    Wire.requestFrom((uint16_t)QMC5883L_ADDR, (uint8_t)1);
-    magPresent = (Wire.available() &amp;&amp; Wire.read() == 0xFF);
+    uint8_t l = 0;
+    if (i2cReg(QMC5883L_ADDR, 0x0D, l) &amp;&amp; l == 0xFF) {
+        magAddr = QMC5883L_ADDR; magType = 1; magPresent = true;
+    }
 }
 
 void readQMC5883L() {
-    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x00); Wire.endTransmission(false);
-    Wire.requestFrom((uint16_t)QMC5883L_ADDR, (uint8_t)6);
+    if (!magPresent) return;
+    // Data output starts at 0x00 on the 5883L, 0x01 on the 5883P. Both are
+    // 6 bytes, X/Y/Z as little-endian int16.
+    uint8_t dataReg = (magType == 2) ? 0x01 : 0x00;
+    Wire.beginTransmission(magAddr); Wire.write(dataReg); Wire.endTransmission(false);
+    Wire.requestFrom((uint16_t)magAddr, (uint8_t)6);
     if (Wire.available() == 6) {
         magX = (int16_t)(Wire.read() | (Wire.read() &lt;&lt; 8));
         magY = (int16_t)(Wire.read() | (Wire.read() &lt;&lt; 8));
@@ -676,26 +709,29 @@ void ledShow() {
     int n = constrain(ledCfg.count, 0, LED_MAX);
     const char* o = ledCfg.order;   // e.g. &quot;GRB&quot;,&quot;RGB&quot;,&quot;BGR&quot;...
     if (ledIsRGBW) {
-        // Pack 4 bytes/pixel (color-ordered RGB + a White channel) into the raw span.
-        // W = min(r,g,b) pulled into the dedicated white LED so whites look clean and
-        // colors stay pure (classic RGBW conversion). Order string maps the RGB part.
+        // 4 bytes/pixel. The order string tells us the byte order of the R,G,B part
+        // (W is always the 4th byte on SK6812RGBW). If the operator picked a 3-char
+        // order (e.g. GRB) we append &#x27;W&#x27;; a 4-char order (GRBW/RGBW) is used as-is.
         uint8_t* raw = (uint8_t*)physRGBW;
-        int rawBytes = RGBW_RAW_CRGB * 3;
-        for (int i = 0; i &lt; LED_MAX; i++) {
-            uint8_t r=0,g=0,b=0;
-            if (i &lt; n) { r=leds[i].r; g=leds[i].g; b=leds[i].b; }
-            uint8_t rgb[3] = { r, g, b };
-            uint8_t out[3] = { r, g, b };
-            for (int k = 0; k &lt; 3 &amp;&amp; o[k]; k++) {
-                char ch = o[k];
-                out[k] = (ch==&#x27;R&#x27;||ch==&#x27;r&#x27;) ? rgb[0] : (ch==&#x27;G&#x27;||ch==&#x27;g&#x27;) ? rgb[1] : rgb[2];
-            }
-            uint8_t w = (uint8_t)min((int)r, min((int)g, (int)b));            // common white component
-            uint8_t o0 = (out[0]&gt;=w)?out[0]-w:0;
-            uint8_t o1 = (out[1]&gt;=w)?out[1]-w:0;
-            uint8_t o2 = (out[2]&gt;=w)?out[2]-w:0;
+        memset(raw, 0, RGBW_RAW_CRGB * 3);          // clear the WHOLE span so tail pixels are black
+        char ord[5] = { &#x27;G&#x27;,&#x27;R&#x27;,&#x27;B&#x27;,&#x27;W&#x27;, 0 };       // sensible RGBW default = GRBW
+        if (o &amp;&amp; o[0]) {
+            ord[0]=o[0]; ord[1]=o[1]?o[1]:&#x27;R&#x27;; ord[2]=o[2]?o[2]:&#x27;B&#x27;;
+            ord[3]=(o[3])?o[3]:&#x27;W&#x27;; ord[4]=0;
+        }
+        for (int i = 0; i &lt; n; i++) {                // only up to count; rest already 0 (black)
+            uint8_t r=leds[i].r, g=leds[i].g, b=leds[i].b;
+            uint8_t w = (uint8_t)min((int)r, min((int)g, (int)b));  // pull common white out
+            uint8_t cr=(r&gt;=w)?r-w:0, cg=(g&gt;=w)?g-w:0, cb=(b&gt;=w)?b-w:0;
             int base = i*4;
-            if (base+3 &lt; rawBytes) { raw[base]=o0; raw[base+1]=o1; raw[base+2]=o2; raw[base+3]=w; }
+            for (int k=0;k&lt;4;k++){
+                char ch=ord[k]; uint8_t v;
+                if      (ch==&#x27;R&#x27;||ch==&#x27;r&#x27;) v=cr;
+                else if (ch==&#x27;G&#x27;||ch==&#x27;g&#x27;) v=cg;
+                else if (ch==&#x27;B&#x27;||ch==&#x27;b&#x27;) v=cb;
+                else                       v=w;      // &#x27;W&#x27; or anything else -&gt; white channel
+                raw[base+k]=v;
+            }
         }
         FastLED.show();
         return;
@@ -1308,7 +1344,8 @@ void loop() {
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
         doc[&quot;magThr&quot;]   = threshMag;     // trigger threshold (LSB)
-        doc[&quot;magOk&quot;]    = magPresent;    // false = QMC5883L not answering on I2C
+        doc[&quot;magOk&quot;]    = magPresent;    // false = magnetometer not answering on I2C
+        doc[&quot;magChip&quot;]  = (magType==2)?&quot;5883P&quot;:(magType==1)?&quot;5883L&quot;:&quot;none&quot;;
         doc[&quot;hz&quot;] = telemetryHz;
         String out; serializeJson(doc, out);
         if (isAppConnected) appWS.sendTXT(out);
