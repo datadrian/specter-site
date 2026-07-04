@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.5-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.6-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -404,7 +404,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Mag threshold &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=200 max=6000 step=50&gt;
-&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=0 max=4000 step=50&gt;&lt;/div&gt;
+&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
 &lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
@@ -444,7 +444,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=row&gt;&lt;button id=upd-check&gt;CHECK FOR UPDATES&lt;/button&gt;&lt;button id=upd-install disabled&gt;INSTALL UPDATE&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
-var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=0;
+var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=8;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
 function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;\u2014&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;\u2014&#x27;;if(m.thresholds){thrMag=m.thresholds.mag;thrProx=m.thresholds.prox;syncThr()}}}
@@ -510,7 +510,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.5-maker&quot;
+#define FW_VERSION   &quot;2.4.6-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -544,7 +544,7 @@ static char nodeName[32] = &quot;REM-Pod A&quot;;
 // BRIGHTNESS and the positional MAP apply live. This mirrors policy: LED setup
 // is per-node, on-device, on the node&#x27;s own portal.
 struct LedCfg {
-  char chipset[10];   // &quot;WS2812B&quot; etc (applied on reboot)
+  char chipset[16];   // &quot;WS2812B&quot;,&quot;SK6812RGBW&quot; etc (applied on reboot) - MUST fit &quot;SK6812RGBW&quot;+null
   char order[5];      // &quot;GRB&quot; etc (applied LIVE via software remap)
   int  dataPin;       // applied on reboot
   int  clkPin;        // -1 = none
@@ -645,7 +645,7 @@ volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
 volatile int     ledTestReq   = 0;   // 0 none,1 boot,2 mag,3 prox,4 red,5 green,6 blue,7 white (portal preview)
-volatile int     threshProx = 0;      // capacitance RISES as an object nears; ABOVE this = detection
+volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (REM-pod)
 volatile int     threshMag  = 1500;   // vector delta (LSB)
 // ---- Walkie-talkie / RF interference cancel (on-device) ----
 // A keyed two-way radio induces a repeatable spike on the antenna + mag. We let the
@@ -938,7 +938,7 @@ void hardwareTask(void* pv) {
     // COLOR ORDER stays RGB here; we remap to the configured order in software (ledShow).
     {
         String cs = String(ledCfg.chipset); cs.toUpperCase();
-        ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
+        ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812RGB&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
         if (ledIsRGBW) {
             // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
             // Pick the NeoPixel byte order from the portal color-order string.
@@ -964,7 +964,7 @@ void hardwareTask(void* pv) {
     }
     FastLED.setBrightness(ledCfg.bright);
     if (ledCfg.bootEnable) playBootAnimation();   // build 1..N, blue/green sweep, dark
-    float proxAvg = 0; bool proxInit = false;
+    float proxAvg = 0; bool proxInit = false; uint32_t proxSettleStart = 0;
 
     for (;;) {
         if (ledTestReq) {
@@ -1004,12 +1004,20 @@ void hardwareTask(void* pv) {
                 ledIdle(); ledShow();
             }
         }
-        proxVal = touchRead(TOUCH_PIN);
+        // Median-of-9 read: touchRead() is noisy (jitters tens of counts). A median
+        // rejects the spikes far better than an average, so the baseline stays stable
+        // and a real hand-approach stands out cleanly.
+        {
+            int sm[9];
+            for (int k = 0; k &lt; 9; k++) { sm[k] = touchRead(TOUCH_PIN); delayMicroseconds(200); }
+            for (int a = 0; a &lt; 9; a++) for (int b = a+1; b &lt; 9; b++) if (sm[b] &lt; sm[a]) { int t=sm[a]; sm[a]=sm[b]; sm[b]=t; }
+            proxVal = sm[4];   // median
+        }
         readQMC5883L();
 
         if (recalibrate) {
             baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
-            baseProx = proxVal; proxAvg = proxVal; proxInit = true;
+            baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
             recalibrate = false;
         }
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
@@ -1017,12 +1025,11 @@ void hardwareTask(void* pv) {
         int dX = magX - baseMagX, dY = magY - baseMagY, dZ = magZ - baseMagZ;
         magDelta = (int)sqrtf((float)dX * dX + (float)dY * dY + (float)dZ * dZ);
 
-        // Proximity as a DEVIATION from baseline — direction-agnostic. On the classic
-        // ESP32, touchRead() DROPS when the antenna is touched/approached, so the touched
-        // delta is (baseline - current). We take the absolute deviation so it works
-        // whichever way the hardware moves, and expose it as proxDelta.
-        int proxDelta = baseProx - proxVal;          // positive when touched (value dropped)
-        if (proxDelta &lt; 0) proxDelta = 0;            // only count drops (approach), ignore rises
+        // Proximity as ABSOLUTE deviation from a rolling baseline — true REM-pod behavior.
+        // A hand nearing the antenna changes its capacitance, moving touchRead() away from
+        // baseline in EITHER direction (rises or falls depending on core/board). We react to
+        // the magnitude of the change, so approach — not just contact — triggers.
+        int proxDelta = abs(baseProx - proxVal);
         bool proxAlert = (proxDelta &gt; threshProx);
         bool magAlert  = (magDelta &gt; threshMag);
 
@@ -1042,13 +1049,18 @@ void hardwareTask(void* pv) {
         }
         if (rfSuppress) { ledIdle(); FastLED.setBrightness(ledCfg.bright); ledShow(); vTaskDelay(pdMS_TO_TICKS(10)); continue; }
         // Freeze baseline during an active touch so it can&#x27;t drift onto the touched level.
-        if (proxInit &amp;&amp; !proxAlert) proxAvg = proxAvg * 0.999f + proxVal * 0.001f;
+        // Baseline: settle FAST for the first ~2s (so boot noise doesn&#x27;t poison it),
+        // then hold SLOWLY so a lingering hand doesn&#x27;t get absorbed into the baseline.
+        if (proxInit &amp;&amp; !proxAlert) {
+            float a = (millis() - proxSettleStart &lt; 2000) ? 0.05f : 0.001f;
+            proxAvg = proxAvg * (1.0f - a) + (float)proxVal * a;
+        }
         baseProx = (int)proxAvg;
 
         if (proxAlert || magAlert) {
             const char* sev = &quot;low&quot;;
-            if (proxDelta &gt; threshProx + 1000 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
-            else if (proxDelta &gt; threshProx + 500 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
+            if (proxDelta &gt; threshProx + 40 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
+            else if (proxDelta &gt; threshProx + 18 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
             const char* ch = magAlert ? &quot;mag&quot; : &quot;prox&quot;;
             int val = magAlert ? magDelta : proxDelta;
             int thr = magAlert ? threshMag : threshProx;
@@ -1059,7 +1071,7 @@ void hardwareTask(void* pv) {
                 strncpy(evtKind, kind, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
                 evtValue = val; evtThreshold = thr; eventPending = true;
             }
-            int pitch = constrain(map(proxDelta, threshProx, threshProx + 2000, 400, 2000), 400, 2000);
+            int pitch = constrain(map(proxDelta, threshProx, threshProx + 60, 400, 2000), 400, 2000);
             tone(BUZZER_PIN, pitch, 40);
             // severity -&gt; intensity scale (low ~150, med ~205, high 255)
             uint8_t sevScale = 150;
@@ -1081,7 +1093,7 @@ void hardwareTask(void* pv) {
                 // PROX: fade the ring UP toward 100% as the reading approaches/passes
                 // the trigger. approach 0 at the threshold edge, 1.0 when very close.
                 if (ledCfg.proxAnim == 0) {
-                    float approach = (float)(proxDelta - threshProx) / (float)(threshProx &gt; 0 ? threshProx : 200);
+                    float approach = (float)(proxDelta - threshProx) / 40.0f;
                     approach = 0.15f + approach * 1.15f;   // slight floor so a bare trigger still shows
                     renderProxFade(ledCfg.proxColor, approach);
                 } else {
@@ -1186,7 +1198,7 @@ void setupNetwork() {
     targetPASS  = prefs.getString(&quot;pass&quot;, &quot;&quot;);
     targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
     threshMag   = prefs.getInt(&quot;mag&quot;, 1500);
-    threshProx  = prefs.getInt(&quot;prox&quot;, 0);
+    threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
     rfActive    = prefs.getInt(&quot;rfOn&quot;, 0) == 1;
