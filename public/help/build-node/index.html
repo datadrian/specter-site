@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.2-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.3-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -356,7 +356,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grid&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x &amp;mdash; y &amp;mdash; z &amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x &amp;mdash; y &amp;mdash; z &amp;mdash;&lt;/div&gt;&lt;div class=xyz id=magdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;sensor &amp;mdash; &amp;middot; delta &amp;mdash; / thr &amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u id=ssid&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
 &lt;/div&gt;
@@ -365,7 +365,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:&#x27;ok&#x27;;var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -406,7 +406,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=200 max=4000 step=50&gt;&lt;/div&gt;
 &lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
+&lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
 &lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Data pin&lt;/label&gt;&lt;input type=text id=led-data&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Count&lt;/label&gt;&lt;input type=text id=led-count&gt;&lt;/div&gt;&lt;/div&gt;
@@ -498,7 +498,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.2-maker&quot;
+#define FW_VERSION   &quot;2.4.3-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -609,7 +609,14 @@ void performUpdate(const String&amp; url) {
 // ---- hardware globals ----
 #define LED_MAX 60            // max pixels the physical buffer supports
 CRGB leds[LED_MAX];           // logical RGB the animations write into (index 0..count-1)
-CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap)
+CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap) — RGB strips
+// RGBW support: SK6812-RGBW strips take 4 bytes/pixel (R,G,B,W). FastLED 3.6 only
+// pushes 3, which misaligns the stream (symptom: RED shows as alternating colors).
+// For RGBW we drive a raw 4-bytes/pixel span as (LED_MAX*4/3 +1) RGB &quot;pixels&quot; and
+// pack the bytes ourselves in ledShow().
+#define RGBW_RAW_CRGB ((LED_MAX*4)/3 + 2)
+CRGB physRGBW[RGBW_RAW_CRGB];  // raw 4B/pixel byte span, viewed as CRGB triplets
+bool ledIsRGBW = false;       // true when chipset == SK6812RGBW
 Preferences prefs;
 volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
@@ -668,6 +675,31 @@ static inline CRGB hex2crgb(uint32_t h){ return CRGB((h&gt;&gt;16)&amp;0xFF,(h&g
 void ledShow() {
     int n = constrain(ledCfg.count, 0, LED_MAX);
     const char* o = ledCfg.order;   // e.g. &quot;GRB&quot;,&quot;RGB&quot;,&quot;BGR&quot;...
+    if (ledIsRGBW) {
+        // Pack 4 bytes/pixel (color-ordered RGB + a White channel) into the raw span.
+        // W = min(r,g,b) pulled into the dedicated white LED so whites look clean and
+        // colors stay pure (classic RGBW conversion). Order string maps the RGB part.
+        uint8_t* raw = (uint8_t*)physRGBW;
+        int rawBytes = RGBW_RAW_CRGB * 3;
+        for (int i = 0; i &lt; LED_MAX; i++) {
+            uint8_t r=0,g=0,b=0;
+            if (i &lt; n) { r=leds[i].r; g=leds[i].g; b=leds[i].b; }
+            uint8_t rgb[3] = { r, g, b };
+            uint8_t out[3] = { r, g, b };
+            for (int k = 0; k &lt; 3 &amp;&amp; o[k]; k++) {
+                char ch = o[k];
+                out[k] = (ch==&#x27;R&#x27;||ch==&#x27;r&#x27;) ? rgb[0] : (ch==&#x27;G&#x27;||ch==&#x27;g&#x27;) ? rgb[1] : rgb[2];
+            }
+            uint8_t w = (uint8_t)min((int)r, min((int)g, (int)b));            // common white component
+            uint8_t o0 = (out[0]&gt;=w)?out[0]-w:0;
+            uint8_t o1 = (out[1]&gt;=w)?out[1]-w:0;
+            uint8_t o2 = (out[2]&gt;=w)?out[2]-w:0;
+            int base = i*4;
+            if (base+3 &lt; rawBytes) { raw[base]=o0; raw[base+1]=o1; raw[base+2]=o2; raw[base+3]=w; }
+        }
+        FastLED.show();
+        return;
+    }
     for (int i = 0; i &lt; LED_MAX; i++) {
         if (i &gt;= n) { phys[i] = CRGB::Black; continue; }
         uint8_t r = leds[i].r, g = leds[i].g, b = leds[i].b;
@@ -854,7 +886,13 @@ void hardwareTask(void* pv) {
     // COLOR ORDER stays RGB here; we remap to the configured order in software (ledShow).
     {
         String cs = String(ledCfg.chipset); cs.toUpperCase();
-        if      (cs == &quot;SK6812&quot; || cs == &quot;SK6812RGBW&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
+        ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
+        if (ledIsRGBW) {
+            // Drive the RGBW strip as a raw byte span: RGBW_RAW_CRGB triplets = LED_MAX*4 bytes.
+            // Timing matches SK6812/WS2812. ledShow() packs R,G,B,W per pixel into this span.
+            FastLED.addLeds&lt;SK6812, LED_DATA_PIN, RGB&gt;(physRGBW, RGBW_RAW_CRGB);
+        }
+        else if (cs == &quot;SK6812&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
         else if (cs == &quot;WS2811&quot;)                        FastLED.addLeds&lt;WS2811,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
         else if (cs == &quot;WS2812&quot;)                        FastLED.addLeds&lt;WS2812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
         else if (cs == &quot;WS2813&quot;)                        FastLED.addLeds&lt;WS2813,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
@@ -1268,6 +1306,9 @@ void loop() {
         doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
+        doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
+        doc[&quot;magThr&quot;]   = threshMag;     // trigger threshold (LSB)
+        doc[&quot;magOk&quot;]    = magPresent;    // false = QMC5883L not answering on I2C
         doc[&quot;hz&quot;] = telemetryHz;
         String out; serializeJson(doc, out);
         if (isAppConnected) appWS.sendTXT(out);
