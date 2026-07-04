@@ -326,6 +326,9 @@
 #include &lt;ArduinoJson.h&gt;        // v6 or v7
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
+#include &lt;HTTPClient.h&gt;
+#include &lt;HTTPUpdate.h&gt;
+#include &lt;WiFiClientSecure.h&gt;
 #include &lt;math.h&gt;
 // ---- embedded portal pages (index + settings) ----
 // portal_pages.h — SPECTER maker-node portal, embedded so there is NO separate
@@ -400,7 +403,23 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Mag threshold &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=200 max=6000 step=50&gt;
 &lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=200 max=4000 step=50&gt;&lt;/div&gt;
-&lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=status warn&gt;Maker build &amp;mdash; update by re-flashing from the build guide.&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
+&lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
+&lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
+&lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
+&lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;/select&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Data pin&lt;/label&gt;&lt;input type=text id=led-data&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Count&lt;/label&gt;&lt;input type=text id=led-count&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;label&gt;Brightness &lt;span class=val id=led-bright-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=led-bright min=0 max=255 step=1&gt;
+&lt;label&gt;Positional map (LED index toward each side)&lt;/label&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Right&lt;/label&gt;&lt;input type=text id=led-right&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Back&lt;/label&gt;&lt;input type=text id=led-back&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Left&lt;/label&gt;&lt;input type=text id=led-left&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=status id=led-status&gt;Brightness &amp;amp; map apply live. Chipset / order / pin / count save now and take effect on the next reboot.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;TEST (BLINK)&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
+&lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
+&lt;div class=status id=upd-line&gt;Tap below to check specter-imaging.com for a newer build.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=upd-check&gt;CHECK FOR UPDATES&lt;/button&gt;&lt;button id=upd-install disabled&gt;INSTALL UPDATE&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
 var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=2000;
@@ -414,6 +433,27 @@ $(&#x27;thr-prox&#x27;).oninput=function(e){thrProx=+e.target.value;$(&#x27;thr-
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+
+// ---- LED config (per-node, on-device) ----
+function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
+ $(&#x27;led-chip&#x27;).value=d.chipset||&#x27;WS2812B&#x27;;$(&#x27;led-order&#x27;).value=d.order||&#x27;GRB&#x27;;
+ $(&#x27;led-data&#x27;).value=(d.dataPin!=null?d.dataPin:13);$(&#x27;led-count&#x27;).value=(d.count!=null?d.count:12);
+ $(&#x27;led-bright&#x27;).value=(d.bright!=null?d.bright:100);$(&#x27;led-bright-v&#x27;).textContent=(d.bright!=null?d.bright:100);
+ var m=d.map||{};$(&#x27;led-front&#x27;).value=(m.front!=null?m.front:&#x27;&#x27;);$(&#x27;led-right&#x27;).value=(m.right!=null?m.right:&#x27;&#x27;);
+ $(&#x27;led-back&#x27;).value=(m.back!=null?m.back:&#x27;&#x27;);$(&#x27;led-left&#x27;).value=(m.left!=null?m.left:&#x27;&#x27;);
+}).catch(function(){})}
+$(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
+$(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||12,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
+ fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){$(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;led-status&#x27;).textContent=d.rebootNeeded?&#x27;Saved. Chipset/pin/count changes apply after a reboot.&#x27;:&#x27;Saved — applied live.&#x27;}).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
+$(&#x27;led-test&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
+// ---- firmware update ----
+function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;
+ if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error;return}
+ if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; — &#x27;+d.notes:&#x27;&#x27;)}
+ else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;—&#x27;)+&#x27;).&#x27;}}
+$(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
+$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing — do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; — node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
+ledLoad();
 syncThr();wifiStatus();connect();
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
 )HTMLPAGE&quot;;
@@ -446,6 +486,68 @@ static char nodeName[32] = &quot;REM-Pod A&quot;;
 #define LED_RIGHT     3
 #define LED_BACK      6
 #define LED_LEFT      9
+
+// ── Runtime LED config (portal-editable, persisted to Preferences) ──
+// NOTE: FastLED templates the CHIPSET + COLOR ORDER at COMPILE time, so those
+// (plus DATA pin / clock pin) are saved but only take effect after a REBOOT.
+// BRIGHTNESS and the positional MAP apply live. This mirrors policy: LED setup
+// is per-node, on-device, on the node&#x27;s own portal.
+struct LedCfg {
+  char chipset[10];   // &quot;WS2812B&quot; etc (applied on reboot)
+  char order[5];      // &quot;GRB&quot; etc (applied on reboot)
+  int  dataPin;       // applied on reboot
+  int  clkPin;        // -1 = none
+  int  count;         // applied on reboot
+  int  bright;        // applied live
+  int  mFront, mRight, mBack, mLeft;   // positional map (applied live)
+};
+LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
+                  LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT };
+
+// ── OTA self-update (mirrors full firmware) ──
+#define UPDATE_MANIFEST_DEFAULT &quot;https://specter-imaging.com/firmware/node/latest.json&quot;
+String updateUrl   = UPDATE_MANIFEST_DEFAULT;
+String updAvailVer = &quot;&quot;;
+String updBinUrl   = &quot;&quot;;
+String updNotes    = &quot;&quot;;
+String updError    = &quot;&quot;;
+bool   updChecked  = false;
+
+// Returns &gt;0 if server version is newer than local (semver-ish, numeric parts).
+int versionCompare(const String&amp; local, const String&amp; remote) {
+  int la=0,lb=0,lc=0, ra=0,rb=0,rc=0;
+  sscanf(local.c_str(),  &quot;%d.%d.%d&quot;, &amp;la,&amp;lb,&amp;lc);
+  sscanf(remote.c_str(), &quot;%d.%d.%d&quot;, &amp;ra,&amp;rb,&amp;rc);
+  if (ra!=la) return ra-la; if (rb!=lb) return rb-lb; return rc-lc;
+}
+
+// Fetch the manifest; populate upd* globals. Does NOT flash.
+bool checkForUpdate() {
+  updError = &quot;&quot;; updChecked = true;
+  if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return false; }
+  WiFiClientSecure client; client.setInsecure();
+  HTTPClient http;
+  if (!http.begin(client, updateUrl)) { updError = &quot;bad-url&quot;; return false; }
+  http.addHeader(&quot;User-Agent&quot;, &quot;specter-node/&quot; FW_VERSION);
+  int code = http.GET();
+  if (code != 200) { updError = &quot;http-&quot; + String(code); http.end(); return false; }
+  String body = http.getString(); http.end();
+  JsonDocument d;
+  if (deserializeJson(d, body)) { updError = &quot;bad-manifest&quot;; return false; }
+  updAvailVer = String((const char*)(d[&quot;version&quot;] | &quot;&quot;));
+  updBinUrl   = String((const char*)(d[&quot;bin&quot;]     | &quot;&quot;));
+  updNotes    = String((const char*)(d[&quot;notes&quot;]   | &quot;&quot;));
+  if (updAvailVer.length() == 0 || updBinUrl.length() == 0) { updError = &quot;incomplete&quot;; return false; }
+  return versionCompare(FW_VERSION, updAvailVer) &gt; 0;
+}
+
+void performUpdate(const String&amp; url) {
+  if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
+  WiFiClientSecure client; client.setInsecure();
+  httpUpdate.rebootOnUpdate(true);
+  t_httpUpdate_return r = httpUpdate.update(client, url);
+  if (r == HTTP_UPDATE_FAILED) updError = &quot;flash-&quot; + String(httpUpdate.getLastError());
+}
 
 // ---- network constants (must match SPECTER app) ----
 #define BEACON_PORT   47845
@@ -491,8 +593,17 @@ void readQMC5883L() {
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
 void hardwareTask(void* pv) {
     initSensors();
+    // Load persisted LED brightness/map (chipset/order/pin/count are compile-time
+    // for FastLED; saved values are surfaced in the portal and applied on reflash).
+    prefs.begin(&quot;specter&quot;, true);
+    ledCfg.bright = prefs.getInt(&quot;ledBright&quot;, ledCfg.bright);
+    ledCfg.mFront = prefs.getInt(&quot;ledFront&quot;, ledCfg.mFront);
+    ledCfg.mRight = prefs.getInt(&quot;ledRight&quot;, ledCfg.mRight);
+    ledCfg.mBack  = prefs.getInt(&quot;ledBack&quot;,  ledCfg.mBack);
+    ledCfg.mLeft  = prefs.getInt(&quot;ledLeft&quot;,  ledCfg.mLeft);
+    prefs.end();
     FastLED.addLeds&lt;LED_CHIPSET, LED_DATA_PIN, LED_COLOR_ORD&gt;(leds, NUM_LEDS);
-    FastLED.setBrightness(LED_BRIGHT);
+    FastLED.setBrightness(ledCfg.bright);
     float proxAvg = 0; bool proxInit = false;
 
     for (;;) {
@@ -533,6 +644,7 @@ void hardwareTask(void* pv) {
         } else {
             fill_solid(leds, NUM_LEDS, CRGB::Black);
         }
+        FastLED.setBrightness(ledCfg.bright);
         FastLED.show();
         vTaskDelay(pdMS_TO_TICKS(10));   // 100 Hz
     }
@@ -706,6 +818,63 @@ void setupNetwork() {
         }
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
+    // ---- LED config API (per-node, on-device) ----
+    server.on(&quot;/led/status&quot;, []() {
+        JsonDocument d;
+        d[&quot;chipset&quot;] = ledCfg.chipset; d[&quot;order&quot;] = ledCfg.order;
+        d[&quot;dataPin&quot;] = ledCfg.dataPin; d[&quot;clkPin&quot;] = ledCfg.clkPin;
+        d[&quot;count&quot;] = ledCfg.count; d[&quot;bright&quot;] = ledCfg.bright;
+        JsonObject m = d[&quot;map&quot;].to&lt;JsonObject&gt;();
+        m[&quot;front&quot;] = ledCfg.mFront; m[&quot;right&quot;] = ledCfg.mRight;
+        m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
+        d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = NUM_LEDS;
+        // brightness + map apply live; the rest need a reboot to take effect.
+        d[&quot;liveFields&quot;] = &quot;bright,map&quot;; d[&quot;rebootFields&quot;] = &quot;chipset,order,dataPin,clkPin,count&quot;;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/led/config&quot;, HTTP_POST, []() {
+        prefs.begin(&quot;specter&quot;, false);
+        if (server.hasArg(&quot;bright&quot;)) { ledCfg.bright = constrain(server.arg(&quot;bright&quot;).toInt(),0,255); prefs.putInt(&quot;ledBright&quot;, ledCfg.bright); }
+        if (server.hasArg(&quot;front&quot;))  { ledCfg.mFront = server.arg(&quot;front&quot;).toInt(); prefs.putInt(&quot;ledFront&quot;, ledCfg.mFront); }
+        if (server.hasArg(&quot;right&quot;))  { ledCfg.mRight = server.arg(&quot;right&quot;).toInt(); prefs.putInt(&quot;ledRight&quot;, ledCfg.mRight); }
+        if (server.hasArg(&quot;back&quot;))   { ledCfg.mBack  = server.arg(&quot;back&quot;).toInt();  prefs.putInt(&quot;ledBack&quot;,  ledCfg.mBack); }
+        if (server.hasArg(&quot;left&quot;))   { ledCfg.mLeft  = server.arg(&quot;left&quot;).toInt();  prefs.putInt(&quot;ledLeft&quot;,  ledCfg.mLeft); }
+        // chipset/order/pin/count are persisted for the NEXT reflash config block.
+        bool reboot=false;
+        if (server.hasArg(&quot;chipset&quot;)){ strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; prefs.putString(&quot;ledChip&quot;, ledCfg.chipset); reboot=true; }
+        if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); reboot=true; }
+        if (server.hasArg(&quot;dataPin&quot;)){ ledCfg.dataPin = server.arg(&quot;dataPin&quot;).toInt(); prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); reboot=true; }
+        if (server.hasArg(&quot;clkPin&quot;)) { ledCfg.clkPin = server.arg(&quot;clkPin&quot;).toInt(); prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin); reboot=true; }
+        if (server.hasArg(&quot;count&quot;))  { ledCfg.count = server.arg(&quot;count&quot;).toInt(); prefs.putInt(&quot;ledCount&quot;, ledCfg.count); reboot=true; }
+        prefs.end();
+        FastLED.setBrightness(ledCfg.bright);
+        JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot;
+        String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
+    });
+
+    // ---- OTA self-update API (portal-driven) ----
+    server.on(&quot;/update/status&quot;, []() {
+        JsonDocument d;
+        d[&quot;current&quot;]=FW_VERSION; d[&quot;channel&quot;]=updateUrl; d[&quot;checked&quot;]=updChecked;
+        d[&quot;latest&quot;]=updAvailVer; d[&quot;notes&quot;]=updNotes; d[&quot;error&quot;]=updError;
+        d[&quot;available&quot;]=(updChecked &amp;&amp; updAvailVer.length() &amp;&amp; versionCompare(FW_VERSION, updAvailVer)&gt;0);
+        String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/update/check&quot;, []() {
+        bool avail = checkForUpdate();
+        JsonDocument d;
+        d[&quot;current&quot;]=FW_VERSION; d[&quot;latest&quot;]=updAvailVer; d[&quot;notes&quot;]=updNotes;
+        d[&quot;available&quot;]=avail; d[&quot;error&quot;]=updError;
+        String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/update/install&quot;, HTTP_POST, []() {
+        if (updBinUrl.length()==0) checkForUpdate();
+        if (updBinUrl.length()==0) { server.send(409, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;&quot; + (updError.length()?updError:String(&quot;no-update&quot;)) + &quot;\&quot;}&quot;); return; }
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;installing\&quot;:\&quot;&quot; + updAvailVer + &quot;\&quot;}&quot;);
+        delay(150);
+        performUpdate(updBinUrl);   // reboots on success
+    });
+
     server.begin();
     localWS.begin(); localWS.onEvent(localWsEvent);
 }
