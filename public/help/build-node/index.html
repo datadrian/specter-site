@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.0-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -365,7 +365,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,100-(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/4000*100)))+&#x27;%&#x27;;amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -465,7 +465,13 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
 }).catch(function(){})}
 $(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
 $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||16,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
- fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){$(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;led-status&#x27;).textContent=d.rebootNeeded?&#x27;Saved. Chipset/pin/count changes apply after a reboot.&#x27;:&#x27;Saved — applied live.&#x27;}).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
+ fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){
+  // re-read the node&#x27;s ACTUAL running state so you can see what really applied
+  return fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(s){
+   $(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;
+   $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;)+(d.rebootNeeded?&#x27; · (chipset/pin need a reboot to bind)&#x27;:&#x27;&#x27;);
+  });
+ }).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
 $(&#x27;led-test&#x27;).onclick=function(){ledPreview(&#x27;boot&#x27;)};
 [[&#x27;t-red&#x27;,&#x27;red&#x27;],[&#x27;t-grn&#x27;,&#x27;green&#x27;],[&#x27;t-blu&#x27;,&#x27;blue&#x27;],[&#x27;t-wht&#x27;,&#x27;white&#x27;]].forEach(function(pair){var el=$(pair[0]);if(el)el.onclick=function(){ledPreview(pair[1])}});
 function echoCount(){var e=$(&#x27;led-count-echo&#x27;);if(e)e.textContent=$(&#x27;led-count&#x27;).value||&#x27;16&#x27;}
@@ -492,7 +498,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.0-maker&quot;
+#define FW_VERSION   &quot;2.4.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -527,10 +533,10 @@ static char nodeName[32] = &quot;REM-Pod A&quot;;
 // is per-node, on-device, on the node&#x27;s own portal.
 struct LedCfg {
   char chipset[10];   // &quot;WS2812B&quot; etc (applied on reboot)
-  char order[5];      // &quot;GRB&quot; etc (applied on reboot)
+  char order[5];      // &quot;GRB&quot; etc (applied LIVE via software remap)
   int  dataPin;       // applied on reboot
   int  clkPin;        // -1 = none
-  int  count;         // applied on reboot
+  int  count;         // applied LIVE (pixels driven 0..count-1)
   int  bright;        // applied live
   int  mFront, mRight, mBack, mLeft;   // positional map (applied live)
   // Per-event theming (applied live, persisted). Colors are 0xRRGGBB.
@@ -864,7 +870,8 @@ void hardwareTask(void* pv) {
     for (;;) {
         if (ledTestReq) {
             int req = ledTestReq; ledTestReq = 0;
-            if (req == 1) playBootAnimation();
+            if (req == 8) { ledIdle(); FastLED.setBrightness(ledCfg.bright); ledShow(); }  // live refresh after config save
+            else if (req == 1) playBootAnimation();
             else if (req &gt;= 4 &amp;&amp; req &lt;= 7) {
                 // Solid color test: fill every driven pixel so you can verify
                 // wiring, count, and color order. Red=4 Green=5 Blue=6 White=7.
@@ -1196,6 +1203,7 @@ void setupNetwork() {
         if (server.hasArg(&quot;bootEnable&quot;)){ ledCfg.bootEnable=server.arg(&quot;bootEnable&quot;).toInt()?1:0; prefs.putInt(&quot;ledBoot&quot;, ledCfg.bootEnable); }
         prefs.end();
         FastLED.setBrightness(ledCfg.bright);
+        ledTestReq = 8;   // ask hardwareTask to re-render idle NOW so count/order changes show immediately
         JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
