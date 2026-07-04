@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Your Own SPECTER Node | DIY Wireless EMF Sensor for Ghost Hunting</title>
+  <meta name="description" content="Build your own SPECTER Node: a DIY wireless ESP32 field sensor with a capacitive antenna and magnetometer that streams live EMF and proximity telemetry into SPECTER paranormal investigation software. Full parts list, wiring diagram, and copy-paste Arduino code." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://specter-imaging.com/help/build-node/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Build Your Own SPECTER Node — DIY Wireless EMF Sensor" />
+  <meta property="og:description" content="Parts, wiring, and Arduino code to build a wireless ESP32 field sensor that streams live telemetry into SPECTER." />
+  <meta property="og:url" content="https://specter-imaging.com/help/build-node/" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/docs.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ---- Build Node page-specific ---- */
+    .bn-hero{max-width:1080px;margin:0 auto;padding:60px 32px 20px;}
+    .bn-hero h1{font-family:var(--heading);font-size:clamp(30px,5vw,52px);color:var(--cyan);margin:14px 0 12px;line-height:1.05;}
+    .bn-hero p.lead{font-size:18px;color:var(--text);max-width:720px;line-height:1.6;}
+    .bn-wrap{max-width:1080px;margin:0 auto;padding:0 32px 80px;}
+    .bn-sec{margin-top:56px;}
+    .bn-sec h2{font-family:var(--heading);font-size:26px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:22px;letter-spacing:.02em;}
+    .bn-sec h3{font-family:var(--heading);font-size:18px;color:var(--cyan);margin:26px 0 10px;letter-spacing:.04em;}
+    /* LED CONFIG TOOL */
+    .led-cfg{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+    @media(max-width:760px){.led-cfg{grid-template-columns:1fr;}}
+    .cfg-field{margin-bottom:16px;}
+    .cfg-field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+    .cfg-field select,.cfg-field input[type=number]{width:100%;background:#070c11;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 10px;border-radius:4px;}
+    .cfg-field select:focus,.cfg-field input:focus{outline:none;border-color:var(--cyan);}
+    .cfg-row{display:flex;gap:12px;}.cfg-row .cfg-field{flex:1;}
+    .map-wrap{background:#070c11;border:1px solid var(--border);border-radius:8px;padding:18px;}
+    .map-wrap .maplbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px;}
+    .ledmap{position:relative;width:230px;height:230px;margin:0 auto;}
+    .ledmap canvas{display:block;width:230px;height:230px;cursor:pointer;}
+    .map-tip{font-family:var(--mono);font-size:10px;color:var(--text-dim);text-align:center;margin-top:10px;line-height:1.6;}
+    .map-tip b{color:var(--cyan);}
+    .pos-btns{display:flex;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap;}
+    .pos-btns button{background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:6px 10px;border-radius:4px;cursor:pointer;}
+    .pos-btns button.sel{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-glow);}
+    .cfg-out{margin-top:22px;}
+    .cfg-out .code-head{display:flex;justify-content:space-between;align-items:center;background:#0a1017;border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+    .cfg-out pre{margin:0;background:#060a0e;border:1px solid var(--border);border-radius:0 0 6px 6px;padding:16px;overflow-x:auto;}
+    .cfg-out code{font-family:var(--mono);font-size:12.5px;color:#c6e9f2;line-height:1.65;white-space:pre;}
+    .bn-step{display:flex;gap:14px;margin-bottom:6px;}
+    .bn-step .num{flex:0 0 auto;width:26px;height:26px;border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;}
+    /* live simulator */
+    .sim{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 0 40px rgba(0,229,255,.06);}
+    .sim-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg3);font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.15em;}
+    .sim-bar .dot{width:8px;height:8px;border-radius:50%;background:#6ad7a8;box-shadow:0 0 8px #6ad7a8;}
+    .sim-bar .rt{margin-left:auto;color:var(--cyan);}
+    /* device toggle */
+    .sim-shell{display:flex;flex-direction:column;align-items:center;gap:14px;}
+    .sim-toggle{display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;font-family:var(--mono);font-size:10px;letter-spacing:.14em;}
+    .sim-toggle button{background:transparent;color:var(--text-dim);border:none;padding:7px 14px;cursor:pointer;letter-spacing:inherit;}
+    .sim-toggle button.on{background:var(--cyan-glow);color:var(--cyan);}
+    /* PHONE (portrait) frame */
+    .phone{width:300px;max-width:88vw;aspect-ratio:9/19.5;background:#05070a;border:2px solid #1c2a33;border-radius:34px;
+      padding:14px 10px;box-shadow:0 0 50px rgba(0,229,255,.08);position:relative;transition:width .3s,aspect-ratio .3s;}
+    .phone::before{content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:70px;height:5px;border-radius:3px;background:#1c2a33;}
+    .phone .screen{width:100%;height:100%;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:#05070a;}
+    /* landscape / desktop: widen the frame, feed+rail side by side */
+    .sim.landscape .phone{width:640px;aspect-ratio:19.5/9;border-radius:26px;}
+    .sim.landscape .phone .screen{flex-direction:row;}
+    .sim.landscape .sim-feed{flex:1.4;border-right:1px solid var(--border);border-bottom:none;}
+    .sim.landscape .sim-rail{flex:1;}
+    .sim-feed{position:relative;background:#05070a;flex:1.2;min-height:0;border-bottom:1px solid var(--border);}
+    .sim-feed canvas{display:block;width:100%;height:100%;}
+    .sim-feed .feed-tag{position:absolute;top:10px;left:12px;font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--text-dim);z-index:2;}
+    .sim-feed .bearing{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--cyan);z-index:2;text-shadow:0 0 6px rgba(0,229,255,.5);}
+    .sim-recticle{position:absolute;inset:14px;pointer-events:none;}
+    .sim-recticle::before,.sim-recticle::after{content:'';position:absolute;width:18px;height:18px;border-color:var(--cyan);border-style:solid;opacity:.5;}
+    .sim-recticle::before{top:0;left:0;border-width:1px 0 0 1px;}
+    .sim-recticle::after{bottom:0;right:0;border-width:0 1px 1px 0;}
+    .sim-rail{padding:16px;font-family:var(--mono);}
+    .sim-rail .rlab{font-size:9px;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin:14px 0 6px;}
+    .sim-rail .rlab:first-child{margin-top:0;}
+    .sim-rail .rval{font-size:24px;color:var(--text);}
+    .sim-rail .rval small{font-size:11px;color:var(--text-dim);}
+    .sim-bar2{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:6px;}
+    .sim-bar2 i{display:block;height:100%;width:0;background:var(--cyan);transition:width .1s linear;}
+    .sim-xyz{font-size:11px;color:var(--text-dim);margin-top:6px;}
+    .sim-log{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;height:78px;overflow:hidden;font-size:10px;line-height:1.7;color:var(--text-dim);}
+    .sim-log .hi{color:var(--red);}
+    .sim-log .med{color:var(--amber);}
+    .sim-note{font-size:12px;color:var(--text-dim);margin-top:10px;font-style:italic;}
+    /* parts table */
+    .bn-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;}
+    .bn-table th,.bn-table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
+    .bn-table th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;}
+    .bn-table td.pin{font-family:var(--mono);color:var(--cyan);white-space:nowrap;}
+    .bn-diagram{width:100%;border:1px solid var(--border);border-radius:6px;margin-top:8px;}
+    /* code block */
+    .code-head{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.12em;}
+    .copy-btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:3px;cursor:pointer;}
+    .copy-btn:hover{background:var(--cyan-glow);}
+    .copy-btn.done{border-color:#6ad7a8;color:#6ad7a8;}
+    pre.code{margin:0;background:#05070a;border:1px solid var(--border);border-radius:0 0 6px 6px;padding:16px;overflow:auto;max-height:520px;
+      font-family:var(--mono);font-size:12.5px;line-height:1.55;color:var(--text);}
+    .callout{border:1px solid var(--border);border-left:2px solid var(--cyan);background:var(--bg2);padding:14px 16px;border-radius:0 4px 4px 0;margin:16px 0;font-size:14px;color:var(--text);}
+    .callout strong{color:var(--cyan);}
+    .bn-cta{display:inline-block;margin-top:8px;}
+  </style>
+</head>
+<body class="docs-body">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo"><a href="/index.html" style="text-decoration:none;color:inherit;">SPECTER<span class="nav-logo-sub">// PARANORMAL IMAGING SYSTEM</span></a></div>
+      <div class="nav-links">
+        <a href="/index.html#features">CAPABILITIES</a>
+        <a href="/index.html#hardware">BUILD YOUR RIG</a>
+        <a href="/help/field-guide/">DOCUMENTATION</a>
+        <a href="/index.html#pricing" class="nav-cta">ACQUIRE UNIT</a>
+      </div>
+    </div>
+  </nav>
+  <div class="bn-hero">
+    <div class="section-tag">// FIELD HARDWARE · DIY GUIDE</div>
+    <h1>Build Your Own SPECTER Node</h1>
+    <p class="lead">A wireless field sensor you can build yourself. The SPECTER Node pairs a capacitive proximity antenna with a 3-axis magnetometer on an ESP32, then streams live EMF and proximity telemetry straight into SPECTER over Wi-Fi — appearing in the instrument rail and the 3D field mesh alongside your depth and thermal sensors. Total build cost is roughly $15–25 in parts.</p>
+  </div>
+
+  <div class="bn-wrap">
+
+    <!-- LIVE SIMULATOR -->
+    <div class="bn-sec" id="preview">
+      <h2>What it looks like in SPECTER</h2>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">The SPECTER Node view is designed for your phone — you carry it in the field. This is a live simulation: a real-time 3D field radar that shows not just <em>how strong</em> the magnetic disturbance is, but <em>which direction</em> it's coming from. It rotates so you can read the field in 3D, and locks a bearing on the source. Rotate your phone (or resize) and it flips to landscape automatically.</p>
+      <div class="sim-shell">
+        <div class="sim-toggle" role="tablist" aria-label="Preview orientation">
+          <button id="tg-portrait" class="on" onclick="setSimMode('portrait')">PORTRAIT</button>
+          <button id="tg-landscape" onclick="setSimMode('landscape')">LANDSCAPE</button>
+        </div>
+        <div class="sim" id="sim-root">
+          <div class="phone">
+            <div class="screen">
+              <div class="sim-bar"><span class="dot"></span> NODE · REM-POD A <span class="rt" id="sim-status">● 10 Hz</span></div>
+              <div class="sim-feed">
+                <div class="feed-tag">FIELD RADAR</div>
+                <canvas id="sim-mesh"></canvas>
+                <div class="bearing" id="sim-bearing">BEARING —°</div>
+              </div>
+              <div class="sim-rail">
+                <div class="rlab">Field Amplitude</div>
+                <div class="rval" id="sim-amp">0 <small>µT</small></div>
+                <div class="sim-bar2"><i id="sim-amp-bar"></i></div>
+                <div class="sim-xyz" id="sim-xyz">x 0  y 0  z 0</div>
+                <div class="rlab">Proximity</div>
+                <div class="rval" id="sim-prox">0</div>
+                <div class="sim-bar2"><i id="sim-prox-bar"></i></div>
+                <div class="rlab">Signal</div>
+                <div class="rval" id="sim-rssi">-58 <small>dBm</small></div>
+                <div class="sim-bar2"><i id="sim-rssi-bar" style="width:70%"></i></div>
+                <div class="rlab">Event Log</div>
+                <div class="sim-log" id="sim-log"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="sim-note">Simulated for preview. A physical node produces the same live data over your local network.</p>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="bn-sec" id="how">
+      <h2>How it works</h2>
+      <p>The node is a small battery- or USB-powered pod. An ESP32 microcontroller reads two sensors a hundred times a second: a <strong style="color:var(--cyan)">capacitive telescopic antenna</strong> (its reading drops as a person or object approaches — a proximity/field-disturbance channel) and a <strong style="color:var(--cyan)">QMC5883L magnetometer</strong> (a 3-axis reading of the local magnetic field). An onboard LED ring and buzzer give you a standalone alert, while the ESP32 joins your Wi-Fi and connects to the SPECTER desktop app.</p>
+      <p>SPECTER runs a small server that the node discovers automatically — the app broadcasts its address, the node finds it and connects, and telemetry starts flowing at 10 Hz. From there the node behaves like any other SPECTER sensor: its readings feed the Anomaly Index, threshold crossings fire timestamped detection events into your evidence archive, and the live field mesh renders in the instrument rail.</p>
+      <div class="callout"><strong>No soldering required for a basic build.</strong> Using breakout boards and jumper wires you can assemble a working node on a breadboard. Soldering only comes in when you want a permanent, rugged pod.</div>
+    </div>
+
+    <!-- PARTS -->
+    <div class="bn-sec" id="parts">
+      <h2>Parts list</h2>
+      <table class="bn-table">
+        <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
+        <tbody>
+          <tr><td>ESP32 dev board (e.g. ESP32-WROOM DevKit)</td><td>Wi-Fi microcontroller, the brain</td><td>$5–8</td></tr>
+          <tr><td>QMC5883L magnetometer breakout</td><td>3-axis magnetic field sensor (I2C)</td><td>$2–4</td></tr>
+          <tr><td>WS2812B addressable LED ring (12 px)</td><td>Local visual alert</td><td>$3–5</td></tr>
+          <tr><td>Passive piezo buzzer</td><td>Local audible alert</td><td>$1</td></tr>
+          <tr><td>Telescopic antenna / brass rod</td><td>Capacitive proximity antenna</td><td>$1–3</td></tr>
+          <tr><td>Breadboard + jumper wires</td><td>Wiring</td><td>$3–5</td></tr>
+          <tr><td>USB cable / 18650 power (optional)</td><td>Power</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module — confirm it's the QMC5883L variant (I2C address 0x0D).</p>
+    </div>
+
+    <!-- WIRING -->
+    <div class="bn-sec" id="wiring">
+      <h2>Wiring</h2>
+      <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin.</p>
+      <object type="image/svg+xml" data="/assets/build-node/wiring.svg" class="bn-diagram" aria-label="SPECTER Node wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND." style="background:#070a0f;padding:8px;"></object>
+      <table class="bn-table">
+        <thead><tr><th>Component pin</th><th>ESP32 pin</th></tr></thead>
+        <tbody>
+          <tr><td>Telescopic antenna wire</td><td class="pin">GPIO4 (T0, touch)</td></tr>
+          <tr><td>QMC5883L · SDA</td><td class="pin">GPIO21</td></tr>
+          <tr><td>QMC5883L · SCL</td><td class="pin">GPIO22</td></tr>
+          <tr><td>QMC5883L · VCC / GND</td><td class="pin">3.3V / GND</td></tr>
+          <tr><td>LED ring · DIN</td><td class="pin">GPIO13</td></tr>
+          <tr><td>LED ring · VCC / GND</td><td class="pin">3.3V (or 5V) / GND</td></tr>
+          <tr><td>Buzzer · +</td><td class="pin">GPIO12</td></tr>
+          <tr><td>Buzzer · −</td><td class="pin">GND</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches — no extra components needed.</div>
+    </div>
+
+    <!-- CODE -->
+    <div class="bn-sec" id="leds">
+      <h2>Configure your LEDs</h2>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:22px;">Not every builder uses the same LED ring. Pick your chipset, color order, and count, then map which LED faces <b>front / right / back / left</b> so SPECTER can light the correct side toward a detected source. This generates a config block — paste it at the top of the firmware, replacing the matching lines.</p>
+      <div class="led-cfg">
+        <div>
+          <div class="cfg-field">
+            <label for="cfg-chip">LED chipset</label>
+            <select id="cfg-chip">
+              <option value="WS2812B">WS2812B (NeoPixel — most common)</option>
+              <option value="SK6812">SK6812 / SK6812RGBW</option>
+              <option value="WS2811">WS2811</option>
+              <option value="WS2813">WS2813</option>
+              <option value="APA102">APA102 / DotStar (clocked)</option>
+              <option value="SK9822">SK9822 (clocked)</option>
+            </select>
+          </div>
+          <div class="cfg-row">
+            <div class="cfg-field">
+              <label for="cfg-order">Color order</label>
+              <select id="cfg-order">
+                <option value="GRB">GRB (WS2812B default)</option>
+                <option value="RGB">RGB</option>
+                <option value="BGR">BGR</option>
+                <option value="RBG">RBG</option>
+                <option value="GBR">GBR</option>
+                <option value="BRG">BRG</option>
+              </select>
+            </div>
+            <div class="cfg-field">
+              <label for="cfg-count">LED count</label>
+              <input type="number" id="cfg-count" min="1" max="120" value="12">
+            </div>
+          </div>
+          <div class="cfg-row">
+            <div class="cfg-field">
+              <label for="cfg-pin">Data pin (GPIO)</label>
+              <input type="number" id="cfg-pin" min="0" max="39" value="13">
+            </div>
+            <div class="cfg-field">
+              <label for="cfg-clk">Clock pin <span style="text-transform:none">(clocked chips)</span></label>
+              <input type="number" id="cfg-clk" min="0" max="39" value="14">
+            </div>
+          </div>
+          <div class="cfg-field">
+            <label for="cfg-bright">Max brightness <span style="text-transform:none">(0–255)</span></label>
+            <input type="number" id="cfg-bright" min="1" max="255" value="100">
+          </div>
+        </div>
+        <div class="map-wrap">
+          <div class="maplbl">Positional map — click an LED, then a direction</div>
+          <div class="ledmap"><canvas id="ledmap-canvas" width="460" height="460"></canvas></div>
+          <div class="pos-btns" id="pos-btns">
+            <button data-pos="FRONT">FRONT</button>
+            <button data-pos="RIGHT">RIGHT</button>
+            <button data-pos="BACK">BACK</button>
+            <button data-pos="LEFT">LEFT</button>
+            <button data-pos="CLEAR">CLEAR</button>
+          </div>
+          <div class="map-tip">Selected LED: <b id="map-sel">#0</b><br>Click a direction to assign it. Assign the LED that physically points each way with the antenna forward.</div>
+        </div>
+      </div>
+      <div class="cfg-out">
+        <div class="code-head"><span>// paste into specter_node.ino — LED CONFIG block</span><button class="copy-btn" id="cfgCopyBtn" onclick="copyCfg()">COPY CONFIG</button></div>
+        <pre><code id="cfg-code"></code></pre>
+      </div>
+    </div>
+
+    <div class="bn-sec" id="code">
+      <h2>The code</h2>
+      <p>This is the complete firmware. Paste it into the Arduino IDE (or PlatformIO), install the three libraries below, select your ESP32 board, and upload.</p>
+      <h3>1 · Install libraries</h3>
+      <p>In the Arduino IDE, open <em>Tools → Manage Libraries</em> and install:</p>
+      <div class="bn-step"><span class="num">1</span><div><strong>WebSockets</strong> by Markus Sattler (links2004)</div></div>
+      <div class="bn-step"><span class="num">2</span><div><strong>ArduinoJson</strong> by Benoit Blanchon</div></div>
+      <div class="bn-step"><span class="num">3</span><div><strong>FastLED</strong> by Daniel Garcia</div></div>
+      <p style="margin-top:14px;">You also need the ESP32 board package (<em>Boards Manager → "esp32" by Espressif</em>). Then select <strong>ESP32 Dev Module</strong> as your board.</p>
+      <h3>2 · Paste &amp; upload this firmware</h3>
+      <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
+      <pre class="code"><code id="fw-code">/*
+  ============================================================================
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.0.0-maker
+  ============================================================================
+  Public build-your-own field-sensor pod for the SPECTER system.
+
+  This is the open sensor node: capacitive telescopic antenna (touchRead) +
+  QMC5883L magnetometer, with an LED ring and buzzer for local alerts. It joins
+  your Wi-Fi and streams telemetry to the SPECTER desktop app, which shows it
+  live in the instrument rail and 3D field mesh.
+
+  Sensors:  capacitive antenna (GPIO4/T0) + QMC5883L magnetometer (I2C 0x0D)
+  Outputs:  addressable LED ring (LED_DATA_PIN) + passive buzzer (GPIO12)
+  Link:     Wi-Fi. The pod is a WebSocket CLIENT; the SPECTER app is the SERVER.
+
+  Architecture (dual-core FreeRTOS):
+    Core 1  hardwareTask  — 100 Hz sensor read + threshold/severity + LED/buzzer
+    Core 0  loop()        — UDP discovery, WS client to app, local AP + portal,
+                            10 Hz telemetry / 1 Hz net diagnostics / event frames
+
+  Discovery: the app broadcasts a UDP beacon on :47845; the node connects to the
+  app&#x27;s WebSocket server on :47846. On first boot join the pod&#x27;s own AP
+  (SPECTER-NODE-01) and set your Wi-Fi at http://192.168.4.1/.
+  ============================================================================
+*/
+
+#include &lt;WiFi.h&gt;
+#include &lt;AsyncUDP.h&gt;
+#include &lt;WebSocketsClient.h&gt;   // Links2004/arduinoWebSockets
+#include &lt;WebSocketsServer.h&gt;
+#include &lt;WebServer.h&gt;
+#include &lt;Preferences.h&gt;
+#include &lt;ArduinoJson.h&gt;        // v6 or v7
+#include &lt;Wire.h&gt;
+#include &lt;FastLED.h&gt;
+#include &lt;math.h&gt;
+
+// ---- identity / version ----
+#define FW_VERSION   &quot;2.0.0-maker&quot;
+#define DEVICE_TYPE  &quot;specter-node&quot;
+static char nodeName[32] = &quot;REM-Pod A&quot;;
+
+// ---- pins ----
+#define TOUCH_PIN       4    // T0 — capacitive telescopic antenna
+#define I2C_SDA        21
+#define I2C_SCL        22
+#define BUZZER_PIN     12
+
+// ===== LED CONFIG =====
+// Generate this block with the configurator at
+//   specter-imaging.com/help/build-node/#leds  (Configure your LEDs)
+// then paste over these lines. Defaults suit a 12-pixel WS2812B ring.
+#define LED_CHIPSET   WS2812B
+#define LED_COLOR_ORD GRB
+#define LED_DATA_PIN  13
+// #define LED_CLK_PIN   14   // uncomment for clocked chips (APA102 / SK9822)
+#define NUM_LEDS      12
+#define LED_BRIGHT    100
+
+// Positional map — which LED index points which way (-1 = unset).
+// Face the antenna FORWARD; SPECTER lights the side toward a source.
+#define LED_FRONT     0
+#define LED_RIGHT     3
+#define LED_BACK      6
+#define LED_LEFT      9
+
+// ---- network constants (must match SPECTER app) ----
+#define BEACON_PORT   47845
+#define APP_WS_PORT   47846
+#define LOCAL_WS_PORT    81
+#define TELEMETRY_HZ_DEFAULT 10
+
+// ---- hardware globals ----
+CRGB leds[NUM_LEDS];
+Preferences prefs;
+volatile int16_t magX = 0, magY = 0, magZ = 0;
+volatile int     proxVal = 0;
+volatile int     magDelta = 0;
+volatile bool    eventPending = false;
+volatile int     evtValue = 0, evtThreshold = 0;
+char             evtChannel[8] = &quot;mag&quot;, evtSeverity[8] = &quot;low&quot;, evtKind[16] = &quot;spike&quot;;
+volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
+volatile int     baseProx = 0;
+volatile bool    recalibrate = true;
+volatile int     threshProx = 2000;   // capacitance DROPS as an object nears
+volatile int     threshMag  = 1500;   // vector delta (LSB)
+volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
+
+#define QMC5883L_ADDR 0x0D
+
+void initSensors() {
+    Wire.begin(I2C_SDA, I2C_SCL);
+    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x09); Wire.write(0x1D); Wire.endTransmission();
+    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0A); Wire.write(0x00); Wire.endTransmission();
+    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x0B); Wire.write(0x01); Wire.endTransmission();
+}
+
+void readQMC5883L() {
+    Wire.beginTransmission(QMC5883L_ADDR); Wire.write(0x00); Wire.endTransmission(false);
+    Wire.requestFrom((uint16_t)QMC5883L_ADDR, (uint8_t)6);
+    if (Wire.available() == 6) {
+        magX = (int16_t)(Wire.read() | (Wire.read() &lt;&lt; 8));
+        magY = (int16_t)(Wire.read() | (Wire.read() &lt;&lt; 8));
+        magZ = (int16_t)(Wire.read() | (Wire.read() &lt;&lt; 8));
+    }
+}
+
+// ---- Core 1: sensor read + threshold logic + LED/buzzer ----
+void hardwareTask(void* pv) {
+    initSensors();
+    FastLED.addLeds&lt;LED_CHIPSET, LED_DATA_PIN, LED_COLOR_ORD&gt;(leds, NUM_LEDS);
+    FastLED.setBrightness(LED_BRIGHT);
+    float proxAvg = 0; bool proxInit = false;
+
+    for (;;) {
+        proxVal = touchRead(TOUCH_PIN);
+        readQMC5883L();
+
+        if (recalibrate) {
+            baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
+            baseProx = proxVal; proxAvg = proxVal; proxInit = true;
+            recalibrate = false;
+        }
+        if (proxInit) proxAvg = proxAvg * 0.999f + proxVal * 0.001f;
+        baseProx = (int)proxAvg;
+
+        int dX = magX - baseMagX, dY = magY - baseMagY, dZ = magZ - baseMagZ;
+        magDelta = (int)sqrtf((float)dX * dX + (float)dY * dY + (float)dZ * dZ);
+
+        bool proxAlert = (proxVal &lt; threshProx);
+        bool magAlert  = (magDelta &gt; threshMag);
+
+        if (proxAlert || magAlert) {
+            const char* sev = &quot;low&quot;;
+            if (proxVal &lt; threshProx - 1000 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
+            else if (proxVal &lt; threshProx - 500 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
+            const char* ch = magAlert ? &quot;mag&quot; : &quot;prox&quot;;
+            int val = magAlert ? magDelta : proxVal;
+            int thr = magAlert ? threshMag : threshProx;
+            const char* kind = magAlert ? &quot;mag_anomaly&quot; : &quot;proximity&quot;;
+            if (!eventPending) {
+                strncpy(evtChannel, ch, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
+                strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
+                strncpy(evtKind, kind, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
+                evtValue = val; evtThreshold = thr; eventPending = true;
+            }
+            int pitch = constrain(map(proxVal, threshProx, 0, 400, 2000), 400, 2000);
+            tone(BUZZER_PIN, pitch, 40);
+            fill_solid(leds, NUM_LEDS, magAlert ? CRGB::Red : CRGB::Cyan);
+        } else {
+            fill_solid(leds, NUM_LEDS, CRGB::Black);
+        }
+        FastLED.show();
+        vTaskDelay(pdMS_TO_TICKS(10));   // 100 Hz
+    }
+}
+
+// ---- Core 0: network ----
+WebServer        server(80);
+WebSocketsServer localWS(LOCAL_WS_PORT);
+WebSocketsClient appWS;
+AsyncUDP         udp;
+
+bool     isAppConnected = false, appWSStarted = false;
+String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;;
+uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
+
+void sendHello() {
+    JsonDocument doc;
+    doc[&quot;t&quot;] = &quot;hello&quot;; doc[&quot;device&quot;] = DEVICE_TYPE; doc[&quot;fw&quot;] = FW_VERSION;
+    doc[&quot;name&quot;] = nodeName;
+    JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
+    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;);
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;;
+    JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
+    th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
+    String out; serializeJson(doc, out); appWS.sendTXT(out);
+}
+
+void persistThresholds() {
+    prefs.begin(&quot;specter&quot;, false);
+    prefs.putInt(&quot;mag&quot;, threshMag); prefs.putInt(&quot;prox&quot;, threshProx);
+    prefs.end();
+}
+
+void handleCommand(JsonDocument&amp; doc) {
+    if (doc[&quot;t&quot;] != &quot;cmd&quot;) return;
+    const char* cmd = doc[&quot;cmd&quot;] | &quot;&quot;;
+    if (!strcmp(cmd, &quot;ping&quot;)) {
+        JsonDocument p; p[&quot;t&quot;] = &quot;pong&quot;; p[&quot;ts&quot;] = millis();
+        String out; serializeJson(p, out); if (isAppConnected) appWS.sendTXT(out);
+    } else if (!strcmp(cmd, &quot;setThreshold&quot;)) {
+        const char* ch = doc[&quot;channel&quot;] | &quot;&quot;; int val = doc[&quot;value&quot;] | 0;
+        if (!strcmp(ch, &quot;mag&quot;))  threshMag = val;
+        if (!strcmp(ch, &quot;prox&quot;)) threshProx = val;
+        persistThresholds();
+    } else if (!strcmp(cmd, &quot;setRate&quot;)) {
+        telemetryHz = constrain((int)(doc[&quot;hz&quot;] | TELEMETRY_HZ_DEFAULT), 1, 30);
+        prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;hz&quot;, telemetryHz); prefs.end();
+    } else if (!strcmp(cmd, &quot;rebaseline&quot;)) {
+        recalibrate = true;
+    } else if (!strcmp(cmd, &quot;identify&quot;)) {
+        for (int k = 0; k &lt; 3; k++) {
+            fill_solid(leds, NUM_LEDS, CRGB::White); FastLED.show(); delay(120);
+            fill_solid(leds, NUM_LEDS, CRGB::Black); FastLED.show(); delay(120);
+        }
+    }
+}
+
+void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
+    if (type == WStype_CONNECTED) { isAppConnected = true; sendHello(); }
+    else if (type == WStype_DISCONNECTED) { isAppConnected = false; }
+    else if (type == WStype_TEXT) {
+        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc);
+    }
+}
+void localWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+    if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc); }
+}
+
+void connectToApp(const String&amp; ip, int port) {
+    if (appWSStarted) return;
+    appWS.begin(ip, port, &quot;/&quot;); appWS.onEvent(appWsEvent);
+    appWS.setReconnectInterval(3000); appWSStarted = true;
+}
+
+void setupNetwork() {
+    prefs.begin(&quot;specter&quot;, true);
+    targetSSID  = prefs.getString(&quot;ssid&quot;, &quot;&quot;);
+    targetPASS  = prefs.getString(&quot;pass&quot;, &quot;&quot;);
+    targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
+    threshMag   = prefs.getInt(&quot;mag&quot;, 1500);
+    threshProx  = prefs.getInt(&quot;prox&quot;, 2000);
+    telemetryHz = prefs.getInt(&quot;hz&quot;, TELEMETRY_HZ_DEFAULT);
+    prefs.getString(&quot;name&quot;, &quot;&quot;).toCharArray(nodeName, sizeof(nodeName));
+    if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;REM-Pod A&quot;, sizeof(nodeName));
+    prefs.end();
+
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(&quot;SPECTER-NODE-01&quot;);
+    if (targetSSID != &quot;&quot;) {
+        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
+        int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+        if (udp.listen(BEACON_PORT)) {
+            udp.onPacket([](AsyncUDPPacket packet) {
+                if (isAppConnected || appWSStarted) return;
+                JsonDocument doc;
+                if (deserializeJson(doc, packet.data(), packet.length())) return;
+                if (doc[&quot;svc&quot;] == &quot;specter-app&quot;)
+                    connectToApp(doc[&quot;ip&quot;].as&lt;String&gt;(), doc[&quot;ws&quot;] | APP_WS_PORT);
+            });
+        }
+        if (targetAppIP != &quot;&quot;) connectToApp(targetAppIP, APP_WS_PORT);
+    }
+    // Minimal Wi-Fi config portal on the pod&#x27;s AP.
+    server.on(&quot;/&quot;, []() {
+        String h = &quot;&lt;!DOCTYPE html&gt;&lt;meta name=viewport content=&#x27;width=device-width,initial-scale=1&#x27;&gt;&quot;
+          &quot;&lt;body style=&#x27;background:#07090b;color:#c6d4dc;font-family:monospace;padding:20px&#x27;&gt;&quot;
+          &quot;&lt;h3 style=&#x27;letter-spacing:.2em&#x27;&gt;SPECTER NODE&lt;/h3&gt;&lt;p&gt;fw &quot; FW_VERSION &quot;&lt;/p&gt;&quot;
+          &quot;&lt;form method=POST action=/save&gt;&quot;
+          &quot;Wi-Fi SSID&lt;br&gt;&lt;input name=ssid style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
+          &quot;Password&lt;br&gt;&lt;input name=pass type=password style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
+          &quot;App IP (optional)&lt;br&gt;&lt;input name=appip style=&#x27;width:100%;padding:8px;margin:4px 0;background:#0f1318;color:#c6d4dc;border:1px solid #1c2329&#x27;&gt;&lt;br&gt;&quot;
+          &quot;&lt;button style=&#x27;margin-top:10px;padding:10px 16px;background:#0f1318;color:#6ad7a8;border:1px solid #6ad7a8&#x27;&gt;SAVE + REBOOT&lt;/button&gt;&lt;/form&gt;&lt;/body&gt;&quot;;
+        server.send(200, &quot;text/html&quot;, h);
+    });
+    server.on(&quot;/save&quot;, HTTP_POST, []() {
+        prefs.begin(&quot;specter&quot;, false);
+        if (server.hasArg(&quot;ssid&quot;))  prefs.putString(&quot;ssid&quot;,  server.arg(&quot;ssid&quot;));
+        if (server.hasArg(&quot;pass&quot;))  prefs.putString(&quot;pass&quot;,  server.arg(&quot;pass&quot;));
+        if (server.hasArg(&quot;appip&quot;)) prefs.putString(&quot;appip&quot;, server.arg(&quot;appip&quot;));
+        prefs.end();
+        server.send(200, &quot;text/html&quot;, &quot;&lt;meta http-equiv=refresh content=&#x27;2;url=/&#x27;&gt;Saved. Rebooting…&quot;);
+        delay(400); ESP.restart();
+    });
+    server.begin();
+    localWS.begin(); localWS.onEvent(localWsEvent);
+}
+
+void setup() {
+    bootMs = millis();
+    xTaskCreatePinnedToCore(hardwareTask, &quot;HW_Task&quot;, 4096, NULL, 1, NULL, 1);
+    setupNetwork();
+}
+
+void loop() {
+    server.handleClient(); localWS.loop(); appWS.loop();
+    uint32_t now = millis();
+    uint32_t period = 1000 / (telemetryHz &gt; 0 ? telemetryHz : TELEMETRY_HZ_DEFAULT);
+
+    if (now - lastTelemetry &gt;= period) {
+        lastTelemetry = now; seqNum++;
+        JsonDocument doc;
+        doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx;
+        JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
+        mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
+        doc[&quot;hz&quot;] = telemetryHz;
+        String out; serializeJson(doc, out);
+        if (isAppConnected) appWS.sendTXT(out);
+        localWS.broadcastTXT(out);
+
+        if (eventPending) {
+            JsonDocument e;
+            e[&quot;t&quot;] = &quot;event&quot;; e[&quot;ts&quot;] = now; e[&quot;kind&quot;] = evtKind; e[&quot;channel&quot;] = evtChannel;
+            e[&quot;value&quot;] = evtValue; e[&quot;threshold&quot;] = evtThreshold; e[&quot;severity&quot;] = evtSeverity;
+            String eo; serializeJson(e, eo);
+            if (isAppConnected) appWS.sendTXT(eo);
+            localWS.broadcastTXT(eo);
+            eventPending = false;
+        }
+    }
+    if (now - lastNet &gt;= 1000) {
+        lastNet = now;
+        JsonDocument n;
+        n[&quot;t&quot;] = &quot;net&quot;; n[&quot;ts&quot;] = now; n[&quot;rssi&quot;] = WiFi.RSSI();
+        n[&quot;ip&quot;] = WiFi.localIP().toString(); n[&quot;uptime&quot;] = (now - bootMs) / 1000;
+        n[&quot;ssid&quot;] = WiFi.SSID(); n[&quot;clients&quot;] = WiFi.softAPgetStationNum();
+        String no; serializeJson(n, no);
+        if (isAppConnected) appWS.sendTXT(no);
+        localWS.broadcastTXT(no);
+    }
+}
+</code></pre>
+      <h3>3 · Connect it to Wi-Fi</h3>
+      <div class="bn-step"><span class="num">1</span><div>On first boot the node creates its own Wi-Fi network, <strong>SPECTER-NODE-01</strong>. Join it from your phone or laptop.</div></div>
+      <div class="bn-step"><span class="num">2</span><div>Open <strong>http://192.168.4.1/</strong> in a browser and enter your field Wi-Fi name and password. Save — the node reboots and joins your network.</div></div>
+      <div class="bn-step"><span class="num">3</span><div>Open SPECTER on the same network. Enable the SPECTER Node feature in settings. The node discovers the app automatically and appears in the instrument rail within a couple of seconds.</div></div>
+      <div class="callout"><strong>That's it.</strong> Wave your hand near the antenna or move a magnet nearby — you'll see the field mesh react and the buzzer chirp. Tune the alert thresholds from inside SPECTER; the node remembers them across reboots.</div>
+      <a href="/index.html#pricing" class="btn-primary bn-cta">GET SPECTER</a>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">SPECTER</div>
+      <div class="footer-links">
+        <a href="mailto:support@specterimaging.com">SUPPORT</a>
+        <a href="/help/field-guide/">DOCUMENTATION</a>
+        <a href="/help/build-node/">BUILD A NODE</a>
+      </div>
+      <div class="footer-copy">© 2026 SPECTER , SPECTRAL PHENOMENON EVALUATION &amp; CAPTURE THROUGH ENVIRONMENTAL RECONNAISSANCE. ALL RIGHTS RESERVED.</div>
+    </div>
+  </footer>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+// ---- copy button ----
+function copyCode(){
+  var el=document.getElementById('fw-code');
+  var txt=el.innerText||el.textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    var b=document.getElementById('copyBtn');b.textContent='COPIED ✓';b.classList.add('done');
+    setTimeout(function(){b.textContent='COPY CODE';b.classList.remove('done');},1800);
+  });
+}
+
+// ---- LED CONFIG TOOL ----
+(function(){
+  var chipEl=document.getElementById('cfg-chip'), orderEl=document.getElementById('cfg-order'),
+      countEl=document.getElementById('cfg-count'), pinEl=document.getElementById('cfg-pin'),
+      clkEl=document.getElementById('cfg-clk'), brightEl=document.getElementById('cfg-bright'),
+      codeEl=document.getElementById('cfg-code'), canvas=document.getElementById('ledmap-canvas'),
+      selEl=document.getElementById('map-sel');
+  if(!chipEl||!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var CLOCKED={APA102:1,SK9822:1};
+  var RGBW={SK6812:0}; // SK6812 can be RGBW but default RGB; keep simple
+  var COLORS={FRONT:'#00e5ff',RIGHT:'#ffb300',BACK:'#ff5d5d',LEFT:'#8b5cf6'};
+  var map={}, sel=0;
+
+  function count(){return Math.max(1,Math.min(120,parseInt(countEl.value)||1));}
+
+  function draw(){
+    var n=count(), W=canvas.width, cx=W/2, cy=W/2, R=W*0.36, r=Math.max(9, Math.min(22, 520/n));
+    ctx.clearRect(0,0,W,W);
+    // orientation guide: antenna forward = top
+    ctx.strokeStyle='rgba(0,229,255,.25)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(0,229,255,.5)'; ctx.font='16px monospace'; ctx.textAlign='center';
+    ctx.fillText('▲ FRONT (antenna)', cx, cy-R-18);
+    ctx.fillStyle='rgba(120,140,150,.5)'; ctx.font='13px monospace';
+    ctx.fillText('BACK', cx, cy+R+30); ctx.fillText('L', cx-R-18, cy+5); ctx.fillText('R', cx+R+18, cy+5);
+    for(var i=0;i<n;i++){
+      var a=-Math.PI/2 + i/n*Math.PI*2; // #0 at top, clockwise
+      var x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R;
+      var pos=null; for(var k in map){ if(map[k]===i) pos=k; }
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle = pos?COLORS[pos]:'#0c1620';
+      ctx.fill();
+      ctx.lineWidth = (i===sel)?3:1.5;
+      ctx.strokeStyle = (i===sel)?'#ffffff':(pos?COLORS[pos]:'rgba(0,229,255,.4)');
+      ctx.stroke();
+      ctx.fillStyle = pos?'#05070a':'rgba(0,229,255,.7)';
+      ctx.font='bold '+Math.max(9,r*0.8)+'px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(i, x, y);
+      canvas._leds = canvas._leds||[]; canvas._leds[i]={x:x/W,y:y/W,r:r/W};
+    }
+    ctx.textBaseline='alphabetic';
+  }
+
+  canvas.addEventListener('click',function(e){
+    var rect=canvas.getBoundingClientRect();
+    var mx=(e.clientX-rect.left)/rect.width, my=(e.clientY-rect.top)/rect.height;
+    var leds=canvas._leds||[]; var best=-1,bd=1e9;
+    for(var i=0;i<leds.length;i++){var d=Math.hypot(mx-leds[i].x,my-leds[i].y); if(d<leds[i].r*1.4&&d<bd){bd=d;best=i;}}
+    if(best>=0){sel=best; selEl.textContent='#'+sel; draw();}
+  });
+
+  document.getElementById('pos-btns').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    var pos=b.getAttribute('data-pos');
+    if(pos==='CLEAR'){ for(var k in map){ if(map[k]===sel) delete map[k]; } }
+    else { for(var kk in map){ if(map[kk]===sel) delete map[kk]; } map[pos]=sel; }
+    document.querySelectorAll('#pos-btns button').forEach(function(x){x.classList.remove('sel');});
+    draw(); gen();
+  });
+
+  function gen(){
+    var chip=chipEl.value, order=orderEl.value, n=count(),
+        pin=parseInt(pinEl.value)||13, clk=parseInt(clkEl.value)||14,
+        bright=Math.max(1,Math.min(255,parseInt(brightEl.value)||100)),
+        clocked=!!CLOCKED[chip];
+    var addLeds = clocked
+      ? 'FastLED.addLeds<'+chip+', LED_DATA_PIN, LED_CLK_PIN, '+order+'>(leds, NUM_LEDS);'
+      : 'FastLED.addLeds<'+chip+', LED_DATA_PIN, '+order+'>(leds, NUM_LEDS);';
+    function idx(p){ return (p in map)? map[p] : -1; }
+    var lines=[];
+    lines.push('// ===== SPECTER NODE — LED CONFIG (generated) =====');
+    lines.push('#define LED_CHIPSET   '+chip);
+    lines.push('#define LED_COLOR_ORD '+order);
+    lines.push('#define LED_DATA_PIN  '+pin);
+    if(clocked) lines.push('#define LED_CLK_PIN   '+clk+'   // clocked chipset needs a clock pin');
+    lines.push('#define NUM_LEDS      '+n);
+    lines.push('#define LED_BRIGHT    '+bright);
+    lines.push('');
+    lines.push('// Positional map — which LED index points which way (-1 = unset).');
+    lines.push('// Face the antenna FORWARD; SPECTER lights the side toward a source.');
+    lines.push('#define LED_FRONT     '+idx('FRONT'));
+    lines.push('#define LED_RIGHT     '+idx('RIGHT'));
+    lines.push('#define LED_BACK      '+idx('BACK'));
+    lines.push('#define LED_LEFT      '+idx('LEFT'));
+    lines.push('');
+    lines.push('// In setup():');
+    lines.push('//   '+addLeds);
+    lines.push('//   FastLED.setBrightness(LED_BRIGHT);');
+    codeEl.textContent=lines.join('\n');
+  }
+  window.__cfgGen=gen;
+
+  [chipEl,orderEl,countEl,pinEl,clkEl,brightEl].forEach(function(el){
+    el.addEventListener('input',function(){draw();gen();});
+    el.addEventListener('change',function(){draw();gen();});
+  });
+  // sensible default map for a 12px ring: 0 front, 3 right, 6 back, 9 left
+  chipEl.addEventListener('change',function(){ if(CLOCKED[chipEl.value]) clkEl.parentElement.style.opacity='1'; else clkEl.parentElement.style.opacity='.4'; });
+  map={FRONT:0,RIGHT:3,BACK:6,LEFT:9};
+  clkEl.parentElement.style.opacity='.4';
+  draw(); gen();
+})();
+
+function copyCfg(){
+  var el=document.getElementById('cfg-code'); var txt=el.innerText||el.textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    var b=document.getElementById('cfgCopyBtn'); b.textContent='COPIED ✓'; b.classList.add('done');
+    setTimeout(function(){b.textContent='COPY CONFIG';b.classList.remove('done');},1800);
+  });
+}
+
+// ---- orientation toggle (portrait <-> landscape) ----
+var simRoot=document.getElementById('sim-root');
+function setSimMode(m){
+  if(!simRoot)return;
+  simRoot.classList.toggle('landscape', m==='landscape');
+  document.getElementById('tg-portrait').classList.toggle('on', m==='portrait');
+  document.getElementById('tg-landscape').classList.toggle('on', m==='landscape');
+  if(window.__simResize)window.__simResize();
+}
+// auto-detect real device orientation / viewport on load + on change
+(function(){
+  function auto(){
+    // landscape if the viewport is wider than tall, OR on a wide (desktop) screen
+    var land = (window.innerWidth > window.innerHeight) || window.innerWidth >= 900;
+    setSimMode(land?'landscape':'portrait');
+  }
+  auto();
+  window.addEventListener('resize', auto);
+  window.addEventListener('orientationchange', function(){ setTimeout(auto,150); });
+})();
+
+// ---- live telemetry simulator: THREE.JS FIELD RADAR ----
+(function(){
+  var canvas=document.getElementById('sim-mesh'); if(!canvas||!window.THREE) return;
+  var THREE=window.THREE;
+  var CY=0x00e5ff, RED=0xff3d3d, AMB=0xffb300;
+
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  if(THREE.SRGBColorSpace) renderer.outputColorSpace=THREE.SRGBColorSpace;
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(45,1,0.1,100);
+  var camR=6.2, camPhi=0.62, camTheta=0.7;
+
+  // --- lighting so surfaces catch highlights ---
+  scene.add(new THREE.AmbientLight(0x1a2b33, 1.2));
+  var keyLight=new THREE.PointLight(CY, 2.2, 18); keyLight.position.set(3,4,3); scene.add(keyLight);
+  var rimLight=new THREE.PointLight(0x2266ff, 1.4, 20); rimLight.position.set(-4,-2,-3); scene.add(rimLight);
+  var srcLight=new THREE.PointLight(CY, 0, 12); scene.add(srcLight); // moves to the source, pulses on events
+
+  // --- procedural "brushed tech" texture for the core ---
+  function techTexture(){
+    var c=document.createElement('canvas'); c.width=c.height=256; var g=c.getContext('2d');
+    g.fillStyle='#04141a'; g.fillRect(0,0,256,256);
+    for(var i=0;i<256;i+=6){ g.strokeStyle='rgba(0,229,255,'+(0.03+Math.random()*0.05)+')'; g.beginPath(); g.moveTo(0,i); g.lineTo(256,i+ (Math.random()*4-2)); g.stroke(); }
+    for(var j=0;j<40;j++){ g.fillStyle='rgba(0,229,255,'+(0.05+Math.random()*0.12)+')'; var w=4+Math.random()*20; g.fillRect(Math.random()*256,Math.random()*256,w,2); }
+    // faint concentric hex/circuit nodes
+    for(var k=0;k<18;k++){ g.strokeStyle='rgba(0,229,255,0.10)'; g.beginPath(); g.arc(Math.random()*256,Math.random()*256,4+Math.random()*10,0,Math.PI*2); g.stroke(); }
+    var tex=new THREE.CanvasTexture(c); tex.wrapS=tex.wrapT=THREE.RepeatWrapping; return tex;
+  }
+  var coreTex=techTexture();
+
+  // --- node core: lit metallic instrument inside a wireframe cage ---
+  var coreInner=new THREE.Mesh(new THREE.IcosahedronGeometry(0.34,2),
+    new THREE.MeshStandardMaterial({color:0x0a3540, map:coreTex, emissive:CY, emissiveIntensity:0.35, metalness:0.85, roughness:0.35}));
+  scene.add(coreInner);
+  var core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.46,1),
+    new THREE.MeshBasicMaterial({color:CY,wireframe:true,transparent:true,opacity:0.85}));
+  scene.add(core);
+  var coreGlow=new THREE.Mesh(new THREE.SphereGeometry(0.6,20,20),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.10,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(coreGlow);
+
+  // --- reflective floor grid for depth ---
+  var grid=new THREE.GridHelper(10, 20, CY, 0x123);
+  grid.position.y=-2.42; grid.material.transparent=true; grid.material.opacity=0.16; scene.add(grid);
+  // radial fade disc under the node
+  var disc=new THREE.Mesh(new THREE.CircleGeometry(3.2,48),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.05,blending:THREE.AdditiveBlending,depthWrite:false}));
+  disc.rotation.x=-Math.PI/2; disc.position.y=-2.41; scene.add(disc);
+
+  // --- intensity shell: wireframe sphere that flexes with field strength ---
+  var shellGeo=new THREE.IcosahedronGeometry(2.4,3);
+  var shellBase=shellGeo.attributes.position.array.slice();
+  var shell=new THREE.Mesh(shellGeo,
+    new THREE.MeshBasicMaterial({color:CY,wireframe:true,transparent:true,opacity:0.12}));
+  scene.add(shell);
+
+  // --- bearing ring at the base (compass), with a moving marker ---
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(2.7,0.012,8,80),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.35}));
+  ring.rotation.x=Math.PI/2; ring.position.y=-2.4; scene.add(ring);
+  // compass ticks
+  var ticks=new THREE.Group();
+  for(var i=0;i<24;i++){var a=i/24*Math.PI*2;
+    var tk=new THREE.Mesh(new THREE.BoxGeometry(0.02,0.02,i%6===0?0.28:0.12),
+      new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:i%6===0?0.6:0.28}));
+    tk.position.set(Math.cos(a)*2.7,-2.4,Math.sin(a)*2.7); tk.lookAt(0,-2.4,0); ticks.add(tk);}
+  scene.add(ticks);
+  var bearingMark=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.34,4),
+    new THREE.MeshBasicMaterial({color:CY}));
+  bearingMark.rotation.x=Math.PI/2; scene.add(bearingMark);
+
+  // --- field VECTOR beam: points toward the disturbance source ---
+  var beamLen=2.0;
+  var beam=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.10,1,12),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.85}));
+  scene.add(beam);
+  var beamTip=new THREE.Mesh(new THREE.SphereGeometry(0.16,16,16),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.95}));
+  scene.add(beamTip);
+  var beamTipGlow=new THREE.Mesh(new THREE.SphereGeometry(0.34,16,16),
+    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.18,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(beamTipGlow);
+
+  // --- directional pulse rings that fly out toward the source ---
+  var pulses=[];
+  function spawnPulse(dir,color){
+    var g=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.03,8,32),
+      new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.9}));
+    g.userData={dir:dir.clone(),life:0}; scene.add(g); pulses.push(g);
+    if(pulses.length>6){var old=pulses.shift();scene.remove(old);}
+  }
+
+  // --- ambient particle dust reacting to the field ---
+  var pcount=280, pgeo=new THREE.BufferGeometry(), ppos=new Float32Array(pcount*3);
+  for(var p=0;p<pcount;p++){var rr=1.6+Math.random()*1.6,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+    ppos[p*3]=rr*Math.sin(ph)*Math.cos(th);ppos[p*3+1]=rr*Math.cos(ph);ppos[p*3+2]=rr*Math.sin(ph)*Math.sin(th);}
+  pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));
+  var dust=new THREE.Points(pgeo,new THREE.PointsMaterial({color:CY,size:0.035,transparent:true,opacity:0.5}));
+  scene.add(dust);
+
+  function resize(){
+    var w=canvas.clientWidth||canvas.offsetWidth, h=canvas.clientHeight||canvas.offsetHeight;
+    if(!w||!h)return;
+    renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  window.__simResize=resize;
+
+  // --- telemetry state ---
+  var t=0, prox=3200, amp=18, disturb=0, nextEvent=90+Math.random()*120;
+  var srcDir=new THREE.Vector3(1,0.2,0.3).normalize();  // where the "signal" is coming from
+  var mx=-140,my=90,mz=300;
+  var log=document.getElementById('sim-log'), logs=[];
+  function pushLog(cls,msg){logs.unshift('<span class="'+cls+'">'+msg+'</span>');if(logs.length>5)logs.pop();log.innerHTML=logs.join('<br>');}
+  function ts(){return new Date().toTimeString().slice(0,8);}
+
+  var setEl=function(id){return document.getElementById(id);};
+
+  function tick(){
+    t+=0.016;
+    // slow ambient wander of the magnetic vector
+    mx+=Math.sin(t*0.7)*3 - (mx+140)*0.01;
+    my+=Math.cos(t*0.5)*2 - (my-90)*0.01;
+    mz+=Math.sin(t*0.9)*3 - (mz-300)*0.01;
+
+    // disturbance events pick a NEW source direction and fire a pulse from it
+    if(t>nextEvent*0.016){
+      disturb=1; nextEvent=t/0.016+120+Math.random()*160;
+      srcDir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.3)*1.2,(Math.random()-0.5)*2).normalize();
+      var sev=Math.random(), col=CY, cls='';
+      if(sev>0.75){col=RED;cls='hi';pushLog('hi',ts()+' — MAG ANOMALY · CLASS-III');}
+      else if(sev>0.4){col=AMB;cls='med';pushLog('med',ts()+' — FIELD DISTURBANCE · CLASS-II');}
+      else{pushLog('',ts()+' — PROXIMITY · CLASS-I');}
+      spawnPulse(srcDir,col);
+    }
+    disturb*=0.955;
+    var kick=disturb;
+    prox=3200-disturb*2600+(Math.random()-0.5)*40;
+    amp=18+disturb*44+Math.sin(t*3)*3;
+
+    // magnetic vector aligns toward the source when disturbed
+    var vec=srcDir.clone().multiplyScalar(0.4+kick*0.6).add(new THREE.Vector3(mx,my,mz).normalize().multiplyScalar(0.3)).normalize();
+    var bearing=(Math.atan2(vec.z,vec.x)*180/Math.PI+360)%360;
+
+    // ---- readouts ----
+    setEl('sim-amp').innerHTML=amp.toFixed(1)+' <small>µT</small>';
+    setEl('sim-amp-bar').style.width=Math.min(100,amp/70*100)+'%';
+    setEl('sim-xyz').textContent='x '+(vec.x*amp).toFixed(0)+'  y '+(vec.y*amp).toFixed(0)+'  z '+(vec.z*amp).toFixed(0);
+    setEl('sim-prox').textContent=prox.toFixed(0);
+    setEl('sim-prox-bar').style.width=Math.max(0,Math.min(100,100-(prox/4000*100)))+'%';
+    var rssi=-58+Math.round(Math.sin(t*0.3)*4); setEl('sim-rssi').innerHTML=rssi+' <small>dBm</small>';
+    setEl('sim-bearing').innerHTML='BEARING '+bearing.toFixed(0)+'°'+(disturb>0.25?' · SOURCE LOCK':'');
+
+    // ---- 3D updates ----
+    core.rotation.x+=0.004; core.rotation.y+=0.007;
+    coreInner.rotation.y-=0.006; coreInner.rotation.x+=0.003;
+    var cs=1+disturb*0.5; core.scale.setScalar(cs); coreGlow.scale.setScalar(cs); coreInner.scale.setScalar(1+disturb*0.35);
+    coreGlow.material.opacity=0.08+disturb*0.3;
+    var hot=disturb>0.5?RED:CY;
+    core.material.color.setHex(hot); coreGlow.material.color.setHex(hot);
+    coreInner.material.emissive.setHex(hot); coreInner.material.emissiveIntensity=0.3+disturb*0.9;
+    keyLight.color.setHex(hot); keyLight.intensity=2.0+disturb*2.5;
+    // source light rides the beam tip and flares on events
+    srcLight.position.copy(vec.clone().multiplyScalar(2.2)); srcLight.color.setHex(hot);
+    srcLight.intensity=disturb*4.0;
+
+    // beam toward source
+    var len=beamLen*(0.5+amp/70);
+    var end=vec.clone().multiplyScalar(len);
+    beam.position.copy(end.clone().multiplyScalar(0.5));
+    beam.scale.set(1,len,1);
+    beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),vec);
+    beam.material.color.setHex(disturb>0.5?RED:CY);
+    beamTip.position.copy(end); beamTipGlow.position.copy(end);
+    beamTip.material.color.setHex(disturb>0.5?RED:CY);
+    var tg=0.12+Math.abs(Math.sin(t*5))*0.12+disturb*0.2; beamTipGlow.material.opacity=tg;
+    beamTip.scale.setScalar(1+disturb*0.6);
+
+    // intensity shell flex — bulges toward the source
+    var pos=shellGeo.attributes.position, arr=pos.array;
+    for(var i=0;i<arr.length;i+=3){
+      var bx=shellBase[i],by=shellBase[i+1],bz=shellBase[i+2];
+      var nlen=Math.sqrt(bx*bx+by*by+bz*bz);
+      var dot=(bx*vec.x+by*vec.y+bz*vec.z)/nlen; // alignment with source
+      var bulge=1+ (amp/70)*0.12 + Math.max(0,dot)*disturb*0.5 + Math.sin(t*2+nlen*3)*0.02;
+      arr[i]=bx*bulge; arr[i+1]=by*bulge; arr[i+2]=bz*bulge;
+    }
+    pos.needsUpdate=true;
+    shell.material.opacity=0.10+disturb*0.18;
+    shell.material.color.setHex(disturb>0.5?RED:CY);
+    shell.rotation.y+=0.001;
+
+    // bearing marker rides the ring at the source bearing
+    var ba=Math.atan2(vec.z,vec.x);
+    bearingMark.position.set(Math.cos(ba)*2.7,-2.4,Math.sin(ba)*2.7);
+    bearingMark.lookAt(0,-2.4,0);
+    bearingMark.material.color.setHex(disturb>0.5?RED:CY);
+    ring.material.opacity=0.3+disturb*0.3;
+
+    // pulses fly outward along their stored direction
+    for(var k=pulses.length-1;k>=0;k--){var pl=pulses[k];pl.userData.life+=0.02;
+      var d=pl.userData.life*4;
+      pl.position.copy(pl.userData.dir.clone().multiplyScalar(d));
+      pl.scale.setScalar(1+d*0.5);
+      pl.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),pl.userData.dir);
+      pl.material.opacity=Math.max(0,0.9-pl.userData.life);
+      if(pl.userData.life>=1){scene.remove(pl);pulses.splice(k,1);}
+    }
+
+    // dust drifts toward source slightly when disturbed
+    var dp=pgeo.attributes.position.array;
+    for(var q=0;q<pcount;q++){var idx=q*3;
+      dp[idx]+=vec.x*kick*0.01; dp[idx+1]+=vec.y*kick*0.01+Math.sin(t+q)*0.0006; dp[idx+2]+=vec.z*kick*0.01;
+      var rr2=Math.sqrt(dp[idx]*dp[idx]+dp[idx+1]*dp[idx+1]+dp[idx+2]*dp[idx+2]);
+      if(rr2>3.6||rr2<1.2){var th2=Math.random()*Math.PI*2,ph2=Math.acos(2*Math.random()-1),R=1.6+Math.random()*1.6;
+        dp[idx]=R*Math.sin(ph2)*Math.cos(th2);dp[idx+1]=R*Math.cos(ph2);dp[idx+2]=R*Math.sin(ph2)*Math.sin(th2);}
+    }
+    pgeo.attributes.position.needsUpdate=true;
+    dust.material.color.setHex(disturb>0.5?RED:CY);
+
+    // slow auto-orbit camera so it reads as 3D
+    camTheta+=0.0025;
+    camera.position.set(camR*Math.cos(camTheta)*Math.cos(camPhi), camR*Math.sin(camPhi), camR*Math.sin(camTheta)*Math.cos(camPhi));
+    camera.lookAt(0,-0.2,0);
+
+    renderer.render(scene,camera);
+    requestAnimationFrame(tick);
+  }
+  // initial size after layout settles
+  setTimeout(function(){resize();pushLog('',ts()+' — NODE LINKED · REM-Pod A');tick();},60);
+  window.addEventListener('resize',resize);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="'Share Tech Mono',monospace" role="img" aria-label="SPECTER Node wiring diagram">
+  <defs>
+    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1520"/><stop offset="1" stop-color="#0a0f16"/>
+    </linearGradient>
+    <style>
+      .pin{fill:#0a0f16;stroke:#2a3a44;stroke-width:1}
+      .pinlbl{fill:#8aa0ad;font-size:10px}
+      .pinlbl.used{fill:#00e5ff}
+      .comp{fill:#0d1520;stroke:#00e5ff;stroke-opacity:.5;stroke-width:1;rx:6}
+      .complbl{fill:#c8d4e0;font-size:12px;font-weight:bold}
+      .compsub{fill:#667080;font-size:9px}
+      .wire{fill:none;stroke-width:2.4;stroke-linecap:round}
+      .w-sig{stroke:#00e5ff}
+      .w-3v3{stroke:#ff5d5d}
+      .w-gnd{stroke:#5a6b78}
+      .wlbl{font-size:9px;fill:#9fb2bd}
+      .title{fill:#00e5ff;font-size:13px;letter-spacing:.18em}
+      .term{fill:#00e5ff}
+      .term3{fill:#ff5d5d}
+      .termg{fill:#5a6b78}
+      .brk{stroke:#00e5ff;stroke-opacity:.4;stroke-width:1;fill:none}
+    </style>
+  </defs>
+
+  <!-- registration brackets -->
+  <path class="brk" d="M14 14 h26 M14 14 v26"/>
+  <path class="brk" d="M886 14 h-26 M886 14 v26"/>
+  <path class="brk" d="M14 606 h26 M14 606 v-26"/>
+  <path class="brk" d="M886 606 h-26 M886 606 v-26"/>
+  <text class="title" x="34" y="44">SPECTER NODE // WIRING</text>
+
+  <!-- ================= ESP32 BOARD (center) ================= -->
+  <rect x="360" y="150" width="180" height="330" rx="10" fill="url(#board)" stroke="#00e5ff" stroke-opacity=".6"/>
+  <rect x="405" y="120" width="90" height="34" rx="3" fill="#12202b" stroke="#2a3a44"/>
+  <text x="450" y="142" text-anchor="middle" fill="#667080" font-size="9">USB-C</text>
+  <text x="450" y="200" text-anchor="middle" fill="#c8d4e0" font-size="15" font-weight="bold">ESP32</text>
+  <text x="450" y="216" text-anchor="middle" fill="#667080" font-size="9">WROOM DEVKIT</text>
+  <rect x="418" y="230" width="64" height="120" rx="3" fill="#060a0e" stroke="#1c2a33"/>
+  <text x="450" y="296" text-anchor="middle" fill="#25333c" font-size="9">SoC</text>
+
+  <!-- LEFT PINS (top to bottom) : label,y,used? -->
+  <!-- 3V3 -->
+  <rect class="pin" x="352" y="240" width="10" height="10"/><text class="pinlbl used" x="348" y="249" text-anchor="end">3V3</text>
+  <!-- GND -->
+  <rect class="pin" x="352" y="268" width="10" height="10"/><text class="pinlbl used" x="348" y="277" text-anchor="end">GND</text>
+  <!-- GPIO4 -->
+  <rect class="pin" x="352" y="296" width="10" height="10"/><text class="pinlbl used" x="348" y="305" text-anchor="end">GPIO4</text>
+  <!-- GPIO12 -->
+  <rect class="pin" x="352" y="324" width="10" height="10"/><text class="pinlbl used" x="348" y="333" text-anchor="end">GPIO12</text>
+  <!-- GPIO13 -->
+  <rect class="pin" x="352" y="352" width="10" height="10"/><text class="pinlbl used" x="348" y="361" text-anchor="end">GPIO13</text>
+  <!-- filler left pins -->
+  <rect class="pin" x="352" y="380" width="10" height="10"/><text class="pinlbl" x="348" y="389" text-anchor="end">GPIO14</text>
+  <rect class="pin" x="352" y="408" width="10" height="10"/><text class="pinlbl" x="348" y="417" text-anchor="end">GPIO27</text>
+
+  <!-- RIGHT PINS -->
+  <!-- GPIO21 SDA -->
+  <rect class="pin" x="538" y="296" width="10" height="10"/><text class="pinlbl used" x="552" y="305">GPIO21 · SDA</text>
+  <!-- GPIO22 SCL -->
+  <rect class="pin" x="538" y="324" width="10" height="10"/><text class="pinlbl used" x="552" y="333">GPIO22 · SCL</text>
+  <!-- 3V3 right (for I2C power) -->
+  <rect class="pin" x="538" y="240" width="10" height="10"/><text class="pinlbl used" x="552" y="249">3V3</text>
+  <rect class="pin" x="538" y="268" width="10" height="10"/><text class="pinlbl used" x="552" y="277">GND</text>
+  <!-- filler right -->
+  <rect class="pin" x="538" y="352" width="10" height="10"/><text class="pinlbl" x="552" y="361">GPIO23</text>
+  <rect class="pin" x="538" y="380" width="10" height="10"/><text class="pinlbl" x="552" y="389">GPIO19</text>
+  <rect class="pin" x="538" y="408" width="10" height="10"/><text class="pinlbl" x="552" y="417">GPIO18</text>
+
+  <!-- ================= COMPONENTS ================= -->
+  <!-- Antenna (top left) -->
+  <rect class="comp" x="60" y="150" width="150" height="70" rx="6" fill="#0d1520" stroke="#00e5ff" stroke-opacity=".5"/>
+  <text class="complbl" x="135" y="180" text-anchor="middle">TELESCOPIC ANTENNA</text>
+  <text class="compsub" x="135" y="198" text-anchor="middle">capacitive proximity</text>
+  <circle class="term" cx="210" cy="205" r="4"/>
+  <!-- rod flourish -->
+  <line x1="135" y1="150" x2="135" y2="96" stroke="#00e5ff" stroke-opacity=".7" stroke-width="2"/>
+  <circle cx="135" cy="92" r="4" fill="#00e5ff"/>
+
+  <!-- Buzzer (mid left) -->
+  <rect class="comp" x="60" y="300" width="150" height="70" rx="6" fill="#0d1520" stroke="#00e5ff" stroke-opacity=".5"/>
+  <text class="complbl" x="135" y="330" text-anchor="middle">PASSIVE BUZZER</text>
+  <text class="compsub" x="135" y="348" text-anchor="middle">audible alert</text>
+  <circle class="term" cx="210" cy="322" r="4"/><text class="wlbl" x="196" y="315" text-anchor="end">+</text>
+  <circle class="termg" cx="210" cy="352" r="4"/><text class="wlbl" x="196" y="345" text-anchor="end">−</text>
+
+  <!-- QMC5883L (top right) -->
+  <rect class="comp" x="690" y="150" width="150" height="86" rx="6" fill="#0d1520" stroke="#00e5ff" stroke-opacity=".5"/>
+  <text class="complbl" x="765" y="178" text-anchor="middle">QMC5883L</text>
+  <text class="compsub" x="765" y="196" text-anchor="middle">magnetometer · I2C 0x0D</text>
+  <circle class="term3" cx="690" cy="212" r="4"/><text class="wlbl" x="704" y="209">VCC</text>
+  <circle class="termg" cx="720" cy="236" r="4"/><text class="wlbl" x="734" y="233">GND</text>
+  <circle class="term" cx="690" cy="224" r="4"/><text class="wlbl" x="704" y="221">SDA</text>
+  <circle class="term" cx="720" cy="212" r="4"/><text class="wlbl" x="734" y="209">SCL</text>
+
+  <!-- LED ring (bottom right) -->
+  <circle cx="765" cy="400" r="46" fill="none" stroke="#00e5ff" stroke-opacity=".5"/>
+  <g fill="#00e5ff" fill-opacity=".8">
+    <circle cx="765" cy="358" r="3.2"/><circle cx="795" cy="370" r="3.2"/><circle cx="807" cy="400" r="3.2"/>
+    <circle cx="795" cy="430" r="3.2"/><circle cx="765" cy="442" r="3.2"/><circle cx="735" cy="430" r="3.2"/>
+    <circle cx="723" cy="400" r="3.2"/><circle cx="735" cy="370" r="3.2"/>
+  </g>
+  <text class="complbl" x="765" y="404" text-anchor="middle">LED RING</text>
+  <text class="compsub" x="765" y="420" text-anchor="middle">WS2812B · 12px</text>
+  <circle class="term" cx="722" cy="378" r="4"/><text class="wlbl" x="708" y="375" text-anchor="end">DIN</text>
+  <circle class="term3" cx="719" cy="400" r="4"/><text class="wlbl" x="705" y="404" text-anchor="end">5V</text>
+  <circle class="termg" cx="722" cy="422" r="4"/><text class="wlbl" x="708" y="426" text-anchor="end">GND</text>
+
+  <!-- ================= WIRES ================= -->
+  <!-- Antenna signal -> GPIO4 -->
+  <path class="wire w-sig" d="M210 205 C 300 205, 300 301, 352 301"/>
+  <text class="wlbl" x="270" y="245">signal → GPIO4 (T0)</text>
+
+  <!-- Buzzer + -> GPIO12 -->
+  <path class="wire w-sig" d="M210 322 C 285 322, 300 329, 352 329"/>
+  <text class="wlbl" x="240" y="316">+ → GPIO12</text>
+  <!-- Buzzer - -> GND -->
+  <path class="wire w-gnd" d="M210 352 C 280 352, 300 273, 352 273"/>
+  <text class="wlbl" x="238" y="372">− → GND</text>
+
+  <!-- QMC SDA -> GPIO21 -->
+  <path class="wire w-sig" d="M690 224 C 600 224, 590 301, 548 301"/>
+  <text class="wlbl" x="590" y="250" text-anchor="end">SDA → GPIO21</text>
+  <!-- QMC SCL -> GPIO22 -->
+  <path class="wire w-sig" d="M720 212 C 640 212, 600 329, 548 329"/>
+  <text class="wlbl" x="612" y="300" text-anchor="end">SCL → GPIO22</text>
+  <!-- QMC VCC -> 3V3(right) -->
+  <path class="wire w-3v3" d="M690 212 C 640 200, 600 245, 548 245"/>
+  <text class="wlbl" x="600" y="205" text-anchor="end">VCC → 3V3</text>
+  <!-- QMC GND -> GND(right) -->
+  <path class="wire w-gnd" d="M720 236 C 660 260, 600 273, 548 273"/>
+  <text class="wlbl" x="640" y="268" text-anchor="end">GND → GND</text>
+
+  <!-- LED DIN -> GPIO13 -->
+  <path class="wire w-sig" d="M722 378 C 620 360, 600 357, 548 357"/>
+  <text class="wlbl" x="600" y="352" text-anchor="end">DIN → GPIO13</text>
+  <!-- LED 5V -> 3V3(right) reuse -->
+  <path class="wire w-3v3" d="M719 400 C 640 420, 580 250, 548 248"/>
+  <!-- LED GND -> GND -->
+  <path class="wire w-gnd" d="M722 422 C 640 440, 580 276, 548 276"/>
+
+  <!-- ================= LEGEND ================= -->
+  <g transform="translate(60,520)">
+    <line class="wire w-sig" x1="0" y1="0" x2="30" y2="0"/><text class="wlbl" x="38" y="4">Signal / data (GPIO)</text>
+    <line class="wire w-3v3" x1="200" y1="0" x2="230" y2="0"/><text class="wlbl" x="238" y="4">3V3 power</text>
+    <line class="wire w-gnd" x1="360" y1="0" x2="390" y2="0"/><text class="wlbl" x="398" y="4">Ground</text>
+  </g>
+  <text x="60" y="560" fill="#667080" font-size="10">All sensors run on 3.3V. LED ring accepts 3V3 or 5V. I2C = SDA/SCL shared bus.</text>
+</svg>
