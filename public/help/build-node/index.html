@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.6.0-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.6.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -366,7 +366,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -418,8 +418,9 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone checked&gt; Play pitch on buzzer&lt;/label&gt;
 &lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;&amp;mdash;&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;&amp;mdash;&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
 &lt;div class=bar style=&quot;margin-top:4px&quot;&gt;&lt;i id=therm-bar style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=therm-refit class=mini&gt;REFIT RANGE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;REFIT resets the reach so the closest your hand gets right now = full field. Wave your hand at your intended max distance, then click it.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna. It sizes the field to THAT motion &amp;mdash; so your hand pass = full field.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
@@ -479,7 +480,8 @@ if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function()
 if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=true;$(&#x27;therm-on&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:e.target.checked,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true})}}
 if($(&#x27;therm-tone&#x27;)){$(&#x27;therm-tone&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:e.target.checked})}}
-if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,span:20});var b=$(&#x27;therm-refit&#x27;);if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1200)}}}
+if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
+if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._u=true;$(&#x27;therm-noise&#x27;).oninput=function(e){$(&#x27;therm-noise-v&#x27;).textContent=e.target.value;clearTimeout(window._tn);window._tn=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,noise:+e.target.value})},250)}}
 
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
@@ -538,7 +540,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.6.0-maker&quot;
+#define FW_VERSION   &quot;2.6.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -703,6 +705,9 @@ volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this
 // and the app dashboard keep working.
 volatile bool    proxTheremin = false;   // theremin mode on/off (persisted)
 volatile int     proxSpan     = 220;     // proxDelta that maps to full field (100). Auto-nudges up.
+volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
+volatile int     proxPeakSeen = 0;       // largest proxDelta seen since last refit (for smart REFIT)
+volatile bool    proxRefitReq = false;   // REFIT pressed -&gt; set span from the peak hand delta just seen
 volatile int     proxField    = 0;       // live 0..100 continuous field
 volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
 volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) — computed from magSens
@@ -1142,14 +1147,29 @@ void hardwareTask(void* pv) {
         bool magAlert  = (magDelta &gt; threshMag);
 
         // THEREMIN FIELD: continuous 0..100 from proxDelta, scaled by proxSpan.
-        // Auto-nudge the span up if a hand ever pushes past it, so the full range
-        // stays usable without manual tuning (like a theremin auto-fitting its reach).
-        if (proxDelta &gt; proxSpan) proxSpan = (int)(proxSpan + 0.25f * (proxDelta - proxSpan)) + 1;
+        // proxNoise is a jitter deadband so an idle antenna truly rests at field 0
+        // (the raw touch value floats +/- a few counts even with no hand near it).
+        // effDelta is how far past the noise floor we are; only THAT drives the field.
+        int effDelta = proxDelta - proxNoise;
+        if (effDelta &lt; 0) effDelta = 0;
+        // remember the strongest reach this session so REFIT can size the span to
+        // an ACTUAL hand pass rather than a guess.
+        if (effDelta &gt; proxPeakSeen) proxPeakSeen = effDelta;
+        // REFIT: size the span to the biggest hand delta we&#x27;ve just seen (min 12),
+        // so the closest your hand got == full field. Then reset the peak tracker.
+        if (proxRefitReq) {
+            proxSpan = (proxPeakSeen &gt; 12) ? proxPeakSeen : 12;
+            proxPeakSeen = 0;
+            proxRefitReq = false;
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxSpan&quot;, proxSpan); prefs.end();
+        }
+        // Auto-nudge span up if a hand ever pushes past it (self-fitting reach).
+        if (effDelta &gt; proxSpan) proxSpan = (int)(proxSpan + 0.25f * (effDelta - proxSpan)) + 1;
         {
-            float f = (proxSpan &gt; 0) ? (100.0f * (float)proxDelta / (float)proxSpan) : 0.0f;
-            // smooth so pitch/LEDs glide instead of stepping (EMA)
+            float f = (proxSpan &gt; 0) ? (100.0f * (float)effDelta / (float)proxSpan) : 0.0f;
             static float fieldEma = 0.0f;
             fieldEma = fieldEma * 0.65f + (f &gt; 100 ? 100 : f) * 0.35f;
+            if (fieldEma &lt; 0.4f) fieldEma = 0.0f;   // snap to true rest so idle = 0
             proxField = (int)(fieldEma + 0.5f);
         }
 
@@ -1309,7 +1329,15 @@ void handleCommand(JsonDocument&amp; doc) {
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
         proxTheremin = (bool)(doc[&quot;on&quot;] | false);
         if (doc[&quot;tone&quot;].is&lt;bool&gt;()) proxToneOn = (bool)doc[&quot;tone&quot;];
-        if (doc[&quot;span&quot;].is&lt;int&gt;())  proxSpan   = constrain((int)doc[&quot;span&quot;], 20, 4000);
+        // REFIT: the portal sends refit:true. Arm the hardware loop to size the
+        // span from the strongest hand delta it just measured (NOT a fixed 20).
+        if (doc[&quot;refit&quot;] | false) { proxRefitReq = true; proxPeakSeen = 0; }
+        if (doc[&quot;noise&quot;].is&lt;int&gt;()) {
+            proxNoise = constrain((int)doc[&quot;noise&quot;], 0, 200);
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxNoise&quot;, proxNoise); prefs.end();
+        }
+        // Direct span set still allowed (advanced), but no longer used by REFIT.
+        if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
         prefs.begin(&quot;specter&quot;, false);
         prefs.putInt(&quot;therm&quot;, proxTheremin ? 1 : 0);
         prefs.putInt(&quot;thermTone&quot;, proxToneOn ? 1 : 0);
@@ -1370,6 +1398,7 @@ void setupNetwork() {
     proxTheremin= prefs.getInt(&quot;therm&quot;, 0) == 1;
     proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 1) == 1;
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 220);
+    proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
@@ -1644,7 +1673,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
