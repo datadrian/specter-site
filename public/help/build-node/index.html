@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.1.0-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.3.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -414,7 +414,9 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Positional map (LED index toward each side)&lt;/label&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Right&lt;/label&gt;&lt;input type=text id=led-right&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Back&lt;/label&gt;&lt;input type=text id=led-back&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Left&lt;/label&gt;&lt;input type=text id=led-left&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=status id=led-status&gt;Brightness &amp;amp; map apply live. Chipset / order / pin / count save now and take effect on the next reboot.&lt;/div&gt;
+&lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash. With the Solid animation, proximity fades the ring up to 100% as you get closer, and magnetic hits glow on the side nearest the source (uses your positional map).&lt;/div&gt;
+&lt;div class=status id=led-test-hint&gt;Test the ring: fires a solid color on all &lt;span class=val id=led-count-echo&gt;16&lt;/span&gt; pixels for 2s. If only some light up, check your Count; if the color is wrong, change Color order.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=t-red class=mini style=&quot;border-color:#c0392b&quot;&gt;RED&lt;/button&gt;&lt;button id=t-grn class=mini style=&quot;border-color:#27ae60&quot;&gt;GREEN&lt;/button&gt;&lt;button id=t-blu class=mini style=&quot;border-color:#2980b9&quot;&gt;BLUE&lt;/button&gt;&lt;button id=t-wht class=mini&gt;WHITE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;PREVIEW BOOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection LED themes&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Pick a color + animation for each detection type. Applies live.&lt;/div&gt;
@@ -459,11 +461,15 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
  if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:1);
   $(&#x27;ev-prox-c&#x27;).value=&#x27;#&#x27;+(ev.proxColor||&#x27;20E0FF&#x27;);$(&#x27;ev-prox-a&#x27;).value=(ev.proxAnim!=null?ev.proxAnim:2);
   $(&#x27;boot-a&#x27;).value=&#x27;#&#x27;+(bt.colorA||&#x27;1030FF&#x27;);$(&#x27;boot-b&#x27;).value=&#x27;#&#x27;+(bt.colorB||&#x27;10FF80&#x27;);$(&#x27;boot-en&#x27;).checked=(bt.enable!=0);}
+ var ce=$(&#x27;led-count-echo&#x27;);if(ce)ce.textContent=(d.count!=null?d.count:16);
 }).catch(function(){})}
 $(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
 $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||16,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
  fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){$(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;led-status&#x27;).textContent=d.rebootNeeded?&#x27;Saved. Chipset/pin/count changes apply after a reboot.&#x27;:&#x27;Saved — applied live.&#x27;}).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
 $(&#x27;led-test&#x27;).onclick=function(){ledPreview(&#x27;boot&#x27;)};
+[[&#x27;t-red&#x27;,&#x27;red&#x27;],[&#x27;t-grn&#x27;,&#x27;green&#x27;],[&#x27;t-blu&#x27;,&#x27;blue&#x27;],[&#x27;t-wht&#x27;,&#x27;white&#x27;]].forEach(function(pair){var el=$(pair[0]);if(el)el.onclick=function(){ledPreview(pair[1])}});
+function echoCount(){var e=$(&#x27;led-count-echo&#x27;);if(e)e.textContent=$(&#x27;led-count&#x27;).value||&#x27;16&#x27;}
+if($(&#x27;led-count&#x27;))$(&#x27;led-count&#x27;).oninput=echoCount;
 function hx6(v){return (v||&#x27;&#x27;).replace(&#x27;#&#x27;,&#x27;&#x27;).toUpperCase()}
 function ledPreview(what){fetch(&#x27;/led/test&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({what:what})}).catch(function(){})}
 function themeSave(cb){var b=new URLSearchParams({magColor:hx6($(&#x27;ev-mag-c&#x27;).value),magAnim:$(&#x27;ev-mag-a&#x27;).value,proxColor:hx6($(&#x27;ev-prox-c&#x27;).value),proxAnim:$(&#x27;ev-prox-a&#x27;).value});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
@@ -486,7 +492,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.1.0-maker&quot;
+#define FW_VERSION   &quot;2.3.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -542,7 +548,7 @@ LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LE
                   /*bootEnable*/1 };
 
 // ── OTA self-update (mirrors full firmware) ──
-#define UPDATE_MANIFEST_DEFAULT &quot;https://specter-imaging.com/firmware/node/latest.json&quot;
+#define UPDATE_MANIFEST_DEFAULT &quot;https://specter-imaging.com/firmware/node/latest-maker.json&quot;
 String updateUrl   = UPDATE_MANIFEST_DEFAULT;
 String updAvailVer = &quot;&quot;;
 String updBinUrl   = &quot;&quot;;
@@ -593,7 +599,9 @@ void performUpdate(const String&amp; url) {
 #define TELEMETRY_HZ_DEFAULT 10
 
 // ---- hardware globals ----
-CRGB leds[NUM_LEDS];
+#define LED_MAX 60            // max pixels the physical buffer supports
+CRGB leds[LED_MAX];           // logical RGB the animations write into (index 0..count-1)
+CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap)
 Preferences prefs;
 volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile int     proxVal = 0;
@@ -604,7 +612,7 @@ char             evtChannel[8] = &quot;mag&quot;, evtSeverity[8] = &quot;low&quo
 volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
-volatile int     ledTestReq   = 0;   // 0 none, 1 boot, 2 mag, 3 prox (portal preview)
+volatile int     ledTestReq   = 0;   // 0 none,1 boot,2 mag,3 prox,4 red,5 green,6 blue,7 white (portal preview)
 volatile int     threshProx = 2000;   // capacitance DROPS as an object nears
 volatile int     threshMag  = 1500;   // vector delta (LSB)
 volatile int     telemetryHz = TELEMETRY_HZ_DEFAULT;
@@ -631,20 +639,40 @@ void readQMC5883L() {
 // ---- LED animation engine ----
 static inline CRGB hex2crgb(uint32_t h){ return CRGB((h&gt;&gt;16)&amp;0xFF,(h&gt;&gt;8)&amp;0xFF,h&amp;0xFF); }
 
+// Apply the portal-configured COLOR ORDER + COUNT in software, then push to FastLED.
+// leds[] holds logical R,G,B; we reorder each pixel&#x27;s bytes into phys[] per ledCfg.order.
+// Pixels beyond ledCfg.count are forced dark so a shorter ring never shows stale data.
+void ledShow() {
+    int n = constrain(ledCfg.count, 0, LED_MAX);
+    const char* o = ledCfg.order;   // e.g. &quot;GRB&quot;,&quot;RGB&quot;,&quot;BGR&quot;...
+    for (int i = 0; i &lt; LED_MAX; i++) {
+        if (i &gt;= n) { phys[i] = CRGB::Black; continue; }
+        uint8_t r = leds[i].r, g = leds[i].g, b = leds[i].b;
+        uint8_t out[3] = { r, g, b };   // default RGB
+        // map logical channel -&gt; physical slot by the order string
+        for (int k = 0; k &lt; 3 &amp;&amp; o[k]; k++) {
+            char ch = o[k];
+            out[k] = (ch==&#x27;R&#x27;||ch==&#x27;r&#x27;) ? r : (ch==&#x27;G&#x27;||ch==&#x27;g&#x27;) ? g : b;
+        }
+        phys[i] = CRGB(out[0], out[1], out[2]);
+    }
+    FastLED.show();
+}
+
 // Boot animation: build 1..N, then a blue/green circular sweep, then dark.
 void playBootAnimation() {
-    int n = constrain(ledCfg.count, 1, NUM_LEDS);
+    int n = constrain(ledCfg.count, 1, LED_MAX);
     CRGB a = hex2crgb(ledCfg.bootColorA);   // blue
     CRGB b = hex2crgb(ledCfg.bootColorB);   // green
     FastLED.setBrightness(ledCfg.bright);
 
     // 1) build-up 1 -&gt; n, each pixel eases in blue
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    fill_solid(leds, LED_MAX, CRGB::Black);
     for (int i = 0; i &lt; n; i++) {
         leds[i] = a;
         // gentle trailing dim so it reads as a growing arc, not a hard fill
         if (i &gt; 0) leds[i-1].nscale8(180);
-        FastLED.show();
+        ledShow();
         tone(BUZZER_PIN, 600 + i * 45, 18);
         delay(38);
     }
@@ -658,7 +686,7 @@ void playBootAnimation() {
                 uint8_t mix = sin8((i * 255 / n) + step * (256 / n));
                 leds[i] = blend(a, b, mix);
             }
-            FastLED.show();
+            ledShow();
             delay(22);
         }
     }
@@ -667,30 +695,30 @@ void playBootAnimation() {
     // 3) fade to dark — idle until first detection
     for (int f = 255; f &gt;= 0; f -= 15) {
         FastLED.setBrightness(scale8(ledCfg.bright, f));
-        FastLED.show();
+        ledShow();
         delay(16);
     }
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    fill_solid(leds, LED_MAX, CRGB::Black);
     FastLED.setBrightness(ledCfg.bright);
-    FastLED.show();
+    ledShow();
 }
 
 // Render one detection event with its themed color + animation.
 // sevScale 0..255 lets severity push brightness/intensity.
 void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t nowMs) {
-    int n = constrain(ledCfg.count, 1, NUM_LEDS);
+    int n = constrain(ledCfg.count, 1, LED_MAX);
     CRGB c = hex2crgb(colorHex);
     switch (anim) {
         case 1: { // pulse — whole ring breathes
             uint8_t b = scale8(sin8(nowMs / 4), 200) + 55;
             b = scale8(b, sevScale);
-            fill_solid(leds, NUM_LEDS, CRGB::Black);
+            fill_solid(leds, LED_MAX, CRGB::Black);
             for (int i = 0; i &lt; n; i++) leds[i] = c;
-            fadeToBlackBy(leds, NUM_LEDS, 255 - b);
+            fadeToBlackBy(leds, LED_MAX, 255 - b);
             break;
         }
         case 2: { // spin — a comet chases around the ring
-            fill_solid(leds, NUM_LEDS, CRGB::Black);
+            fill_solid(leds, LED_MAX, CRGB::Black);
             int head = (nowMs / 45) % n;
             for (int t = 0; t &lt; 5; t++) {
                 int idx = (head - t + n) % n;
@@ -701,25 +729,88 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
         }
         case 3: { // blink — hard on/off
             bool on = (nowMs / 120) &amp; 1;
-            fill_solid(leds, NUM_LEDS, on ? c : CRGB::Black);
+            fill_solid(leds, LED_MAX, on ? c : CRGB::Black);
             break;
         }
         default: { // 0 solid
-            fill_solid(leds, NUM_LEDS, c);
+            fill_solid(leds, LED_MAX, c);
             break;
         }
     }
     // severity tint toward white on the brightest events
     if (sevScale &gt; 210 &amp;&amp; anim != 1)
-        for (int i = 0; i &lt; NUM_LEDS; i++) leds[i] += CRGB(30, 30, 30);
+        for (int i = 0; i &lt; LED_MAX; i++) leds[i] += CRGB(30, 30, 30);
+}
+
+// Clear the logical buffer to blank (idle). ledShow() masks to count.
+static inline void ledIdle() { fill_solid(leds, LED_MAX, CRGB::Black); }
+
+// PROXIMITY fade: the whole ring fades UP toward 100% as the reading approaches
+// (and passes) the proximity threshold. approach 0.0 = at threshold edge,
+// 1.0 = fully triggered / very close. Uses the configured prox color.
+void renderProxFade(uint32_t colorHex, float approach) {
+    approach = approach &lt; 0 ? 0 : (approach &gt; 1 ? 1 : approach);
+    CRGB c = hex2crgb(colorHex);
+    uint8_t b = (uint8_t)(approach * 255.0f + 0.5f);   // 0..255 fade-up
+    fill_solid(leds, LED_MAX, c);
+    fadeToBlackBy(leds, LED_MAX, 255 - b);
+}
+
+// DIRECTIONAL MAG: fade up the color on the side of the ring nearest the source.
+// dirX/dirY = magnetometer delta vector (X right, Y forward). We build a heading,
+// then light each pixel by how well its angular position matches that heading,
+// so the arc glows brightest toward the disturbance and falls off around the ring.
+// strength 0..1 sets peak brightness (severity/approach). Falls back to a full
+// pulse if the positional map is unset or the vector is too weak to have a heading.
+void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength) {
+    strength = strength &lt; 0 ? 0 : (strength &gt; 1 ? 1 : strength);
+    CRGB c = hex2crgb(colorHex);
+    int n = constrain(ledCfg.count, 1, LED_MAX);
+    ledIdle();
+
+    float mag = sqrtf((float)dirX * dirX + (float)dirY * dirY);
+    bool haveMap = (ledCfg.mFront &gt;= 0);
+    if (mag &lt; 1.0f || !haveMap) {
+        // no usable heading -&gt; even fade-up on the whole ring
+        uint8_t b = (uint8_t)(strength * 255.0f + 0.5f);
+        fill_solid(leds, LED_MAX, c);
+        fadeToBlackBy(leds, LED_MAX, 255 - b);
+        return;
+    }
+
+    // Source heading in radians. atan2(x, y): 0 = FRONT, +pi/2 = RIGHT (X+),
+    // matching the FRONT/RIGHT/BACK/LEFT map (antenna faces forward).
+    float head = atan2f((float)dirX, (float)dirY);
+
+    // FRONT pixel index anchors angle 0; each pixel steps 2pi/n around the ring.
+    int frontIdx = constrain(ledCfg.mFront, 0, n - 1);
+    uint8_t peak = (uint8_t)(strength * 255.0f + 0.5f);
+
+    for (int i = 0; i &lt; n; i++) {
+        // this pixel&#x27;s angle around the ring, relative to FRONT
+        float ang = ((float)((i - frontIdx + n) % n) / (float)n) * 6.2831853f;
+        // angular distance to the source heading (wrapped to [0,pi])
+        float d = ang - head;
+        while (d &gt;  3.14159265f) d -= 6.2831853f;
+        while (d &lt; -3.14159265f) d += 6.2831853f;
+        d = fabsf(d);
+        // cosine lobe: full at the source, dark on the far side
+        float lobe = 0.5f + 0.5f * cosf(d);   // 1.0 toward source -&gt; 0.0 opposite
+        lobe = lobe * lobe;                    // tighten the beam
+        uint8_t b = (uint8_t)(lobe * peak + 0.5f);
+        CRGB pc = c; pc.nscale8(b);
+        leds[i] = pc;
+    }
 }
 
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
 void hardwareTask(void* pv) {
     initSensors();
-    // Load persisted LED brightness/map (chipset/order/pin/count are compile-time
-    // for FastLED; saved values are surfaced in the portal and applied on reflash).
+    // Load persisted LED settings. count + color order now apply LIVE (software remap);
+    // only chipset + data/clock pin are compile-time for FastLED (need a reflash).
     prefs.begin(&quot;specter&quot;, true);
+    ledCfg.count  = constrain(prefs.getInt(&quot;ledCount&quot;, ledCfg.count), 1, LED_MAX);
+    { String ord = prefs.getString(&quot;ledOrd&quot;, ledCfg.order); strncpy(ledCfg.order, ord.c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; }
     ledCfg.bright = prefs.getInt(&quot;ledBright&quot;, ledCfg.bright);
     ledCfg.mFront = prefs.getInt(&quot;ledFront&quot;, ledCfg.mFront);
     ledCfg.mRight = prefs.getInt(&quot;ledRight&quot;, ledCfg.mRight);
@@ -733,7 +824,7 @@ void hardwareTask(void* pv) {
     ledCfg.bootColorB = prefs.getUInt(&quot;ledBootB&quot;, ledCfg.bootColorB);
     ledCfg.bootEnable = prefs.getInt(&quot;ledBoot&quot;,   ledCfg.bootEnable);
     prefs.end();
-    FastLED.addLeds&lt;LED_CHIPSET, LED_DATA_PIN, LED_COLOR_ORD&gt;(leds, NUM_LEDS);
+    FastLED.addLeds&lt;LED_CHIPSET, LED_DATA_PIN, RGB&gt;(phys, LED_MAX);  // drive phys[]; RGB template = we remap order in software
     FastLED.setBrightness(ledCfg.bright);
     if (ledCfg.bootEnable) playBootAnimation();   // build 1..N, blue/green sweep, dark
     float proxAvg = 0; bool proxInit = false;
@@ -742,16 +833,37 @@ void hardwareTask(void* pv) {
         if (ledTestReq) {
             int req = ledTestReq; ledTestReq = 0;
             if (req == 1) playBootAnimation();
-            else {
-                // ~1.4s themed preview of a high-severity event
+            else if (req &gt;= 4 &amp;&amp; req &lt;= 7) {
+                // Solid color test: fill every driven pixel so you can verify
+                // wiring, count, and color order. Red=4 Green=5 Blue=6 White=7.
+                CRGB tc = (req==4)?CRGB(255,0,0):(req==5)?CRGB(0,255,0):(req==6)?CRGB(0,0,255):CRGB(255,255,255);
+                fill_solid(leds, LED_MAX, tc);
+                FastLED.setBrightness(ledCfg.bright); ledShow();
+                delay(2000);
+                ledIdle(); ledShow();
+            } else {
+                // ~1.8s preview that mirrors live behavior.
                 uint32_t t0 = millis();
-                while (millis() - t0 &lt; 1400) {
-                    if (req == 2) renderEventLeds(ledCfg.magColor,  ledCfg.magAnim,  255, millis());
-                    else          renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, 255, millis());
-                    FastLED.setBrightness(ledCfg.bright); FastLED.show();
+                while (millis() - t0 &lt; 1800) {
+                    uint32_t e = millis() - t0;
+                    if (req == 2) {
+                        // MAG preview: if solid, sweep the directional lobe around the
+                        // ring so you can see the &quot;side nearest source&quot; effect; else the theme.
+                        if (ledCfg.magAnim == 0) {
+                            float ang = (float)e / 1800.0f * 6.2831853f;  // one full lap
+                            renderMagDirectional(ledCfg.magColor, (int)(sinf(ang)*1000), (int)(cosf(ang)*1000), 1.0f);
+                        } else renderEventLeds(ledCfg.magColor, ledCfg.magAnim, 255, millis());
+                    } else {
+                        // PROX preview: if solid, fade the whole ring UP then hold; else the theme.
+                        if (ledCfg.proxAnim == 0) {
+                            float a = e &lt; 1200 ? (float)e / 1200.0f : 1.0f;   // ramp to 100%
+                            renderProxFade(ledCfg.proxColor, a);
+                        } else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, 255, millis());
+                    }
+                    FastLED.setBrightness(ledCfg.bright); ledShow();
                     delay(16);
                 }
-                fill_solid(leds, NUM_LEDS, CRGB::Black); FastLED.show();
+                ledIdle(); ledShow();
             }
         }
         proxVal = touchRead(TOUCH_PIN);
@@ -791,13 +903,34 @@ void hardwareTask(void* pv) {
             uint8_t sevScale = 150;
             if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
             else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
-            if (magAlert) renderEventLeds(ledCfg.magColor,  ledCfg.magAnim,  sevScale, millis());
-            else          renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, millis());
+
+            if (magAlert) {
+                // MAG: if the user kept the default (solid) look, fade up the side
+                // nearest the source. If they chose spin/pulse/blink, honor it.
+                if (ledCfg.magAnim == 0) {
+                    // strength ramps from ~0.35 at threshold to 1.0 at 3x threshold
+                    float mstr = (float)(magDelta - threshMag) / (float)(threshMag * 2 + 1);
+                    mstr = 0.35f + mstr; if (mstr &gt; 1) mstr = 1; if (mstr &lt; 0.35f) mstr = 0.35f;
+                    renderMagDirectional(ledCfg.magColor, dX, dY, mstr);
+                } else {
+                    renderEventLeds(ledCfg.magColor, ledCfg.magAnim, sevScale, millis());
+                }
+            } else {
+                // PROX: fade the ring UP toward 100% as the reading approaches/passes
+                // the trigger. approach 0 at the threshold edge, 1.0 when very close.
+                if (ledCfg.proxAnim == 0) {
+                    float approach = (float)(threshProx - proxVal) / (float)(threshProx &gt; 0 ? threshProx : 1);
+                    approach = 0.15f + approach * 1.15f;   // slight floor so a bare trigger still shows
+                    renderProxFade(ledCfg.proxColor, approach);
+                } else {
+                    renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, millis());
+                }
+            }
         } else {
-            fill_solid(leds, NUM_LEDS, CRGB::Black);   // idle: dark until detection
+            ledIdle();   // no detection -&gt; ring returns to blank
         }
         FastLED.setBrightness(ledCfg.bright);
-        FastLED.show();
+        ledShow();
         vTaskDelay(pdMS_TO_TICKS(10));   // 100 Hz
     }
 }
@@ -848,8 +981,8 @@ void handleCommand(JsonDocument&amp; doc) {
         recalibrate = true;
     } else if (!strcmp(cmd, &quot;identify&quot;)) {
         for (int k = 0; k &lt; 3; k++) {
-            fill_solid(leds, NUM_LEDS, CRGB::White); FastLED.show(); delay(120);
-            fill_solid(leds, NUM_LEDS, CRGB::Black); FastLED.show(); delay(120);
+            fill_solid(leds, LED_MAX, CRGB::White); ledShow(); delay(120);
+            fill_solid(leds, LED_MAX, CRGB::Black); ledShow(); delay(120);
         }
     }
 }
@@ -899,9 +1032,13 @@ void setupNetwork() {
 
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(&quot;SPECTER-NODE-01&quot;);
+    WiFi.persistent(true);          // keep station config across reboots/brownouts
+    WiFi.setAutoReconnect(true);    // SDK auto-rejoins if the AP drops or comes back
     if (targetSSID != &quot;&quot;) {
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
+        // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up —
+        // the background retry in the network loop + auto-reconnect keep working on it.
     }
     if (WiFi.status() == WL_CONNECTED) {
         if (udp.listen(BEACON_PORT)) {
@@ -954,19 +1091,26 @@ void setupNetwork() {
         String pass = server.hasArg(&quot;pass&quot;) ? server.arg(&quot;pass&quot;) : &quot;&quot;;
         ssid.trim();
         if (ssid.length() == 0) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;no ssid\&quot;}&quot;); return; }
+        // PERSIST FIRST: save the credentials the moment they&#x27;re submitted, so a
+        // slow/failed first connect (or a reboot mid-handshake) can never lose them.
+        targetSSID = ssid; targetPASS = pass;
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.putString(&quot;ssid&quot;, ssid); prefs.putString(&quot;pass&quot;, pass);
+        prefs.end();
+
         WiFi.mode(WIFI_AP_STA);                 // keep AP up so the portal stays reachable
+        WiFi.persistent(true);                  // let the SDK keep the config across resets
+        WiFi.setAutoReconnect(true);            // auto-retry if the link drops
         WiFi.begin(ssid.c_str(), pass.c_str());
         int t = 0;
         while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 24) { delay(500); t++; }
         JsonDocument d;
         if (WiFi.status() == WL_CONNECTED) {
-            targetSSID = ssid; targetPASS = pass;
-            prefs.begin(&quot;specter&quot;, false);
-            prefs.putString(&quot;ssid&quot;, ssid); prefs.putString(&quot;pass&quot;, pass);
-            prefs.end();
             d[&quot;ok&quot;] = true; d[&quot;ip&quot;] = WiFi.localIP().toString();
         } else {
-            d[&quot;ok&quot;] = false; d[&quot;error&quot;] = &quot;auth or out of range&quot;;
+            // Saved anyway — the boot loader + background retry will keep trying.
+            d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
+            d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) — it will keep retrying&quot;;
         }
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
@@ -979,7 +1123,7 @@ void setupNetwork() {
         JsonObject m = d[&quot;map&quot;].to&lt;JsonObject&gt;();
         m[&quot;front&quot;] = ledCfg.mFront; m[&quot;right&quot;] = ledCfg.mRight;
         m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
-        d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = NUM_LEDS;
+        d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = LED_MAX;
         // per-event theming (live) — colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
         char hx[8];
         JsonObject ev = d[&quot;events&quot;].to&lt;JsonObject&gt;();
@@ -990,7 +1134,8 @@ void setupNetwork() {
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.bootColorB); bt[&quot;colorB&quot;]=hx;
         bt[&quot;enable&quot;]=ledCfg.bootEnable;
         // brightness + map + events + boot apply live; the rest need a reboot.
-        d[&quot;liveFields&quot;] = &quot;bright,map,events,boot&quot;; d[&quot;rebootFields&quot;] = &quot;chipset,order,dataPin,clkPin,count&quot;;
+        d[&quot;maxCount&quot;] = LED_MAX;
+        d[&quot;liveFields&quot;] = &quot;bright,map,events,boot,count,order&quot;; d[&quot;rebootFields&quot;] = &quot;chipset,dataPin,clkPin&quot;;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/led/config&quot;, HTTP_POST, []() {
@@ -1000,13 +1145,14 @@ void setupNetwork() {
         if (server.hasArg(&quot;right&quot;))  { ledCfg.mRight = server.arg(&quot;right&quot;).toInt(); prefs.putInt(&quot;ledRight&quot;, ledCfg.mRight); }
         if (server.hasArg(&quot;back&quot;))   { ledCfg.mBack  = server.arg(&quot;back&quot;).toInt();  prefs.putInt(&quot;ledBack&quot;,  ledCfg.mBack); }
         if (server.hasArg(&quot;left&quot;))   { ledCfg.mLeft  = server.arg(&quot;left&quot;).toInt();  prefs.putInt(&quot;ledLeft&quot;,  ledCfg.mLeft); }
-        // chipset/order/pin/count are persisted for the NEXT reflash config block.
+        // chipset + data/clock pin bind at compile time in FastLED -&gt; reflash needed.
+        // count + order apply LIVE (count = pixels driven; order remapped in software).
         bool reboot=false;
         if (server.hasArg(&quot;chipset&quot;)){ strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; prefs.putString(&quot;ledChip&quot;, ledCfg.chipset); reboot=true; }
-        if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); reboot=true; }
+        if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); }  // live (software remap)
         if (server.hasArg(&quot;dataPin&quot;)){ ledCfg.dataPin = server.arg(&quot;dataPin&quot;).toInt(); prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); reboot=true; }
         if (server.hasArg(&quot;clkPin&quot;)) { ledCfg.clkPin = server.arg(&quot;clkPin&quot;).toInt(); prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin); reboot=true; }
-        if (server.hasArg(&quot;count&quot;))  { ledCfg.count = server.arg(&quot;count&quot;).toInt(); prefs.putInt(&quot;ledCount&quot;, ledCfg.count); reboot=true; }
+        if (server.hasArg(&quot;count&quot;))  { ledCfg.count = constrain(server.arg(&quot;count&quot;).toInt(),1,LED_MAX); prefs.putInt(&quot;ledCount&quot;, ledCfg.count); }  // live (drives 0..count-1)
         // per-event theming + boot (live, no reboot). Colors accepted as hex &quot;RRGGBB&quot; or &quot;#RRGGBB&quot;.
         auto parseHex = [](String v)-&gt;uint32_t{ if(v.startsWith(&quot;#&quot;)) v=v.substring(1); return (uint32_t) strtoul(v.c_str(), nullptr, 16); };
         if (server.hasArg(&quot;magColor&quot;)) { ledCfg.magColor = parseHex(server.arg(&quot;magColor&quot;)); prefs.putUInt(&quot;ledMagC&quot;, ledCfg.magColor); }
@@ -1025,9 +1171,13 @@ void setupNetwork() {
     server.on(&quot;/led/test&quot;, HTTP_POST, []() {
         String what = server.hasArg(&quot;what&quot;) ? server.arg(&quot;what&quot;) : &quot;boot&quot;;
         ledTestReq = 0;
-        if (what == &quot;boot&quot;) ledTestReq = 1;
-        else if (what == &quot;mag&quot;) ledTestReq = 2;
-        else if (what == &quot;prox&quot;) ledTestReq = 3;
+        if      (what == &quot;boot&quot;)  ledTestReq = 1;
+        else if (what == &quot;mag&quot;)   ledTestReq = 2;
+        else if (what == &quot;prox&quot;)  ledTestReq = 3;
+        else if (what == &quot;red&quot;)   ledTestReq = 4;
+        else if (what == &quot;green&quot;) ledTestReq = 5;
+        else if (what == &quot;blue&quot;)  ledTestReq = 6;
+        else if (what == &quot;white&quot;) ledTestReq = 7;
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
@@ -1091,6 +1241,16 @@ void loop() {
             eventPending = false;
         }
     }
+    // Wi-Fi reconnect watchdog: if we have saved creds but aren&#x27;t on the network
+    // (e.g. rebooted while the router was still coming up after a power blip),
+    // re-issue begin() every ~15s so the node rejoins on its own — no manual reboot.
+    static uint32_t lastWifiTry = 0;
+    if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
+        &amp;&amp; now - lastWifiTry &gt;= 15000) {
+        lastWifiTry = now;
+        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
+    }
+
     if (now - lastNet &gt;= 1000) {
         lastNet = now;
         JsonDocument n;
