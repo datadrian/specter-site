@@ -5,5 +5,6 @@
   "size": 1105024,
   "notes": "Automated build from 6520363",
   "built": "2026-07-04T18:58:53Z",
-  "commit": "652036375b071be8666dca0f5efa5ff7e740f397"
+  "commit": "652036375b071be8666dca0f5efa5ff7e740f397",
+  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.0.0.bin"
 }
