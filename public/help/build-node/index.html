@@ -293,7 +293,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.8-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.4.9-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -490,10 +490,15 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
 $(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
 $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||16,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1,right:$(&#x27;led-right&#x27;).value||-1,back:$(&#x27;led-back&#x27;).value||-1,left:$(&#x27;led-left&#x27;).value||-1});
  fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){
-  // re-read the node&#x27;s ACTUAL running state so you can see what really applied
   return fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(s){
    $(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;
-   $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;)+(d.rebootNeeded?&#x27; · (chipset/pin need a reboot to bind)&#x27;:&#x27;&#x27;);
+   $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;);
+   if(d.rebootNeeded){
+    $(&#x27;led-status&#x27;).className=&#x27;status&#x27;;
+    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind — rebooting the node now...&#x27;;
+    fetch(&#x27;/reboot&#x27;,{method:&#x27;POST&#x27;}).catch(function(){});
+    var n=8;var iv=setInterval(function(){n--;$(&#x27;led-status&#x27;).textContent=&#x27;Rebooting to bind &#x27;+($(&#x27;led-chip&#x27;).value)+&#x27;... reconnecting in &#x27;+n+&#x27;s&#x27;;if(n&lt;=0){clearInterval(iv);location.reload();}},1000);
+   }
   });
  }).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
 $(&#x27;led-test&#x27;).onclick=function(){ledPreview(&#x27;boot&#x27;)};
@@ -522,7 +527,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.4.8-maker&quot;
+#define FW_VERSION   &quot;2.4.9-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -960,6 +965,7 @@ void hardwareTask(void* pv) {
     ledCfg.count  = constrain(prefs.getInt(&quot;ledCount&quot;, ledCfg.count), 1, LED_MAX);
     { String ord = prefs.getString(&quot;ledOrd&quot;, ledCfg.order); strncpy(ledCfg.order, ord.c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; }
     { String chp = prefs.getString(&quot;ledChip&quot;, ledCfg.chipset); strncpy(ledCfg.chipset, chp.c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; }
+    Serial.printf(&quot;[LED] boot chipset from NVS = &#x27;%s&#x27;\n&quot;, ledCfg.chipset);
     ledCfg.bright = prefs.getInt(&quot;ledBright&quot;, ledCfg.bright);
     ledCfg.mFront = prefs.getInt(&quot;ledFront&quot;, ledCfg.mFront);
     ledCfg.mRight = prefs.getInt(&quot;ledRight&quot;, ledCfg.mRight);
@@ -980,6 +986,7 @@ void hardwareTask(void* pv) {
     {
         String cs = String(ledCfg.chipset); cs.toUpperCase();
         ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812RGB&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
+        Serial.printf(&quot;[LED] bind chipset=&#x27;%s&#x27; rgbw=%d\n&quot;, cs.c_str(), ledIsRGBW ? 1 : 0);
         if (ledIsRGBW) {
             // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
             rebindRgbw();   // builds the strip using the current ledCfg.order flag
@@ -1466,8 +1473,8 @@ void setupNetwork() {
         if (server.hasArg(&quot;pin&quot;)) {
             int np = server.arg(&quot;pin&quot;).toInt();
             // allow only touch-capable, non-conflicting pins
-            const int ok[] = {4,27,32,33};  // safe touch pins only (exclude boot-strap 2/15 &amp; PWM 14)
-            bool valid = false; for (int i=0;i&lt;7;i++) if (ok[i]==np) valid=true;
+            const int ok[] = {4,27,32,33};  // safe touch pins only
+            bool valid = false; for (int i=0;i&lt;4;i++) if (ok[i]==np) valid=true;
             if (valid) {
                 touchPin = np;
                 prefs.begin(&quot;node&quot;, false); prefs.putInt(&quot;touchPin&quot;, np); prefs.end();
@@ -1479,6 +1486,14 @@ void setupNetwork() {
     server.on(&quot;/prox/recal&quot;, HTTP_POST, []() {
         recalibrate = true;
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
+    });
+
+    // Restart the node so a chipset / data-pin change binds cleanly at boot.
+    server.on(&quot;/reboot&quot;, HTTP_POST, []() {
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;rebooting\&quot;:true}&quot;);
+        delay(250);            // let the response flush
+        prefs.end();           // make sure any open NVS handle is committed/closed
+        ESP.restart();
     });
 
     // ---- OTA self-update API (portal-driven) ----
@@ -1509,6 +1524,7 @@ void setupNetwork() {
 }
 
 void setup() {
+    Serial.begin(115200);
     bootMs = millis();
     xTaskCreatePinnedToCore(hardwareTask, &quot;HW_Task&quot;, 4096, NULL, 1, NULL, 1);
     setupNetwork();
