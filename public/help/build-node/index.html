@@ -211,6 +211,57 @@
       <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches — no extra components needed.</div>
     </div>
 
+    <!-- THEREMIN UPGRADE -->
+    <div class="bn-sec" id="theremin">
+      <h2>Theremin-range upgrade <span style="color:var(--text-2);font-weight:400;font-size:.7em">(optional)</span></h2>
+      <p>The basic build uses the ESP32's built-in capacitive touch on GPIO4. That's reliable but short-range &mdash; roughly <strong>15&nbsp;cm</strong>, really a near-touch field. If you want true <strong>theremin-style reach</strong> (a hand felt from <strong>30&ndash;80&nbsp;cm</strong> away, rising smoothly as you approach), add a tiny <strong>LC oscillator</strong> and let the ESP32 count its frequency.</p>
+      <div class="callout"><strong>How it works.</strong> A <strong>74HC14</strong> Schmitt-trigger inverter, an inductor and a capacitor form a free-running oscillator. Your telescopic antenna is the sense plate. A hand nearby adds capacitance, which <strong>lowers the oscillator frequency</strong> by a few kHz. The ESP32's hardware pulse counter (PCNT) measures that shift on GPIO14 and feeds it into the exact same field pipeline &mdash; so your LEDs, buzzer, alerts and theremin pitch all work identically, just with far more range.</p>
+
+      <h3>Extra parts</h3>
+      <table class="bn-table">
+        <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
+        <tbody>
+          <tr><td><strong>74HC14</strong> hex Schmitt-trigger inverter (DIP-14)</td><td>The oscillator gate</td><td>$0.50</td></tr>
+          <tr><td>Inductor, <strong>~10&nbsp;mH</strong> (1&ndash;10&nbsp;mH works)</td><td>Sets the base frequency</td><td>$0.50</td></tr>
+          <tr><td>Capacitor, <strong>~100&nbsp;pF&ndash;1&nbsp;nF</strong> (NP0/C0G ceramic)</td><td>Tuning cap &mdash; use a stable dielectric</td><td>$0.20</td></tr>
+          <tr><td>Resistors: <strong>1&nbsp;MΩ</strong> + <strong>100&nbsp;kΩ</strong></td><td>Feedback loop</td><td>$0.10</td></tr>
+          <tr><td>Your existing telescopic antenna</td><td>Now the oscillator's sense plate</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+      <p class="sim-note">Under $2 total. A single 74HC14 has six gates, so one chip is plenty. Keep the antenna lead short and the tuning cap a stable NP0/C0G type &mdash; cheap Y5V caps drift with temperature and make the field wander.</p>
+
+      <h3>Circuit</h3>
+      <p>Build a classic Schmitt-trigger relaxation oscillator on one 74HC14 gate, then buffer it through a second gate into the ESP32:</p>
+      <ol class="steps">
+        <li>Power the 74HC14: <strong>pin 14 &rarr; 3.3V</strong>, <strong>pin 7 &rarr; GND</strong>. Add a 0.1&nbsp;µF cap across them if you have one.</li>
+        <li>Gate 1 (in pin&nbsp;1, out pin&nbsp;2): tie the <strong>1&nbsp;MΩ</strong> resistor from output (pin&nbsp;2) back to input (pin&nbsp;1). From input (pin&nbsp;1) to GND put the <strong>tuning capacitor</strong> in parallel with the <strong>inductor</strong>. That LC pair plus the resistor sets the base frequency.</li>
+        <li>Connect your <strong>telescopic antenna</strong> to the oscillator input node (pin&nbsp;1) through the <strong>100&nbsp;kΩ</strong> resistor. The antenna's capacitance to the room now pulls the frequency down as a hand approaches.</li>
+        <li>Buffer the output: wire gate 1 output (pin&nbsp;2) into gate 2 input (pin&nbsp;3); take gate 2 output (pin&nbsp;4) to the ESP32.</li>
+        <li>Tie any unused 74HC14 inputs to GND so they don't float.</li>
+      </ol>
+
+      <h3>Wiring to the ESP32</h3>
+      <table class="bn-table">
+        <thead><tr><th>Oscillator</th><th>ESP32 pin</th></tr></thead>
+        <tbody>
+          <tr><td>74HC14 output (buffered, pin&nbsp;4)</td><td class="pin">GPIO14</td></tr>
+          <tr><td>74HC14 · VCC (pin&nbsp;14)</td><td class="pin">3.3V</td></tr>
+          <tr><td>74HC14 · GND (pin&nbsp;7)</td><td class="pin">GND</td></tr>
+          <tr><td>Antenna</td><td class="pin">to oscillator input (not the ESP32)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">With the oscillator wired, the antenna moves from GPIO4 to the 74HC14 &mdash; the ESP32 no longer reads the antenna directly, it reads the oscillator's <strong>frequency</strong> on GPIO14. The GPIO4 touch input can stay unconnected.</div>
+
+      <h3>Enable it in firmware</h3>
+      <ol class="steps">
+        <li>Flash / OTA firmware <strong>2.7.0-maker</strong> or newer (it includes the oscillator reader).</li>
+        <li>Open the node's <strong>Settings</strong> portal &rarr; <strong>Theremin mode</strong> card and switch the <strong>Prox source</strong> to <strong>LC OSCILLATOR</strong>. (Default stays touch, so existing touch-only builds are unaffected.)</li>
+        <li>Wave your hand at the intended maximum distance and press <strong>REFIT RANGE</strong> so the field scales to your reach.</li>
+        <li>Watch the live field readout climb smoothly as your hand approaches from ~half a metre out &mdash; and the buzzer pitch rise with it.</li>
+      </ol>
+      <p class="sim-note">Not seeing a field? Confirm the oscillator is actually running (a scope or logic probe on GPIO14 should show a steady square wave, typically tens to a few hundred kHz). If the frequency is unstable, shorten the antenna lead and swap in an NP0/C0G tuning cap.</p>
+    </div>
+
     <!-- CODE -->
     <div class="bn-sec" id="leds">
       <h2>Configure your LEDs</h2>
