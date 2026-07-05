@@ -17,10 +17,10 @@
 
   <main class="page page-wide help-body">
     <h1>HELP CENTER</h1>
-    <p class="tagline">Setup, sensors, licensing, and field troubleshooting</p>
+    <p class="tagline">Everything to set up and run the full SPECTER system &mdash; sensors, thermal, EVP, wireless nodes, licensing, and field troubleshooting</p>
 
     <div class="callout ok" style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;">
-      <span><strong>SPECTER Technical Field Guide.</strong> The full operations manual: system meters, SLS mode, the detection archive, and field protocols. Read online or download the print PDF.</span>
+      <span><strong>SPECTER Technical Field Guide.</strong> The full operations manual: interface anatomy, system meters, SLS mode, the detection archive, and field protocols. Read online or download the print PDF.</span>
       <a class="btn" href="/help/field-guide.html" style="white-space:nowrap;">Open field guide</a>
     </div>
 
@@ -41,6 +41,9 @@
       <strong>Feature guides</strong>
       <ul>
         <li><a href="/help/field-guide.html"><strong>Technical Field Guide</strong> (operations manual + PDF)</a></li>
+        <li><a href="#thermal">Thermal Control Center (P2W camera)</a></li>
+        <li><a href="#evp">EVP Audio Lab &amp; remote mic</a></li>
+        <li><a href="#remote">Remote field tools (phone)</a></li>
         <li><a href="/help/build-node/"><strong>Build Your Own SPECTER Node</strong> (wiring + Arduino code)</a></li>
         <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a></li>
         <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a></li>
@@ -65,15 +68,18 @@
 
     <section id="feature-guides">
       <h2>FEATURE GUIDES</h2>
-      <p>Deep-dives on the depth, gallery, recording, and session features:</p>
+      <p>Deep-dives on every part of the system &mdash; sensors, thermal, EVP, nodes, depth, gallery, and recording:</p>
       <ul>
-        <li><a href="/help/field-guide.html"><strong>Technical Field Guide</strong></a>, the complete operations manual with downloadable print PDF.</li>
-        <li><a href="/help/build-node/"><strong>Build Your Own SPECTER Node</strong></a>, wiring diagram, parts list, live interface simulator, and the full Arduino sketch to copy.</li>
-        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a>, the V-cycle and Light / Balanced / Show.</li>
-        <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>, RANGE, DEPTH COLOR, orbit, saved viewpoint.</li>
-        <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a>, review and re-grade detections.</li>
-        <li><a href="/help/recording.html">Recording (MP4)</a>, F9, smaller files, transcode bar.</li>
-        <li><a href="/help/troubleshooting.html">Troubleshooting index</a>, depth, gallery, performance, recording, licensing.</li>
+        <li><a href="/help/field-guide.html"><strong>Technical Field Guide</strong></a> &mdash; the complete operations manual with downloadable print PDF.</li>
+        <li><a href="#thermal">Thermal Control Center</a> &mdash; connect the P2W camera, thermal views, and detectors.</li>
+        <li><a href="#evp">EVP Audio Lab</a> &mdash; record, review, and export audio evidence.</li>
+        <li><a href="#remote">Remote field tools</a> &mdash; phone monitor, trigger, and remote EVP mic.</li>
+        <li><a href="/help/build-node/"><strong>Build Your Own SPECTER Node</strong></a> &mdash; wiring diagram, parts list, live interface simulator, and the full Arduino sketch to copy.</li>
+        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a> &mdash; the V-cycle and Light / Balanced / Show.</li>
+        <li><a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a> &mdash; RANGE, DEPTH COLOR, orbit, saved viewpoint.</li>
+        <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a> &mdash; review and re-grade detections.</li>
+        <li><a href="/help/recording.html">Recording (MP4)</a> &mdash; F9, smaller files, transcode bar.</li>
+        <li><a href="/help/troubleshooting.html">Troubleshooting index</a> &mdash; depth, gallery, performance, recording, licensing.</li>
       </ul>
     </section>
 
@@ -186,6 +192,34 @@
       </ol>
     </section>
 
+    <section id="thermal">
+      <h2>THERMAL CONTROL CENTER (P2W CAMERA)</h2>
+      <p>SPECTER brings the HSFtools <strong>P2W</strong> network thermal camera into the same live workspace as your depth sensor. Thermal runs alongside RealSense, Kinect, or HDMI &mdash; not instead of them.</p>
+      <ol class="steps">
+        <li>Power the P2W and join its network (or connect it to your Wi&#8209;Fi). The default hotspot address is <code>192.168.0.145</code>.</li>
+        <li>SPECTER &rarr; Settings &rarr; <strong>P2W Network Camera</strong> &rarr; press <strong>SCAN FOR CAMERA</strong> to auto-discover it on the local network.</li>
+        <li>Confirm the filled-in Camera IP, then press <strong>SAVE + CONNECT</strong>.</li>
+        <li>Switch to <strong>THERMAL</strong> view. If the stream stalls, press <strong>RETRY</strong> to rescan and restart it.</li>
+      </ol>
+      <ul>
+        <li><strong>Detectors</strong> &mdash; from THERMAL view, the <strong>DETECTORS</strong> button jumps to hot / cold / humanoid / orb / vortex / residue controls in Settings.</li>
+        <li><strong>Views</strong> &mdash; thermal, RGB, blend, or the 4&#8209;up <strong>Control Center</strong> grid.</li>
+        <li><strong>Captures</strong> &mdash; thermal snapshots are paired into the gallery with the visual and depth context.</li>
+      </ul>
+    </section>
+
+    <section id="evp">
+      <h2>EVP AUDIO LAB &amp; REMOTE MIC</h2>
+      <p>Record and review Electronic Voice Phenomena inside SPECTER, from either a local microphone or a phone used as a wireless field mic.</p>
+      <ol class="steps">
+        <li>Record local mic audio during a session, or open the phone <strong>remote EVP mic</strong> (see Remote field tools below) and grant the microphone prompt on the phone.</li>
+        <li>Open the <strong>Gallery</strong> and select an EVP session to review.</li>
+        <li>Loop a region, change playback speed, apply EQ, or reverse playback to isolate a voice.</li>
+        <li>Visual and thermal capture markers sync to the audio timeline, so you can see what the room was doing when a hit landed.</li>
+        <li>Export <strong>WAV</strong>, <strong>MP3</strong>, or a full investigation bundle.</li>
+      </ol>
+    </section>
+
     <section id="license">
       <h2>LICENSE ACTIVATION</h2>
       <ol class="steps">
@@ -200,13 +234,15 @@
     </section>
 
     <section id="remote">
-      <h2>REMOTE MONITOR &amp; RECORDING</h2>
+      <h2>REMOTE FIELD TOOLS &amp; RECORDING</h2>
+      <p>Turn a phone on the same Wi&#8209;Fi into a remote monitor, trigger surface, or wireless EVP microphone. Scan the QR code SPECTER shows, or open the URL from Settings.</p>
       <ul>
-        <li><strong>Remote monitor</strong>, Settings shows the URL for phone control on the same Wi‑Fi.</li>
-        <li><strong>F9</strong>, toggle session recording.</li>
-        <li><strong>F7</strong>, snapshot to detection gallery.</li>
-        <li><strong>G</strong>, open gallery.</li>
-        <li>Recordings and detections folders: Settings → paths (open in Explorer).</li>
+        <li><strong>Remote monitor</strong> &mdash; watch the live feed and fire triggers from the phone.</li>
+        <li><strong>Remote EVP mic</strong> &mdash; the phone streams audio into the EVP Audio Lab with live level meters (grant the mic prompt on the phone first).</li>
+        <li><strong>F9</strong> &mdash; toggle session recording (MP4).</li>
+        <li><strong>F7</strong> &mdash; snapshot to the detection gallery.</li>
+        <li><strong>G</strong> &mdash; open the gallery.</li>
+        <li>Recordings and detections folders: Settings &rarr; paths (open in Explorer).</li>
       </ul>
     </section>
 

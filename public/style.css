@@ -535,6 +535,18 @@ a { color: var(--cyan); text-decoration: none; }
 }
 @media (max-width: 800px) { .preview-grid { grid-template-columns: 1fr; } }
 .preview-item {}
+.preview-item img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  background: var(--bg2);
+  box-shadow: 0 0 30px rgba(0,229,255,0.06);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.preview-item img:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 45px rgba(0,229,255,0.16);
+}
 .preview-img-placeholder {
   background: var(--bg2);
   border: 1px dashed var(--border);
@@ -1112,6 +1124,25 @@ a { color: var(--cyan); text-decoration: none; }
 .vm-placeholder { aspect-ratio: 1024 / 616; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 210px; color: var(--accent); background: linear-gradient(135deg, rgba(0,255,200,.08), rgba(0,0,0,.55)); border: 1px dashed rgba(0,255,200,.45); font-family: var(--font-mono); letter-spacing: .12em; text-align: center; }
 .vm-placeholder span { max-width: 78%; color: var(--text-dim); font-size: .76rem; line-height: 1.5; }
 .vm-needed { border-style: dashed; }
+/* Finished (non-screenshot) view-mode tiles: a clean copy panel that matches
+   the image tiles so the grid reads complete rather than "coming soon". */
+.vm-desc { display: flex; flex-direction: column; }
+.vm-desc .vm-copy {
+  aspect-ratio: 1024 / 616; min-height: 210px;
+  display: flex; flex-direction: column; justify-content: center; gap: 0.7rem;
+  padding: 1.4rem 1.3rem 2.4rem;
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgba(0,229,255,0.10), transparent 60%),
+    linear-gradient(160deg, var(--bg3), var(--bg2));
+}
+.vm-desc .vm-kicker {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.22em;
+  color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow);
+}
+.vm-desc .vm-copy p {
+  margin: 0; color: var(--text); font-size: 0.9rem; line-height: 1.55;
+}
+
 
 /* Hero thermal callout + download-first demo actions */
 .hero-badge-alt {
