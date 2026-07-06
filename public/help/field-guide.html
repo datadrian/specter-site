@@ -191,11 +191,60 @@
       <ul class="doc-list">
         <li><span class="k">Grid view.</span> Displays all session data cards, sorted chronologically. Each card shows a snapshot thumbnail, detection type, intensity class, and confidence percentage.</li>
         <li><span class="k">Depth badge.</span> A cyan "D" badge indicates that the capture successfully paired visual data with a complete spatial depth map.</li>
+        <li><span class="k">Timecode.</span> When a project timecode is set (see 6.0), every card and full-frame view is stamped with the global TC of the event, so captures line up with your external recordings.</li>
+      </ul>
+      <h3>5.2 Layers and 3D review</h3>
+      <p>Open any capture to page through the layers it recorded. Available layers depend on the sensors that were active at the moment of the event.</p>
+      <ul class="doc-list">
+        <li><span class="k">RGB / DEPTH / THERMAL.</span> The still frames captured on each active channel, with the detection box and classification baked into the annotated view.</li>
+        <li><span class="k">3D ORBIT.</span> A live, orbitable point cloud rebuilt from the raw depth map. Drag to rotate, scroll to zoom. The detection is rendered inside the reconstructed room so you can see where in space it registered.</li>
+        <li><span class="k">3D SNAP.</span> A baked static 3D render, shown when the capture stored a rendered cloud but no raw depth to orbit.</li>
+        <li><span class="k">NO DEPTH DATA.</span> Shown for captures made without a depth sensor active. The visual layers are still available.</li>
       </ul>
     </section>
 
+    <section id="timecode">
+      <h2><span class="num">6.0</span>GLOBAL TIMECODE</h2>
+      <p>SPECTER can stamp every capture and recording with a single project timecode so all of your evidence shares one clock.</p>
+      <ul class="doc-list">
+        <li><span class="k">Start TC and FPS.</span> Set your project start timecode and frame rate in Settings. From that point every detection, recording, and export carries the matching global TC.</li>
+        <li><span class="k">Evidence Wall overlay.</span> An optional persistent timecode overlay can be shown on the Evidence Wall so a running TC is visible on the display during a session.</li>
+        <li><span class="k">Why it matters.</span> A shared timecode lets you align SPECTER captures with external cameras, audio recorders, and notes when you review the session afterward.</li>
+      </ul>
+    </section>
+
+    <section id="node">
+      <h2><span class="num">7.0</span>SPECTER NODE (WIRELESS FIELD SENSOR)</h2>
+      <p>The SPECTER Node is an optional wireless sensor that reports environmental readings to the app over your local network. It extends the instrument's reach into a room without a cable run.</p>
+      <h3>7.1 Connecting a node</h3>
+      <p>Enable SPECTER NODE in Settings. The app announces itself on the local network and a powered node joins automatically. Once linked, a live node widget appears in the left rail and the node's readings feed the meters and the remote displays.</p>
+      <h3>7.2 Readings</h3>
+      <ul class="doc-list">
+        <li><span class="k">Proximity field.</span> A capacitive antenna reports how near an influence is to the node. The reading rises smoothly as something approaches.</li>
+        <li><span class="k">Magnetic field.</span> A three-axis magnetometer reports magnetic amplitude and direction. Onboard lights glow toward the side nearest the source so you can read the bearing at a glance.</li>
+        <li><span class="k">Link.</span> Signal strength and connection health, so you know the node is reporting.</li>
+      </ul>
+      <h3>7.3 Theremin mode</h3>
+      <p>Theremin mode turns the proximity antenna into a continuous, audible field. As an influence nears the node, the onboard ring glows up and an optional tone rises in pitch, giving you a hands-free sense of approach. Use REFIT RANGE with your hand at the intended distance to fit the reach to your space, and raise the jitter deadband until the field rests at zero when nothing is near.</p>
+      <h3>7.4 Node events</h3>
+      <p>When a node reading crosses its threshold, SPECTER can log an event and trigger a capture automatically, the same as any onboard detection. Adjust node sensitivity in Settings to suit the location.</p>
+    </section>
+
+    <section id="displays">
+      <h2><span class="num">8.0</span>REMOTE DISPLAYS</h2>
+      <p>SPECTER can mirror the session to a second screen or a phone over your local network for a monitor or an investigator standing away from the workstation.</p>
+      <ul class="doc-list">
+        <li><span class="k">Evidence Wall.</span> A full-screen display of the live feed with the detection box, classification, recent-event log, node gauges, and an optional timecode overlay. Ideal for a monitor facing the room.</li>
+        <li><span class="k">Instrument Bay.</span> A gauge-focused display of the live meters and node readings, updated several times per second, for watching field values at a glance.</li>
+        <li><span class="k">Field monitor (phone).</span> A phone view of the live meters and sparklines so a second operator can watch readings from across the location.</li>
+      </ul>
+      <div class="doc-note">
+        Remote displays connect over your local network and require the PIN shown in the app. See the <a href="/help/">Help Center</a> remote section for connection steps.
+      </div>
+    </section>
+
     <section>
-      <h2><span class="num">6.0</span>FIELD PROTOCOLS</h2>
+      <h2><span class="num">9.0</span>FIELD PROTOCOLS</h2>
       <ul class="doc-list">
         <li><span class="k">Reset the baseline in new sectors.</span> Step into a new physical room, wait six seconds, and verify that the log displays BASELINE NOMINAL before beginning your sweep.</li>
         <li><span class="k">Event documentation.</span> When a detection event occurs, the system logs the data autonomously. The unit's sensors process anomalies across a wide spectrum, so visual confirmation with the naked eye is not required for a valid reading.</li>
@@ -207,7 +256,7 @@
       </div>
     </section>
 
-    <div class="doc-foot">SPECTRAL IMAGING UNIT &middot; TECHNICAL OPERATIONS MANUAL &middot; REV 4.2.0 &middot; specter-imaging.com</div>
+    <div class="doc-foot">SPECTRAL IMAGING UNIT &middot; TECHNICAL OPERATIONS MANUAL &middot; REV 4.3.0 &middot; specter-imaging.com</div>
   </main>
 
   <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>

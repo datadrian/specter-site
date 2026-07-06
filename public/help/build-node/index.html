@@ -8,7 +8,7 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://specter-imaging.com/help/build-node/" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="Build Your Own SPECTER Node — DIY Wireless EMF Sensor" />
+  <meta property="og:title" content="Build Your Own SPECTER Node - DIY Wireless EMF Sensor" />
   <meta property="og:description" content="Parts, wiring, and Arduino code to build a wireless ESP32 field sensor that streams live telemetry into SPECTER." />
   <meta property="og:url" content="https://specter-imaging.com/help/build-node/" />
   <link rel="stylesheet" href="/style.css" />
@@ -120,7 +120,7 @@
   <div class="bn-hero">
     <div class="section-tag">// FIELD HARDWARE · DIY GUIDE</div>
     <h1>Build Your Own SPECTER Node</h1>
-    <p class="lead">A wireless field sensor you can build yourself. The SPECTER Node pairs a capacitive proximity antenna with a 3-axis magnetometer on an ESP32, then streams live EMF and proximity telemetry straight into SPECTER over Wi-Fi — appearing in the instrument rail and the 3D field mesh alongside your depth and thermal sensors. Total build cost is roughly $15–25 in parts.</p>
+    <p class="lead">A wireless field sensor you can build yourself. The SPECTER Node pairs a capacitive proximity antenna with a 3-axis magnetometer on an ESP32, then streams live EMF and proximity telemetry straight into SPECTER over Wi-Fi - appearing in the instrument rail and the 3D field mesh alongside your depth and thermal sensors. Total build cost is roughly $15–25 in parts.</p>
   </div>
 
   <div class="bn-wrap">
@@ -128,7 +128,7 @@
     <!-- LIVE SIMULATOR -->
     <div class="bn-sec" id="preview">
       <h2>What it looks like in SPECTER</h2>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">The SPECTER Node view is designed for your phone — you carry it in the field. This is a live simulation: a real-time 3D field radar that shows not just <em>how strong</em> the magnetic disturbance is, but <em>which direction</em> it's coming from. It rotates so you can read the field in 3D, and locks a bearing on the source. Rotate your phone (or resize) and it flips to landscape automatically.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">The SPECTER Node view is designed for your phone - you carry it in the field. This is a live simulation: a real-time 3D field radar that shows not just <em>how strong</em> the magnetic disturbance is, but <em>which direction</em> it's coming from. It rotates so you can read the field in 3D, and locks a bearing on the source. Rotate your phone (or resize) and it flips to landscape automatically.</p>
       <div class="sim-shell">
         <div class="sim-toggle" role="tablist" aria-label="Preview orientation">
           <button id="tg-portrait" class="on" onclick="setSimMode('portrait')">PORTRAIT</button>
@@ -141,7 +141,7 @@
               <div class="sim-feed">
                 <div class="feed-tag">FIELD RADAR</div>
                 <canvas id="sim-mesh"></canvas>
-                <div class="bearing" id="sim-bearing">BEARING —°</div>
+                <div class="bearing" id="sim-bearing">BEARING -</div>
               </div>
               <div class="sim-rail">
                 <div class="rlab">Field Amplitude</div>
@@ -167,8 +167,8 @@
     <!-- OVERVIEW -->
     <div class="bn-sec" id="how">
       <h2>How it works</h2>
-      <p>The node is a small battery- or USB-powered pod. An ESP32 microcontroller reads two sensors a hundred times a second: a <strong style="color:var(--cyan)">capacitive telescopic antenna</strong> (its reading drops as a person or object approaches — a proximity/field-disturbance channel) and a <strong style="color:var(--cyan)">QMC5883L magnetometer</strong> (a 3-axis reading of the local magnetic field). An onboard LED ring and buzzer give you a standalone alert, while the ESP32 joins your Wi-Fi and connects to the SPECTER desktop app.</p>
-      <p>SPECTER runs a small server that the node discovers automatically — the app broadcasts its address, the node finds it and connects, and telemetry starts flowing at 10 Hz. From there the node behaves like any other SPECTER sensor: its readings feed the Anomaly Index, threshold crossings fire timestamped detection events into your evidence archive, and the live field mesh renders in the instrument rail.</p>
+      <p>The node is a small battery- or USB-powered pod. An ESP32 microcontroller reads two sensors a hundred times a second: a <strong style="color:var(--cyan)">capacitive telescopic antenna</strong> (its reading drops as a person or object approaches - a proximity/field-disturbance channel) and a <strong style="color:var(--cyan)">QMC5883L magnetometer</strong> (a 3-axis reading of the local magnetic field). An onboard LED ring and buzzer give you a standalone alert, while the ESP32 joins your Wi-Fi and connects to the SPECTER desktop app.</p>
+      <p>SPECTER runs a small server that the node discovers automatically - the app broadcasts its address, the node finds it and connects, and telemetry starts flowing at 10 Hz. From there the node behaves like any other SPECTER sensor: its readings feed the Anomaly Index, threshold crossings fire timestamped detection events into your evidence archive, and the live field mesh renders in the instrument rail.</p>
       <div class="callout"><strong>No soldering required for a basic build.</strong> Using breakout boards and jumper wires you can assemble a working node on a breadboard. Soldering only comes in when you want a permanent, rugged pod.</div>
     </div>
 
@@ -184,10 +184,10 @@
           <tr><td>Passive piezo buzzer</td><td>Local audible alert</td><td>$1</td></tr>
           <tr><td>Telescopic antenna / brass rod</td><td>Capacitive proximity antenna</td><td>$1–3</td></tr>
           <tr><td>Breadboard + jumper wires</td><td>Wiring</td><td>$3–5</td></tr>
-          <tr><td>USB cable / 18650 power (optional)</td><td>Power</td><td>—</td></tr>
+          <tr><td>USB cable / 18650 power (optional)</td><td>Power</td><td> - </td></tr>
         </tbody>
       </table>
-      <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module — confirm it's the QMC5883L variant (I2C address 0x0D).</p>
+      <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
     </div>
 
     <!-- WIRING -->
@@ -208,7 +208,7 @@
           <tr><td>Buzzer · −</td><td class="pin">GND</td></tr>
         </tbody>
       </table>
-      <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches — no extra components needed.</div>
+      <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches - no extra components needed.</div>
     </div>
 
     <!-- THEREMIN UPGRADE -->
@@ -265,13 +265,13 @@
     <!-- CODE -->
     <div class="bn-sec" id="leds">
       <h2>Configure your LEDs</h2>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:22px;">Not every builder uses the same LED ring. Pick your chipset, color order, and count, then map which LED faces <b>front / right / back / left</b> so SPECTER can light the correct side toward a detected source. This generates a config block — paste it at the top of the firmware, replacing the matching lines.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:22px;">Not every builder uses the same LED ring. Pick your chipset, color order, and count, then map which LED faces <b>front / right / back / left</b> so SPECTER can light the correct side toward a detected source. This generates a config block - paste it at the top of the firmware, replacing the matching lines.</p>
       <div class="led-cfg">
         <div>
           <div class="cfg-field">
             <label for="cfg-chip">LED chipset</label>
             <select id="cfg-chip">
-              <option value="WS2812B">WS2812B (NeoPixel — most common)</option>
+              <option value="WS2812B">WS2812B (NeoPixel - most common)</option>
               <option value="SK6812">SK6812 / SK6812RGBW</option>
               <option value="WS2811">WS2811</option>
               <option value="WS2813">WS2813</option>
@@ -312,7 +312,7 @@
           </div>
         </div>
         <div class="map-wrap">
-          <div class="maplbl">Positional map — click an LED, then a direction</div>
+          <div class="maplbl">Positional map - click an LED, then a direction</div>
           <div class="ledmap"><canvas id="ledmap-canvas" width="460" height="460"></canvas></div>
           <div class="pos-btns" id="pos-btns">
             <button data-pos="FRONT">FRONT</button>
@@ -325,7 +325,7 @@
         </div>
       </div>
       <div class="cfg-out">
-        <div class="code-head"><span>// paste into specter_node.ino — LED CONFIG block</span><button class="copy-btn" id="cfgCopyBtn" onclick="copyCfg()">COPY CONFIG</button></div>
+        <div class="code-head"><span>// paste into specter_node.ino - LED CONFIG block</span><button class="copy-btn" id="cfgCopyBtn" onclick="copyCfg()">COPY CONFIG</button></div>
         <pre><code id="cfg-code"></code></pre>
       </div>
     </div>
@@ -1784,9 +1784,9 @@ void loop() {
 </code></pre>
       <h3>3 · Connect it to Wi-Fi</h3>
       <div class="bn-step"><span class="num">1</span><div>On first boot the node creates its own Wi-Fi network, <strong>SPECTER-NODE-01</strong>. Join it from your phone or laptop.</div></div>
-      <div class="bn-step"><span class="num">2</span><div>Open <strong>http://192.168.4.1/</strong> in a browser and enter your field Wi-Fi name and password. Save — the node reboots and joins your network.</div></div>
+      <div class="bn-step"><span class="num">2</span><div>Open <strong>http://192.168.4.1/</strong> in a browser and enter your field Wi-Fi name and password. Save - the node reboots and joins your network.</div></div>
       <div class="bn-step"><span class="num">3</span><div>Open SPECTER on the same network. Enable the SPECTER Node feature in settings. The node discovers the app automatically and appears in the instrument rail within a couple of seconds.</div></div>
-      <div class="callout"><strong>That's it.</strong> Wave your hand near the antenna or move a magnet nearby — you'll see the field mesh react and the buzzer chirp. Tune the alert thresholds from inside SPECTER; the node remembers them across reboots.</div>
+      <div class="callout"><strong>That's it.</strong> Wave your hand near the antenna or move a magnet nearby - you'll see the field mesh react and the buzzer chirp. Tune the alert thresholds from inside SPECTER; the node remembers them across reboots.</div>
       <a href="/index.html#pricing" class="btn-primary bn-cta">GET SPECTER</a>
     </div>
 
@@ -1886,7 +1886,7 @@ function copyCode(){
       : 'FastLED.addLeds<'+chip+', LED_DATA_PIN, '+order+'>(leds, NUM_LEDS);';
     function idx(p){ return (p in map)? map[p] : -1; }
     var lines=[];
-    lines.push('// ===== SPECTER NODE — LED CONFIG (generated) =====');
+    lines.push('// ===== SPECTER NODE - LED CONFIG (generated) =====');
     lines.push('#define LED_CHIPSET   '+chip);
     lines.push('#define LED_COLOR_ORD '+order);
     lines.push('#define LED_DATA_PIN  '+pin);
@@ -1894,7 +1894,7 @@ function copyCode(){
     lines.push('#define NUM_LEDS      '+n);
     lines.push('#define LED_BRIGHT    '+bright);
     lines.push('');
-    lines.push('// Positional map — which LED index points which way (-1 = unset).');
+    lines.push('// Positional map - which LED index points which way (-1 = unset).');
     lines.push('// Face the antenna FORWARD; SPECTER lights the side toward a source.');
     lines.push('#define LED_FRONT     '+idx('FRONT'));
     lines.push('#define LED_RIGHT     '+idx('RIGHT'));
@@ -2078,9 +2078,9 @@ function setSimMode(m){
       disturb=1; nextEvent=t/0.016+120+Math.random()*160;
       srcDir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.3)*1.2,(Math.random()-0.5)*2).normalize();
       var sev=Math.random(), col=CY, cls='';
-      if(sev>0.75){col=RED;cls='hi';pushLog('hi',ts()+' — MAG ANOMALY · CLASS-III');}
-      else if(sev>0.4){col=AMB;cls='med';pushLog('med',ts()+' — FIELD DISTURBANCE · CLASS-II');}
-      else{pushLog('',ts()+' — PROXIMITY · CLASS-I');}
+      if(sev>0.75){col=RED;cls='hi';pushLog('hi',ts()+' - MAG ANOMALY · CLASS-III');}
+      else if(sev>0.4){col=AMB;cls='med';pushLog('med',ts()+' - FIELD DISTURBANCE · CLASS-II');}
+      else{pushLog('',ts()+' - PROXIMITY · CLASS-I');}
       spawnPulse(srcDir,col);
     }
     disturb*=0.955;
@@ -2126,7 +2126,7 @@ function setSimMode(m){
     var tg=0.12+Math.abs(Math.sin(t*5))*0.12+disturb*0.2; beamTipGlow.material.opacity=tg;
     beamTip.scale.setScalar(1+disturb*0.6);
 
-    // intensity shell flex — bulges toward the source
+    // intensity shell flex - bulges toward the source
     var pos=shellGeo.attributes.position, arr=pos.array;
     for(var i=0;i<arr.length;i+=3){
       var bx=shellBase[i],by=shellBase[i+1],bz=shellBase[i+2];
@@ -2177,7 +2177,7 @@ function setSimMode(m){
     requestAnimationFrame(tick);
   }
   // initial size after layout settles
-  setTimeout(function(){resize();pushLog('',ts()+' — NODE LINKED · REM-Pod A');tick();},60);
+  setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED · REM-Pod A');tick();},60);
   window.addEventListener('resize',resize);
 })();
 </script>

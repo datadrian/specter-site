@@ -33,10 +33,12 @@
         <tbody>
           <tr><td><strong>RGB</strong></td><td>Annotated still (detection box baked onto the image).</td></tr>
           <tr><td><strong>DEPTH</strong></td><td>Depth map re-rendered from raw sensor data (editable).</td></tr>
-          <tr><td><strong>3D</strong></td><td>Opens the orbitable 3D depth snapshot modal.</td></tr>
+          <tr><td><strong>3D ORBIT</strong></td><td>Live orbitable point cloud rebuilt from the raw depth map. Drag to rotate, scroll to zoom. The detection is rendered inside the reconstructed room, with its classification label, so you can see where in space it registered.</td></tr>
+          <tr><td><strong>3D SNAP</strong></td><td>Baked static 3D render, shown when the capture stored a rendered cloud but no raw depth to orbit.</td></tr>
         </tbody>
       </table>
       <p>Keyboard: <code>D</code> toggles RGB ↔ DEPTH (not 3D).</p>
+      <p>Captures made without a depth sensor active show <strong>NO DEPTH DATA</strong> in place of the 3D layer. The visual layers stay available.</p>
     </section>
 
     <section id="edit">
@@ -96,7 +98,8 @@
           <tr><td><code>depth_raw.bin</code></td><td>Raw uint16 depth grid</td></tr>
           <tr><td><code>depth_rgb.jpg</code></td><td>RGB image registered to depth resolution</td></tr>
           <tr><td><code>depth_intrinsics.json</code></td><td>Camera geometry for 3D rebuild</td></tr>
-          <tr><td><code>metadata.json</code></td><td>Scores, bbox, mode, flags</td></tr>
+          <tr><td><code>snapshot_3d.png</code></td><td>Baked 3D render (3D SNAP layer)</td></tr>
+          <tr><td><code>metadata.json</code></td><td>Scores, bbox, intensity class, global timecode, mode, flags</td></tr>
           <tr><td><code>clip.mp4</code></td><td>Pre-event video buffer</td></tr>
           <tr><td><code>gallery_view_*.png</code></td><td>Optional user exports from the gallery</td></tr>
         </tbody>
