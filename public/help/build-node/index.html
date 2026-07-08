@@ -295,7 +295,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.7.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.8.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -337,7 +337,7 @@
 #include &quot;portal_pages.h&quot;   // embedded telemetry + settings portal (no LittleFS)
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.7.0-maker&quot;
+#define FW_VERSION   &quot;2.8.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -533,6 +533,27 @@ volatile int     magSens    = 70;     // 0..100 sensitivity slider (100 = most s
 volatile bool    rfActive   = false;   // suppression on/off
 volatile int     rfMagPeak  = 0;       // captured mag signature (LSB delta)
 volatile int     rfProxPeak = 0;       // captured prox signature (delta)
+
+// ── Field alert cadence + auto-baseline (v2.8.0) ────────────────────────────
+// Field-friendly behavior so the operator never has to hand-tune per location:
+//   BOOT BASELINE   after power-on we wait BASELINE_SETTLE_MS for the sensors to
+//                   stabilize, then snap a clean ambient baseline. No alerts fire
+//                   during this window.
+//   ALERT (max 5s)  when a real hit crosses threshold the node beeps + flashes,
+//                   but for AT MOST ALERT_MAX_MS so it can&#x27;t latch on forever.
+//   COOLDOWN (10s)  after an alert ends it goes silent for COOLDOWN_MS (no buzzer,
+//                   no LED alert, no new events) and RE-BASELINES to the current
+//                   ambient. This stops the runaway beeping AND re-zeros the node
+//                   to wherever it now sits (new room, moved, permanent field
+//                   shift) so the next alert is a genuine new event.
+#define BASELINE_SETTLE_MS   1500    // post-boot settle before first baseline
+#define ALERT_MAX_MS         5000    // max continuous alert (beep+flash) duration
+#define COOLDOWN_MS          10000   // enforced quiet + re-baseline window after an alert
+// Alert lifecycle: 0 = idle/armed, 1 = alerting, 2 = cooling down (quiet).
+volatile int      alertPhase       = 0;
+volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
+volatile bool     bootBaselineDone = false; // false until the settle window elapses
+volatile uint32_t bootBaselineAt   = 0;     // millis() target for the boot baseline
 float            rfTolerance = 0.35f;  // +/- 35% band
 volatile bool    rfCapturing = false;  // true while HOLD-capturing a signature
 volatile int     rfCapMag = 0, rfCapProx = 0;  // running peak during capture
@@ -892,6 +913,12 @@ void hardwareTask(void* pv) {
     if (ledCfg.bootEnable) playBootAnimation();   // build 1..N, blue/green sweep, dark
     float proxAvg = 0; bool proxInit = false; uint32_t proxSettleStart = 0;
 
+    // Arm the boot auto-baseline: wait for the sensors to settle after power-on,
+    // THEN snap a clean ambient baseline. Until then, hold alerts off.
+    bootBaselineAt   = millis() + BASELINE_SETTLE_MS;
+    bootBaselineDone = false;
+    alertPhase = 0; alertPhaseStart = 0;
+
     for (;;) {
         if (ledTestReq) {
             int req = ledTestReq; ledTestReq = 0;
@@ -961,6 +988,14 @@ void hardwareTask(void* pv) {
             proxVal = sm[4];   // median
         }
         readQMC5883L();
+
+        // BOOT AUTO-BASELINE: once the settle window has elapsed, take one clean
+        // ambient baseline. This runs after the sensors have had time to stabilize
+        // post power-on, so we don&#x27;t lock onto noisy startup values.
+        if (!bootBaselineDone &amp;&amp; (int32_t)(millis() - bootBaselineAt) &gt;= 0) {
+            recalibrate = true;
+            bootBaselineDone = true;
+        }
 
         if (recalibrate) {
             baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
@@ -1095,7 +1130,34 @@ void hardwareTask(void* pv) {
         }
         baseProx = (int)proxAvg;
 
-        if (proxAlert || magAlert) {
+        // ── ALERT STATE MACHINE: fire (max 5s) -&gt; cooldown (10s, quiet + rebaseline) ──
+        // Raw trigger this cycle (may be gated below). Held off until the boot
+        // baseline is captured so startup noise never fires an alert.
+        bool triggered = bootBaselineDone &amp;&amp; (proxAlert || magAlert);
+        uint32_t nowMs = millis();
+
+        if (alertPhase == 2) {
+            // COOLDOWN: stay completely silent (no buzzer, no alert LEDs, no events).
+            // When the window ends, RE-BASELINE to the current ambient so the node is
+            // freshly zeroed to wherever it now sits, then re-arm.
+            noTone(BUZZER_PIN);
+            ledIdle();
+            if (nowMs - alertPhaseStart &gt;= COOLDOWN_MS) {
+                recalibrate = true;    // snap a clean baseline to current ambient
+                alertPhase = 0;
+                alertPhaseStart = 0;
+            }
+        } else if (alertPhase == 1) {
+            // ALERTING: run the real beep + flash + event, but only up to ALERT_MAX_MS.
+            // End early if the field drops back below threshold. Either way -&gt; cooldown.
+            bool expired = (nowMs - alertPhaseStart &gt;= ALERT_MAX_MS);
+            if (expired || !triggered) {
+                noTone(BUZZER_PIN);
+                ledIdle();
+                alertPhase = 2;
+                alertPhaseStart = nowMs;   // begin the quiet + rebaseline window
+            } else {
+
             const char* sev = &quot;low&quot;;
             if (proxDelta &gt; threshProx + 40 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
             else if (proxDelta &gt; threshProx + 18 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
@@ -1138,15 +1200,24 @@ void hardwareTask(void* pv) {
                     renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, millis());
                 }
             }
+            }
         } else {
-            ledIdle();   // no detection -&gt; ring returns to blank
+            // ARMED (idle): watch for a fresh trigger. Enter ALERTING on the SAME
+            // cycle so the beep/flash is instant (re-evaluated at the top next loop).
+            if (triggered) {
+                alertPhase = 1;
+                alertPhaseStart = nowMs;
+            }
+            ledIdle();   // no detection yet -&gt; ring blank (alert paints next cycle)
         }
 
         // THEREMIN OVERLAY: whenever theremin mode is on, the proximity field
         // drives a CONTINUOUS glow + pitch, even below the alert threshold, so the
         // node plays like a theremin. This runs after the event logic above, so a
         // hard alert still fires its snapshot/event while the visuals stay smooth.
-        if (proxTheremin) {
+        // Suppressed during the boot-baseline settle AND the post-alert cooldown so
+        // those windows stay truly silent/dark.
+        if (proxTheremin &amp;&amp; bootBaselineDone &amp;&amp; alertPhase == 0) {
             float fld = proxField / 100.0f;                 // 0..1
             if (fld &gt; 0.02f) {
                 // Ring brightness tracks the field; use the prox color.
