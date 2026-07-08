@@ -1,5 +1,5 @@
 /* ============================================================
-   SPECTER — PARANORMAL IMAGING SYSTEM
+   SPECTER - PARANORMAL IMAGING SYSTEM
    Marketing Site Stylesheet
    ============================================================ */
 
@@ -783,7 +783,7 @@ a { color: var(--cyan); text-decoration: none; }
 .pitch-body { font-size: 1.05rem; color: #8a9bb0; line-height: 1.85; margin-bottom: 1.4rem; }
 .pitch-body.highlight { color: #c8d4e0; font-size: 1.1rem; border-left: 3px solid #00e5ff; padding-left: 1.2rem; }
 
-/* The reveal/turn block — softer, warmer accent so it reads as a confession,
+/* The reveal/turn block - softer, warmer accent so it reads as a confession,
    not an attack. Separated from the explainer above. */
 .pitch-turn {
   margin-top: 3rem;
