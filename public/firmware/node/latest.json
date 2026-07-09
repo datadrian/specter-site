@@ -4,7 +4,7 @@
   "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.0.0.bin",
   "sha256": "c488fbfd7b93a47f4b091e07ac1145d6f456d23216c60055e6b779900b029f2a",
   "size": 1105024,
-  "notes": "Automated build from 0bb57b6",
-  "built": "2026-07-05T00:01:06Z",
-  "commit": "0bb57b6104dc9e3a46016bf3fe6c61c5f0cbdd8f"
+  "notes": "Automated build from fd9f5fb",
+  "built": "2026-07-09T00:01:46Z",
+  "commit": "fd9f5fb3964308b34adc07cc7bccbf30efe9b347"
 }
