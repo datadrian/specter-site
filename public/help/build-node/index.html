@@ -290,12 +290,14 @@
       <div class="bn-step"><span class="num">3</span><div><strong>FastLED</strong> by Daniel Garcia</div></div>
       <div class="bn-step"><span class="num">4</span><div><strong>Adafruit NeoPixel</strong> by Adafruit &ndash; needed for RGBW (SK6812) LED strips</div></div>
       <p style="margin-top:14px;">You also need the ESP32 board package (<em>Boards Manager &rarr; "esp32" by Espressif</em>). Then select <strong>ESP32 Dev Module</strong> as your board.</p>
+      <p style="margin-top:14px;"><strong>Important - set the partition scheme so wireless updates work.</strong> With the ESP32 Dev Module selected, open <em>Tools &rarr; Partition Scheme</em> and choose <strong>"Minimal SPIFFS (1.9MB APP with OTA / 190KB SPIFFS)"</strong> (also shown as "Minimal SPIFFS (Large APPS with OTA)"). This gives the node two app slots so it can flash a new version over Wi-Fi from the Settings page. If you leave the default scheme, the node will still run, but wireless firmware updates will fail with a space error and you will have to re-flash over USB each time.</p>
+      <p style="margin-top:10px;color:var(--text-dim);">Already flashed with the default scheme and updates will not install? Just set the partition scheme above and re-upload once over USB. From then on, updates install wirelessly.</p>
       <p style="color:var(--text-dim);max-width:720px;margin:8px 0 0;">This firmware builds on both the 2.x and 3.x ESP32 board packages, and on a plain ESP32 board. If you are building for an ESP32-S2, S3 or C3, use the latest board package.</p>
       <h3>2 · Paste &amp; upload this firmware</h3>
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.8.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.8.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -309,8 +311,8 @@
   Link:     Wi-Fi. The pod is a WebSocket CLIENT; the SPECTER app is the SERVER.
 
   Architecture (dual-core FreeRTOS):
-    Core 1  hardwareTask  — 100 Hz sensor read + threshold/severity + LED/buzzer
-    Core 0  loop()        — UDP discovery, WS client to app, local AP + portal,
+    Core 1  hardwareTask  -- 100 Hz sensor read + threshold/severity + LED/buzzer
+    Core 0  loop()        -- UDP discovery, WS client to app, local AP + portal,
                             10 Hz telemetry / 1 Hz net diagnostics / event frames
 
   Discovery: the app broadcasts a UDP beacon on :47845; the node connects to the
@@ -329,13 +331,13 @@
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
 #include &quot;driver/pcnt.h&quot;   // hardware pulse counter for LC-oscillator prox
-#include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) — FastLED does NOT support RGBW
+#include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) -- FastLED does NOT support RGBW
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
 #include &lt;math.h&gt;
 // ---- embedded portal pages (index + settings) ----
-// portal_pages.h — SPECTER maker-node portal, embedded so there is NO separate
+// portal_pages.h -- SPECTER maker-node portal, embedded so there is NO separate
 // LittleFS/data upload. One .ino, one Upload button. Served from PROGMEM.
 //   PAGE_INDEX    -&gt; &quot;/&quot;          live telemetry + 3D field-vector graph
 //   PAGE_SETTINGS -&gt; &quot;/settings&quot;  Wi-Fi, calibrate, thresholds, firmware info
@@ -513,7 +515,7 @@ $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(
    $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;);
    if(d.rebootNeeded){
     $(&#x27;led-status&#x27;).className=&#x27;status&#x27;;
-    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind — rebooting the node now...&#x27;;
+    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind -- rebooting the node now...&#x27;;
     fetch(&#x27;/reboot&#x27;,{method:&#x27;POST&#x27;}).catch(function(){});
     var n=8;var iv=setInterval(function(){n--;$(&#x27;led-status&#x27;).textContent=&#x27;Rebooting to bind &#x27;+($(&#x27;led-chip&#x27;).value)+&#x27;... reconnecting in &#x27;+n+&#x27;s&#x27;;if(n&lt;=0){clearInterval(iv);location.reload();}},1000);
    }
@@ -535,10 +537,10 @@ if($(&#x27;boot-test&#x27;)){$(&#x27;boot-test&#x27;).onclick=function(){bootSav
 // ---- firmware update ----
 function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;
  if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error;return}
- if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; — &#x27;+d.notes:&#x27;&#x27;)}
- else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;—&#x27;)+&#x27;).&#x27;}}
+ if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; -- &#x27;+d.notes:&#x27;&#x27;)}
+ else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;--&#x27;)+&#x27;).&#x27;}}
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
-$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing — do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; — node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
+$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
 syncThr();wifiStatus();connect();
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
@@ -550,7 +552,7 @@ syncThr();wifiStatus();connect();
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
 // ---- pins ----
-#define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) — capacitive telescopic antenna
+#define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) -- capacitive telescopic antenna
 // Runtime-selectable touch pin (portal). Touch-capable &amp; free on classic ESP32:
 //   4(T0) 2(T2) 15(T3) 14(T6) 27(T7) 33(T8) 32(T9). Avoid 13(LED)/12(buzzer).
 volatile int touchPin = TOUCH_PIN_DEFAULT;
@@ -563,7 +565,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 // feeds a square wave into OSC_PIN. We count its frequency with the ESP32 hardware
 // pulse counter (PCNT). A hand near the antenna raises capacitance -&gt; LOWERS the
 // frequency; that Hz drop is the field. Range ~30-80cm vs ~15cm for touchRead.
-#define OSC_PIN        14      // GPIO14 — 74HC14 oscillator output in
+#define OSC_PIN        14      // GPIO14 -- 74HC14 oscillator output in
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -576,7 +578,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define NUM_LEDS      16
 #define LED_BRIGHT    100
 
-// Positional map — which LED index points which way (-1 = unset).
+// Positional map -- which LED index points which way (-1 = unset).
 // Face the antenna FORWARD; SPECTER lights the side toward a source.
 #define LED_FRONT     0
 #define LED_RIGHT     4
@@ -667,7 +669,7 @@ void performUpdate(const String&amp; url) {
 // ---- hardware globals ----
 #define LED_MAX 60            // max pixels the physical buffer supports
 CRGB leds[LED_MAX];           // logical RGB the animations write into (index 0..count-1)
-CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap) — RGB strips
+CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap) -- RGB strips
 // RGBW support: SK6812-RGBW strips take 4 bytes/pixel (R,G,B,W). FastLED 3.6 only
 // pushes 3, which misaligns the stream (symptom: RED shows as alternating colors).
 // For RGBW we drive a raw 4-bytes/pixel span as (LED_MAX*4/3 +1) RGB &quot;pixels&quot; and
@@ -716,7 +718,7 @@ volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this
 // brightness and (optionally) a continuously-pitched buzzer tone. The REM-pod
 // event/alert path still fires when the field crosses threshProx, so snapshots
 // and the app dashboard keep working.
-volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) — DEFAULT ON
+volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
 volatile int     proxSpan     = 220;     // proxDelta that maps to full field (100). Auto-nudges up.
 volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
 volatile int     proxPeakSeen = 0;       // largest proxDelta seen since last refit (for smart REFIT)
@@ -732,12 +734,12 @@ volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
 volatile bool     oscReady   = false; // PCNT unit configured + baseline captured
 volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
-volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) — computed from magSens
+volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) -- computed from magSens
 volatile int     magSens    = 70;     // 0..100 sensitivity slider (100 = most sensitive)
 // ---- Walkie-talkie / RF interference cancel (on-device) ----
 // A keyed two-way radio induces a repeatable spike on the antenna + mag. We let the
 // operator CAPTURE that signature (peak magDelta + proxDelta), persist it, then
-// suppress any event whose peaks fall within tolerance of the captured signature —
+// suppress any event whose peaks fall within tolerance of the captured signature --
 // so the node stays quiet (no buzzer/LED) when someone keys a radio nearby.
 volatile bool    rfActive   = false;   // suppression on/off
 volatile int     rfMagPeak  = 0;       // captured mag signature (LSB delta)
@@ -778,7 +780,7 @@ uint8_t magType = 0;               // 0 none, 1 = 5883L, 2 = 5883P
 //   0x0B SET/RESET period -&gt; 0x01 (recommended, required for correct operation)
 //   0x0A control 2        -&gt; 0x80 soft reset, then 0x00 (no interrupts; DRDY pin unused)
 //   0x09 control 1        -&gt; mode=continuous, ODR=200Hz, RNG=8G, OSR=512 = 0x1D
-// NOTE: DRDY is NOT wired — we poll the data registers over I2C, so only
+// NOTE: DRDY is NOT wired -- we poll the data registers over I2C, so only
 // VCC / GND / SDA / SCL are needed. The extra DRDY pad on the breakout is optional.
 // Bring up the magnetometer. Two very different chips ship on GY-271/GY-273 boards:
 //  - QMC5883L  @ 0x0D  (chip-id register 0x0D reads 0xFF)
@@ -801,7 +803,7 @@ void initSensors() {
     // counted per read = larger, more sensitive values. Default is ~0x1000; we push it up.
     // NOTE: touchSetCycles() only exists on the ORIGINAL ESP32 (not S2/S3/C3) AND
     // only on the classic v2.x Arduino-ESP32 core. The v3.x core dropped this global,
-    // and the newer chips use a different touch peripheral — calling it there fails to
+    // and the newer chips use a different touch peripheral -- calling it there fails to
     // compile (&quot;not declared in this scope&quot;). Guard on chip + core version; it&#x27;s just
     // a sensitivity tweak, so a no-op elsewhere is fine (touchRead still works).
 #if defined(CONFIG_IDF_TARGET_ESP32) &amp;&amp; (!defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION &lt; ESP_ARDUINO_VERSION_VAL(3,0,0))
@@ -921,7 +923,7 @@ void playBootAnimation() {
     }
     tone(BUZZER_PIN, 1400, 60);
 
-    // 3) fade to dark — idle until first detection
+    // 3) fade to dark -- idle until first detection
     for (int f = 255; f &gt;= 0; f -= 15) {
         FastLED.setBrightness(scale8(ledCfg.bright, f));
         ledShow();
@@ -938,7 +940,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
     int n = constrain(ledCfg.count, 1, LED_MAX);
     CRGB c = hex2crgb(colorHex);
     switch (anim) {
-        case 1: { // pulse — whole ring breathes
+        case 1: { // pulse -- whole ring breathes
             uint8_t b = scale8(sin8(nowMs / 4), 200) + 55;
             b = scale8(b, sevScale);
             fill_solid(leds, LED_MAX, CRGB::Black);
@@ -946,7 +948,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
             fadeToBlackBy(leds, LED_MAX, 255 - b);
             break;
         }
-        case 2: { // spin — a comet chases around the ring
+        case 2: { // spin -- a comet chases around the ring
             fill_solid(leds, LED_MAX, CRGB::Black);
             int head = (nowMs / 45) % n;
             for (int t = 0; t &lt; 5; t++) {
@@ -956,7 +958,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
             }
             break;
         }
-        case 3: { // blink — hard on/off
+        case 3: { // blink -- hard on/off
             bool on = (nowMs / 120) &amp; 1;
             fill_solid(leds, LED_MAX, on ? c : CRGB::Black);
             break;
@@ -1096,7 +1098,7 @@ void hardwareTask(void* pv) {
     ledCfg.bootEnable = prefs.getInt(&quot;ledBoot&quot;,   ledCfg.bootEnable);
     prefs.end();
     // Bind the FastLED driver to the chipset the operator picked in the portal.
-    // FastLED templates the chipset at compile time, so we can&#x27;t pass a string —
+    // FastLED templates the chipset at compile time, so we can&#x27;t pass a string --
     // instead we branch across the supported types and add the matching driver.
     // COLOR ORDER stays RGB here; we remap to the configured order in software (ledShow).
     {
@@ -1104,7 +1106,7 @@ void hardwareTask(void* pv) {
         ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812RGB&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
         Serial.printf(&quot;[LED] bind chipset=&#x27;%s&#x27; rgbw=%d\n&quot;, cs.c_str(), ledIsRGBW ? 1 : 0);
         if (ledIsRGBW) {
-            // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
+            // RGBW (SK6812) is driven by Adafruit NeoPixel -- FastLED can&#x27;t do RGBW.
             rebindRgbw();   // builds the strip using the current ledCfg.order flag
         }
         else if (cs == &quot;SK6812&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
@@ -1148,7 +1150,7 @@ void hardwareTask(void* pv) {
                     uint32_t e = millis() - t0;
                     if (req == 2) {
                         // MAG preview: hold a STEADY lobe pointing FRONT (heading 0). This is
-                        // the alignment target for the ROTATE button — magRot spins this lobe
+                        // the alignment target for the ROTATE button -- magRot spins this lobe
                         // in 45-deg steps so the operator can line the lit side up with the
                         // physical antenna. (Solid look; themed anims just play the theme.)
                         if (ledCfg.magAnim == 0) {
@@ -1263,10 +1265,10 @@ void hardwareTask(void* pv) {
             threshMag = (int)(12.0f + t * t * 900.0f);
         }
 
-        // Proximity as ABSOLUTE deviation from a rolling baseline — true REM-pod behavior.
+        // Proximity as ABSOLUTE deviation from a rolling baseline -- true REM-pod behavior.
         // A hand nearing the antenna changes its capacitance, moving touchRead() away from
         // baseline in EITHER direction (rises or falls depending on core/board). We react to
-        // the magnitude of the change, so approach — not just contact — triggers.
+        // the magnitude of the change, so approach -- not just contact -- triggers.
         int proxDelta = abs(baseProx - proxVal);
         bool proxAlert = (proxDelta &gt; threshProx);
         bool magAlert  = (magDelta &gt; threshMag);
@@ -1583,7 +1585,7 @@ void setupNetwork() {
     if (targetSSID != &quot;&quot;) {
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
-        // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up —
+        // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up --
         // the background retry in the network loop + auto-reconnect keep working on it.
     }
     if (WiFi.status() == WL_CONNECTED) {
@@ -1654,9 +1656,9 @@ void setupNetwork() {
         if (WiFi.status() == WL_CONNECTED) {
             d[&quot;ok&quot;] = true; d[&quot;ip&quot;] = WiFi.localIP().toString();
         } else {
-            // Saved anyway — the boot loader + background retry will keep trying.
+            // Saved anyway -- the boot loader + background retry will keep trying.
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
-            d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) — it will keep retrying&quot;;
+            d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
         }
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
@@ -1671,7 +1673,7 @@ void setupNetwork() {
         m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
         m[&quot;rot&quot;]  = ledCfg.magRot;
         d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = LED_MAX;
-        // per-event theming (live) — colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
+        // per-event theming (live) -- colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
         char hx[8];
         JsonObject ev = d[&quot;events&quot;].to&lt;JsonObject&gt;();
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColor);  ev[&quot;magColor&quot;]=hx;  ev[&quot;magAnim&quot;]=ledCfg.magAnim;
@@ -1870,7 +1872,7 @@ void loop() {
     }
     // Wi-Fi reconnect watchdog: if we have saved creds but aren&#x27;t on the network
     // (e.g. rebooted while the router was still coming up after a power blip),
-    // re-issue begin() every ~15s so the node rejoins on its own — no manual reboot.
+    // re-issue begin() every ~15s so the node rejoins on its own -- no manual reboot.
     static uint32_t lastWifiTry = 0;
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
         &amp;&amp; now - lastWifiTry &gt;= 15000) {
