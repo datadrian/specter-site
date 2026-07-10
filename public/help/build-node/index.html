@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.8.0-maker
+  SPECTER NODE — MAKER EDITION  ·  ESP32  ·  firmware v2.9.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -311,8 +311,8 @@
   Link:     Wi-Fi. The pod is a WebSocket CLIENT; the SPECTER app is the SERVER.
 
   Architecture (dual-core FreeRTOS):
-    Core 1  hardwareTask  -- 100 Hz sensor read + threshold/severity + LED/buzzer
-    Core 0  loop()        -- UDP discovery, WS client to app, local AP + portal,
+    Core 1  hardwareTask  — 100 Hz sensor read + threshold/severity + LED/buzzer
+    Core 0  loop()        — UDP discovery, WS client to app, local AP + portal,
                             10 Hz telemetry / 1 Hz net diagnostics / event frames
 
   Discovery: the app broadcasts a UDP beacon on :47845; the node connects to the
@@ -331,13 +331,13 @@
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
 #include &quot;driver/pcnt.h&quot;   // hardware pulse counter for LC-oscillator prox
-#include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) -- FastLED does NOT support RGBW
+#include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) — FastLED does NOT support RGBW
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
 #include &lt;math.h&gt;
 // ---- embedded portal pages (index + settings) ----
-// portal_pages.h -- SPECTER maker-node portal, embedded so there is NO separate
+// portal_pages.h — SPECTER maker-node portal, embedded so there is NO separate
 // LittleFS/data upload. One .ino, one Upload button. Served from PROGMEM.
 //   PAGE_INDEX    -&gt; &quot;/&quot;          live telemetry + 3D field-vector graph
 //   PAGE_SETTINGS -&gt; &quot;/settings&quot;  Wi-Fi, calibrate, thresholds, firmware info
@@ -515,7 +515,7 @@ $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(
    $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;);
    if(d.rebootNeeded){
     $(&#x27;led-status&#x27;).className=&#x27;status&#x27;;
-    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind -- rebooting the node now...&#x27;;
+    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind — rebooting the node now...&#x27;;
     fetch(&#x27;/reboot&#x27;,{method:&#x27;POST&#x27;}).catch(function(){});
     var n=8;var iv=setInterval(function(){n--;$(&#x27;led-status&#x27;).textContent=&#x27;Rebooting to bind &#x27;+($(&#x27;led-chip&#x27;).value)+&#x27;... reconnecting in &#x27;+n+&#x27;s&#x27;;if(n&lt;=0){clearInterval(iv);location.reload();}},1000);
    }
@@ -537,22 +537,22 @@ if($(&#x27;boot-test&#x27;)){$(&#x27;boot-test&#x27;).onclick=function(){bootSav
 // ---- firmware update ----
 function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;
  if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error;return}
- if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; -- &#x27;+d.notes:&#x27;&#x27;)}
- else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;--&#x27;)+&#x27;).&#x27;}}
+ if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; — &#x27;+d.notes:&#x27;&#x27;)}
+ else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;—&#x27;)+&#x27;).&#x27;}}
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
-$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
+$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing — do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; — node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
 syncThr();wifiStatus();connect();
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.8.0-maker&quot;
+#define FW_VERSION   &quot;2.9.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
 // ---- pins ----
-#define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) -- capacitive telescopic antenna
+#define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) — capacitive telescopic antenna
 // Runtime-selectable touch pin (portal). Touch-capable &amp; free on classic ESP32:
 //   4(T0) 2(T2) 15(T3) 14(T6) 27(T7) 33(T8) 32(T9). Avoid 13(LED)/12(buzzer).
 volatile int touchPin = TOUCH_PIN_DEFAULT;
@@ -565,7 +565,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 // feeds a square wave into OSC_PIN. We count its frequency with the ESP32 hardware
 // pulse counter (PCNT). A hand near the antenna raises capacitance -&gt; LOWERS the
 // frequency; that Hz drop is the field. Range ~30-80cm vs ~15cm for touchRead.
-#define OSC_PIN        14      // GPIO14 -- 74HC14 oscillator output in
+#define OSC_PIN        14      // GPIO14 — 74HC14 oscillator output in
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -578,7 +578,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define NUM_LEDS      16
 #define LED_BRIGHT    100
 
-// Positional map -- which LED index points which way (-1 = unset).
+// Positional map — which LED index points which way (-1 = unset).
 // Face the antenna FORWARD; SPECTER lights the side toward a source.
 #define LED_FRONT     0
 #define LED_RIGHT     4
@@ -669,7 +669,7 @@ void performUpdate(const String&amp; url) {
 // ---- hardware globals ----
 #define LED_MAX 60            // max pixels the physical buffer supports
 CRGB leds[LED_MAX];           // logical RGB the animations write into (index 0..count-1)
-CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap) -- RGB strips
+CRGB phys[LED_MAX];           // physical buffer FastLED drives (after color-order remap) — RGB strips
 // RGBW support: SK6812-RGBW strips take 4 bytes/pixel (R,G,B,W). FastLED 3.6 only
 // pushes 3, which misaligns the stream (symptom: RED shows as alternating colors).
 // For RGBW we drive a raw 4-bytes/pixel span as (LED_MAX*4/3 +1) RGB &quot;pixels&quot; and
@@ -718,7 +718,7 @@ volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this
 // brightness and (optionally) a continuously-pitched buzzer tone. The REM-pod
 // event/alert path still fires when the field crosses threshProx, so snapshots
 // and the app dashboard keep working.
-volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
+volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) — DEFAULT ON
 volatile int     proxSpan     = 220;     // proxDelta that maps to full field (100). Auto-nudges up.
 volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
 volatile int     proxPeakSeen = 0;       // largest proxDelta seen since last refit (for smart REFIT)
@@ -734,32 +734,37 @@ volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
 volatile bool     oscReady   = false; // PCNT unit configured + baseline captured
 volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
-volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) -- computed from magSens
+volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
+volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) — used after prox cooldown
+volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) — computed from magSens
 volatile int     magSens    = 70;     // 0..100 sensitivity slider (100 = most sensitive)
 // ---- Walkie-talkie / RF interference cancel (on-device) ----
 // A keyed two-way radio induces a repeatable spike on the antenna + mag. We let the
 // operator CAPTURE that signature (peak magDelta + proxDelta), persist it, then
-// suppress any event whose peaks fall within tolerance of the captured signature --
+// suppress any event whose peaks fall within tolerance of the captured signature —
 // so the node stays quiet (no buzzer/LED) when someone keys a radio nearby.
 volatile bool    rfActive   = false;   // suppression on/off
 volatile int     rfMagPeak  = 0;       // captured mag signature (LSB delta)
 volatile int     rfProxPeak = 0;       // captured prox signature (delta)
 
-// ── Field alert cadence + auto-baseline (v2.8.0) ────────────────────────────
-// Field-friendly behavior so the operator never has to hand-tune per location:
+// ── Field alert cadence + auto-baseline (v2.9.0) ────────────────────────────
+// Field-friendly behavior so the operator never has to hand-tune per location.
+// MAG and PROX are DECOUPLED:
 //   BOOT BASELINE   after power-on we wait BASELINE_SETTLE_MS for the sensors to
 //                   stabilize, then snap a clean ambient baseline. No alerts fire
 //                   during this window.
-//   ALERT (max 5s)  when a real hit crosses threshold the node beeps + flashes,
-//                   but for AT MOST ALERT_MAX_MS so it can&#x27;t latch on forever.
-//   COOLDOWN (10s)  after an alert ends it goes silent for COOLDOWN_MS (no buzzer,
-//                   no LED alert, no new events) and RE-BASELINES to the current
-//                   ambient. This stops the runaway beeping AND re-zeros the node
-//                   to wherever it now sits (new room, moved, permanent field
-//                   shift) so the next alert is a genuine new event.
+//   MAG (always on) the magnetometer ALWAYS detects and drives the LEDs whenever
+//                   a disturbance is present. It has NO cooldown and is never
+//                   silenced by the prox cadence — mag hits always show on the ring.
+//   PROX ALERT/COOLDOWN  the proximity channel keeps the runaway-guard cadence:
+//                   on a prox trigger it beeps + fades the ring for up to
+//                   ALERT_MAX_MS, then goes quiet for COOLDOWN_MS (no prox beep,
+//                   no prox LEDs, no prox events) and re-baselines PROX ONLY to the
+//                   current ambient. The mag baseline is left untouched. This stops
+//                   the constant prox beeping while keeping mag detection fully live.
 #define BASELINE_SETTLE_MS   1500    // post-boot settle before first baseline
 #define ALERT_MAX_MS         5000    // max continuous alert (beep+flash) duration
-#define COOLDOWN_MS          10000   // enforced quiet + re-baseline window after an alert
+#define COOLDOWN_MS          6000    // enforced PROX quiet + re-baseline window after a prox alert
 // Alert lifecycle: 0 = idle/armed, 1 = alerting, 2 = cooling down (quiet).
 volatile int      alertPhase       = 0;
 volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
@@ -780,7 +785,7 @@ uint8_t magType = 0;               // 0 none, 1 = 5883L, 2 = 5883P
 //   0x0B SET/RESET period -&gt; 0x01 (recommended, required for correct operation)
 //   0x0A control 2        -&gt; 0x80 soft reset, then 0x00 (no interrupts; DRDY pin unused)
 //   0x09 control 1        -&gt; mode=continuous, ODR=200Hz, RNG=8G, OSR=512 = 0x1D
-// NOTE: DRDY is NOT wired -- we poll the data registers over I2C, so only
+// NOTE: DRDY is NOT wired — we poll the data registers over I2C, so only
 // VCC / GND / SDA / SCL are needed. The extra DRDY pad on the breakout is optional.
 // Bring up the magnetometer. Two very different chips ship on GY-271/GY-273 boards:
 //  - QMC5883L  @ 0x0D  (chip-id register 0x0D reads 0xFF)
@@ -803,7 +808,7 @@ void initSensors() {
     // counted per read = larger, more sensitive values. Default is ~0x1000; we push it up.
     // NOTE: touchSetCycles() only exists on the ORIGINAL ESP32 (not S2/S3/C3) AND
     // only on the classic v2.x Arduino-ESP32 core. The v3.x core dropped this global,
-    // and the newer chips use a different touch peripheral -- calling it there fails to
+    // and the newer chips use a different touch peripheral — calling it there fails to
     // compile (&quot;not declared in this scope&quot;). Guard on chip + core version; it&#x27;s just
     // a sensitivity tweak, so a no-op elsewhere is fine (touchRead still works).
 #if defined(CONFIG_IDF_TARGET_ESP32) &amp;&amp; (!defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION &lt; ESP_ARDUINO_VERSION_VAL(3,0,0))
@@ -923,7 +928,7 @@ void playBootAnimation() {
     }
     tone(BUZZER_PIN, 1400, 60);
 
-    // 3) fade to dark -- idle until first detection
+    // 3) fade to dark — idle until first detection
     for (int f = 255; f &gt;= 0; f -= 15) {
         FastLED.setBrightness(scale8(ledCfg.bright, f));
         ledShow();
@@ -940,7 +945,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
     int n = constrain(ledCfg.count, 1, LED_MAX);
     CRGB c = hex2crgb(colorHex);
     switch (anim) {
-        case 1: { // pulse -- whole ring breathes
+        case 1: { // pulse — whole ring breathes
             uint8_t b = scale8(sin8(nowMs / 4), 200) + 55;
             b = scale8(b, sevScale);
             fill_solid(leds, LED_MAX, CRGB::Black);
@@ -948,7 +953,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
             fadeToBlackBy(leds, LED_MAX, 255 - b);
             break;
         }
-        case 2: { // spin -- a comet chases around the ring
+        case 2: { // spin — a comet chases around the ring
             fill_solid(leds, LED_MAX, CRGB::Black);
             int head = (nowMs / 45) % n;
             for (int t = 0; t &lt; 5; t++) {
@@ -958,7 +963,7 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
             }
             break;
         }
-        case 3: { // blink -- hard on/off
+        case 3: { // blink — hard on/off
             bool on = (nowMs / 120) &amp; 1;
             fill_solid(leds, LED_MAX, on ? c : CRGB::Black);
             break;
@@ -1098,7 +1103,7 @@ void hardwareTask(void* pv) {
     ledCfg.bootEnable = prefs.getInt(&quot;ledBoot&quot;,   ledCfg.bootEnable);
     prefs.end();
     // Bind the FastLED driver to the chipset the operator picked in the portal.
-    // FastLED templates the chipset at compile time, so we can&#x27;t pass a string --
+    // FastLED templates the chipset at compile time, so we can&#x27;t pass a string —
     // instead we branch across the supported types and add the matching driver.
     // COLOR ORDER stays RGB here; we remap to the configured order in software (ledShow).
     {
@@ -1106,7 +1111,7 @@ void hardwareTask(void* pv) {
         ledIsRGBW = (cs == &quot;SK6812RGBW&quot; || cs == &quot;SK6812RGB&quot; || cs == &quot;SK6812W&quot; || cs == &quot;RGBW&quot;);
         Serial.printf(&quot;[LED] bind chipset=&#x27;%s&#x27; rgbw=%d\n&quot;, cs.c_str(), ledIsRGBW ? 1 : 0);
         if (ledIsRGBW) {
-            // RGBW (SK6812) is driven by Adafruit NeoPixel -- FastLED can&#x27;t do RGBW.
+            // RGBW (SK6812) is driven by Adafruit NeoPixel — FastLED can&#x27;t do RGBW.
             rebindRgbw();   // builds the strip using the current ledCfg.order flag
         }
         else if (cs == &quot;SK6812&quot;) FastLED.addLeds&lt;SK6812,  LED_DATA_PIN, RGB&gt;(phys, LED_MAX);
@@ -1150,7 +1155,7 @@ void hardwareTask(void* pv) {
                     uint32_t e = millis() - t0;
                     if (req == 2) {
                         // MAG preview: hold a STEADY lobe pointing FRONT (heading 0). This is
-                        // the alignment target for the ROTATE button -- magRot spins this lobe
+                        // the alignment target for the ROTATE button — magRot spins this lobe
                         // in 45-deg steps so the operator can line the lit side up with the
                         // physical antenna. (Solid look; themed anims just play the theme.)
                         if (ledCfg.magAnim == 0) {
@@ -1213,6 +1218,12 @@ void hardwareTask(void* pv) {
             baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
             recalibrate = false;
         }
+        // PROX-ONLY re-zero (after a prox cooldown): snap prox baseline to current
+        // ambient without disturbing the magnetometer baseline, so mag stays live.
+        if (proxRecalibrate) {
+            baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
+            proxRecalibrate = false;
+        }
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
         // a touch is active so the baseline doesn&#x27;t creep toward the touched value.
         int dX = magX - baseMagX, dY = magY - baseMagY, dZ = magZ - baseMagZ;
@@ -1265,10 +1276,10 @@ void hardwareTask(void* pv) {
             threshMag = (int)(12.0f + t * t * 900.0f);
         }
 
-        // Proximity as ABSOLUTE deviation from a rolling baseline -- true REM-pod behavior.
+        // Proximity as ABSOLUTE deviation from a rolling baseline — true REM-pod behavior.
         // A hand nearing the antenna changes its capacitance, moving touchRead() away from
         // baseline in EITHER direction (rises or falls depending on core/board). We react to
-        // the magnitude of the change, so approach -- not just contact -- triggers.
+        // the magnitude of the change, so approach — not just contact — triggers.
         int proxDelta = abs(baseProx - proxVal);
         bool proxAlert = (proxDelta &gt; threshProx);
         bool magAlert  = (magDelta &gt; threshMag);
@@ -1344,105 +1355,119 @@ void hardwareTask(void* pv) {
         // ── ALERT STATE MACHINE: fire (max 5s) -&gt; cooldown (10s, quiet + rebaseline) ──
         // Raw trigger this cycle (may be gated below). Held off until the boot
         // baseline is captured so startup noise never fires an alert.
-        bool triggered = bootBaselineDone &amp;&amp; (proxAlert || magAlert);
+        // ============================================================
+        // DECOUPLED DETECTION: mag and prox are handled INDEPENDENTLY.
+        //   MAG  = always live. Whenever a mag disturbance is present it
+        //          detects + drives the LEDs directionally + fires events,
+        //          with NO cooldown. The mag channel never goes silent-dark
+        //          just because prox recently alerted.
+        //   PROX = keeps the alert -&gt; cooldown cadence (the thing that was
+        //          beeping constantly). alertPhase now governs PROX ONLY:
+        //          alert for up to ALERT_MAX_MS, then COOLDOWN_MS of quiet
+        //          (no prox beep/flash, no prox events), then re-baseline.
+        // LED priority: an active MAG hit always paints; otherwise an active
+        // PROX alert paints; otherwise theremin/idle below.
+        // ============================================================
         uint32_t nowMs = millis();
+        bool magLive  = bootBaselineDone &amp;&amp; magAlert;   // mag detects always
+        bool proxLive = bootBaselineDone &amp;&amp; proxAlert;  // prox gated by cadence below
 
+        // ---------- PROX cadence state machine (prox only) ----------
+        bool proxPainting = false;   // did the prox cadence paint the ring this cycle?
         if (alertPhase == 2) {
-            // COOLDOWN: stay completely silent (no buzzer, no alert LEDs, no events).
-            // When the window ends, RE-BASELINE to the current ambient so the node is
-            // freshly zeroed to wherever it now sits, then re-arm.
-            noTone(BUZZER_PIN);
-            ledIdle();
+            // PROX COOLDOWN: prox stays quiet (no prox beep, no prox event, no
+            // prox LEDs). Mag is unaffected and handled separately below.
             if (nowMs - alertPhaseStart &gt;= COOLDOWN_MS) {
-                recalibrate = true;    // snap a clean baseline to current ambient
+                proxRecalibrate = true;    // re-zero prox baseline to current ambient
                 alertPhase = 0;
                 alertPhaseStart = 0;
             }
         } else if (alertPhase == 1) {
-            // ALERTING: run the real beep + flash + event, but only up to ALERT_MAX_MS.
-            // End early if the field drops back below threshold. Either way -&gt; cooldown.
+            // PROX ALERTING: beep + ring fade + event, up to ALERT_MAX_MS, then cooldown.
             bool expired = (nowMs - alertPhaseStart &gt;= ALERT_MAX_MS);
-            if (expired || !triggered) {
+            if (expired || !proxLive) {
                 noTone(BUZZER_PIN);
-                ledIdle();
                 alertPhase = 2;
-                alertPhaseStart = nowMs;   // begin the quiet + rebaseline window
+                alertPhaseStart = nowMs;
             } else {
-
-            const char* sev = &quot;low&quot;;
-            if (proxDelta &gt; threshProx + 40 || magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
-            else if (proxDelta &gt; threshProx + 18 || magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
-            const char* ch = magAlert ? &quot;mag&quot; : &quot;prox&quot;;
-            int val = magAlert ? magDelta : proxDelta;
-            int thr = magAlert ? threshMag : threshProx;
-            const char* kind = magAlert ? &quot;mag_anomaly&quot; : &quot;proximity&quot;;
-            if (!eventPending) {
-                strncpy(evtChannel, ch, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
-                strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
-                strncpy(evtKind, kind, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
-                evtValue = val; evtThreshold = thr; eventPending = true;
+                const char* sev = &quot;low&quot;;
+                if (proxDelta &gt; threshProx + 40) sev = &quot;high&quot;;
+                else if (proxDelta &gt; threshProx + 18) sev = &quot;med&quot;;
+                if (!eventPending) {
+                    strncpy(evtChannel, &quot;prox&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
+                    strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
+                    strncpy(evtKind, &quot;proximity&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
+                    evtValue = proxDelta; evtThreshold = threshProx; eventPending = true;
+                }
+                int pitch = constrain(map(proxDelta, threshProx, threshProx + 60, 400, 2000), 400, 2000);
+                tone(BUZZER_PIN, pitch, 40);
+                if (ledCfg.proxAnim == 0) {
+                    float approach = (float)(proxDelta - threshProx) / 40.0f;
+                    approach = 0.15f + approach * 1.15f;
+                    renderProxFade(ledCfg.proxColor, approach);
+                } else {
+                    uint8_t sevScale = 150;
+                    if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
+                    else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
+                    renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, nowMs);
+                }
+                proxPainting = true;
             }
-            int pitch = constrain(map(proxDelta, threshProx, threshProx + 60, 400, 2000), 400, 2000);
-            tone(BUZZER_PIN, pitch, 40);
-            // severity -&gt; intensity scale (low ~150, med ~205, high 255)
+        } else {
+            // PROX ARMED: a fresh prox trigger enters ALERTING on this same cycle.
+            if (proxLive) { alertPhase = 1; alertPhaseStart = nowMs; }
+        }
+
+        // ---------- MAG: ALWAYS-ON detection + LEDs (no cooldown) ----------
+        // Mag paints with priority over prox. It also fires its own events and an
+        // optional buzzer, independent of the prox cadence above.
+        bool magPainting = false;
+        if (magLive) {
+            const char* sev = &quot;low&quot;;
+            if (magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
+            else if (magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
+            // Fire a mag event (rate-limited by eventPending; prox event won&#x27;t clobber
+            // because mag runs after and only when no event is already queued).
+            if (!eventPending) {
+                strncpy(evtChannel, &quot;mag&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
+                strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
+                strncpy(evtKind, &quot;mag_anomaly&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
+                evtValue = magDelta; evtThreshold = threshMag; eventPending = true;
+            }
             uint8_t sevScale = 150;
             if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
             else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
-
-            if (magAlert) {
-                // MAG: if the user kept the default (solid) look, fade up the side
-                // nearest the source. If they chose spin/pulse/blink, honor it.
-                if (ledCfg.magAnim == 0) {
-                    // strength ramps from ~0.35 at threshold to 1.0 at 3x threshold
-                    float mstr = (float)(magDelta - threshMag) / (float)(threshMag * 2 + 1);
-                    mstr = 0.35f + mstr; if (mstr &gt; 1) mstr = 1; if (mstr &lt; 0.35f) mstr = 0.35f;
-                    renderMagDirectional(ledCfg.magColor, dX, dY, mstr);
-                } else {
-                    renderEventLeds(ledCfg.magColor, ledCfg.magAnim, sevScale, millis());
-                }
+            if (ledCfg.magAnim == 0) {
+                float mstr = (float)(magDelta - threshMag) / (float)(threshMag * 2 + 1);
+                mstr = 0.35f + mstr; if (mstr &gt; 1) mstr = 1; if (mstr &lt; 0.35f) mstr = 0.35f;
+                renderMagDirectional(ledCfg.magColor, dX, dY, mstr);
             } else {
-                // PROX: fade the ring UP toward 100% as the reading approaches/passes
-                // the trigger. approach 0 at the threshold edge, 1.0 when very close.
-                if (ledCfg.proxAnim == 0) {
-                    float approach = (float)(proxDelta - threshProx) / 40.0f;
-                    approach = 0.15f + approach * 1.15f;   // slight floor so a bare trigger still shows
-                    renderProxFade(ledCfg.proxColor, approach);
-                } else {
-                    renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, millis());
-                }
+                renderEventLeds(ledCfg.magColor, ledCfg.magAnim, sevScale, nowMs);
             }
-            }
-        } else {
-            // ARMED (idle): watch for a fresh trigger. Enter ALERTING on the SAME
-            // cycle so the beep/flash is instant (re-evaluated at the top next loop).
-            if (triggered) {
-                alertPhase = 1;
-                alertPhaseStart = nowMs;
-            }
-            ledIdle();   // no detection yet -&gt; ring blank (alert paints next cycle)
+            // Optional mag buzzer: only chirp if the user hasn&#x27;t muted mag tone.
+            if (magToneOn) { tone(BUZZER_PIN, 1600, 30); }
+            magPainting = true;
         }
 
-        // THEREMIN OVERLAY: whenever theremin mode is on, the proximity field
-        // drives a CONTINUOUS glow + pitch, even below the alert threshold, so the
-        // node plays like a theremin. This runs after the event logic above, so a
-        // hard alert still fires its snapshot/event while the visuals stay smooth.
-        // Suppressed during the boot-baseline settle AND the post-alert cooldown so
-        // those windows stay truly silent/dark.
-        if (proxTheremin &amp;&amp; bootBaselineDone &amp;&amp; alertPhase == 0) {
+        // THEREMIN OVERLAY: continuous prox glow + pitch below the alert threshold,
+        // so the node plays like a theremin. Runs only when NOTHING above painted
+        // (no mag hit, no prox alert) and prox isn&#x27;t in its cooldown window.
+        if (proxTheremin &amp;&amp; bootBaselineDone &amp;&amp; !magPainting &amp;&amp; !proxPainting &amp;&amp; alertPhase == 0) {
             float fld = proxField / 100.0f;                 // 0..1
             if (fld &gt; 0.02f) {
-                // Ring brightness tracks the field; use the prox color.
                 renderProxFade(ledCfg.proxColor, 0.08f + fld * 1.05f);
-                // Continuous pitch: map field 0..100 -&gt; ~180..2200 Hz. Retrigger a
-                // short tone every cycle so it holds while the hand is in range.
                 if (proxToneOn) {
-                    int hz = 180 + (int)(fld * fld * 2020.0f);   // squared -&gt; more musical taper
+                    int hz = 180 + (int)(fld * fld * 2020.0f);
                     tone(BUZZER_PIN, hz, 30);
-                } 
+                }
             } else {
                 if (proxToneOn) noTone(BUZZER_PIN);
-                if (!proxAlert &amp;&amp; !magAlert) ledIdle();
+                if (!magPainting &amp;&amp; !proxPainting) ledIdle();
             }
+        } else if (!magPainting &amp;&amp; !proxPainting &amp;&amp; alertPhase != 1) {
+            // Nothing painting and not mid prox-alert: make sure the ring is dark
+            // (prox cooldown and armed-idle land here).
+            ledIdle();
         }
         FastLED.setBrightness(ledCfg.bright);
         ledShow();
@@ -1585,7 +1610,7 @@ void setupNetwork() {
     if (targetSSID != &quot;&quot;) {
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
-        // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up --
+        // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up —
         // the background retry in the network loop + auto-reconnect keep working on it.
     }
     if (WiFi.status() == WL_CONNECTED) {
@@ -1656,9 +1681,9 @@ void setupNetwork() {
         if (WiFi.status() == WL_CONNECTED) {
             d[&quot;ok&quot;] = true; d[&quot;ip&quot;] = WiFi.localIP().toString();
         } else {
-            // Saved anyway -- the boot loader + background retry will keep trying.
+            // Saved anyway — the boot loader + background retry will keep trying.
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
-            d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
+            d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) — it will keep retrying&quot;;
         }
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
@@ -1673,7 +1698,7 @@ void setupNetwork() {
         m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
         m[&quot;rot&quot;]  = ledCfg.magRot;
         d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = LED_MAX;
-        // per-event theming (live) -- colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
+        // per-event theming (live) — colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
         char hx[8];
         JsonObject ev = d[&quot;events&quot;].to&lt;JsonObject&gt;();
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColor);  ev[&quot;magColor&quot;]=hx;  ev[&quot;magAnim&quot;]=ledCfg.magAnim;
@@ -1872,7 +1897,7 @@ void loop() {
     }
     // Wi-Fi reconnect watchdog: if we have saved creds but aren&#x27;t on the network
     // (e.g. rebooted while the router was still coming up after a power blip),
-    // re-issue begin() every ~15s so the node rejoins on its own -- no manual reboot.
+    // re-issue begin() every ~15s so the node rejoins on its own — no manual reboot.
     static uint32_t lastWifiTry = 0;
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
         &amp;&amp; now - lastWifiTry &gt;= 15000) {
