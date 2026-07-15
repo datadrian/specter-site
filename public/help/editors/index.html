@@ -91,12 +91,38 @@
     <section id="gallery">
       <h2>5. THE GALLERY (IMAGES AND DEPTH)</h2>
       <p>Open the <strong>Gallery</strong> from the main toolbar (or the right-rail open-gallery button). You'll see every detection from the folder as a grid of thumbnails, grouped by session.</p>
+      <figure>
+        <img src="/help/editors/img/gallery-grid.png" alt="The Detection Archive: every detection in the folder as a grid, grouped by session. Filter and sort along the top." loading="lazy">
+        <figcaption>The Detection Archive: every detection in the folder as a grid, grouped by session. Filter and sort along the top.</figcaption>
+      </figure>
+
       <ul>
         <li><strong>Filter and sort</strong> - narrow by session, by capture mode, or by intensity, and sort newest or oldest or by intensity. Handy when a day has hundreds of hits.</li>
         <li><strong>Open a detection</strong> - click any thumbnail to open the review view.</li>
-        <li><strong>Layer bar (RGB / DEPTH / 3D)</strong> - switch between the plain camera image, the false-color depth image, and (when depth was captured) the 3D view.</li>
+        <li><strong>Layer bar (RGB / DEPTH / THERMAL / 3D)</strong> - switch between the plain camera image, the false-color depth image, the thermal image (when a thermal camera was used), and the 3D view (when depth was captured).</li>
         <li><strong>Timecode</strong> - each detection's metadata carries the global timecode synced to the project start time and FPS, shown in the detail view. Use it to line evidence up to the master timeline.</li>
       </ul>
+      <figure>
+        <img src="/help/editors/img/detection-metadata.png" alt="The full metadata panel on a detection: confidence, class, timecode, sensor readings, plus the pre-event clip and tracking video." loading="lazy">
+        <figcaption>The full metadata panel on a detection: confidence, class, timecode, sensor readings, plus the pre-event clip and tracking video.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="/help/editors/img/layer-rgb.png" alt="RGB layer: the plain camera image on the layer bar (RGB / DEPTH / THERMAL / 3D)." loading="lazy">
+        <figcaption>RGB layer: the plain camera image on the layer bar (RGB / DEPTH / THERMAL / 3D).</figcaption>
+      </figure>
+      <figure>
+        <img src="/help/editors/img/layer-depth.png" alt="DEPTH layer: the same scene as false-color depth. Distance is shown as brightness." loading="lazy">
+        <figcaption>DEPTH layer: the same scene as false-color depth. Distance is shown as brightness.</figcaption>
+      </figure>
+      <figure>
+        <img src="/help/editors/img/layer-thermal.png" alt="THERMAL layer: the thermal image with center, max, and min temperature readout." loading="lazy">
+        <figcaption>THERMAL layer: the thermal image with center, max, and min temperature readout.</figcaption>
+      </figure>
+      <figure>
+        <img src="/help/editors/img/detection-annotated.png" alt="A detection detail view with the markers baked in, plus the tracking-frames strip along the bottom." loading="lazy">
+        <figcaption>A detection detail view with the markers baked in, plus the tracking-frames strip along the bottom.</figcaption>
+      </figure>
       <p class="fine">More detail on the review view, edit tools, and Save/export is in the <a href="/help/gallery-depth.html">Gallery help page</a>.</p>
     </section>
 
@@ -108,6 +134,10 @@
         <li><strong>Drag</strong> to orbit the camera around the scene. It has smooth inertia, so a small flick keeps it slowly rotating, perfect for capturing a clean, cinematic move.</li>
         <li><strong>Scroll</strong> to zoom in and out.</li>
       </ol>
+      <figure>
+        <img src="/help/editors/img/orbit-3d.png" alt="The 3D orbit: an orbitable point cloud of the scene at the moment of the detection. Drag to rotate, scroll to zoom." loading="lazy">
+        <figcaption>The 3D orbit: an orbitable point cloud of the scene at the moment of the detection. Drag to rotate, scroll to zoom.</figcaption>
+      </figure>
       <div class="callout">
         <strong>Capturing the orbit:</strong> start your screen recorder (see step 10), give the cloud a slow drag, and let the inertia carry the rotation while you record. You get a hands-off, steady orbit with no jitter.
       </div>
@@ -117,6 +147,11 @@
     <section id="evp">
       <h2>7. EVP AUDIO LAB</h2>
       <p>Audio evidence (EVP) is reviewed in the <strong>EVP Audio Lab</strong>. Open it from the gallery's <strong>EVP Studio</strong> button, or the <strong>LAB</strong> button on the EVP panel.</p>
+      <figure>
+        <img src="/help/editors/img/evp-lab.png" alt="The EVP Audio Lab: waveform and spectrogram with playback filters, a marker timeline, and a synced visual reference of the matching detection." loading="lazy">
+        <figcaption>The EVP Audio Lab: waveform and spectrogram with playback filters, a marker timeline, and a synced visual reference of the matching detection.</figcaption>
+      </figure>
+
       <ul>
         <li>Play back captured audio with a seekable waveform.</li>
         <li>Markers dropped during capture appear on the timeline so you can jump to the flagged moments.</li>
