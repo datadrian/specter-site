@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER for Editors: Reviewing and Screen-Capturing Evidence</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Editor workflow: install SPECTER on Windows, point it at the daily Specter media folder, and screen-capture the gallery, 3D depth orbits, EVP audio, and wall/sensor feeds for the edit.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <h1>SPECTER FOR EDITORS</h1>
+    <p class="tagline">Review the evidence and screen-capture it for the edit</p>
+
+    <p class="lead">This guide is for the post team. It walks you through installing SPECTER, pointing it at the daily <code>Specter</code> media folder, and using the gallery, 3D depth orbits, EVP audio lab, and the recorded feeds so you can screen-capture clean evidence footage for the show.</p>
+
+    <div class="callout">
+      <strong>Windows only.</strong> SPECTER is a Windows desktop application. There is no Mac or Linux build. Run it on a Windows 10/11 machine (a Parallels or Boot Camp Windows install on a Mac works too).
+    </div>
+
+    <p><strong>On this page:</strong></p>
+    <ol>
+      <li><a href="#install">Download and install</a></li>
+      <li><a href="#license">Get a license key</a></li>
+      <li><a href="#folder">The daily Specter folder</a></li>
+      <li><a href="#point">Point SPECTER at the evidence</a></li>
+      <li><a href="#gallery">The Gallery (images and depth)</a></li>
+      <li><a href="#orbit">3D depth orbit</a></li>
+      <li><a href="#evp">EVP audio lab</a></li>
+      <li><a href="#clips">Recorded detection clips</a></li>
+      <li><a href="#feeds">Evidence Wall and sensor-feed recordings</a></li>
+      <li><a href="#capture">Screen-capturing for the edit</a></li>
+    </ol>
+
+    <section id="install">
+      <h2>1. DOWNLOAD AND INSTALL</h2>
+      <p><a class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download SPECTER for Windows</a></p>
+      <ol>
+        <li>Download and run <code>SPECTER-Setup.exe</code>.</li>
+        <li>If Windows SmartScreen shows a "Windows protected your PC" prompt, click <strong>More info</strong> then <strong>Run anyway</strong>. The app is safe; it is just not code-signed for mass distribution.</li>
+        <li>Finish the installer and launch <strong>SPECTER</strong> from the Start menu.</li>
+      </ol>
+      <p class="fine">You do not need any sensor, camera, or hardware plugged in to review evidence. Editors run SPECTER purely as a viewer.</p>
+    </section>
+
+    <section id="license">
+      <h2>2. GET A LICENSE KEY</h2>
+      <p>Browsing saved evidence in the gallery works without a live sensor, but to run the app cleanly without the demo time limit you'll want a license key.</p>
+      <div class="callout">
+        <strong>Reach out to the producer for a key.</strong> Editors don't buy a license. Message the producer and you'll be issued a <code>SPTR-XXXX-XXXX-XXXX-XXXX</code> key.
+      </div>
+      <p>Activate it in the app under <strong>Settings, License and Help, License</strong>. Paste the key and click activate. The app works offline after the first successful activation.</p>
+      <p class="fine">If SPECTER ever shows a <strong>DEMO MODE</strong> badge with a countdown, that timer only applies to running live sensors. Reviewing the folder of saved evidence in the gallery is not affected. Activating your key removes the badge entirely.</p>
+    </section>
+
+    <section id="folder">
+      <h2>3. THE DAILY Specter FOLDER</h2>
+      <p>Each day's media drop includes a folder named <strong><code>Specter</code></strong>. Inside it you'll find two kinds of evidence:</p>
+      <ul>
+        <li><strong>Detections</strong> - saved capture events. These live in <code>session_*</code> subfolders. Each detection holds the still image(s), depth data for the 3D orbit, a short clip, EVP audio, and a metadata file with the timecode.</li>
+        <li><strong>Screen recordings</strong> - full-length MP4 recordings of the operator's session, the Evidence Wall, or a live sensor feed.</li>
+      </ul>
+      <p>Copy the whole <code>Specter</code> folder somewhere local on your Windows machine. An internal or fast external drive is best; reviewing depth 3D off a slow network share can stutter.</p>
+      <p class="fine">Keep the folder structure intact. Don't rename or move files inside a <code>session_*</code> folder. The gallery reads them by name (for example <code>snapshot.png</code>, <code>snapshot_depth.png</code>, <code>depth_raw.bin</code>, <code>metadata.json</code>).</p>
+    </section>
+
+    <section id="point">
+      <h2>4. POINT SPECTER AT THE EVIDENCE</h2>
+      <p>Rather than copying files into a hidden system folder, just tell SPECTER where the evidence lives. This is the easiest and safest way:</p>
+      <ol>
+        <li>Open <strong>Settings</strong> (the gear).</li>
+        <li>Go to the <strong>Recording</strong> tab and find <strong>DETECTION SAVE FOLDER</strong>.</li>
+        <li>Click <strong>Choose</strong> and select the <code>Specter</code> folder you copied (or the detections folder inside it, if the day's drop separates them).</li>
+        <li>Do the same for the <strong>SCREEN RECORDING</strong> folder if the screen recordings are in a separate subfolder, so the recorded clips are easy to find.</li>
+      </ol>
+      <div class="callout">
+        <strong>Why this matters:</strong> the gallery scans whatever folder is set as the Detection folder for <code>session_*</code> subfolders. Point it at the day's <code>Specter</code> drop and every detection appears automatically.
+      </div>
+      <p class="fine">Next to each folder path there's a reveal control. SPECTER can open the folder in Windows Explorer so you can grab the raw MP4s directly when you need them.</p>
+    </section>
+
+    <section id="gallery">
+      <h2>5. THE GALLERY (IMAGES AND DEPTH)</h2>
+      <p>Open the <strong>Gallery</strong> from the main toolbar (or the right-rail open-gallery button). You'll see every detection from the folder as a grid of thumbnails, grouped by session.</p>
+      <ul>
+        <li><strong>Filter and sort</strong> - narrow by session, by capture mode, or by intensity, and sort newest or oldest or by intensity. Handy when a day has hundreds of hits.</li>
+        <li><strong>Open a detection</strong> - click any thumbnail to open the review view.</li>
+        <li><strong>Layer bar (RGB / DEPTH / 3D)</strong> - switch between the plain camera image, the false-color depth image, and (when depth was captured) the 3D view.</li>
+        <li><strong>Timecode</strong> - each detection's metadata carries the global timecode synced to the project start time and FPS, shown in the detail view. Use it to line evidence up to the master timeline.</li>
+      </ul>
+      <p class="fine">More detail on the review view, edit tools, and Save/export is in the <a href="/help/gallery-depth.html">Gallery help page</a>.</p>
+    </section>
+
+    <section id="orbit">
+      <h2>6. 3D DEPTH ORBIT</h2>
+      <p>This is the money shot for the edit. When a detection was captured with depth data, the gallery shows a <strong>3D ORBIT</strong>, an orbitable point cloud of the scene at the moment of the hit.</p>
+      <ol>
+        <li>Open a detection that has depth (it will offer the <strong>3D</strong> layer or a <strong>3D ORBIT</strong> button).</li>
+        <li><strong>Drag</strong> to orbit the camera around the scene. It has smooth inertia, so a small flick keeps it slowly rotating, perfect for capturing a clean, cinematic move.</li>
+        <li><strong>Scroll</strong> to zoom in and out.</li>
+      </ol>
+      <div class="callout">
+        <strong>Capturing the orbit:</strong> start your screen recorder (see step 10), give the cloud a slow drag, and let the inertia carry the rotation while you record. You get a hands-off, steady orbit with no jitter.
+      </div>
+      <p class="fine">If a detection only shows a still and no 3D option, that capture simply didn't include depth data. Not every detection does.</p>
+    </section>
+
+    <section id="evp">
+      <h2>7. EVP AUDIO LAB</h2>
+      <p>Audio evidence (EVP) is reviewed in the <strong>EVP Audio Lab</strong>. Open it from the gallery's <strong>EVP Studio</strong> button, or the <strong>LAB</strong> button on the EVP panel.</p>
+      <ul>
+        <li>Play back captured audio with a seekable waveform.</li>
+        <li>Markers dropped during capture appear on the timeline so you can jump to the flagged moments.</li>
+        <li>Screen-record the lab while you play a clip to get the waveform moving on screen for the edit.</li>
+      </ul>
+    </section>
+
+    <section id="clips">
+      <h2>8. RECORDED DETECTION CLIPS</h2>
+      <p>Many detections include a short <strong>clip</strong> (an MP4 of the moment) and, for tracked subjects, a tracking video. You can play these inside the detection's review view.</p>
+      <p>To grab the raw file directly, use the reveal-in-Explorer control on the folder path (Settings, Recording), then browse into the matching <code>session_*</code> detection subfolder. The clip is saved as <code>clip.mp4</code>.</p>
+    </section>
+
+    <section id="feeds">
+      <h2>9. EVIDENCE WALL AND SENSOR-FEED RECORDINGS</h2>
+      <p>The day's drop may also include full-length screen recordings of the <strong>Evidence Wall</strong> or a live <strong>sensor feed</strong> that the operator captured during the session. These are plain MP4 files in the screen-recordings part of the <code>Specter</code> folder.</p>
+      <ul>
+        <li>Play them in any Windows video player, or drop them straight onto your NLE timeline. No SPECTER needed for these.</li>
+        <li>They're useful as B-roll of the live rig in action: the wall of feeds, the direction-finder radar, sensor sparklines updating in real time.</li>
+      </ul>
+      <p class="fine">If a feed recording looks like it's missing, check the screen-recordings subfolder inside <code>Specter</code> and confirm you pointed the app's Screen Recording folder there (step 4) so it's easy to locate.</p>
+    </section>
+
+    <section id="capture">
+      <h2>10. SCREEN-CAPTURING FOR THE EDIT</h2>
+      <p>To turn any of the above into footage you can cut with, screen-record SPECTER while you interact with it:</p>
+      <ol>
+        <li>Use your preferred capture tool. <strong>OBS Studio</strong> (free) or the built-in <strong>Xbox Game Bar</strong> (Win plus G) both work well on Windows.</li>
+        <li>Record SPECTER full-screen for the cleanest result. Hide your mouse cursor if your tool allows.</li>
+        <li>Then perform the move you want on camera:
+          <ul>
+            <li>Slowly orbit a 3D depth detection (step 6).</li>
+            <li>Flip through gallery stills and the RGB to DEPTH layer toggle.</li>
+            <li>Play an EVP clip with the waveform moving (step 7).</li>
+            <li>Play a detection clip or tracking video (step 8).</li>
+          </ul>
+        </li>
+        <li>Capture at your project frame rate (typically 24, 25, or 30 fps) so it drops onto the timeline clean.</li>
+      </ol>
+      <div class="callout">
+        <strong>Tip:</strong> the 3D orbit's inertia means one gentle drag gives you a long, smooth, steady rotation. Record a few seconds of that and you've got a reusable cinematic move without touching the mouse again.
+      </div>
+    </section>
+
+    <section id="help">
+      <h2>NEED A HAND?</h2>
+      <p>For a license key, missing evidence, or anything that looks wrong in a day's drop, reach out to the producer directly. For app install issues you can also email <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>
