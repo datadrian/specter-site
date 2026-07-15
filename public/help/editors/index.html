@@ -36,6 +36,7 @@
       <li><a href="#evp">EVP audio lab</a></li>
       <li><a href="#clips">Recorded detection clips</a></li>
       <li><a href="#feeds">Evidence Wall and sensor-feed recordings</a></li>
+      <li><a href="#structure">File and folder structure reference</a></li>
       <li><a href="#capture">Screen-capturing for the edit</a></li>
     </ol>
 
@@ -136,6 +137,62 @@
         <li>They're useful as B-roll of the live rig in action: the wall of feeds, the direction-finder radar, sensor sparklines updating in real time.</li>
       </ul>
       <p class="fine">If a feed recording looks like it's missing, check the screen-recordings subfolder inside <code>Specter</code> and confirm you pointed the app's Screen Recording folder there (step 4) so it's easy to locate.</p>
+    </section>
+
+    <section id="structure">
+      <h2>FILE AND FOLDER STRUCTURE REFERENCE</h2>
+      <p>You never need to open these files by hand (the app reads them for you), but here is what's inside the <code>Specter</code> drop so you know what each piece is.</p>
+
+      <h3>Top level</h3>
+      <pre><code>Specter\
+  detections\            &lt;- capture events, grouped by session
+    session_&lt;id&gt;\
+      session.json
+      det_&lt;id&gt;\
+        ...detection files...
+  recordings\            &lt;- full-length screen recordings (.mp4)
+    evp\                 &lt;- audio evidence, one folder per clip
+      &lt;evp-id&gt;\
+        ...evp files...</code></pre>
+      <p class="fine">A day's drop may lay this out slightly differently (for example detections and recordings split into separate top-level folders). The names that matter are the <code>session_*</code> folders for the gallery and the <code>.mp4</code> files for the recordings.</p>
+
+      <h3>A session folder (<code>session_&lt;id&gt;</code>)</h3>
+      <ul>
+        <li><code>session.json</code> - the index for that session. Lists every detection with its id, timecode, mode, and intensity. The gallery uses this to build the grid.</li>
+        <li><code>det_&lt;id&gt;\</code> - one folder per detection (see below).</li>
+      </ul>
+
+      <h3>A detection folder (<code>det_&lt;id&gt;</code>)</h3>
+      <p>Not every detection has every file; a still-only capture won't have depth or thermal files. Common contents:</p>
+      <ul>
+        <li><code>snapshot.png</code> - the clean camera still.</li>
+        <li><code>snapshot_annotated.png</code> - the same still with the on-screen detection markers baked in.</li>
+        <li><code>overlay.png</code> - just the marker overlay, transparent background.</li>
+        <li><code>snapshot_depth.png</code> - the false-color depth image (distance shown as color).</li>
+        <li><code>snapshot_3d.png</code> - a pre-rendered still of the 3D view for quick preview.</li>
+        <li><code>depth_raw.bin</code> - the raw depth data. Needed to rebuild the orbitable 3D point cloud.</li>
+        <li><code>depth_rgb.jpg</code> - the color image aligned to the depth frame.</li>
+        <li><code>depth_intrinsics.json</code> - the camera lens data the 3D view needs. If this is missing, the 3D orbit can't be rebuilt.</li>
+        <li><code>thermal.jpg</code> / <code>thermal_annotated.jpg</code> - thermal image (only if a thermal camera was used).</li>
+        <li><code>scan.ply</code> - a 3D point-cloud file you can also open in external 3D tools.</li>
+        <li><code>clip.mp4</code> - a short video clip of the moment.</li>
+        <li><code>tracking.mp4</code> and a <code>tracking\</code> folder of <code>frame_0000.png</code> stills - the frame-by-frame track for a moving subject (only for tracked detections).</li>
+        <li><code>metadata.json</code> - all the details for this detection: type, confidence, intensity class, timecode, timestamp, and sensor readings.</li>
+      </ul>
+      <p class="fine">Keep everything in a detection folder together and unrenamed. The gallery finds these by exact name, and the 3D orbit needs <code>depth_raw.bin</code> plus <code>depth_intrinsics.json</code> side by side to rebuild.</p>
+
+      <h3>An EVP folder (under <code>recordings\evp\</code>)</h3>
+      <ul>
+        <li><code>audio_raw.webm</code> - the original captured audio.</li>
+        <li><code>audio_preview.wav</code> - a seekable copy the lab uses for smooth playback and scrubbing.</li>
+        <li><code>markers.json</code> - the moments flagged during capture (they appear on the lab's timeline).</li>
+        <li><code>metadata.json</code> - details for that audio clip, including timecode.</li>
+      </ul>
+
+      <h3>Screen recordings</h3>
+      <ul>
+        <li><code>.mp4</code> files in the recordings folder - full-length captures of the operator's session, the Evidence Wall, or a live sensor feed. Play them in any video player or drop them straight onto your timeline.</li>
+      </ul>
     </section>
 
     <section id="capture">
