@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help: Remote &amp; Multi-Screen Monitoring</title>
+  <meta name="description" content="Run SPECTER on a second screen or a phone: the mobile remote, the Evidence Wall, the Instrument Bay direction finder, and the 2x2 Control Center grid.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>REMOTE &amp; MULTI-SCREEN MONITORING</h1>
+    <p class="tagline">Put SPECTER on a phone, a tablet, or a second monitor and watch every reading from across the room</p>
+
+    <p>SPECTER can serve several live views over your local network at once. A phone in your pocket, a laptop on the far wall, and a big TV behind the crew can all show a different piece of the same session in real time. Every view runs in a plain web browser on any device on the same Wi-Fi or LAN. No app install on the second device, no cloud.</p>
+
+    <section id="remote">
+      <h2>THE MOBILE REMOTE</h2>
+      <p>The remote gives you the live feed, recent detection thumbnails, and sensor telemetry on a phone or tablet.</p>
+      <ol>
+        <li>Open <strong>Settings</strong> in SPECTER and go to the <strong>Displays &amp; Remote</strong> tab.</li>
+        <li>Turn on <strong>Remote Access</strong>. SPECTER shows a QR code and a LAN address such as <code>http://192.168.1.50:47842</code>.</li>
+        <li>On the phone, scan the QR code or type that address into any browser. Both devices must be on the same network.</li>
+      </ol>
+      <figure class="help-fig">
+        <img class="help-shot narrow" src="/help/img/remote-phone.png" alt="SPECTER mobile remote on a phone">
+        <figcaption>The mobile remote: live view, detection thumbnails, and live telemetry.</figcaption>
+      </figure>
+      <div class="callout ok">
+        The remote is read-first. It mirrors what SPECTER sees so a second operator can keep eyes on the readings while you work the room.
+      </div>
+    </section>
+
+    <section id="wall">
+      <h2>THE EVIDENCE WALL</h2>
+      <p>The Evidence Wall is a full-screen dashboard built for a second monitor or a TV. It cycles through the live feed and the most recent detections, each labeled with its type, sigma class, synchronized timecode, and confidence score.</p>
+      <figure class="help-fig">
+        <img class="help-shot" src="/help/img/evidence-wall.png" alt="SPECTER Evidence Wall on a second screen">
+        <figcaption>The Evidence Wall cycling recent detections with type, sigma class, timecode, and confidence.</figcaption>
+      </figure>
+      <p>Open it from the remote address by browsing to the Evidence Wall link, then press your browser's full-screen key. It keeps updating on its own as new detections land.</p>
+    </section>
+
+    <section id="instrument">
+      <h2>THE INSTRUMENT BAY</h2>
+      <p>The Instrument Bay is a second-screen view focused on sensor telemetry. Its centerpiece is the <strong>Direction Finder</strong>: a top-down radar with a compass needle driven by the magnetometer bearing, and a proximity ring that grows inward as something gets closer.</p>
+      <figure class="help-fig">
+        <img class="help-shot" src="/help/img/instrument-bay.png" alt="SPECTER Instrument Bay direction finder and sparklines">
+        <figcaption>The Instrument Bay: Direction Finder radar plus rolling 60-second telemetry sparklines.</figcaption>
+      </figure>
+      <p>Below the radar, rolling 60-second sparklines track magnetometer amplitude and proximity over time. The sparklines are keyed to the wall clock, so they stay smooth and continuous even if the browser tab was in the background for a while.</p>
+      <div class="callout ok">
+        Proximity reads a higher value when something is closer. A rising line and a shrinking ring mean the field is closing in.
+      </div>
+    </section>
+
+    <section id="grid">
+      <h2>THE 2x2 CONTROL CENTER GRID</h2>
+      <p>The Control Center puts four live sources in one 2x2 workspace. Assign any source to any cell:</p>
+      <table class="help-table">
+        <thead><tr><th>Source</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RealSense RGB</strong></td><td>The primary color feed</td></tr>
+          <tr><td><strong>HDMI capture</strong></td><td>A second camera through a capture card, live at the same time</td></tr>
+          <tr><td><strong>Depth</strong></td><td>The false-color or mono depth map</td></tr>
+          <tr><td><strong>Depth 3D</strong></td><td>The orbitable 3D depth cloud</td></tr>
+          <tr><td><strong>Thermal</strong></td><td>The thermal camera feed, when connected</td></tr>
+        </tbody>
+      </table>
+      <p>Set the four cells in <strong>Settings &gt; Displays &amp; Remote &gt; Command Center</strong>. The grid can run on its own second screen through the same remote address.</p>
+      <figure class="help-fig">
+        <img class="help-shot" src="/help/img/control-center.png" alt="SPECTER 2x2 Control Center grid">
+        <figcaption>The 2x2 Control Center with four independent sources assigned.</figcaption>
+      </figure>
+    </section>
+
+    <section id="related">
+      <h2>RELATED</h2>
+      <ul>
+        <li><a href="/help/using-the-node.html">Using the SPECTER Node in the app</a></li>
+        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a></li>
+        <li><a href="/help/field-guide.html">Technical field guide</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

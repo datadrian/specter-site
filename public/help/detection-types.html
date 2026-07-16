@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help: Detection Types Reference</title>
+  <meta name="description" content="Reference for the anomaly types SPECTER can flag, from Spectral Anomaly to Humanoid Figure, all detected by an on-device neural network and classic computer vision.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>DETECTION TYPES REFERENCE</h1>
+    <p class="tagline">What SPECTER flags, and what each label means</p>
+
+    <p>SPECTER classifies anomalies with a local neural network and a classic computer-vision pipeline. Everything runs on device. No frames leave the machine and there is no cloud step. Each detection is scored and stored with its confidence and a sigma class so you can sort the strong hits from the weak ones later.</p>
+
+    <section id="types">
+      <h2>THE TYPES</h2>
+      <table class="help-table">
+        <thead><tr><th>Type</th><th>What triggers it</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Spectral Anomaly</strong></td><td>A general anomaly in the frame that does not fit a more specific class.</td></tr>
+          <tr><td><strong>Orb</strong></td><td>A small, bright, roughly circular feature moving through the scene.</td></tr>
+          <tr><td><strong>Cold Spot</strong></td><td>A localized low-temperature region in the thermal feed.</td></tr>
+          <tr><td><strong>Partial Apparition</strong></td><td>A partial human-like form that does not resolve into a full figure.</td></tr>
+          <tr><td><strong>Vapor Anomaly</strong></td><td>A diffuse, cloud-like mass with soft edges.</td></tr>
+          <tr><td><strong>Chromatic Signature</strong></td><td>An unusual, concentrated color signature against the background.</td></tr>
+          <tr><td><strong>Energy Vortex</strong></td><td>A rotational or swirling pattern of motion or field activity.</td></tr>
+          <tr><td><strong>Disembodied Face</strong></td><td>Face-like features detected with no supporting body.</td></tr>
+          <tr><td><strong>Facial Anomaly</strong></td><td>A face-like pattern that reads as irregular or out of place.</td></tr>
+          <tr><td><strong>Humanoid Figure</strong></td><td>A full upright human-like form resolved by the skeletal model.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">
+        Every detection carries a confidence score and a sigma class in the gallery. Use them to rank your evidence and filter out the low-confidence noise.
+      </div>
+    </section>
+
+    <section id="related">
+      <h2>RELATED</h2>
+      <ul>
+        <li><a href="/help/gallery-depth.html">Gallery: RGB / DEPTH / 3D &amp; Save view</a></li>
+        <li><a href="/help/views-and-presets.html">View modes &amp; performance presets</a></li>
+        <li><a href="/help/evp-lab.html">EVP Audio Lab</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help: Using the SPECTER Node in the App</title>
+  <meta name="description" content="Pair the wireless SPECTER Node with the app, read magnetometer and proximity telemetry, set operator alert thresholds, and arm the snapshot trigger.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">← Help center</a></p>
+    <h1>USING THE SPECTER NODE IN THE APP</h1>
+    <p class="tagline">Pair the wireless field sensor, read its telemetry, and let it trigger evidence captures</p>
+
+    <p>The SPECTER Node is a small wireless field sensor with a magnetometer and a proximity antenna. Once it is on your network it appears inside SPECTER on its own rail widget, streams live telemetry, and can fire an evidence capture on its own. This page covers using a node you already have. To build one, see <a href="/help/build-node/">Build Your Own SPECTER Node</a>.</p>
+
+    <section id="pairing">
+      <h2>PAIRING</h2>
+      <p>SPECTER hosts the connection and the node finds it automatically. There is nothing to type in.</p>
+      <ol>
+        <li>Power the node on the same Wi-Fi network as the SPECTER computer.</li>
+        <li>SPECTER broadcasts a discovery beacon on the network. The node hears it and connects back.</li>
+        <li>Within a few seconds the node appears in the node rail widget with a live connection dot.</li>
+      </ol>
+      <figure class="help-fig">
+        <img class="help-shot narrow" src="/help/img/node-widget.png" alt="SPECTER node rail widget">
+        <figcaption>The node rail widget with live magnetometer and proximity readouts.</figcaption>
+      </figure>
+    </section>
+
+    <section id="readouts">
+      <h2>RAIL WIDGET READOUTS</h2>
+      <table class="help-table">
+        <thead><tr><th>Readout</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Magnetometer amplitude</strong></td><td>Combined field strength. Spikes when the local magnetic field shifts.</td></tr>
+          <tr><td><strong>Proximity</strong></td><td>Field near the antenna. Reads a <strong>higher</strong> value as something gets <strong>closer</strong>.</td></tr>
+          <tr><td><strong>Connection</strong></td><td>Live, or offline after a sustained loss of signal.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">
+        The node auto-baselines at boot, so it settles to the ambient field of wherever you set it down. Give it a couple of seconds after power-on before reading it.
+      </div>
+    </section>
+
+    <section id="thresholds">
+      <h2>OPERATOR ALERT THRESHOLDS</h2>
+      <p>SPECTER has its own software thresholds, set in <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>. These are separate from the thresholds baked into the node's own onboard buzzer and LEDs. The app thresholds decide when SPECTER reacts on screen; the node's own thresholds decide when the device beeps and flashes in the field.</p>
+      <p>Live delta readouts next to each slider let you watch the current signal, so you can set a level just above the room's noise floor.</p>
+    </section>
+
+    <section id="snapshot">
+      <h2>THE SNAPSHOT TRIGGER</h2>
+      <p>Arm the snapshot trigger and SPECTER will capture an evidence frame automatically whenever a sensor delta crosses your app threshold. Magnetic crossings and proximity crossings are evaluated separately, each with its own short cooldown so a noisy room does not flood the gallery.</p>
+      <p>Each auto-capture lands in the gallery like any other detection, with its type, confidence, and synchronized timecode.</p>
+      <div class="callout ok">
+        Pair this with the <a href="/help/remote-monitoring.html#instrument">Instrument Bay</a> on a second screen to watch the Direction Finder while the node arms your captures.
+      </div>
+    </section>
+
+    <section id="related">
+      <h2>RELATED</h2>
+      <ul>
+        <li><a href="/help/build-node/">Build your own SPECTER Node</a></li>
+        <li><a href="/help/remote-monitoring.html">Remote &amp; multi-screen monitoring</a></li>
+        <li><a href="/help/field-guide.html">Technical field guide</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
