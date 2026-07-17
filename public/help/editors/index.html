@@ -36,6 +36,7 @@
       <li><a href="#evp">EVP audio lab</a></li>
       <li><a href="#clips">Recorded detection clips</a></li>
       <li><a href="#feeds">Evidence Wall and sensor-feed recordings</a></li>
+      <li><a href="#ipcameras">IP camera wall evidence</a></li>
       <li><a href="#structure">File and folder structure reference</a></li>
       <li><a href="#capture">Screen-capturing for the edit</a></li>
       <li><a href="#shotlist">Suggested shots to capture</a></li>
@@ -177,6 +178,17 @@
       <p class="fine">If a feed recording looks like it's missing, check the screen-recordings subfolder inside <code>Specter</code> and confirm you pointed the app's Screen Recording folder there (step 4) so it's easy to locate.</p>
     </section>
 
+    <section id="ipcameras">
+      <h2>10. IP CAMERA WALL EVIDENCE</h2>
+      <p>Some sessions add fixed IP cameras (for example a room-corner NVR camera) alongside the main instrument. When that happens, the day's drop can include detections captured from those cameras. In the gallery they look and behave like any other evidence item, with the camera name noted so you can tell them apart.</p>
+      <ul>
+        <li>Each IP camera detection is its own gallery card with a still frame, timecode, and metadata, exactly like a main-feed detection.</li>
+        <li>When a sensor event fires while the camera wall is up, SPECTER captures every camera at that moment, so you may see several stills that share the same timecode from different cameras. Those are meant to be reviewed together as one event.</li>
+        <li>Look at the metadata panel for the camera label so you know which angle each still came from when you build the sequence.</li>
+      </ul>
+      <p class="fine">If the operator also screen-recorded the camera wall during the session, that MP4 lands in the screen-recordings folder (see the previous section) and is great B-roll of the multi-camera view.</p>
+    </section>
+
     <section id="structure">
       <h2>FILE AND FOLDER STRUCTURE REFERENCE</h2>
       <p>You never need to open these files by hand (the app reads them for you), but here is what's inside the <code>Specter</code> drop so you know what each piece is.</p>
@@ -234,7 +246,7 @@
     </section>
 
     <section id="capture">
-      <h2>10. SCREEN-CAPTURING FOR THE EDIT</h2>
+      <h2>11. SCREEN-CAPTURING FOR THE EDIT</h2>
       <p>To turn any of the above into footage you can cut with, screen-record SPECTER while you interact with it:</p>
       <ol>
         <li>Use your preferred capture tool. <strong>OBS Studio</strong> (free) or the built-in <strong>Xbox Game Bar</strong> (Win plus G) both work well on Windows.</li>
