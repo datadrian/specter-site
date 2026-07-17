@@ -128,7 +128,7 @@
     <!-- LIVE SIMULATOR -->
     <div class="bn-sec" id="preview">
       <h2>What it looks like in SPECTER</h2>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">The SPECTER Node view is designed for your phone - you carry it in the field. This is a live simulation: a real-time 3D field radar that shows not just <em>how strong</em> the magnetic disturbance is, but <em>which direction</em> it's coming from. It rotates so you can read the field in 3D, and locks a bearing on the source. Rotate your phone (or resize) and it flips to landscape automatically.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">The SPECTER Node view is designed for your phone, so you can carry it in the field. This is a live simulation of the DIRECTION FINDER: a top-down compass radar that shows not just <em>how strong</em> the magnetic disturbance is, but <em>which direction</em> it is coming from. A bearing needle swings toward the source and a proximity ring closes in as something gets nearer. Rotate your phone or resize and it flips to landscape automatically.</p>
       <div class="sim-shell">
         <div class="sim-toggle" role="tablist" aria-label="Preview orientation">
           <button id="tg-portrait" class="on" onclick="setSimMode('portrait')">PORTRAIT</button>
@@ -139,19 +139,19 @@
             <div class="screen">
               <div class="sim-bar"><span class="dot"></span> NODE · REM-POD A <span class="rt" id="sim-status">● 10 Hz</span></div>
               <div class="sim-feed">
-                <div class="feed-tag">FIELD RADAR</div>
+                <div class="feed-tag">DIRECTION FINDER</div>
                 <canvas id="sim-mesh"></canvas>
                 <div class="bearing" id="sim-bearing">BEARING -°</div>
               </div>
               <div class="sim-rail">
-                <div class="rlab">Field Amplitude</div>
-                <div class="rval" id="sim-amp">0 <small>µT</small></div>
+                <div class="rlab">Mag Amplitude</div>
+                <div class="rval" id="sim-amp">0</div>
                 <div class="sim-bar2"><i id="sim-amp-bar"></i></div>
                 <div class="sim-xyz" id="sim-xyz">x 0  y 0  z 0</div>
                 <div class="rlab">Proximity</div>
                 <div class="rval" id="sim-prox">0</div>
                 <div class="sim-bar2"><i id="sim-prox-bar"></i></div>
-                <div class="rlab">Signal</div>
+                <div class="rlab">Link</div>
                 <div class="rval" id="sim-rssi">-58 <small>dBm</small></div>
                 <div class="sim-bar2"><i id="sim-rssi-bar" style="width:70%"></i></div>
                 <div class="rlab">Event Log</div>
@@ -2102,7 +2102,6 @@ void loop() {
       <div class="footer-copy">© 2026 SPECTER , SPECTRAL PHENOMENON EVALUATION &amp; CAPTURE THROUGH ENVIRONMENTAL RECONNAISSANCE. ALL RIGHTS RESERVED.</div>
     </div>
   </footer>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 // ---- copy button ----
 function copyCode(){
@@ -2247,236 +2246,123 @@ function setSimMode(m){
   window.addEventListener('orientationchange', function(){ setTimeout(auto,150); });
 })();
 
-// ---- live telemetry simulator: THREE.JS FIELD RADAR ----
+// ---- live telemetry simulator: 2D DIRECTION FINDER (matches the app) ----
+// Top-down compass radar. N is up. A bearing needle swings toward the source of
+// the magnetic disturbance; a proximity ring closes toward the center as an
+// object gets closer (rising value = closer, per the SPECTER node hardware).
 (function(){
-  var canvas=document.getElementById('sim-mesh'); if(!canvas||!window.THREE) return;
-  var THREE=window.THREE;
-  var CY=0x00e5ff, RED=0xff3d3d, AMB=0xffb300;
-
-  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
-  if(THREE.SRGBColorSpace) renderer.outputColorSpace=THREE.SRGBColorSpace;
-  var scene=new THREE.Scene();
-  var camera=new THREE.PerspectiveCamera(45,1,0.1,100);
-  var camR=6.2, camPhi=0.62, camTheta=0.7;
-
-  // --- lighting so surfaces catch highlights ---
-  scene.add(new THREE.AmbientLight(0x1a2b33, 1.2));
-  var keyLight=new THREE.PointLight(CY, 2.2, 18); keyLight.position.set(3,4,3); scene.add(keyLight);
-  var rimLight=new THREE.PointLight(0x2266ff, 1.4, 20); rimLight.position.set(-4,-2,-3); scene.add(rimLight);
-  var srcLight=new THREE.PointLight(CY, 0, 12); scene.add(srcLight); // moves to the source, pulses on events
-
-  // --- procedural "brushed tech" texture for the core ---
-  function techTexture(){
-    var c=document.createElement('canvas'); c.width=c.height=256; var g=c.getContext('2d');
-    g.fillStyle='#04141a'; g.fillRect(0,0,256,256);
-    for(var i=0;i<256;i+=6){ g.strokeStyle='rgba(0,229,255,'+(0.03+Math.random()*0.05)+')'; g.beginPath(); g.moveTo(0,i); g.lineTo(256,i+ (Math.random()*4-2)); g.stroke(); }
-    for(var j=0;j<40;j++){ g.fillStyle='rgba(0,229,255,'+(0.05+Math.random()*0.12)+')'; var w=4+Math.random()*20; g.fillRect(Math.random()*256,Math.random()*256,w,2); }
-    // faint concentric hex/circuit nodes
-    for(var k=0;k<18;k++){ g.strokeStyle='rgba(0,229,255,0.10)'; g.beginPath(); g.arc(Math.random()*256,Math.random()*256,4+Math.random()*10,0,Math.PI*2); g.stroke(); }
-    var tex=new THREE.CanvasTexture(c); tex.wrapS=tex.wrapT=THREE.RepeatWrapping; return tex;
-  }
-  var coreTex=techTexture();
-
-  // --- node core: lit metallic instrument inside a wireframe cage ---
-  var coreInner=new THREE.Mesh(new THREE.IcosahedronGeometry(0.34,2),
-    new THREE.MeshStandardMaterial({color:0x0a3540, map:coreTex, emissive:CY, emissiveIntensity:0.35, metalness:0.85, roughness:0.35}));
-  scene.add(coreInner);
-  var core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.46,1),
-    new THREE.MeshBasicMaterial({color:CY,wireframe:true,transparent:true,opacity:0.85}));
-  scene.add(core);
-  var coreGlow=new THREE.Mesh(new THREE.SphereGeometry(0.6,20,20),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.10,blending:THREE.AdditiveBlending,depthWrite:false}));
-  scene.add(coreGlow);
-
-  // --- reflective floor grid for depth ---
-  var grid=new THREE.GridHelper(10, 20, CY, 0x123);
-  grid.position.y=-2.42; grid.material.transparent=true; grid.material.opacity=0.16; scene.add(grid);
-  // radial fade disc under the node
-  var disc=new THREE.Mesh(new THREE.CircleGeometry(3.2,48),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.05,blending:THREE.AdditiveBlending,depthWrite:false}));
-  disc.rotation.x=-Math.PI/2; disc.position.y=-2.41; scene.add(disc);
-
-  // --- intensity shell: wireframe sphere that flexes with field strength ---
-  var shellGeo=new THREE.IcosahedronGeometry(2.4,3);
-  var shellBase=shellGeo.attributes.position.array.slice();
-  var shell=new THREE.Mesh(shellGeo,
-    new THREE.MeshBasicMaterial({color:CY,wireframe:true,transparent:true,opacity:0.12}));
-  scene.add(shell);
-
-  // --- bearing ring at the base (compass), with a moving marker ---
-  var ring=new THREE.Mesh(new THREE.TorusGeometry(2.7,0.012,8,80),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.35}));
-  ring.rotation.x=Math.PI/2; ring.position.y=-2.4; scene.add(ring);
-  // compass ticks
-  var ticks=new THREE.Group();
-  for(var i=0;i<24;i++){var a=i/24*Math.PI*2;
-    var tk=new THREE.Mesh(new THREE.BoxGeometry(0.02,0.02,i%6===0?0.28:0.12),
-      new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:i%6===0?0.6:0.28}));
-    tk.position.set(Math.cos(a)*2.7,-2.4,Math.sin(a)*2.7); tk.lookAt(0,-2.4,0); ticks.add(tk);}
-  scene.add(ticks);
-  var bearingMark=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.34,4),
-    new THREE.MeshBasicMaterial({color:CY}));
-  bearingMark.rotation.x=Math.PI/2; scene.add(bearingMark);
-
-  // --- field VECTOR beam: points toward the disturbance source ---
-  var beamLen=2.0;
-  var beam=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.10,1,12),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.85}));
-  scene.add(beam);
-  var beamTip=new THREE.Mesh(new THREE.SphereGeometry(0.16,16,16),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.95}));
-  scene.add(beamTip);
-  var beamTipGlow=new THREE.Mesh(new THREE.SphereGeometry(0.34,16,16),
-    new THREE.MeshBasicMaterial({color:CY,transparent:true,opacity:0.18,blending:THREE.AdditiveBlending,depthWrite:false}));
-  scene.add(beamTipGlow);
-
-  // --- directional pulse rings that fly out toward the source ---
-  var pulses=[];
-  function spawnPulse(dir,color){
-    var g=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.03,8,32),
-      new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.9}));
-    g.userData={dir:dir.clone(),life:0}; scene.add(g); pulses.push(g);
-    if(pulses.length>6){var old=pulses.shift();scene.remove(old);}
-  }
-
-  // --- ambient particle dust reacting to the field ---
-  var pcount=280, pgeo=new THREE.BufferGeometry(), ppos=new Float32Array(pcount*3);
-  for(var p=0;p<pcount;p++){var rr=1.6+Math.random()*1.6,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
-    ppos[p*3]=rr*Math.sin(ph)*Math.cos(th);ppos[p*3+1]=rr*Math.cos(ph);ppos[p*3+2]=rr*Math.sin(ph)*Math.sin(th);}
-  pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));
-  var dust=new THREE.Points(pgeo,new THREE.PointsMaterial({color:CY,size:0.035,transparent:true,opacity:0.5}));
-  scene.add(dust);
-
+  var canvas=document.getElementById('sim-mesh'); if(!canvas) return;
+  var ctx=canvas.getContext('2d'); if(!ctx) return;
+  var CY='#5fe6b0', AMB='#ffd166', RED='#ff4d5a';
+  var dpr=Math.min(2,window.devicePixelRatio||1);
+  var W=0,H=0;
   function resize(){
     var w=canvas.clientWidth||canvas.offsetWidth, h=canvas.clientHeight||canvas.offsetHeight;
-    if(!w||!h)return;
-    renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+    if(!w||!h) return;
+    canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); W=w; H=h;
   }
   window.__simResize=resize;
 
-  // --- telemetry state ---
-  var t=0, prox=3200, amp=18, disturb=0, nextEvent=90+Math.random()*120;
-  var srcDir=new THREE.Vector3(1,0.2,0.3).normalize();  // where the "signal" is coming from
-  var mx=-140,my=90,mz=300;
+  var t=0, prox=210, amp=180, disturb=0, nextEvent=90+Math.random()*120;
+  var srcA=Math.random()*Math.PI*2;
+  var mx=-7,my=-5,mz=13;
+  var TWO_PI=Math.PI*2;
+  var needleA=0, needleAmp=0, proxDisp=0, sweep=0;
   var log=document.getElementById('sim-log'), logs=[];
   function pushLog(cls,msg){logs.unshift('<span class="'+cls+'">'+msg+'</span>');if(logs.length>5)logs.pop();log.innerHTML=logs.join('<br>');}
   function ts(){return new Date().toTimeString().slice(0,8);}
-
   var setEl=function(id){return document.getElementById(id);};
+  function angLerp(a,b,f){var d=((b-a+Math.PI)%TWO_PI)-Math.PI;if(d<-Math.PI)d+=TWO_PI;return a+d*f;}
 
   function tick(){
     t+=0.016;
-    // slow ambient wander of the magnetic vector
-    mx+=Math.sin(t*0.7)*3 - (mx+140)*0.01;
-    my+=Math.cos(t*0.5)*2 - (my-90)*0.01;
-    mz+=Math.sin(t*0.9)*3 - (mz-300)*0.01;
+    if(!W||!H) resize();
+    mx+=Math.sin(t*0.7)*0.4 - (mx+7)*0.01;
+    my+=Math.cos(t*0.5)*0.3 - (my+5)*0.01;
+    mz+=Math.sin(t*0.9)*0.4 - (mz-13)*0.01;
 
-    // disturbance events pick a NEW source direction and fire a pulse from it
     if(t>nextEvent*0.016){
       disturb=1; nextEvent=t/0.016+120+Math.random()*160;
-      srcDir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.3)*1.2,(Math.random()-0.5)*2).normalize();
-      var sev=Math.random(), col=CY, cls='';
-      if(sev>0.75){col=RED;cls='hi';pushLog('hi',ts()+' - MAG ANOMALY · CLASS-III');}
-      else if(sev>0.4){col=AMB;cls='med';pushLog('med',ts()+' - FIELD DISTURBANCE · CLASS-II');}
-      else{pushLog('',ts()+' - PROXIMITY · CLASS-I');}
-      spawnPulse(srcDir,col);
+      srcA=Math.random()*TWO_PI;
+      var sev=Math.random();
+      if(sev>0.72){pushLog('hi',ts()+' - MAG ANOMALY \u00b7 CLASS-III');}
+      else if(sev>0.4){pushLog('med',ts()+' - FIELD DISTURBANCE \u00b7 CLASS-II');}
+      else{pushLog('',ts()+' - PROXIMITY \u00b7 CLASS-I');}
     }
     disturb*=0.955;
     var kick=disturb;
-    prox=3200-disturb*2600+(Math.random()-0.5)*40;
-    amp=18+disturb*44+Math.sin(t*3)*3;
+    amp=180+disturb*640+Math.sin(t*3)*14;
+    prox=210+disturb*720+(Math.random()-0.5)*12;
+    var inten=Math.max(0,Math.min(1,amp/900));
+    var proxN=Math.max(0,Math.min(1,prox/1023));
+    var wanderA=Math.atan2(mx,my);
+    var targetA=angLerp(wanderA, srcA, Math.min(1,0.3+kick));
+    needleA=angLerp(needleA,targetA,0.18);
+    needleAmp=needleAmp+(inten-needleAmp)*0.18;
+    proxDisp=proxDisp+(proxN-proxDisp)*0.18;
+    sweep=(sweep+0.018)%TWO_PI;
 
-    // magnetic vector aligns toward the source when disturbed
-    var vec=srcDir.clone().multiplyScalar(0.4+kick*0.6).add(new THREE.Vector3(mx,my,mz).normalize().multiplyScalar(0.3)).normalize();
-    var bearing=(Math.atan2(vec.z,vec.x)*180/Math.PI+360)%360;
-
-    // ---- readouts ----
-    setEl('sim-amp').innerHTML=amp.toFixed(1)+' <small>µT</small>';
-    setEl('sim-amp-bar').style.width=Math.min(100,amp/70*100)+'%';
-    setEl('sim-xyz').textContent='x '+(vec.x*amp).toFixed(0)+'  y '+(vec.y*amp).toFixed(0)+'  z '+(vec.z*amp).toFixed(0);
+    setEl('sim-amp').textContent=amp.toFixed(0);
+    setEl('sim-amp-bar').style.width=Math.min(100,amp/900*100)+'%';
+    setEl('sim-xyz').textContent='x '+mx.toFixed(0)+'  y '+my.toFixed(0)+'  z '+mz.toFixed(0);
     setEl('sim-prox').textContent=prox.toFixed(0);
-    setEl('sim-prox-bar').style.width=Math.max(0,Math.min(100,100-(prox/4000*100)))+'%';
-    var rssi=-58+Math.round(Math.sin(t*0.3)*4); setEl('sim-rssi').innerHTML=rssi+' <small>dBm</small>';
-    setEl('sim-bearing').innerHTML='BEARING '+bearing.toFixed(0)+'°'+(disturb>0.25?' · SOURCE LOCK':'');
+    setEl('sim-prox-bar').style.width=Math.max(0,Math.min(100,proxN*100))+'%';
+    var rssi=-55+Math.round(Math.sin(t*0.3)*4); setEl('sim-rssi').innerHTML=rssi+' <small>dBm</small>';
+    var deg=Math.round((needleA*180/Math.PI+360)%360);
+    setEl('sim-bearing').innerHTML='BEARING '+(needleAmp>0.05?deg:'-')+'\u00b0'+(disturb>0.25?' \u00b7 SOURCE LOCK':'');
 
-    // ---- 3D updates ----
-    core.rotation.x+=0.004; core.rotation.y+=0.007;
-    coreInner.rotation.y-=0.006; coreInner.rotation.x+=0.003;
-    var cs=1+disturb*0.5; core.scale.setScalar(cs); coreGlow.scale.setScalar(cs); coreInner.scale.setScalar(1+disturb*0.35);
-    coreGlow.material.opacity=0.08+disturb*0.3;
-    var hot=disturb>0.5?RED:CY;
-    core.material.color.setHex(hot); coreGlow.material.color.setHex(hot);
-    coreInner.material.emissive.setHex(hot); coreInner.material.emissiveIntensity=0.3+disturb*0.9;
-    keyLight.color.setHex(hot); keyLight.intensity=2.0+disturb*2.5;
-    // source light rides the beam tip and flares on events
-    srcLight.position.copy(vec.clone().multiplyScalar(2.2)); srcLight.color.setHex(hot);
-    srcLight.intensity=disturb*4.0;
-
-    // beam toward source
-    var len=beamLen*(0.5+amp/70);
-    var end=vec.clone().multiplyScalar(len);
-    beam.position.copy(end.clone().multiplyScalar(0.5));
-    beam.scale.set(1,len,1);
-    beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),vec);
-    beam.material.color.setHex(disturb>0.5?RED:CY);
-    beamTip.position.copy(end); beamTipGlow.position.copy(end);
-    beamTip.material.color.setHex(disturb>0.5?RED:CY);
-    var tg=0.12+Math.abs(Math.sin(t*5))*0.12+disturb*0.2; beamTipGlow.material.opacity=tg;
-    beamTip.scale.setScalar(1+disturb*0.6);
-
-    // intensity shell flex - bulges toward the source
-    var pos=shellGeo.attributes.position, arr=pos.array;
-    for(var i=0;i<arr.length;i+=3){
-      var bx=shellBase[i],by=shellBase[i+1],bz=shellBase[i+2];
-      var nlen=Math.sqrt(bx*bx+by*by+bz*bz);
-      var dot=(bx*vec.x+by*vec.y+bz*vec.z)/nlen; // alignment with source
-      var bulge=1+ (amp/70)*0.12 + Math.max(0,dot)*disturb*0.5 + Math.sin(t*2+nlen*3)*0.02;
-      arr[i]=bx*bulge; arr[i+1]=by*bulge; arr[i+2]=bz*bulge;
-    }
-    pos.needsUpdate=true;
-    shell.material.opacity=0.10+disturb*0.18;
-    shell.material.color.setHex(disturb>0.5?RED:CY);
-    shell.rotation.y+=0.001;
-
-    // bearing marker rides the ring at the source bearing
-    var ba=Math.atan2(vec.z,vec.x);
-    bearingMark.position.set(Math.cos(ba)*2.7,-2.4,Math.sin(ba)*2.7);
-    bearingMark.lookAt(0,-2.4,0);
-    bearingMark.material.color.setHex(disturb>0.5?RED:CY);
-    ring.material.opacity=0.3+disturb*0.3;
-
-    // pulses fly outward along their stored direction
-    for(var k=pulses.length-1;k>=0;k--){var pl=pulses[k];pl.userData.life+=0.02;
-      var d=pl.userData.life*4;
-      pl.position.copy(pl.userData.dir.clone().multiplyScalar(d));
-      pl.scale.setScalar(1+d*0.5);
-      pl.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),pl.userData.dir);
-      pl.material.opacity=Math.max(0,0.9-pl.userData.life);
-      if(pl.userData.life>=1){scene.remove(pl);pulses.splice(k,1);}
-    }
-
-    // dust drifts toward source slightly when disturbed
-    var dp=pgeo.attributes.position.array;
-    for(var q=0;q<pcount;q++){var idx=q*3;
-      dp[idx]+=vec.x*kick*0.01; dp[idx+1]+=vec.y*kick*0.01+Math.sin(t+q)*0.0006; dp[idx+2]+=vec.z*kick*0.01;
-      var rr2=Math.sqrt(dp[idx]*dp[idx]+dp[idx+1]*dp[idx+1]+dp[idx+2]*dp[idx+2]);
-      if(rr2>3.6||rr2<1.2){var th2=Math.random()*Math.PI*2,ph2=Math.acos(2*Math.random()-1),R=1.6+Math.random()*1.6;
-        dp[idx]=R*Math.sin(ph2)*Math.cos(th2);dp[idx+1]=R*Math.cos(ph2);dp[idx+2]=R*Math.sin(ph2)*Math.sin(th2);}
-    }
-    pgeo.attributes.position.needsUpdate=true;
-    dust.material.color.setHex(disturb>0.5?RED:CY);
-
-    // slow auto-orbit camera so it reads as 3D
-    camTheta+=0.0025;
-    camera.position.set(camR*Math.cos(camTheta)*Math.cos(camPhi), camR*Math.sin(camPhi), camR*Math.sin(camTheta)*Math.cos(camPhi));
-    camera.lookAt(0,-0.2,0);
-
-    renderer.render(scene,camera);
+    drawRadar();
     requestAnimationFrame(tick);
   }
-  // initial size after layout settles
-  setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED · REM-Pod A');tick();},60);
+
+  function drawRadar(){
+    if(!W||!H) return;
+    var cx=W/2, cy=H/2, R=Math.min(W,H)/2-16;
+    var g=ctx.createRadialGradient(cx,cy,4,cx,cy,R*1.15);
+    g.addColorStop(0,'#0c141b'); g.addColorStop(1,'#05070a');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.lineWidth=1;
+    var fr=[0.33,0.66,1];
+    for(var r=0;r<fr.length;r++){ctx.strokeStyle='rgba(46,72,84,0.55)';ctx.beginPath();ctx.arc(cx,cy,R*fr[r],0,TWO_PI);ctx.stroke();}
+    ctx.strokeStyle='rgba(46,72,84,0.4)';
+    ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(cx+R,cy);ctx.moveTo(cx,cy-R);ctx.lineTo(cx,cy+R);ctx.stroke();
+    ctx.fillStyle='#5a6b76';ctx.font='700 11px JetBrains Mono, monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('N',cx,cy-R+9);ctx.fillText('S',cx,cy+R-9);ctx.fillText('E',cx+R-9,cy);ctx.fillText('W',cx-R+9,cy);
+    if(ctx.createConicGradient){var sg=ctx.createConicGradient(sweep-0.5,cx,cy);
+      sg.addColorStop(0,'rgba(95,230,176,0)');sg.addColorStop(0.06,'rgba(95,230,176,0.10)');sg.addColorStop(0.12,'rgba(95,230,176,0)');
+      ctx.fillStyle=sg;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,0,TWO_PI);ctx.closePath();ctx.fill();}
+    if(proxDisp>0.02){
+      var ringR=R*(0.30+(1-proxDisp)*0.70);
+      var hot=proxDisp>0.78;
+      var col=hot?'rgba(255,77,90,':(proxDisp>0.5?'rgba(255,209,102,':'rgba(95,230,176,');
+      ctx.strokeStyle=col+(0.35+proxDisp*0.55)+')';ctx.lineWidth=3+proxDisp*7;
+      ctx.beginPath();ctx.arc(cx,cy,ringR,0,TWO_PI);ctx.stroke();
+      var fg=ctx.createRadialGradient(cx,cy,0,cx,cy,ringR);
+      fg.addColorStop(0,col+(0.16*proxDisp)+')');fg.addColorStop(1,col+'0)');
+      ctx.fillStyle=fg;ctx.beginPath();ctx.arc(cx,cy,ringR,0,TWO_PI);ctx.fill();
+    }
+    if(needleAmp>0.01){
+      var len=R*(0.28+needleAmp*0.66);
+      var ex=cx+Math.sin(needleA)*len, ey=cy-Math.cos(needleA)*len;
+      var ncol=needleAmp>0.78?RED:needleAmp>0.45?AMB:CY;
+      var nglow=needleAmp>0.78?'rgba(255,77,90,':needleAmp>0.45?'rgba(255,209,102,':'rgba(95,230,176,';
+      ctx.strokeStyle=nglow+'0.22)';ctx.lineWidth=10;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();
+      ctx.strokeStyle=ncol;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();
+      var ah=8+needleAmp*6;
+      ctx.save();ctx.translate(ex,ey);ctx.rotate(needleA);
+      ctx.fillStyle=ncol;ctx.beginPath();ctx.moveTo(0,-ah);ctx.lineTo(ah*0.6,ah*0.5);ctx.lineTo(-ah*0.6,ah*0.5);ctx.closePath();ctx.fill();
+      ctx.restore();
+      var bg=ctx.createRadialGradient(ex,ey,0,ex,ey,ah*2.4);
+      bg.addColorStop(0,nglow+'0.9)');bg.addColorStop(1,nglow+'0)');
+      ctx.fillStyle=bg;ctx.beginPath();ctx.arc(ex,ey,ah*2.4,0,TWO_PI);ctx.fill();
+    }
+    ctx.fillStyle='#0b1218';ctx.strokeStyle='#2e4854';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(cx,cy,5,0,TWO_PI);ctx.fill();ctx.stroke();
+  }
+
+  setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED \u00b7 REM-Pod A');tick();},60);
   window.addEventListener('resize',resize);
 })();
 </script>
