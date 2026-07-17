@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.2-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.3-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -558,7 +558,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.11.2-maker&quot;
+#define FW_VERSION   &quot;2.11.3-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -696,13 +696,27 @@ void performUpdate(const String&amp; url) {
   otaFreeHeap = ESP.getFreeHeap();          // capture AFTER freeing, for diagnostics
   otaMaxBlock = ESP.getMaxAllocHeap();
   WiFiClientSecure client; client.setInsecure();
+  client.setTimeout(30);                    // seconds: tolerate a slow field link mid-stream
+  // Drive the download through an HTTPClient WE configure, so we can (a) follow
+  // any HTTP-&gt;HTTPS or host redirect the CDN might introduce, and (b) set a long
+  // read timeout. On core 2.0.17 the bare update(client,url) form uses a short
+  // internal timeout and does NOT follow redirects, which shows up in the field
+  // as a silent mid-download flash failure on slower links. This overload fixes
+  // both without touching the rest of the hardened OTA sequence.
+  HTTPClient ota;
+  ota.begin(client, url);
+  ota.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
+  ota.setTimeout(30000);                    // ms: whole-request budget
+  ota.setConnectTimeout(15000);             // ms: TLS connect budget
+  ota.addHeader(&quot;User-Agent&quot;, &quot;specter-node/&quot; FW_VERSION);
   // Do NOT reboot inside httpUpdate: on some units the fast auto-reboot fires
   // before the OTA boot-slot flag (otadata) is committed to flash, so the node
   // silently boots the OLD image again. Instead let update() return, give the
   // flash a beat to settle, then restart deliberately so otadata sticks.
   httpUpdate.rebootOnUpdate(false);
   updOtaStage = 2;                          // 2 = flashing
-  t_httpUpdate_return r = httpUpdate.update(client, url);
+  t_httpUpdate_return r = httpUpdate.update(ota, FW_VERSION);
+  ota.end();
   if (r == HTTP_UPDATE_FAILED) {
     updError = &quot;flash-&quot; + String(httpUpdate.getLastError());
     updOtaStage = 3;                        // 3 = failed; caller should reboot to
