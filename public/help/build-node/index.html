@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.10.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -441,6 +441,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Magnetic direction alignment&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;A steady lobe lights the &quot;front&quot; of the ring. Tap ROTATE to spin it 45&amp;deg; at a time until the lit side points the way your antenna faces &amp;mdash; then mag hits glow toward the source.&lt;/div&gt;
 &lt;div class=row style=&quot;align-items:center&quot;&gt;&lt;button id=led-rot class=mini style=&quot;flex:1&quot;&gt;ROTATE 45&amp;deg;&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;angle &lt;b id=led-rot-v&gt;0&amp;deg;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row style=&quot;align-items:center;margin-top:6px&quot;&gt;&lt;button id=led-flip class=mini style=&quot;flex:1&quot;&gt;FLIP DIRECTION&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;spin &lt;b id=led-flip-v&gt;CW&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front pixel (ring start)&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash. With the Solid mag animation, magnetic hits glow on the side nearest the source. Use ROTATE to line the lit direction up with your physical antenna; Front pixel sets which LED is index 0 on the ring.&lt;/div&gt;
 &lt;div class=status id=led-test-hint&gt;Test the ring: fires a solid color on all &lt;span class=val id=led-count-echo&gt;16&lt;/span&gt; pixels for 2s. If only some light up, check your Count; if the color is wrong, change Color order.&lt;/div&gt;
@@ -499,7 +500,7 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
  $(&#x27;led-data&#x27;).value=(d.dataPin!=null?d.dataPin:13);$(&#x27;led-count&#x27;).value=(d.count!=null?d.count:16);
  $(&#x27;led-bright&#x27;).value=(d.bright!=null?d.bright:100);$(&#x27;led-bright-v&#x27;).textContent=(d.bright!=null?d.bright:100);
  var m=d.map||{};$(&#x27;led-front&#x27;).value=(m.front!=null?m.front:&#x27;&#x27;);
- if($(&#x27;led-rot-v&#x27;))$(&#x27;led-rot-v&#x27;).textContent=((m.rot!=null?m.rot:0))+&#x27;°&#x27;;window._magRot=(m.rot!=null?m.rot:0);
+ if($(&#x27;led-rot-v&#x27;))$(&#x27;led-rot-v&#x27;).textContent=((m.rot!=null?m.rot:0))+&#x27;°&#x27;;window._magRot=(m.rot!=null?m.rot:0);window._magFlip=(m.flip?1:0);if($(&#x27;led-flip-v&#x27;))$(&#x27;led-flip-v&#x27;).textContent=(window._magFlip?&#x27;CCW&#x27;:&#x27;CW&#x27;);
  var ev=d.events||{},bt=d.boot||{};
  if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:0);
   $(&#x27;ev-prox-c&#x27;).value=&#x27;#&#x27;+(ev.proxColor||&#x27;20E0FF&#x27;);$(&#x27;ev-prox-a&#x27;).value=(ev.proxAnim!=null?ev.proxAnim:2);
@@ -508,6 +509,7 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
 }).catch(function(){})}
 $(&#x27;led-bright&#x27;).oninput=function(e){$(&#x27;led-bright-v&#x27;).textContent=e.target.value};
 if($(&#x27;led-rot&#x27;)){$(&#x27;led-rot&#x27;).onclick=function(){var b=$(&#x27;led-rot&#x27;);fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({rotStep:45})}).then(function(r){return r.json()}).then(function(d){var rv=(d&amp;&amp;d.rot!=null)?d.rot:(((window._magRot||0)+45)%360);window._magRot=rv;if($(&#x27;led-rot-v&#x27;))$(&#x27;led-rot-v&#x27;).textContent=rv+&#x27;\u00b0&#x27;;if(b){b.textContent=&#x27;ROTATED \u2192&#x27;;setTimeout(function(){b.textContent=&#x27;ROTATE 45\u00b0&#x27;},700)}}).catch(function(){})}}
+if($(&#x27;led-flip&#x27;)){$(&#x27;led-flip&#x27;).onclick=function(){var b=$(&#x27;led-flip&#x27;);fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({flipToggle:1})}).then(function(r){return r.json()}).then(function(d){var fv=(d&amp;&amp;d.flip!=null)?(d.flip?1:0):(window._magFlip?0:1);window._magFlip=fv;if($(&#x27;led-flip-v&#x27;))$(&#x27;led-flip-v&#x27;).textContent=(fv?&#x27;CCW&#x27;:&#x27;CW&#x27;);if(b){b.textContent=&#x27;FLIPPED&#x27;;setTimeout(function(){b.textContent=&#x27;FLIP DIRECTION&#x27;},700)}}).catch(function(){})}}
 $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(&#x27;led-chip&#x27;).value,order:$(&#x27;led-order&#x27;).value,dataPin:$(&#x27;led-data&#x27;).value||13,count:$(&#x27;led-count&#x27;).value||16,bright:$(&#x27;led-bright&#x27;).value,front:$(&#x27;led-front&#x27;).value||-1});
  fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(d){
   return fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(s){
@@ -547,7 +549,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.10.1-maker&quot;
+#define FW_VERSION   &quot;2.11.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -599,6 +601,7 @@ struct LedCfg {
   int  bright;        // applied live
   int  mFront, mRight, mBack, mLeft;   // positional map (applied live)
   int  magRot;         // extra rotation of the mag lobe, DEGREES (0/45/90.. via ROTATE button)
+  int  magFlip;        // 0 = ring winds CW (default), 1 = CCW. Flips rotation DIRECTION of the lobe.
   // Per-event theming (applied live, persisted). Colors are 0xRRGGBB.
   // anim: 0=solid 1=pulse 2=spin 3=blink. Severity brightens via value.
   uint32_t magColor;   int magAnim;    // magnetic anomaly event
@@ -607,7 +610,7 @@ struct LedCfg {
   int  bootEnable;     // 1 = play boot animation
 };
 LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
-                  LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT, /*magRot*/ 0,
+                  LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT, /*magRot*/ 0, /*magFlip*/ 0,
                   /*magColor*/  0xFF2020, /*magAnim*/  0,   // red, directional
                   /*proxColor*/ 0x20E0FF, /*proxAnim*/ 2,   // cyan spin
                   /*bootColorA*/0x1030FF, /*bootColorB*/0x10FF80, // blue+green
@@ -760,6 +763,7 @@ volatile uint32_t diagPulseMs   = 0;      // how long to hold the actuator test
 volatile int      diagPulseChan = 0;      // 0 = prox ring, 1 = mag lobe
 volatile float    diagPulseInt  = 1.0f;   // 0..1 test drive level
 volatile int      diagPulseBrg  = 0;      // bearing deg for the mag-lobe test
+volatile int      diagStopReq   = 0;      // set by a diag &quot;stop&quot; frame to end a pulse early
 volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (REM-pod)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
@@ -1082,7 +1086,11 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 
     for (int i = 0; i &lt; n; i++) {
         // this pixel&#x27;s angle around the ring, relative to FRONT
-        float ang = ((float)((i - frontIdx + n) % n) / (float)n) * 6.2831853f;
+        int step = (i - frontIdx + n) % n;
+        // magFlip reverses which way the ring is physically wound (CW vs CCW),
+        // so the lit lobe sweeps the SAME direction as the source bearing.
+        if (ledCfg.magFlip) step = (n - step) % n;
+        float ang = ((float)step / (float)n) * 6.2831853f;
         // angular distance to the source heading (wrapped to [0,pi])
         float d = ang - head;
         while (d &gt;  3.14159265f) d -= 6.2831853f;
@@ -1149,6 +1157,7 @@ void hardwareTask(void* pv) {
     ledCfg.mBack  = prefs.getInt(&quot;ledBack&quot;,  ledCfg.mBack);
     ledCfg.mLeft  = prefs.getInt(&quot;ledLeft&quot;,  ledCfg.mLeft);
     ledCfg.magRot = prefs.getInt(&quot;ledMagRot&quot;, ledCfg.magRot);
+    ledCfg.magFlip = prefs.getInt(&quot;ledMagFlip&quot;, ledCfg.magFlip);
     ledCfg.magColor   = prefs.getUInt(&quot;ledMagC&quot;,  ledCfg.magColor);
     ledCfg.magAnim    = prefs.getInt(&quot;ledMagA&quot;,   ledCfg.magAnim);
     ledCfg.proxColor  = prefs.getUInt(&quot;ledPrxC&quot;,  ledCfg.proxColor);
@@ -1236,6 +1245,7 @@ void hardwareTask(void* pv) {
         // hook the field diagnostics sweep uses to confirm the actuators work.
         if (diagPulseReq) {
             diagPulseReq = 0;
+            diagStopReq  = 0;   // fresh pulse: clear any stale stop request
             uint32_t d0 = millis();
             uint32_t hold = diagPulseMs; if (hold &lt; 50) hold = 50;
             float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
@@ -1253,8 +1263,10 @@ void hardwareTask(void* pv) {
                 }
                 FastLED.setBrightness(ledCfg.bright); ledShow();
                 delay(20);
-                // allow an early stop mid-pulse
-                if (diagPulseReq == 0 &amp;&amp; diagPulseMs == 0) break;
+                // allow an early stop mid-pulse (explicit stop frame only), or let
+                // a brand-new pulse request preempt this one immediately.
+                if (diagStopReq) { diagStopReq = 0; break; }
+                if (diagPulseReq) break;   // a newer pulse queued -&gt; restart with it
             }
             noTone(BUZZER_PIN);
             ledIdle(); ledShow();
@@ -1655,8 +1667,8 @@ void handleCommand(JsonDocument&amp; doc) {
         diagPulseChan = (!strcmp(doc[&quot;ch&quot;] | &quot;prox&quot;, &quot;mag&quot;)) ? 1 : 0;
         diagPulseInt  = constrain((float)(doc[&quot;level&quot;] | 1.0), 0.0f, 1.0f);
         diagPulseBrg  = (int)(doc[&quot;brg&quot;] | 0);
-        if (!strcmp(mode, &quot;stop&quot;)) { diagPulseReq = 0; diagPulseMs = 0; }
-        else { diagPulseMs = constrain((uint32_t)(doc[&quot;ms&quot;] | 600), (uint32_t)50, (uint32_t)8000); diagPulseReq = 1; }
+        if (!strcmp(mode, &quot;stop&quot;)) { diagStopReq = 1; diagPulseReq = 0; }
+        else { diagPulseMs = constrain((uint32_t)(doc[&quot;ms&quot;] | 600), (uint32_t)50, (uint32_t)8000); diagStopReq = 0; diagPulseReq = 1; }
     }
 }
 
@@ -1806,6 +1818,7 @@ void setupNetwork() {
         m[&quot;front&quot;] = ledCfg.mFront; m[&quot;right&quot;] = ledCfg.mRight;
         m[&quot;back&quot;] = ledCfg.mBack;  m[&quot;left&quot;] = ledCfg.mLeft;
         m[&quot;rot&quot;]  = ledCfg.magRot;
+        m[&quot;flip&quot;] = ledCfg.magFlip;
         d[&quot;fw&quot;] = FW_VERSION; d[&quot;compiledCount&quot;] = LED_MAX;
         // per-event theming (live) -- colors as 0xRRGGBB, anim 0=solid 1=pulse 2=spin 3=blink
         char hx[8];
@@ -1831,6 +1844,8 @@ void setupNetwork() {
         bool rotChanged=false;
         if (server.hasArg(&quot;rot&quot;))     { ledCfg.magRot = ((server.arg(&quot;rot&quot;).toInt() % 360) + 360) % 360; prefs.putInt(&quot;ledMagRot&quot;, ledCfg.magRot); rotChanged=true; }
         if (server.hasArg(&quot;rotStep&quot;)) { ledCfg.magRot = (ledCfg.magRot + server.arg(&quot;rotStep&quot;).toInt()) % 360; if (ledCfg.magRot &lt; 0) ledCfg.magRot += 360; prefs.putInt(&quot;ledMagRot&quot;, ledCfg.magRot); rotChanged=true; }
+        if (server.hasArg(&quot;flip&quot;))     { ledCfg.magFlip = server.arg(&quot;flip&quot;).toInt()?1:0; prefs.putInt(&quot;ledMagFlip&quot;, ledCfg.magFlip); rotChanged=true; }
+        if (server.hasArg(&quot;flipToggle&quot;)){ ledCfg.magFlip = ledCfg.magFlip?0:1; prefs.putInt(&quot;ledMagFlip&quot;, ledCfg.magFlip); rotChanged=true; }
         // chipset + data/clock pin bind at compile time in FastLED -&gt; reflash needed.
         // count + order apply LIVE (count = pixels driven; order remapped in software).
         bool reboot=false;
@@ -1851,7 +1866,7 @@ void setupNetwork() {
         prefs.end();
         FastLED.setBrightness(ledCfg.bright);
         ledTestReq = rotChanged ? 2 : 8;   // rot: show the mag lobe at the new angle; else just re-render idle
-        JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot; d[&quot;rot&quot;]=ledCfg.magRot;
+        JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot; d[&quot;rot&quot;]=ledCfg.magRot; d[&quot;flip&quot;]=ledCfg.magFlip;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
     // Preview a theme/boot animation live on the ring (portal PREVIEW buttons).
