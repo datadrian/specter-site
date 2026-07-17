@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.10.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.10.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -547,7 +547,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.10.0-maker&quot;
+#define FW_VERSION   &quot;2.10.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -620,6 +620,10 @@ String updAvailVer = &quot;&quot;;
 String updBinUrl   = &quot;&quot;;
 String updNotes    = &quot;&quot;;
 String updError    = &quot;&quot;;
+// OTA diagnostics -- surfaced in /update/check so we can see WHY a flash failed.
+volatile uint32_t otaFreeHeap = 0;   // free heap captured right before the OTA
+volatile uint32_t otaMaxBlock = 0;   // largest contiguous block (TLS needs this)
+volatile int      updOtaStage = 0;   // 0 idle,1 prepping,2 flashing,3 failed
 bool   updChecked  = false;
 
 // Returns &gt;0 if server version is newer than local (semver-ish, numeric parts).
@@ -652,16 +656,45 @@ bool checkForUpdate() {
   return versionCompare(FW_VERSION, updAvailVer) &gt; 0;
 }
 
+// WS server/client globals -- declared here (before performUpdate) so the OTA
+// routine can disconnect them to free heap for the TLS handshake. The
+// port literal is used directly to avoid depending on a later #define.
+WebSocketsServer localWS(81);   // LOCAL_WS_PORT
+WebSocketsClient appWS;
+
 void performUpdate(const String&amp; url) {
   if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
+  // FREE HEAP FOR TLS: the firmware OTA is an HTTPS download, and its handshake
+  // needs a big contiguous heap block. On a node that has been running a while,
+  // the WebSocket server + app client + their session buffers fragment/consume
+  // heap enough that the TLS allocation fails and the flash never starts. Tear
+  // those down first so the largest possible contiguous block is available.
+  updOtaStage = 1;                          // 1 = prepping / freeing heap
+  // Tear down the WebSocket app-client + local server so their session/RX
+  // buffers are released, giving the TLS handshake the largest possible
+  // contiguous heap block. This is the real fix on core 2.0.17 (which does not
+  // expose WiFiClientSecure buffer sizing) for OTA failing on long-uptime nodes.
+  appWS.disconnect();
+  localWS.disconnect();
+  delay(250);                               // let the sockets fully release
+  otaFreeHeap = ESP.getFreeHeap();          // capture AFTER freeing, for diagnostics
+  otaMaxBlock = ESP.getMaxAllocHeap();
   WiFiClientSecure client; client.setInsecure();
   // Do NOT reboot inside httpUpdate: on some units the fast auto-reboot fires
   // before the OTA boot-slot flag (otadata) is committed to flash, so the node
   // silently boots the OLD image again. Instead let update() return, give the
   // flash a beat to settle, then restart deliberately so otadata sticks.
   httpUpdate.rebootOnUpdate(false);
+  updOtaStage = 2;                          // 2 = flashing
   t_httpUpdate_return r = httpUpdate.update(client, url);
-  if (r == HTTP_UPDATE_FAILED) { updError = &quot;flash-&quot; + String(httpUpdate.getLastError()); return; }
+  if (r == HTTP_UPDATE_FAILED) {
+    updError = &quot;flash-&quot; + String(httpUpdate.getLastError());
+    updOtaStage = 3;                        // 3 = failed; caller should reboot to
+    // Recovery: sockets are down and we are in a half-torn-down state. A clean
+    // restart brings the node back healthy on the OLD image so it can retry.
+    delay(400); ESP.restart();
+    return;
+  }
   if (r == HTTP_UPDATE_OK) {
     delay(500);          // let otadata commit before we pull the trigger
     ESP.restart();
@@ -1543,8 +1576,7 @@ void hardwareTask(void* pv) {
 
 // ---- Core 0: network ----
 WebServer        server(80);
-WebSocketsServer localWS(LOCAL_WS_PORT);
-WebSocketsClient appWS;
+// (localWS/appWS declared earlier, above performUpdate, so OTA can tear them down)
 AsyncUDP         udp;
 
 bool     isAppConnected = false, appWSStarted = false;
@@ -1919,6 +1951,9 @@ void setupNetwork() {
         JsonDocument d;
         d[&quot;current&quot;]=FW_VERSION; d[&quot;latest&quot;]=updAvailVer; d[&quot;notes&quot;]=updNotes;
         d[&quot;available&quot;]=avail; d[&quot;error&quot;]=updError;
+        d[&quot;freeHeap&quot;]=(uint32_t)ESP.getFreeHeap();
+        d[&quot;maxBlock&quot;]=(uint32_t)ESP.getMaxAllocHeap();
+        d[&quot;otaFreeHeap&quot;]=otaFreeHeap; d[&quot;otaMaxBlock&quot;]=otaMaxBlock; d[&quot;otaStage&quot;]=updOtaStage;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/update/install&quot;, HTTP_POST, []() {
