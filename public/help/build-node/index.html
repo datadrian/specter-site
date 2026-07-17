@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.2-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -558,7 +558,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.11.1-maker&quot;
+#define FW_VERSION   &quot;2.11.2-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -789,6 +789,10 @@ volatile int      diagPulseChan = 0;      // 0 = prox ring, 1 = mag lobe
 volatile float    diagPulseInt  = 1.0f;   // 0..1 test drive level
 volatile int      diagPulseBrg  = 0;      // bearing deg for the mag-lobe test
 volatile int      diagStopReq   = 0;      // set by a diag &quot;stop&quot; frame to end a pulse early
+volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert detection until this millis()
+                                          // (a commanded diag pulse actuates LEDs/buzzer and physically
+                                          //  perturbs the sensors; without this the node re-fires off its
+                                          //  own drive, sputtering on/off at low level).
 volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (REM-pod)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
@@ -843,10 +847,13 @@ volatile int     rfProxPeak = 0;       // captured prox signature (delta)
 #define BASELINE_SETTLE_MS   2600    // post-boot settle before first baseline (avg window)
 #define ALERT_MAX_MS         5000    // max continuous alert (beep+flash) duration
 #define COOLDOWN_MS          6000    // enforced PROX quiet + re-baseline window after a prox alert
+#define MAG_REFRACTORY_MS    1500    // after a MAG event, hold off re-firing this long so a field
+                                     // hovering near threshold cannot sputter mag alerts on/off
 // Alert lifecycle: 0 = idle/armed, 1 = alerting, 2 = cooling down (quiet).
 volatile int      alertPhase       = 0;
 volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
 volatile bool     bootBaselineDone = false; // false until the settle window elapses
+volatile uint32_t magRefractoryUntil = 0;   // mag alert is held off until this millis()
 volatile uint32_t bootBaselineAt   = 0;     // millis() target for the boot baseline
 // Boot-baseline averaging: instead of snapping ONE (possibly noisy) sample at
 // the settle point, we accumulate readings across the whole settle window and
@@ -1277,6 +1284,11 @@ void hardwareTask(void* pv) {
             diagPulseReq = 0;
             diagStopReq  = 0;   // fresh pulse: clear any stale stop request
             uint32_t d0 = millis();
+            // Suppress the node&#x27;s OWN alert detection during the pulse: the LED
+            // ring + buzzer we are about to drive physically nudge the mag/prox
+            // sensors, and we must not let the node fire an &quot;alert&quot; off its own
+            // commanded actuation (that caused the low-level on/off sputter).
+            diagQuietUntil = d0 + diagPulseMs + 400;
             uint32_t hold = diagPulseMs; if (hold &lt; 50) hold = 50;
             float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
             // bearing -&gt; unit lobe direction for the mag-style test
@@ -1300,6 +1312,7 @@ void hardwareTask(void* pv) {
             }
             noTone(BUZZER_PIN);
             ledIdle(); ledShow();
+            diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
         // Proximity source: LC oscillator (theremin range) if enabled + wired, else
         // the built-in touchRead. Either way we end up with a single `proxVal` in the
@@ -1510,8 +1523,12 @@ void hardwareTask(void* pv) {
         // PROX alert paints; otherwise theremin/idle below.
         // ============================================================
         uint32_t nowMs = millis();
-        bool magLive  = bootBaselineDone &amp;&amp; magAlert;   // mag detects always
-        bool proxLive = bootBaselineDone &amp;&amp; proxAlert;  // prox gated by cadence below
+        // A commanded diag pulse (producer drive) actuates the node; while
+        // diagQuietUntil is in the future we must NOT treat the resulting sensor
+        // wobble as a real detection, or the node sputters alerts on/off.
+        bool diagQuiet = (nowMs &lt; diagQuietUntil);
+        bool magLive  = bootBaselineDone &amp;&amp; magAlert &amp;&amp; !diagQuiet;
+        bool proxLive = bootBaselineDone &amp;&amp; proxAlert &amp;&amp; !diagQuiet;
 
         // ---------- PROX cadence state machine (prox only) ----------
         bool proxPainting = false;   // did the prox cadence paint the ring this cycle?
@@ -1563,7 +1580,15 @@ void hardwareTask(void* pv) {
         // Mag paints with priority over prox. It also fires its own events and an
         // optional buzzer, independent of the prox cadence above.
         bool magPainting = false;
-        if (magLive) {
+        // MAG refractory: once a mag alert fires we hold off re-firing for
+        // MAG_REFRACTORY_MS. Without this, a field parked right around threshMag
+        // (e.g. a producer holding a low-intensity mag drive, or a real magnet
+        // held nearby) flickers magAlert on/off every few cycles and the node
+        // sputters low-level mag events on and off. The refractory turns that
+        // into one clean event, then silence until the field clearly re-crosses.
+        bool magInRefractory = (nowMs &lt; magRefractoryUntil);
+        if (magLive &amp;&amp; !magInRefractory) {
+            magRefractoryUntil = nowMs + MAG_REFRACTORY_MS;
             const char* sev = &quot;low&quot;;
             if (magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
             else if (magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
