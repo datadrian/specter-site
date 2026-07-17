@@ -137,7 +137,7 @@
         <div class="sim" id="sim-root">
           <div class="phone">
             <div class="screen">
-              <div class="sim-bar"><span class="dot"></span> NODE · REM-POD A <span class="rt" id="sim-status">● 10 Hz</span></div>
+              <div class="sim-bar"><span class="dot"></span> NODE · SPECTER NODE A <span class="rt" id="sim-status">● 10 Hz</span></div>
               <div class="sim-feed">
                 <div class="feed-tag">DIRECTION FINDER</div>
                 <canvas id="sim-mesh"></canvas>
@@ -560,7 +560,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 // ---- identity / version ----
 #define FW_VERSION   &quot;2.11.2-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
-static char nodeName[32] = &quot;REM-Pod A&quot;;
+static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
 // ---- pins ----
 #define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) -- capacitive telescopic antenna
@@ -793,11 +793,11 @@ volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert 
                                           // (a commanded diag pulse actuates LEDs/buzzer and physically
                                           //  perturbs the sensors; without this the node re-fires off its
                                           //  own drive, sputtering on/off at low level).
-volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (REM-pod)
+volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (proximity field)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
 // rises smoothly as a hand approaches (well before the trigger), driving LED
-// brightness and (optionally) a continuously-pitched buzzer tone. The REM-pod
+// brightness and (optionally) a continuously-pitched buzzer tone. The proximity
 // event/alert path still fires when the field crosses threshProx, so snapshots
 // and the app dashboard keep working.
 volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
@@ -1430,7 +1430,7 @@ void hardwareTask(void* pv) {
             threshMag = (int)(12.0f + t * t * 900.0f);
         }
 
-        // Proximity as ABSOLUTE deviation from a rolling baseline -- true REM-pod behavior.
+        // Proximity as ABSOLUTE deviation from a rolling baseline -- absolute-deviation proximity behavior.
         // A hand nearing the antenna changes its capacitance, moving touchRead() away from
         // baseline in EITHER direction (rises or falls depending on core/board). We react to
         // the magnitude of the change, so approach -- not just contact -- triggers.
@@ -1776,7 +1776,7 @@ void setupNetwork() {
     rfActive    = prefs.getInt(&quot;rfOn&quot;, 0) == 1;
     telemetryHz = prefs.getInt(&quot;hz&quot;, TELEMETRY_HZ_DEFAULT);
     prefs.getString(&quot;name&quot;, &quot;&quot;).toCharArray(nodeName, sizeof(nodeName));
-    if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;REM-Pod A&quot;, sizeof(nodeName));
+    if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;SPECTER Node A&quot;, sizeof(nodeName));
     prefs.end();
 
     WiFi.mode(WIFI_AP_STA);
@@ -2395,7 +2395,7 @@ function setSimMode(m){
     ctx.beginPath();ctx.arc(cx,cy,5,0,TWO_PI);ctx.fill();ctx.stroke();
   }
 
-  setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED \u00b7 REM-Pod A');tick();},60);
+  setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED \u00b7 SPECTER Node A');tick();},60);
   window.addEventListener('resize',resize);
 })();
 </script>
