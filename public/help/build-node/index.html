@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.9.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.10.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -547,7 +547,7 @@ syncThr();wifiStatus();connect();
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.9.1-maker&quot;
+#define FW_VERSION   &quot;2.10.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -719,6 +719,14 @@ volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
 volatile int     ledTestReq   = 0;   // 0 none,1 boot,2 mag,3 prox,4 red,5 green,6 blue,7 white (portal preview)
+// Diagnostic actuator self-test: verifies the buzzer + LED ring respond to a
+// commanded pulse (used by the field diagnostics sweep). channel 0=prox-style
+// ring fade, 1=mag-style directional lobe. Duration in ms, intensity 0..1.
+volatile int      diagPulseReq  = 0;      // 0 none, 1 armed
+volatile uint32_t diagPulseMs   = 0;      // how long to hold the actuator test
+volatile int      diagPulseChan = 0;      // 0 = prox ring, 1 = mag lobe
+volatile float    diagPulseInt  = 1.0f;   // 0..1 test drive level
+volatile int      diagPulseBrg  = 0;      // bearing deg for the mag-lobe test
 volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (REM-pod)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
@@ -770,7 +778,7 @@ volatile int     rfProxPeak = 0;       // captured prox signature (delta)
 //                   no prox LEDs, no prox events) and re-baselines PROX ONLY to the
 //                   current ambient. The mag baseline is left untouched. This stops
 //                   the constant prox beeping while keeping mag detection fully live.
-#define BASELINE_SETTLE_MS   1500    // post-boot settle before first baseline
+#define BASELINE_SETTLE_MS   2600    // post-boot settle before first baseline (avg window)
 #define ALERT_MAX_MS         5000    // max continuous alert (beep+flash) duration
 #define COOLDOWN_MS          6000    // enforced PROX quiet + re-baseline window after a prox alert
 // Alert lifecycle: 0 = idle/armed, 1 = alerting, 2 = cooling down (quiet).
@@ -778,6 +786,12 @@ volatile int      alertPhase       = 0;
 volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
 volatile bool     bootBaselineDone = false; // false until the settle window elapses
 volatile uint32_t bootBaselineAt   = 0;     // millis() target for the boot baseline
+// Boot-baseline averaging: instead of snapping ONE (possibly noisy) sample at
+// the settle point, we accumulate readings across the whole settle window and
+// use their mean. A stable mean = a stable auto-threshold, so the node stops
+// false-triggering right after power-on.
+volatile double   blMagXsum = 0, blMagYsum = 0, blMagZsum = 0, blProxSum = 0;
+volatile uint32_t blSamples = 0;
 float            rfTolerance = 0.35f;  // +/- 35% band
 volatile bool    rfCapturing = false;  // true while HOLD-capturing a signature
 volatile int     rfCapMag = 0, rfCapProx = 0;  // running peak during capture
@@ -1141,6 +1155,7 @@ void hardwareTask(void* pv) {
     // THEN snap a clean ambient baseline. Until then, hold alerts off.
     bootBaselineAt   = millis() + BASELINE_SETTLE_MS;
     bootBaselineDone = false;
+    blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
     alertPhase = 0; alertPhaseStart = 0;
 
     for (;;) {
@@ -1182,6 +1197,35 @@ void hardwareTask(void* pv) {
                 ledIdle(); ledShow();
             }
         }
+        // ---- Diagnostic actuator pulse (commanded self-test) ----------------
+        // Drives the ring + buzzer for the requested window using the same
+        // render/tone path as a live reading, then returns to idle. This is the
+        // hook the field diagnostics sweep uses to confirm the actuators work.
+        if (diagPulseReq) {
+            diagPulseReq = 0;
+            uint32_t d0 = millis();
+            uint32_t hold = diagPulseMs; if (hold &lt; 50) hold = 50;
+            float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
+            // bearing -&gt; unit lobe direction for the mag-style test
+            float rad = (diagPulseBrg - 90) * 0.01745329f;
+            int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
+            while (millis() - d0 &lt; hold) {
+                if (diagPulseChan == 1) {
+                    renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + lvl * 0.65f);
+                    tone(BUZZER_PIN, 1500 + (int)(lvl * 400), 30);
+                } else {
+                    renderProxFade(ledCfg.proxColor, 0.15f + lvl * 1.05f);
+                    int hz = 500 + (int)(lvl * lvl * 1500.0f);
+                    tone(BUZZER_PIN, hz, 30);
+                }
+                FastLED.setBrightness(ledCfg.bright); ledShow();
+                delay(20);
+                // allow an early stop mid-pulse
+                if (diagPulseReq == 0 &amp;&amp; diagPulseMs == 0) break;
+            }
+            noTone(BUZZER_PIN);
+            ledIdle(); ledShow();
+        }
         // Proximity source: LC oscillator (theremin range) if enabled + wired, else
         // the built-in touchRead. Either way we end up with a single `proxVal` in the
         // same units the rest of the pipeline already understands, so baseline,
@@ -1216,9 +1260,23 @@ void hardwareTask(void* pv) {
         // BOOT AUTO-BASELINE: once the settle window has elapsed, take one clean
         // ambient baseline. This runs after the sensors have had time to stabilize
         // post power-on, so we don&#x27;t lock onto noisy startup values.
-        if (!bootBaselineDone &amp;&amp; (int32_t)(millis() - bootBaselineAt) &gt;= 0) {
-            recalibrate = true;
-            bootBaselineDone = true;
+        if (!bootBaselineDone) {
+            // Accumulate settle-window samples for a robust mean baseline.
+            blMagXsum += magX; blMagYsum += magY; blMagZsum += magZ;
+            blProxSum += proxVal; blSamples++;
+            if ((int32_t)(millis() - bootBaselineAt) &gt;= 0) {
+                // Window closed: adopt the AVERAGE as the clean ambient baseline.
+                if (blSamples &gt; 0) {
+                    baseMagX = (int)(blMagXsum / blSamples);
+                    baseMagY = (int)(blMagYsum / blSamples);
+                    baseMagZ = (int)(blMagZsum / blSamples);
+                    baseProx = (int)(blProxSum / blSamples);
+                    proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
+                } else {
+                    recalibrate = true;   // no samples (shouldn&#x27;t happen) -&gt; single-shot fallback
+                }
+                bootBaselineDone = true;
+            }
         }
 
         if (recalibrate) {
@@ -1556,6 +1614,17 @@ void handleCommand(JsonDocument&amp; doc) {
             fill_solid(leds, LED_MAX, CRGB::White); ledShow(); delay(120);
             fill_solid(leds, LED_MAX, CRGB::Black); ledShow(); delay(120);
         }
+    } else if (!strcmp(cmd, &quot;diag&quot;)) {
+        // Field diagnostics: actuator self-test. Confirms the buzzer + LED ring
+        // are driven correctly by pulsing them for the requested window. The
+        // hardware task performs the pulse so it shares the same render/tone
+        // path as a live reading (accurate end-to-end check).
+        const char* mode = doc[&quot;mode&quot;] | &quot;pulse&quot;;
+        diagPulseChan = (!strcmp(doc[&quot;ch&quot;] | &quot;prox&quot;, &quot;mag&quot;)) ? 1 : 0;
+        diagPulseInt  = constrain((float)(doc[&quot;level&quot;] | 1.0), 0.0f, 1.0f);
+        diagPulseBrg  = (int)(doc[&quot;brg&quot;] | 0);
+        if (!strcmp(mode, &quot;stop&quot;)) { diagPulseReq = 0; diagPulseMs = 0; }
+        else { diagPulseMs = constrain((uint32_t)(doc[&quot;ms&quot;] | 600), (uint32_t)50, (uint32_t)8000); diagPulseReq = 1; }
     }
 }
 
