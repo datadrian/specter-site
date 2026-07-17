@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -537,19 +537,28 @@ if($(&#x27;ev-prox-t&#x27;)){$(&#x27;ev-prox-t&#x27;).onclick=function(){themeSa
 if($(&#x27;boot-save&#x27;)){$(&#x27;boot-save&#x27;).onclick=function(){bootSave(function(){})};}
 if($(&#x27;boot-test&#x27;)){$(&#x27;boot-test&#x27;).onclick=function(){bootSave(function(){ledPreview(&#x27;boot&#x27;)})};}
 // ---- firmware update ----
-function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;
- if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error;return}
- if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; -- &#x27;+d.notes:&#x27;&#x27;)}
- else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;--&#x27;)+&#x27;).&#x27;}}
+function fmtK(v){v=+v||0;return v&gt;=1024?(Math.round(v/1024)+&#x27;K&#x27;):(&#x27;&#x27;+v)}
+function updDiag(d){
+ // largest contiguous block is what the TLS OTA needs; surface it + any
+ // persisted failure from the previous (rebooted) flash attempt.
+ var bits=[];
+ if(d.maxBlock!=null)bits.push(&#x27;free block &#x27;+fmtK(d.maxBlock));
+ if(d.lastOtaErr)bits.push(&#x27;last flash: &#x27;+d.lastOtaErr+(d.lastOtaErrStr?&#x27; (&#x27;+d.lastOtaErrStr+&#x27;)&#x27;:&#x27;&#x27;)+(d.lastOtaBlock!=null?&#x27; @ block &#x27;+fmtK(d.lastOtaBlock):&#x27;&#x27;));
+ return bits.length?(&#x27; · &#x27;+bits.join(&#x27; · &#x27;)):&#x27;&#x27;}
+function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;var diag=updDiag(d||{});
+ if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error+diag;return}
+ if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; -- &#x27;+d.notes:&#x27;&#x27;)+diag}
+ else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;--&#x27;)+&#x27;).&#x27;+diag}}
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
 $(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
 syncThr();wifiStatus();connect();
+fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(function(d){if(d&amp;&amp;d.lastOtaErr)updRender(d)}).catch(function(){});
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.11.0-maker&quot;
+#define FW_VERSION   &quot;2.11.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;REM-Pod A&quot;;
 
@@ -623,6 +632,9 @@ String updAvailVer = &quot;&quot;;
 String updBinUrl   = &quot;&quot;;
 String updNotes    = &quot;&quot;;
 String updError    = &quot;&quot;;
+String lastOtaErr  = &quot;&quot;;   // persisted reason of the PREVIOUS failed OTA (survives reboot)
+String lastOtaErrStr = &quot;&quot;;
+uint32_t lastOtaErrHeap = 0, lastOtaErrBlk = 0, lastOtaErrAt = 0;
 // OTA diagnostics -- surfaced in /update/check so we can see WHY a flash failed.
 volatile uint32_t otaFreeHeap = 0;   // free heap captured right before the OTA
 volatile uint32_t otaMaxBlock = 0;   // largest contiguous block (TLS needs this)
@@ -664,6 +676,7 @@ bool checkForUpdate() {
 // port literal is used directly to avoid depending on a later #define.
 WebSocketsServer localWS(81);   // LOCAL_WS_PORT
 WebSocketsClient appWS;
+Preferences prefs;   // moved above performUpdate: it persists OTA-failure reason to NVS
 
 void performUpdate(const String&amp; url) {
   if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
@@ -693,12 +706,25 @@ void performUpdate(const String&amp; url) {
   if (r == HTTP_UPDATE_FAILED) {
     updError = &quot;flash-&quot; + String(httpUpdate.getLastError());
     updOtaStage = 3;                        // 3 = failed; caller should reboot to
+    // Persist the failure so it survives the recovery reboot (otherwise the
+    // reason vanishes and OTA failures are impossible to diagnose in the field).
+    // We record the httpUpdate error code + string and the heap we had for TLS.
+    {
+      prefs.begin(&quot;specter&quot;, false);
+      prefs.putString(&quot;otaErr&quot;, updError);
+      prefs.putString(&quot;otaErrStr&quot;, httpUpdate.getLastErrorString());
+      prefs.putUInt(&quot;otaErrHeap&quot;, otaFreeHeap);
+      prefs.putUInt(&quot;otaErrBlk&quot;, otaMaxBlock);
+      prefs.putUInt(&quot;otaErrAt&quot;, (uint32_t)(millis()/1000));
+      prefs.end();
+    }
     // Recovery: sockets are down and we are in a half-torn-down state. A clean
     // restart brings the node back healthy on the OLD image so it can retry.
     delay(400); ESP.restart();
     return;
   }
   if (r == HTTP_UPDATE_OK) {
+    prefs.begin(&quot;specter&quot;, false); prefs.remove(&quot;otaErr&quot;); prefs.remove(&quot;otaErrStr&quot;); prefs.end();
     delay(500);          // let otadata commit before we pull the trigger
     ESP.restart();
   }
@@ -743,7 +769,6 @@ void rebindRgbw() {
     rgbwStrip-&gt;begin();
     rgbwStrip-&gt;show();
 }
-Preferences prefs;
 volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
 volatile int     proxVal = 0;
@@ -1158,6 +1183,11 @@ void hardwareTask(void* pv) {
     ledCfg.mLeft  = prefs.getInt(&quot;ledLeft&quot;,  ledCfg.mLeft);
     ledCfg.magRot = prefs.getInt(&quot;ledMagRot&quot;, ledCfg.magRot);
     ledCfg.magFlip = prefs.getInt(&quot;ledMagFlip&quot;, ledCfg.magFlip);
+    lastOtaErr    = prefs.getString(&quot;otaErr&quot;, &quot;&quot;);
+    lastOtaErrStr = prefs.getString(&quot;otaErrStr&quot;, &quot;&quot;);
+    lastOtaErrHeap= prefs.getUInt(&quot;otaErrHeap&quot;, 0);
+    lastOtaErrBlk = prefs.getUInt(&quot;otaErrBlk&quot;, 0);
+    lastOtaErrAt  = prefs.getUInt(&quot;otaErrAt&quot;, 0);
     ledCfg.magColor   = prefs.getUInt(&quot;ledMagC&quot;,  ledCfg.magColor);
     ledCfg.magAnim    = prefs.getInt(&quot;ledMagA&quot;,   ledCfg.magAnim);
     ledCfg.proxColor  = prefs.getUInt(&quot;ledPrxC&quot;,  ledCfg.proxColor);
@@ -1959,6 +1989,12 @@ void setupNetwork() {
         d[&quot;current&quot;]=FW_VERSION; d[&quot;channel&quot;]=updateUrl; d[&quot;checked&quot;]=updChecked;
         d[&quot;latest&quot;]=updAvailVer; d[&quot;notes&quot;]=updNotes; d[&quot;error&quot;]=updError;
         d[&quot;available&quot;]=(updChecked &amp;&amp; updAvailVer.length() &amp;&amp; versionCompare(FW_VERSION, updAvailVer)&gt;0);
+        // Last FAILED OTA (persisted across the recovery reboot) so field
+        // failures are diagnosable: reason, driver string, and the heap we had.
+        d[&quot;lastOtaErr&quot;]=lastOtaErr; d[&quot;lastOtaErrStr&quot;]=lastOtaErrStr;
+        d[&quot;lastOtaHeap&quot;]=lastOtaErrHeap; d[&quot;lastOtaBlock&quot;]=lastOtaErrBlk;
+        d[&quot;maxBlock&quot;]=(uint32_t)ESP.getMaxAllocHeap();
+        d[&quot;freeHeap&quot;]=(uint32_t)ESP.getFreeHeap();
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/update/check&quot;, []() {
