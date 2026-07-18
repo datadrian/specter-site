@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -558,7 +558,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.0-maker&quot;
+#define FW_VERSION   &quot;2.12.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1387,7 +1387,7 @@ void hardwareTask(void* pv) {
                     // Guard band: the real trigger sits at least (noiseFloor + 60%)
                     // above rest, and never below the operator&#x27;s slider value. This
                     // is what stops the constant low-level proximity chatter.
-                    effThreshProx = proxNoiseFloor + (proxNoiseFloor / 2) + 6;
+                    effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
                     if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
                     if (effThreshProx &lt; 12) effThreshProx = 12;
                 } else {
@@ -1574,8 +1574,15 @@ void hardwareTask(void* pv) {
             }
         } else if (alertPhase == 1) {
             // PROX ALERTING: beep + ring fade + event, up to ALERT_MAX_MS, then cooldown.
+            // HYSTERESIS: once we&#x27;re alerting, keep alerting until the field drops
+            // BELOW a lower release level (75% of the trigger). Without this, a real
+            // touch whose delta hovers right at effThreshProx flickers proxLive off
+            // for a single cycle and cancels the alert the instant it began -- the
+            // &quot;beeps once then stops&quot; symptom. proxHeld stays true through the dips.
+            int proxReleaseThr = (effThreshProx * 3) / 4;
+            bool proxHeld = bootBaselineDone &amp;&amp; !diagQuiet &amp;&amp; (proxDelta &gt; proxReleaseThr);
             bool expired = (nowMs - alertPhaseStart &gt;= ALERT_MAX_MS);
-            if (expired || !proxLive) {
+            if (expired || !proxHeld) {
                 noTone(BUZZER_PIN);
                 alertPhase = 2;
                 alertPhaseStart = nowMs;
@@ -1609,32 +1616,25 @@ void hardwareTask(void* pv) {
         }
 
         // ---------- MAG: ALWAYS-ON detection + LEDs (no cooldown) ----------
-        // Mag paints with priority over prox. It also fires its own events and an
-        // optional buzzer, independent of the prox cadence above.
+        // Mag paints with priority over prox. Two separate concerns:
+        //   (a) LED DIRECTION display: paints EVERY cycle while a field is present,
+        //       so a held magnet continuously shows which side it&#x27;s on (this is the
+        //       core behavior -- do NOT gate it behind the refractory).
+        //   (b) EVENT + buzzer: rate-limited by MAG_REFRACTORY_MS so a field parked
+        //       near threshMag fires ONE clean event instead of sputtering on/off.
+        // v2.11.2 wrongly wrapped BOTH under the refractory, which made a held
+        // magnet flash the LEDs for one frame then go dark for 1.5s (&quot;mag doesn&#x27;t
+        // show at all&quot;). Split back apart here.
         bool magPainting = false;
-        // MAG refractory: once a mag alert fires we hold off re-firing for
-        // MAG_REFRACTORY_MS. Without this, a field parked right around threshMag
-        // (e.g. a producer holding a low-intensity mag drive, or a real magnet
-        // held nearby) flickers magAlert on/off every few cycles and the node
-        // sputters low-level mag events on and off. The refractory turns that
-        // into one clean event, then silence until the field clearly re-crosses.
         bool magInRefractory = (nowMs &lt; magRefractoryUntil);
-        if (magLive &amp;&amp; !magInRefractory) {
-            magRefractoryUntil = nowMs + MAG_REFRACTORY_MS;
+        if (magLive) {
             const char* sev = &quot;low&quot;;
             if (magDelta &gt; threshMag * 3) sev = &quot;high&quot;;
             else if (magDelta &gt; threshMag * 2) sev = &quot;med&quot;;
-            // Fire a mag event (rate-limited by eventPending; prox event won&#x27;t clobber
-            // because mag runs after and only when no event is already queued).
-            if (!eventPending) {
-                strncpy(evtChannel, &quot;mag&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
-                strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
-                strncpy(evtKind, &quot;mag_anomaly&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
-                evtValue = magDelta; evtThreshold = threshMag; eventPending = true;
-            }
             uint8_t sevScale = 150;
             if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
             else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
+            // (a) DIRECTIONAL LEDS -- every cycle while the field is live.
             if (ledCfg.magAnim == 0) {
                 float mstr = (float)(magDelta - threshMag) / (float)(threshMag * 2 + 1);
                 mstr = 0.35f + mstr; if (mstr &gt; 1) mstr = 1; if (mstr &lt; 0.35f) mstr = 0.35f;
@@ -1642,9 +1642,18 @@ void hardwareTask(void* pv) {
             } else {
                 renderEventLeds(ledCfg.magColor, ledCfg.magAnim, sevScale, nowMs);
             }
-            // Optional mag buzzer: only chirp if the user hasn&#x27;t muted mag tone.
-            if (magToneOn) { tone(BUZZER_PIN, 1600, 30); }
             magPainting = true;
+            // (b) EVENT + buzzer -- only once per refractory window.
+            if (!magInRefractory) {
+                magRefractoryUntil = nowMs + MAG_REFRACTORY_MS;
+                if (!eventPending) {
+                    strncpy(evtChannel, &quot;mag&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
+                    strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
+                    strncpy(evtKind, &quot;mag_anomaly&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
+                    evtValue = magDelta; evtThreshold = threshMag; eventPending = true;
+                }
+                if (magToneOn) { tone(BUZZER_PIN, 1600, 30); }
+            }
         }
 
         // THEREMIN OVERLAY: continuous prox glow + pitch below the alert threshold,
@@ -1726,7 +1735,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (!strcmp(ch, &quot;prox&quot;)) {
             threshProx = val;
             // Re-apply the guard band around the operator&#x27;s new value.
-            effThreshProx = proxNoiseFloor + (proxNoiseFloor / 2) + 6;
+            effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
             if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
             if (effThreshProx &lt; 12) effThreshProx = 12;
         }
