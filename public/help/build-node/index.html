@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.2-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -558,7 +558,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.1-maker&quot;
+#define FW_VERSION   &quot;2.12.2-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -639,6 +639,8 @@ uint32_t lastOtaErrHeap = 0, lastOtaErrBlk = 0, lastOtaErrAt = 0;
 volatile uint32_t otaFreeHeap = 0;   // free heap captured right before the OTA
 volatile uint32_t otaMaxBlock = 0;   // largest contiguous block (TLS needs this)
 volatile int      updOtaStage = 0;   // 0 idle,1 prepping,2 flashing,3 failed
+volatile bool     otaActive   = false; // when true, hardwareTask idles so FastLED bit-banging
+                                       // (which disables IRQs) can&#x27;t corrupt the WiFi RX mid-OTA download
 bool   updChecked  = false;
 
 // Returns &gt;0 if server version is newer than local (semver-ish, numeric parts).
@@ -680,6 +682,11 @@ Preferences prefs;   // moved above performUpdate: it persists OTA-failure reaso
 
 void performUpdate(const String&amp; url) {
   if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
+  // Park the hardware task FIRST so no FastLED.show() runs during the TLS download
+  // (its IRQ-disable windows corrupt the WiFi RX and fail the flash mid-stream).
+  // Give it two task ticks to reach the guard and go quiet before we proceed.
+  otaActive = true;
+  delay(120);
   // FREE HEAP FOR TLS: the firmware OTA is an HTTPS download, and its handshake
   // needs a big contiguous heap block. On a node that has been running a while,
   // the WebSocket server + app client + their session buffers fragment/consume
@@ -1254,6 +1261,12 @@ void hardwareTask(void* pv) {
     alertPhase = 0; alertPhaseStart = 0;
 
     for (;;) {
+        // OTA GUARD: during a firmware download we must NOT drive the WS2812 strip.
+        // FastLED.show() disables interrupts for the whole bit-bang (~0.5ms/16px);
+        // repeated back-to-back on core 1 while core 0 streams a 1.1MB TLS download
+        // starves/corrupts the WiFi RX path and the flash fails mid-stream. Park the
+        // task quietly (no LED writes, no sensor churn) until the OTA finishes/reboots.
+        if (otaActive) { vTaskDelay(pdMS_TO_TICKS(50)); continue; }
         if (ledTestReq) {
             int req = ledTestReq; ledTestReq = 0;
             if (req == 8) { ledIdle(); FastLED.setBrightness(ledCfg.bright); ledShow(); }  // live refresh after config save
