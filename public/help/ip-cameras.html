@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTER Help: Security System / IP Camera Wall</title>
+  <meta name="description" content="Connect a Lorex or any RTSP / ONVIF NVR to SPECTER and run live anomaly detection across four security camera feeds at once in the IP Camera Wall.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">&#9698; SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/help/" class="active">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide help-body">
+    <p class="fine"><a href="/help/">&larr; Help center</a></p>
+    <h1>SECURITY SYSTEM INTEGRATION</h1>
+    <p class="tagline">Bring the cameras already covering your location into SPECTER and run detection on all of them at once</p>
+
+    <p>Most locations worth investigating already have security cameras watching the halls, the stairwell, or the room you cannot sit in all night. SPECTER can pull those feeds straight into the app through the <strong>IP Camera Wall</strong> and run its full anomaly detection on up to four of them at the same time, right alongside your primary sensor. Every hit is captured in HD and filed in the same evidence archive with a synchronized timecode.</p>
+
+    <div class="callout ok">
+      This works with a Lorex system or any NVR or camera that speaks standard <strong>RTSP</strong>, and SPECTER can auto-discover ONVIF cameras on your network. If your kit is Lorex or Dahua based, the built-in defaults are already set up for it.
+    </div>
+
+    <section id="what">
+      <h2>WHAT THE IP CAMERA WALL DOES</h2>
+      <ul>
+        <li>Shows up to four camera feeds in a live 2x2 grid.</li>
+        <li>Runs independent anomaly, figure, and skeletal detection on every cell at once.</li>
+        <li>Captures a full-resolution HD frame from a camera the instant it flags something.</li>
+        <li>Files every capture in your evidence archive with type, class, confidence, and timecode.</li>
+        <li>Lets you double-click any cell to blow it up to full screen, then press Esc to go back.</li>
+      </ul>
+    </section>
+
+    <section id="network">
+      <h2>WIRING IT UP</h2>
+      <p>The cleanest setup keeps your camera system on its own wired connection while your regular Wi-Fi stays free for the phone remote and the SPECTER Node.</p>
+      <ol>
+        <li>Run an Ethernet cable from the SPECTER laptop to a LAN port on your NVR (or to the same switch the cameras use).</li>
+        <li>Give the laptop a static IP in the NVR's range so they can see each other.</li>
+        <li>Leave Wi-Fi connected as normal for the phone remote and the Node. The two networks can stay separate.</li>
+      </ol>
+      <div class="callout">
+        On most NVRs, RTSP access is turned <strong>off by default</strong>. Enable it under the NVR's Network settings, usually under Advanced or Third-Party Access, before SPECTER can connect.
+      </div>
+    </section>
+
+    <section id="setup">
+      <h2>ADDING CAMERAS IN SPECTER</h2>
+      <ol>
+        <li>Open <strong>Settings</strong> and go to the <strong>Cameras</strong> tab.</li>
+        <li>Find the <strong>IP Cameras (Lorex / RTSP)</strong> card and turn it on.</li>
+        <li>Choose how your cameras are wired:
+          <ul>
+            <li><strong>Through NVR</strong> - enter the one NVR address and pick channels 1 through 8. Best for a Lorex or any recorder based setup.</li>
+            <li><strong>Direct</strong> - enter each camera's own address if they are standalone.</li>
+          </ul>
+        </li>
+        <li>Use <strong>Discover</strong> to scan the network for ONVIF cameras, or type the address in by hand. Test each one, then save.</li>
+      </ol>
+      <p>Switch to the IP Camera Wall at any time by pressing <strong>V</strong> to cycle views until you reach it. In this view SPECTER focuses on the camera feeds; your primary depth and thermal detectors idle until you cycle back.</p>
+    </section>
+
+    <section id="masking">
+      <h2>MASKING OUT FALSE POSITIVES</h2>
+      <p>A busy hallway or a bright doorway can trip detection over and over. Each cell has four corner masks you can toggle on to tell SPECTER to ignore that part of the frame, which cuts the noise from a ceiling light, a running clock, or a window.</p>
+    </section>
+
+    <section id="evidence">
+      <h2>WHERE THE EVIDENCE LANDS</h2>
+      <p>An IP camera capture is stored exactly like any other detection: a full HD frame, the detection type and class, the confidence score, and the global timecode so it lines up with everything else in the session. It shows up in the gallery and on the Evidence Wall next to your primary sensor captures. Editors reviewing the footage will find these files in the standard evidence folders.</p>
+    </section>
+
+    <section id="related">
+      <h2>RELATED</h2>
+      <ul>
+        <li><a href="/help/remote-monitoring.html">Remote &amp; multi-screen monitoring</a></li>
+        <li><a href="/help/detection-types.html">Detection types reference</a></li>
+        <li><a href="/help/field-guide.html">Technical field guide</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
