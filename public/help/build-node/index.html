@@ -297,7 +297,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.11.3-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -558,7 +558,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.11.3-maker&quot;
+#define FW_VERSION   &quot;2.12.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -807,7 +807,9 @@ volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert 
                                           // (a commanded diag pulse actuates LEDs/buzzer and physically
                                           //  perturbs the sensors; without this the node re-fires off its
                                           //  own drive, sputtering on/off at low level).
-volatile int     threshProx = 8;      // abs deviation from baseline; ABOVE this = detection (proximity field)
+volatile int     threshProx = 8;      // OPERATOR-set floor from the app slider (abs deviation, LSB)
+volatile int     proxNoiseFloor = 0;  // measured rest jitter (max |sample-mean|) during boot settle
+volatile int     effThreshProx = 40;  // ACTUAL prox trigger used = max(threshProx, proxNoiseFloor+margin)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
 // rises smoothly as a hand approaches (well before the trigger), driving LED
@@ -1366,6 +1368,14 @@ void hardwareTask(void* pv) {
             // Accumulate settle-window samples for a robust mean baseline.
             blMagXsum += magX; blMagYsum += magY; blMagZsum += magZ;
             blProxSum += proxVal; blSamples++;
+            // Track the noise floor: how far the resting prox reading swings around
+            // its running mean while nobody is near it. This becomes the minimum
+            // trigger threshold so idle jitter can never fire a false proximity alert.
+            if (blSamples &gt; 3) {
+                int runMean = (int)(blProxSum / blSamples);
+                int dev = abs(proxVal - runMean);
+                if (dev &gt; proxNoiseFloor) proxNoiseFloor = dev;
+            }
             if ((int32_t)(millis() - bootBaselineAt) &gt;= 0) {
                 // Window closed: adopt the AVERAGE as the clean ambient baseline.
                 if (blSamples &gt; 0) {
@@ -1374,6 +1384,12 @@ void hardwareTask(void* pv) {
                     baseMagZ = (int)(blMagZsum / blSamples);
                     baseProx = (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
+                    // Guard band: the real trigger sits at least (noiseFloor + 60%)
+                    // above rest, and never below the operator&#x27;s slider value. This
+                    // is what stops the constant low-level proximity chatter.
+                    effThreshProx = proxNoiseFloor + (proxNoiseFloor / 2) + 6;
+                    if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
+                    if (effThreshProx &lt; 12) effThreshProx = 12;
                 } else {
                     recalibrate = true;   // no samples (shouldn&#x27;t happen) -&gt; single-shot fallback
                 }
@@ -1449,7 +1465,9 @@ void hardwareTask(void* pv) {
         // baseline in EITHER direction (rises or falls depending on core/board). We react to
         // the magnitude of the change, so approach -- not just contact -- triggers.
         int proxDelta = abs(baseProx - proxVal);
-        bool proxAlert = (proxDelta &gt; threshProx);
+        // Use the guard-banded threshold: never fire below the measured rest
+        // jitter, so idle capacitance drift can&#x27;t sputter false proximity alerts.
+        bool proxAlert = (proxDelta &gt; effThreshProx);
         bool magAlert  = (magDelta &gt; threshMag);
 
         // THEREMIN FIELD: continuous 0..100 from proxDelta, scaled by proxSpan.
@@ -1563,18 +1581,18 @@ void hardwareTask(void* pv) {
                 alertPhaseStart = nowMs;
             } else {
                 const char* sev = &quot;low&quot;;
-                if (proxDelta &gt; threshProx + 40) sev = &quot;high&quot;;
-                else if (proxDelta &gt; threshProx + 18) sev = &quot;med&quot;;
+                if (proxDelta &gt; effThreshProx + 40) sev = &quot;high&quot;;
+                else if (proxDelta &gt; effThreshProx + 18) sev = &quot;med&quot;;
                 if (!eventPending) {
                     strncpy(evtChannel, &quot;prox&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
                     strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
                     strncpy(evtKind, &quot;proximity&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
-                    evtValue = proxDelta; evtThreshold = threshProx; eventPending = true;
+                    evtValue = proxDelta; evtThreshold = effThreshProx; eventPending = true;
                 }
-                int pitch = constrain(map(proxDelta, threshProx, threshProx + 60, 400, 2000), 400, 2000);
+                int pitch = constrain(map(proxDelta, effThreshProx, effThreshProx + 60, 400, 2000), 400, 2000);
                 tone(BUZZER_PIN, pitch, 40);
                 if (ledCfg.proxAnim == 0) {
-                    float approach = (float)(proxDelta - threshProx) / 40.0f;
+                    float approach = (float)(proxDelta - effThreshProx) / 40.0f;
                     approach = 0.15f + approach * 1.15f;
                     renderProxFade(ledCfg.proxColor, approach);
                 } else {
@@ -1682,16 +1700,36 @@ void persistThresholds() {
     prefs.end();
 }
 
-void handleCommand(JsonDocument&amp; doc) {
+// src: 0 = app WS (node-&gt;app link), 1 = local portal WS (browser).
+// ackNum only meaningful for src==1 (the local server needs the client num).
+void sendAck(int src, long id, bool ok, uint8_t localNum) {
+    if (id &lt; 0) return;                       // only _sendAcked frames carry an id
+    JsonDocument a; a[&quot;t&quot;] = &quot;ack&quot;; a[&quot;id&quot;] = id; a[&quot;ok&quot;] = ok;
+    String out; serializeJson(a, out);
+    if (src == 0) { if (isAppConnected) appWS.sendTXT(out); }
+    else          { localWS.sendTXT(localNum, out); }
+}
+
+void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     if (doc[&quot;t&quot;] != &quot;cmd&quot;) return;
     const char* cmd = doc[&quot;cmd&quot;] | &quot;&quot;;
+    // Every field-driver command (trigger/pattern/inject-as-diag) carries an `id`
+    // that the app is waiting to see echoed in an ack within 500ms; without it the
+    // app assumes the hardware didn&#x27;t fire and drops to the synthetic fallback.
+    long ackId = doc[&quot;id&quot;] | -1;
     if (!strcmp(cmd, &quot;ping&quot;)) {
         JsonDocument p; p[&quot;t&quot;] = &quot;pong&quot;; p[&quot;ts&quot;] = millis();
         String out; serializeJson(p, out); if (isAppConnected) appWS.sendTXT(out);
     } else if (!strcmp(cmd, &quot;setThreshold&quot;)) {
         const char* ch = doc[&quot;channel&quot;] | &quot;&quot;; int val = doc[&quot;value&quot;] | 0;
         if (!strcmp(ch, &quot;mag&quot;))  magSens = constrain(val, 0, 100);   // mag slider is 0..100 sensitivity
-        if (!strcmp(ch, &quot;prox&quot;)) threshProx = val;
+        if (!strcmp(ch, &quot;prox&quot;)) {
+            threshProx = val;
+            // Re-apply the guard band around the operator&#x27;s new value.
+            effThreshProx = proxNoiseFloor + (proxNoiseFloor / 2) + 6;
+            if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
+            if (effThreshProx &lt; 12) effThreshProx = 12;
+        }
         persistThresholds();
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
         proxTheremin = (bool)(doc[&quot;on&quot;] | false);
@@ -1722,6 +1760,7 @@ void handleCommand(JsonDocument&amp; doc) {
         prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;hz&quot;, telemetryHz); prefs.end();
     } else if (!strcmp(cmd, &quot;rebaseline&quot;)) {
         recalibrate = true;
+        sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;identify&quot;)) {
         for (int k = 0; k &lt; 3; k++) {
             fill_solid(leds, LED_MAX, CRGB::White); ledShow(); delay(120);
@@ -1738,6 +1777,44 @@ void handleCommand(JsonDocument&amp; doc) {
         diagPulseBrg  = (int)(doc[&quot;brg&quot;] | 0);
         if (!strcmp(mode, &quot;stop&quot;)) { diagStopReq = 1; diagPulseReq = 0; }
         else { diagPulseMs = constrain((uint32_t)(doc[&quot;ms&quot;] | 600), (uint32_t)50, (uint32_t)8000); diagStopReq = 0; diagPulseReq = 1; }
+        sendAck(src, ackId, true, localNum);
+    } else if (!strcmp(cmd, &quot;trigger&quot;)) {
+        // Remote fire from the producer (PROTOCOL: hold=true energizes until a
+        // matching hold=false releases it). We implement hold as a long pulse that
+        // a hold=false frame stops early, so the &quot;hold button&quot; and momentary blips
+        // both work. intensity maps to drive level: prox ring for a strong hit,
+        // mag lobe for a soft one.
+        bool holdKey = doc[&quot;hold&quot;].is&lt;bool&gt;() ? (bool)doc[&quot;hold&quot;] : true;
+        if (!holdKey) {
+            // Release: stop any active hold/pulse now.
+            diagStopReq = 1; diagPulseReq = 0;
+        } else {
+            float inten = constrain((float)(doc[&quot;intensity&quot;] | 1.0), 0.05f, 1.0f);
+            diagPulseChan = (inten &gt;= 0.66f) ? 0 : 1;   // strong=prox ring, soft=mag lobe
+            diagPulseInt  = inten;
+            diagPulseBrg  = (int)(doc[&quot;bearingDeg&quot;] | 0);
+            // Long hold window (30s safety cap) -- the app releases it with hold:false,
+            // or it self-ends so a dropped release frame can never latch outputs on.
+            diagPulseMs   = 30000;
+            diagStopReq = 0; diagPulseReq = 1;
+        }
+        sendAck(src, ackId, true, localNum);
+    } else if (!strcmp(cmd, &quot;pattern&quot;)) {
+        // Timed animated sequence. We run it as a long diag pulse on the prox ring;
+        // the hardware task&#x27;s renderEventLeds honors the configured proxAnim, so a
+        // themed pattern actually animates for the requested duration.
+        float inten = constrain((float)(doc[&quot;intensity&quot;] | 1.0), 0.05f, 1.0f);
+        uint32_t dur = constrain((uint32_t)(doc[&quot;durationMs&quot;] | 7000), (uint32_t)200, (uint32_t)20000);
+        diagPulseChan = 0;
+        diagPulseInt  = inten;
+        diagPulseBrg  = 0;
+        diagPulseMs   = dur;
+        diagStopReq = 0; diagPulseReq = 1;
+        sendAck(src, ackId, true, localNum);
+    } else {
+        // Unknown command: still ack (ok:false) so the app resolves fast instead of
+        // waiting out the 500ms timeout.
+        if (ackId &gt;= 0) sendAck(src, ackId, false, localNum);
     }
 }
 
@@ -1745,7 +1822,7 @@ void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
     if (type == WStype_CONNECTED) { isAppConnected = true; sendHello(); }
     else if (type == WStype_DISCONNECTED) { isAppConnected = false; }
     else if (type == WStype_TEXT) {
-        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc);
+        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 0, 0);
     }
 }
 void sendHelloTo(uint8_t num) {
@@ -1763,7 +1840,7 @@ void sendHelloTo(uint8_t num) {
 
 void localWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
     if (type == WStype_CONNECTED) { sendHelloTo(num); }
-    else if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc); }
+    else if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 1, num); }
 }
 
 void connectToApp(const String&amp; ip, int port) {
@@ -2074,7 +2151,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = threshProx; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
