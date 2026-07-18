@@ -1,10 +1,12 @@
 const { json } = require('./_lib/http');
-const { createTicket, getTicket, addReply } = require('./_lib/ticket-store');
+const { configureStore, createTicket, getTicket, addReply } = require('./_lib/ticket-store');
 const { sendTicketConfirmation, sendTicketStaffAlert } = require('./_lib/send-email');
 
 // Brevo inbound email webhook — configure in Brevo when support@specter-imaging.com receives mail.
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  configureStore(event);
 
   const secret = process.env.INBOUND_WEBHOOK_SECRET || '';
   if (secret) {

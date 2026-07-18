@@ -1,7 +1,7 @@
 const { json, corsPreflight } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
 const { configureStore, getStats } = require('./_lib/license-store');
-const { listTickets } = require('./_lib/ticket-store');
+const { configureStore: configureTicketStore, listTickets } = require('./_lib/ticket-store');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return corsPreflight();
@@ -10,6 +10,7 @@ exports.handler = async (event) => {
   const auth = requireAdmin(event);
   if (!auth.authorized) return auth.response;
   configureStore(event);
+  configureTicketStore(event);
 
   const [licenseStats, tickets] = await Promise.all([getStats(), listTickets()]);
   const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'waiting').length;

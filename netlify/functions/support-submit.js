@@ -1,10 +1,12 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
-const { createTicket } = require('./_lib/ticket-store');
+const { configureStore, createTicket } = require('./_lib/ticket-store');
 const { sendTicketConfirmation, sendTicketStaffAlert } = require('./_lib/send-email');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return corsPreflight();
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  configureStore(event);
 
   const body = readJson(event);
   const email = String(body.email || '').trim().toLowerCase();

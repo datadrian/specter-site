@@ -2,11 +2,32 @@ const crypto = require('crypto');
 
 const mem = new Map();
 let blobStore = null;
+let blobInitError = null;
 
-try {
-  const { getStore } = require('@netlify/blobs');
-  blobStore = getStore({ name: 'specter-tickets', consistency: 'strong' });
-} catch (_) {}
+function isNetlifyRuntime() {
+  return process.env.NETLIFY === 'true' || Boolean(process.env.SITE_ID);
+}
+
+// Mirror the proven license-store pattern: connectLambda(event) MUST run
+// (per request) before getStore() works in the Netlify Functions runtime.
+function configureStore(event) {
+  try {
+    const { connectLambda, getStore } = require('@netlify/blobs');
+    if (event) connectLambda(event);
+    blobStore = getStore('specter-tickets');
+    blobInitError = null;
+  } catch (e) {
+    blobStore = null;
+    blobInitError = e;
+    console.error('[ticket-store] Netlify Blobs unavailable:', e.message);
+    if (isNetlifyRuntime()) throw e;
+  }
+}
+
+function getBlobStore() {
+  if (!blobStore && !blobInitError) configureStore();
+  return blobStore;
+}
 
 function ticketKey(id) {
   return String(id || '').trim().toUpperCase();
@@ -18,14 +39,16 @@ function makeTicketId() {
 
 async function getTicket(id) {
   const key = ticketKey(id);
-  if (blobStore) return blobStore.get(key, { type: 'json' });
+  const store = getBlobStore();
+  if (store) return store.get(key, { type: 'json' });
   return mem.get(key) || null;
 }
 
 async function saveTicket(ticket) {
   const key = ticketKey(ticket.id);
-  if (blobStore) {
-    await blobStore.setJSON(key, ticket);
+  const store = getBlobStore();
+  if (store) {
+    await store.setJSON(key, ticket);
     return ticket;
   }
   mem.set(key, ticket);
@@ -33,11 +56,12 @@ async function saveTicket(ticket) {
 }
 
 async function listTickets() {
-  if (blobStore) {
-    const { blobs } = await blobStore.list();
+  const store = getBlobStore();
+  if (store) {
+    const { blobs } = await store.list();
     const out = [];
     for (const blob of blobs || []) {
-      const t = await blobStore.get(blob.key, { type: 'json' });
+      const t = await store.get(blob.key, { type: 'json' });
       if (t) out.push(t);
     }
     return out.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
@@ -98,6 +122,7 @@ async function setTicketStatus(ticketId, status) {
 }
 
 module.exports = {
+  configureStore,
   getTicket,
   saveTicket,
   listTickets,

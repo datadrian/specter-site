@@ -1,6 +1,6 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
-const { listTickets, getTicket, addReply, setTicketStatus } = require('./_lib/ticket-store');
+const { configureStore, listTickets, getTicket, addReply, setTicketStatus } = require('./_lib/ticket-store');
 const { sendTicketStaffReply } = require('./_lib/send-email');
 
 exports.handler = async (event) => {
@@ -8,6 +8,8 @@ exports.handler = async (event) => {
 
   const auth = requireAdmin(event);
   if (!auth.authorized) return auth.response;
+
+  configureStore(event);
 
   const ticketId = event.queryStringParameters?.id;
 
