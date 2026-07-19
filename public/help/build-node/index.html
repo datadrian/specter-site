@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.5-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.6-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.5-maker&quot;
+#define FW_VERSION   &quot;2.13.6-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -733,6 +733,8 @@ WebSocketsClient appWS[MAX_APPS];
 bool             appStarted[MAX_APPS]   = { false };
 bool             appConnected[MAX_APPS] = { false };
 String           appIP[MAX_APPS];
+uint32_t         appStartAt[MAX_APPS]   = { 0 };   // millis() when begin() was called; watchdog frees a slot that never CONNECTs
+#define APP_LINK_TIMEOUT_MS 6000                   // started-but-not-connected longer than this -&gt; force-release so the next beacon retries
 // ---- Thread-safe hand-off from the async UDP beacon callback to loop() --------
 // CRITICAL: WebSocketsClient is NOT thread-safe. The UDP beacon fires in the
 // AsyncUDP/tcpip task, NOT the main loop. Calling appWS[].begin()/disconnect()/
@@ -2146,6 +2148,7 @@ void appWsEvent(int slot, WStype_t type, uint8_t* payload, size_t length) {
         appConnected[slot] = false;
         appStarted[slot]   = false;
         appIP[slot]        = &quot;&quot;;
+        appStartAt[slot]   = 0;
         appWS[slot].disconnect();   // cancel the internal reconnect loop for this slot
     }
     else if (type == WStype_TEXT) {
@@ -2180,7 +2183,7 @@ void connectToApp(const String&amp; ip, int port) {
     int slot = -1;
     for (int i = 0; i &lt; MAX_APPS; i++) if (!appStarted[i]) { slot = i; break; }
     if (slot &lt; 0) return;
-    appIP[slot] = ip; appStarted[slot] = true;
+    appIP[slot] = ip; appStarted[slot] = true; appStartAt[slot] = millis();
     appWS[slot].begin(ip, port, &quot;/&quot;);
     // Capture the slot index so the shared handler knows WHICH app link fired.
     appWS[slot].onEvent([slot](WStype_t type, uint8_t* payload, size_t length) {
@@ -2200,6 +2203,24 @@ void connectToApp(const String&amp; ip, int port) {
 // cross-task race with loop()&#x27;s appWS[].loop(). Called every loop iteration; the
 // dedup in connectToApp makes repeated calls cheap (returns immediately if linked).
 void pumpAppLinks() {
+    // WATCHDOG (runs every loop): if a slot has been &quot;started&quot; but never reached
+    // CONNECTED within APP_LINK_TIMEOUT_MS, the WS layer is wedged (half-open
+    // socket, missed DISCONNECTED event, app was mid-restart when we linked, etc.)
+    // Internal auto-reconnect is disabled, and connectToApp() refuses to retry a
+    // slot it thinks is already linked -&gt; the node would stay dark until a reboot.
+    // Force-release the slot here (on the MAIN task) so the next beacon re-links.
+    // THIS is the fix for &quot;only a reboot finds the app again&quot; after 2.13.x.
+    uint32_t now = millis();
+    for (int i = 0; i &lt; MAX_APPS; i++) {
+        if (appStarted[i] &amp;&amp; !appConnected[i] &amp;&amp; appStartAt[i] &amp;&amp;
+            (uint32_t)(now - appStartAt[i]) &gt; APP_LINK_TIMEOUT_MS) {
+            appStarted[i]   = false;
+            appIP[i]        = &quot;&quot;;
+            appStartAt[i]   = 0;
+            appWS[i].disconnect();   // main-task disconnect (safe; not from the WS callback)
+            seenPending     = true;  // re-try any app IP still in the inbox this iteration (don&#x27;t wait 2s for the next beacon)
+        }
+    }
     if (!seenPending) return;
     char ips[MAX_SEEN][20]; int ports[MAX_SEEN]; int n = 0;
     portENTER_CRITICAL(&amp;seenMux);
