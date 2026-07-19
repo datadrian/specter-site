@@ -298,7 +298,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.4-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.5-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -571,7 +571,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.4-maker&quot;
+#define FW_VERSION   &quot;2.12.5-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1332,11 +1332,14 @@ void hardwareTask(void* pv) {
             // commanded actuation (that caused the low-level on/off sputter).
             diagQuietUntil = d0 + diagPulseMs + 400;
             uint32_t hold = diagPulseMs; if (hold &lt; 50) hold = 50;
-            float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
-            // bearing -&gt; unit lobe direction for the mag-style test
-            float rad = (diagPulseBrg - 90) * 0.01745329f;
-            int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
             while (millis() - d0 &lt; hold) {
+                // Re-read the commanded bearing + level EVERY frame so dragging the
+                // producer&#x27;s mag dial steers the lit lobe LIVE (point-and-drag) without
+                // needing a full pulse restart per move. The app streams fresh frames
+                // as the finger moves; each just updates diagPulseBrg/Int here.
+                float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
+                float rad = (diagPulseBrg - 90) * 0.01745329f;
+                int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
                 if (diagPulseChan == 1) {
                     renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + lvl * 0.65f);
                     tone(BUZZER_PIN, 1500 + (int)(lvl * 400), 30);
@@ -1347,10 +1350,17 @@ void hardwareTask(void* pv) {
                 }
                 FastLED.setBrightness(ledCfg.bright); ledShow();
                 delay(20);
-                // allow an early stop mid-pulse (explicit stop frame only), or let
-                // a brand-new pulse request preempt this one immediately.
+                // A newer frame that only moves the dial (same channel) extends the
+                // hold + updates bearing WITHOUT a visible restart; a stop ends it.
                 if (diagStopReq) { diagStopReq = 0; break; }
-                if (diagPulseReq) break;   // a newer pulse queued -&gt; restart with it
+                if (diagPulseReq) {
+                    // consume the queued frame in-place: keep sweeping, refresh the
+                    // hold window so a continuous drag never times out mid-gesture.
+                    diagPulseReq = 0;
+                    d0 = millis();
+                    hold = diagPulseMs; if (hold &lt; 50) hold = 50;
+                    diagQuietUntil = d0 + hold + 400;
+                }
             }
             noTone(BUZZER_PIN);
             ledIdle(); ledShow();
