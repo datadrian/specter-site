@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.0-maker&quot;
+#define FW_VERSION   &quot;2.13.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -881,7 +881,30 @@ volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert 
                                           //  own drive, sputtering on/off at low level).
 volatile int     threshProx = 8;      // OPERATOR-set floor from the app slider (abs deviation, LSB)
 volatile int     proxNoiseFloor = 0;  // measured rest jitter (max |sample-mean|) during boot settle
-volatile int     effThreshProx = 40;  // ACTUAL prox trigger used = max(threshProx, proxNoiseFloor+margin)
+volatile int     effThreshProx = 40;  // ACTUAL prox trigger used (see applyProxThreshold)
+
+// Compute the effective proximity trigger from the operator&#x27;s slider value.
+// DESIGN: the slider is AUTHORITATIVE. The measured boot noise floor only sets a
+// small anti-jitter minimum so idle capacitance drift can&#x27;t sputter false hits;
+// its influence is capped (PROX_JITTER_GUARD_MAX) so one noisy boot reading can
+// never desensitize the sensor for the whole session. This replaces the old
+// effThreshProx = proxNoiseFloor + margin, which pinned the trigger above the
+// slider and made moving the slider do nothing (the 2.12.0 regression).
+#define PROX_ABS_FLOOR        4    // never trigger below this (raw LSB) -- physical noise ~1-2
+#define PROX_JITTER_GUARD_MAX 10   // most the boot noise floor may raise the minimum
+static inline int applyProxThreshold(int sliderVal) {
+    // Jitter guard: a small margin above measured rest jitter, but capped so a
+    // noisy boot can&#x27;t dominate. This is the LOWEST the trigger may sit.
+    int guard = proxNoiseFloor + 4;
+    if (guard &gt; PROX_JITTER_GUARD_MAX) guard = PROX_JITTER_GUARD_MAX;
+    if (guard &lt; PROX_ABS_FLOOR)        guard = PROX_ABS_FLOOR;
+    // Operator slider wins: use it directly, only clamped up to the jitter guard
+    // so idle drift can&#x27;t chatter. Raising sensitivity (lower slider) now works
+    // all the way down to `guard`.
+    int eff = sliderVal;
+    if (eff &lt; guard) eff = guard;
+    return eff;
+}
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
 // rises smoothly as a hand approaches (well before the trigger), driving LED
@@ -1536,12 +1559,13 @@ void hardwareTask(void* pv) {
                     baseMagZ = (int)(blMagZsum / blSamples);
                     baseProx = (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
-                    // Guard band: the real trigger sits at least (noiseFloor + 60%)
-                    // above rest, and never below the operator&#x27;s slider value. This
-                    // is what stops the constant low-level proximity chatter.
-                    effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
-                    if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
-                    if (effThreshProx &lt; 12) effThreshProx = 12;
+                    // OPERATOR SLIDER IS AUTHORITATIVE. The noise floor only sets a
+                    // SMALL anti-jitter minimum so idle drift can&#x27;t chatter -- it must
+                    // never override an operator who wants high sensitivity. Cap the
+                    // floor&#x27;s influence so one noisy boot reading can&#x27;t desensitize
+                    // the whole session (was: effThreshProx = noiseFloor + margin,
+                    // which pinned the trigger high and made the slider a no-op).
+                    effThreshProx = applyProxThreshold(threshProx);
                 } else {
                     recalibrate = true;   // no samples (shouldn&#x27;t happen) -&gt; single-shot fallback
                 }
@@ -1908,10 +1932,9 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (!strcmp(ch, &quot;mag&quot;))  magSens = constrain(val, 0, 100);   // mag slider is 0..100 sensitivity
         if (!strcmp(ch, &quot;prox&quot;)) {
             threshProx = val;
-            // Re-apply the guard band around the operator&#x27;s new value.
-            effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
-            if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
-            if (effThreshProx &lt; 12) effThreshProx = 12;
+            // Slider is authoritative -- recompute directly from it so moving the
+            // slider ACTUALLY changes sensitivity (see applyProxThreshold).
+            effThreshProx = applyProxThreshold(threshProx);
         }
         persistThresholds();
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
