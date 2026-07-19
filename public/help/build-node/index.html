@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.2-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.1-maker&quot;
+#define FW_VERSION   &quot;2.13.2-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -2028,10 +2028,15 @@ void appWsEvent(int slot, WStype_t type, uint8_t* payload, size_t length) {
     if (slot &lt; 0 || slot &gt;= MAX_APPS) return;
     if (type == WStype_CONNECTED) { appConnected[slot] = true; sendHello(slot); }
     else if (type == WStype_DISCONNECTED) {
-        // Free the slot so its app IP can be re-discovered / reused. The
-        // WebSocketsClient keeps auto-reconnecting, but if the app is truly gone
-        // we still want the slot released for a different instance.
+        // FULLY release the slot: mark it disconnected AND stop the client so its
+        // built-in auto-reconnect can&#x27;t stall the shared single-threaded loop() on
+        // a dead/flapping app (a blocking TCP connect there freezes telemetry for
+        // ALL apps at once). The app re-announces via UDP beacon every 2s, so a
+        // still-present app is re-linked within ~2s; a truly-gone app just frees up.
         appConnected[slot] = false;
+        appStarted[slot]   = false;
+        appIP[slot]        = &quot;&quot;;
+        appWS[slot].disconnect();   // cancel the internal reconnect loop for this slot
     }
     else if (type == WStype_TEXT) {
         // Route the command with the slot index in the localNum arg so its ack
@@ -2071,7 +2076,13 @@ void connectToApp(const String&amp; ip, int port) {
     appWS[slot].onEvent([slot](WStype_t type, uint8_t* payload, size_t length) {
         appWsEvent(slot, type, payload, length);
     });
-    appWS[slot].setReconnectInterval(3000);
+    // Re-discovery is driven by the app&#x27;s 2s UDP beacon, NOT the client&#x27;s internal
+    // auto-reconnect -- a long internal reconnect can block the shared loop and
+    // freeze every other app link. Push it far out so loop() never stalls on it;
+    // a dropped link frees its slot (see WStype_DISCONNECTED) and the next beacon
+    // re-links. Also enable a light heartbeat so a wedged socket is detected fast.
+    appWS[slot].setReconnectInterval(600000);           // effectively off; beacon re-links
+    appWS[slot].enableHeartbeat(4000, 2000, 2);          // ping 4s, pong timeout 2s, drop after 2 misses
 }
 
 void setupNetwork() {
