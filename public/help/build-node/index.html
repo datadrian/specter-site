@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.4-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.5-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -403,7 +403,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-cyc-raw&#x27;))$(&#x27;prox-cyc-raw&#x27;).textContent=m.prox;if(m.touchCyc!=null){var pc=$(&#x27;prox-cyc&#x27;);if(pc&amp;&amp;!pc._userset){pc.value=m.touchCyc;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=m.touchCyc;}}if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-cyc-raw&#x27;))$(&#x27;prox-cyc-raw&#x27;).textContent=m.prox;if(m.proxAuto!=null){var pa=$(&#x27;prox-auto&#x27;);if(pa&amp;&amp;!pa._userset){pa.checked=!!m.proxAuto;if($(&#x27;prox-auto-v&#x27;))$(&#x27;prox-auto-v&#x27;).textContent=m.proxAuto?&#x27;adaptive&#x27;:&#x27;manual&#x27;;}}if(m.touchCyc!=null){var pc=$(&#x27;prox-cyc&#x27;);if(pc&amp;&amp;!pc._userset){pc.value=m.touchCyc;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=m.touchCyc;}}if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -450,7 +450,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Applies instantly &amp;mdash; no reboot. If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; SAVE a different GPIO, then RECALIBRATE with your hand away. (4/27/32/33 are the safe touch pins; boot-strap pins are excluded.)&lt;/div&gt;&lt;div class=row style=&quot;margin-top:10px&quot;&gt;&lt;label style=&quot;min-width:120px&quot;&gt;Sensitivity&lt;/label&gt;&lt;input type=range id=prox-cyc min=4096 max=65535 step=2048 style=&quot;flex:1&quot;&gt;&lt;span id=prox-cyc-v class=xyz style=&quot;min-width:54px;text-align:right&quot;&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=xyz id=prox-cyc-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Widens the touch measurement window. Raw reading now: &lt;b id=prox-cyc-raw&gt;&amp;mdash;&lt;/b&gt;. Slide RIGHT if a hand barely moves the value (a long antenna saturates the reading into a tiny swing); slide until an approaching hand clearly swings the raw number. Applies instantly &amp;amp; re-baselines.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Applies instantly &amp;mdash; no reboot. If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; SAVE a different GPIO, then RECALIBRATE with your hand away. (4/27/32/33 are the safe touch pins; boot-strap pins are excluded.)&lt;/div&gt;&lt;label style=&quot;display:block;margin-top:10px&quot;&gt;&lt;input type=checkbox id=prox-auto checked style=&quot;width:auto;vertical-align:middle&quot;&gt; Adaptive auto-baseline &amp;mdash; &lt;span id=prox-auto-v&gt;adaptive&lt;/span&gt;&lt;/label&gt;&lt;div class=xyz id=prox-auto-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;ON: the node measures each new location for 5s, then sets the trigger as sensitive as is safe here, and re-measures after every detection settles. A manual REFIT re-measures now. Moving the Sensitivity slider below switches to manual.&lt;/div&gt;&lt;div class=row style=&quot;margin-top:10px&quot;&gt;&lt;label style=&quot;min-width:120px&quot;&gt;Sensitivity&lt;/label&gt;&lt;input type=range id=prox-cyc min=4096 max=65535 step=2048 style=&quot;flex:1&quot;&gt;&lt;span id=prox-cyc-v class=xyz style=&quot;min-width:54px;text-align:right&quot;&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=xyz id=prox-cyc-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Widens the touch measurement window. Raw reading now: &lt;b id=prox-cyc-raw&gt;&amp;mdash;&lt;/b&gt;. Slide RIGHT if a hand barely moves the value (a long antenna saturates the reading into a tiny swing); slide until an approaching hand clearly swings the raw number. Applies instantly &amp;amp; re-baselines.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin mode &amp;mdash; continuous field&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;The ring glows and (optionally) the buzzer plays a rising pitch as your hand approaches the antenna &amp;mdash; not just on trigger. Alerts + snapshots still fire.&lt;/div&gt;
@@ -522,7 +522,7 @@ rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=true;}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
-if($(&#x27;prox-cyc&#x27;)){var pc=$(&#x27;prox-cyc&#x27;);pc.oninput=function(){pc._userset=true;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=pc.value;};pc.onchange=function(){proxPost(&#x27;/prox/cycles?cycles=&#x27;+pc.value).then(function(d){if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=(d.cycles||pc.value);setTimeout(function(){pc._userset=false;},1500);});};}if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
+if($(&#x27;prox-auto&#x27;)){var pa=$(&#x27;prox-auto&#x27;);pa.onchange=function(){pa._userset=true;proxPost(&#x27;/prox/auto?on=&#x27;+(pa.checked?1:0)).then(function(d){if($(&#x27;prox-auto-v&#x27;))$(&#x27;prox-auto-v&#x27;).textContent=(d.auto?&#x27;adaptive&#x27;:&#x27;manual&#x27;);setTimeout(function(){pa._userset=false;},1500);});};}if($(&#x27;prox-cyc&#x27;)){var pc=$(&#x27;prox-cyc&#x27;);pc.oninput=function(){pc._userset=true;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=pc.value;};pc.onchange=function(){proxPost(&#x27;/prox/cycles?cycles=&#x27;+pc.value).then(function(d){if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=(d.cycles||pc.value);setTimeout(function(){pc._userset=false;},1500);});};}if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=true;$(&#x27;therm-on&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:e.target.checked,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true})}}
 if($(&#x27;therm-tone&#x27;)){$(&#x27;therm-tone&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:e.target.checked})}}
 if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.4-maker&quot;
+#define FW_VERSION   &quot;2.13.5-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -908,13 +908,26 @@ volatile int     threshProx = 8;      // OPERATOR-set floor from the app slider 
 volatile int     proxNoiseFloor = 0;  // measured rest jitter (max |sample-mean|) during boot settle
 volatile int     effThreshProx = 40;  // ACTUAL prox trigger used (see applyProxThreshold)
 
-// Compute the effective proximity trigger from the operator&#x27;s slider value.
-// DESIGN: the slider is AUTHORITATIVE. The measured boot noise floor only sets a
-// small anti-jitter minimum so idle capacitance drift can&#x27;t sputter false hits;
-// its influence is capped (PROX_JITTER_GUARD_MAX) so one noisy boot reading can
-// never desensitize the sensor for the whole session. This replaces the old
-// effThreshProx = proxNoiseFloor + margin, which pinned the trigger above the
-// slider and made moving the slider do nothing (the 2.12.0 regression).
+// ADAPTIVE AUTO-BASELINE (Adrian): the node is moved to new places constantly, so
+// instead of a fixed slider we run a fresh 5s ambient measurement -- on boot AND
+// after every prox detection settles -- then set the trigger as SENSITIVE as is
+// safe for THIS spot: effThreshProx = noiseFloor + adaptive margin (margin scales
+// with how noisy the spot is). A manual REFIT / slider / recal overrides it until
+// the next cycle. Persisted; default ON.
+volatile bool     proxAutoBase = true;
+#define PROX_AUTOBASE_MS   5000    // duration of each prox-only auto-baseline window
+// Prox-only re-baseline window state (mirrors the boot-baseline accumulators but
+// for prox alone, so mag stays live the whole time).
+volatile bool     pbActive   = false;    // a prox auto-baseline window is running
+volatile uint32_t pbEndAt    = 0;        // millis() when the window closes
+volatile double   pbProxSum  = 0;        // running sum for the mean baseline
+volatile uint32_t pbSamples  = 0;
+volatile int      pbNoise    = 0;        // measured rest jitter this window
+
+// Compute the effective proximity trigger from the operator&#x27;s slider value (MANUAL
+// mode). The slider is authoritative; the measured boot noise floor only sets a
+// small anti-jitter minimum (capped by PROX_JITTER_GUARD_MAX) so idle drift can&#x27;t
+// sputter false hits and one noisy boot reading can&#x27;t desensitize the session.
 #define PROX_ABS_FLOOR        4    // never trigger below this (raw LSB) -- physical noise ~1-2
 #define PROX_JITTER_GUARD_MAX 10   // most the boot noise floor may raise the minimum
 static inline int applyProxThreshold(int sliderVal) {
@@ -929,6 +942,23 @@ static inline int applyProxThreshold(int sliderVal) {
     int eff = sliderVal;
     if (eff &lt; guard) eff = guard;
     return eff;
+}
+// ADAPTIVE trigger from a measured noise floor: sit just above the rest jitter so
+// the sensor is as sensitive as it can be WITHOUT chattering. The margin scales
+// with the noise so a quiet spot gets a tight, very sensitive threshold and a
+// noisy spot gets a proportionally safer one. Clamped to a sane minimum.
+static inline int adaptiveProxThresh(int noise) {
+    int margin = noise / 2; if (margin &lt; 3) margin = 3;
+    int eff = noise + margin;
+    if (eff &lt; PROX_ABS_FLOOR) eff = PROX_ABS_FLOOR;
+    return eff;
+}
+// Arm a fresh 5s prox-only auto-baseline window (mag stays live). Call on boot and
+// after each prox detection settles. Cheap; the hardwareTask field block runs it.
+static inline void proxBaseArm() {
+    pbActive  = true;
+    pbEndAt   = millis() + PROX_AUTOBASE_MS;
+    pbProxSum = 0; pbSamples = 0; pbNoise = 0;
 }
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
@@ -1600,7 +1630,15 @@ void hardwareTask(void* pv) {
                     // floor&#x27;s influence so one noisy boot reading can&#x27;t desensitize
                     // the whole session (was: effThreshProx = noiseFloor + margin,
                     // which pinned the trigger high and made the slider a no-op).
-                    effThreshProx = applyProxThreshold(threshProx);
+                    if (proxAutoBase) {
+                        // Adaptive: sit just above the boot noise floor for max
+                        // sensitivity here, then keep re-measuring per location.
+                        effThreshProx  = adaptiveProxThresh(proxNoiseFloor);
+                        proxBaseArm();   // start the first recurring 5s window
+                    } else {
+                        // Manual: operator slider is authoritative (jitter-guarded).
+                        effThreshProx = applyProxThreshold(threshProx);
+                    }
                 } else {
                     recalibrate = true;   // no samples (shouldn&#x27;t happen) -&gt; single-shot fallback
                 }
@@ -1618,6 +1656,32 @@ void hardwareTask(void* pv) {
         if (proxRecalibrate) {
             baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
             proxRecalibrate = false;
+        }
+        // ---------- RECURRING ADAPTIVE PROX AUTO-BASELINE (per location) ----------
+        // While a window is active we sample the RESTING prox (mag untouched) to
+        // measure this spot&#x27;s noise floor, then set the trigger just above it for
+        // maximum safe sensitivity. Runs on boot and after each detection settles.
+        // A manual override (recalibrate / slider / refit) cancels the window.
+        if (pbActive &amp;&amp; proxAutoBase &amp;&amp; !recalibrate &amp;&amp; !proxRecalibrate) {
+            pbProxSum += proxVal; pbSamples++;
+            if (pbSamples &gt; 3) {
+                int runMean = (int)(pbProxSum / pbSamples);
+                int dev = abs(proxVal - runMean);
+                if (dev &gt; pbNoise) pbNoise = dev;
+            }
+            if ((int32_t)(millis() - pbEndAt) &gt;= 0) {
+                // Window closed: adopt the mean as the clean prox baseline and set
+                // an adaptive, maximally-sensitive trigger for THIS location.
+                if (pbSamples &gt; 0) {
+                    baseProx = (int)(pbProxSum / pbSamples);
+                    proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
+                    proxNoiseFloor = pbNoise;
+                    effThreshProx  = adaptiveProxThresh(proxNoiseFloor);
+                }
+                pbActive = false;
+            }
+        } else if (pbActive &amp;&amp; !proxAutoBase) {
+            pbActive = false;   // auto-base turned off mid-window: stop cleanly
         }
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
         // a touch is active so the baseline doesn&#x27;t creep toward the touched value.
@@ -1798,7 +1862,8 @@ void hardwareTask(void* pv) {
             // PROX COOLDOWN: prox stays quiet (no prox beep, no prox event, no
             // prox LEDs). Mag is unaffected and handled separately below.
             if (nowMs - alertPhaseStart &gt;= COOLDOWN_MS) {
-                proxRecalibrate = true;    // re-zero prox baseline to current ambient
+                if (proxAutoBase) proxBaseArm();       // fresh 5s adaptive re-measure for this spot
+                else              proxRecalibrate = true;  // manual mode: plain re-zero
                 alertPhase = 0;
                 alertPhaseStart = 0;
             }
@@ -1967,11 +2032,21 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (!strcmp(ch, &quot;mag&quot;))  magSens = constrain(val, 0, 100);   // mag slider is 0..100 sensitivity
         if (!strcmp(ch, &quot;prox&quot;)) {
             threshProx = val;
-            // Slider is authoritative -- recompute directly from it so moving the
-            // slider ACTUALLY changes sensitivity (see applyProxThreshold).
+            // Moving the prox slider is an EXPLICIT manual override: leave adaptive
+            // auto-baseline mode so the operator&#x27;s chosen sensitivity sticks (they
+            // can re-enable auto-base from the portal toggle). Recompute directly.
+            proxAutoBase = false; pbActive = false;
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, 0); prefs.end();
             effThreshProx = applyProxThreshold(threshProx);
         }
         persistThresholds();
+    } else if (!strcmp(cmd, &quot;setProxAuto&quot;)) {
+        // Adaptive auto-baseline on/off. Turning ON immediately arms a fresh window
+        // so it re-measures the current spot and cranks sensitivity right away.
+        proxAutoBase = (doc[&quot;on&quot;] | true);
+        prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, proxAutoBase ? 1 : 0); prefs.end();
+        if (proxAutoBase) proxBaseArm(); else pbActive = false;
+        sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
         proxTheremin = (bool)(doc[&quot;on&quot;] | false);
         if (doc[&quot;tone&quot;].is&lt;bool&gt;()) proxToneOn = (bool)doc[&quot;tone&quot;];
@@ -2149,6 +2224,7 @@ void setupNetwork() {
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
     touchCycles = prefs.getInt(&quot;touchCyc&quot;, 0x6000);
+    proxAutoBase= prefs.getInt(&quot;proxAuto&quot;, 1) == 1;   // adaptive auto-baseline default ON
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
@@ -2404,8 +2480,20 @@ void setupNetwork() {
         server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;pin\&quot;:&quot;) + touchPin + &quot;}&quot;);
     });
     server.on(&quot;/prox/recal&quot;, HTTP_POST, []() {
-        recalibrate = true;
+        // &quot;Re-measure this spot now&quot;: in adaptive mode arm a fresh 5s window so the
+        // trigger re-fits to the current location; in manual mode single-shot re-zero.
+        if (proxAutoBase) proxBaseArm(); else recalibrate = true;
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
+    });
+    // Toggle adaptive auto-baseline (the &quot;measure the spot, crank sensitivity as
+    // high as safe, re-measure after each detection&quot; behavior). Persisted.
+    server.on(&quot;/prox/auto&quot;, HTTP_POST, []() {
+        if (server.hasArg(&quot;on&quot;)) {
+            proxAutoBase = (server.arg(&quot;on&quot;) == &quot;1&quot; || server.arg(&quot;on&quot;) == &quot;true&quot;);
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, proxAutoBase ? 1 : 0); prefs.end();
+            if (proxAutoBase) proxBaseArm(); else pbActive = false;
+        }
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;auto\&quot;:&quot;) + (proxAutoBase?&quot;true&quot;:&quot;false&quot;) + &quot;}&quot;);
     });
     // Live-tune the touch measurement window. Bigger = larger raw values + wider
     // hand-approach swing on a long antenna (fixes the &quot;barely moves&quot; saturation).
@@ -2417,7 +2505,8 @@ void setupNetwork() {
             touchCycles = constrain(c, 0x1000, 0xFFFF);
             applyTouchCycles();
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;touchCyc&quot;, touchCycles); prefs.end();
-            recalibrate = true;   // rebaseline at the new sensitivity
+            recalibrate = true;   // single-shot rebaseline at the new sensitivity
+            if (proxAutoBase) proxBaseArm();   // then re-measure the noise floor for adaptive trigger
         }
         server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;cycles\&quot;:&quot;) + touchCycles + &quot;}&quot;);
     });
@@ -2489,7 +2578,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz; doc[&quot;touchCyc&quot;] = touchCycles;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz; doc[&quot;touchCyc&quot;] = touchCycles; doc[&quot;proxAuto&quot;] = proxAutoBase;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
