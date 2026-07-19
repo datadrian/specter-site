@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.8-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.9-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -439,6 +439,11 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
 &lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;SPECTER App&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;If SPECTER can&#x27;t auto-find this node (e.g. Ethernet + Wi-Fi both on, or an AP that blocks device-to-device), type SPECTER&#x27;s IP here to link directly. Find it in SPECTER under the node/remote panel.&lt;/div&gt;
+&lt;div class=status id=app-cur&gt;Current: &amp;mdash;&lt;/div&gt;
+&lt;label&gt;SPECTER IP address&lt;/label&gt;&lt;input type=text id=app-ip placeholder=&quot;e.g. 10.151.62.84&quot;&gt;
+&lt;div class=status id=app-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=app-save&gt;SAVE &amp;amp; LINK&lt;/button&gt;&lt;button id=app-clear&gt;CLEAR&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
@@ -531,6 +536,9 @@ if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._u=true;$(&#x27;therm-
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+function appStatus(){fetch(&#x27;/app/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;app-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.appip?d.appip:&#x27;auto-discover (none set)&#x27;);if(d.appip&amp;&amp;!$(&#x27;app-ip&#x27;).value)$(&#x27;app-ip&#x27;).value=d.appip}).catch(function(){})}
+$(&#x27;app-save&#x27;).onclick=function(){var ip=$(&#x27;app-ip&#x27;).value.trim();if(!ip){$(&#x27;app-status&#x27;).textContent=&#x27;Enter SPECTER\u2019s IP&#x27;;$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;return}$(&#x27;app-status&#x27;).className=&#x27;status&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Linking to &#x27;+ip+&#x27;\u2026&#x27;;$(&#x27;app-save&#x27;).disabled=true;fetch(&#x27;/app/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({ip:ip})}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;app-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Saved \u00b7 linking to &#x27;+ip+&#x27;. It should appear in SPECTER shortly.&#x27;}else{$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Failed to save&#x27;}$(&#x27;app-save&#x27;).disabled=false;appStatus()}).catch(function(){$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Save request failed&#x27;;$(&#x27;app-save&#x27;).disabled=false})};
+$(&#x27;app-clear&#x27;).onclick=function(){$(&#x27;app-ip&#x27;).value=&#x27;&#x27;;$(&#x27;app-status&#x27;).className=&#x27;status&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Cleared \u2014 back to auto-discover&#x27;;$(&#x27;app-save&#x27;).disabled=true;fetch(&#x27;/app/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({ip:&#x27;&#x27;})}).then(function(r){return r.json()}).then(function(){$(&#x27;app-save&#x27;).disabled=false;appStatus()}).catch(function(){$(&#x27;app-save&#x27;).disabled=false})};
 
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
@@ -596,13 +604,13 @@ function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).di
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
 $(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
-syncThr();wifiStatus();connect();
+syncThr();wifiStatus();appStatus();connect();
 fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(function(d){if(d)updRender(d)}).catch(function(){});
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.8-maker&quot;
+#define FW_VERSION   &quot;2.13.9-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -2377,6 +2385,24 @@ void setupNetwork() {
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
             d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
         }
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    // ---- Manual app-IP override: connect straight to SPECTER&#x27;s IP, skipping ----
+    // ---- UDP discovery entirely (bulletproof when broadcast is filtered or the ----
+    // ---- app is on a different NIC/subnet). POST ip=&lt;SPECTER LAN IP&gt;. ip=&quot;&quot; clears. --
+    server.on(&quot;/app/save&quot;, HTTP_POST, []() {
+        String ip = server.hasArg(&quot;ip&quot;) ? server.arg(&quot;ip&quot;) : &quot;&quot;;
+        ip.trim();
+        targetAppIP = ip;
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.putString(&quot;appip&quot;, ip);
+        prefs.end();
+        if (ip.length() &gt; 0) connectToApp(ip, APP_WS_PORT);   // link immediately, no wait for beacon
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;appip&quot;] = ip;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/app/status&quot;, []() {
+        JsonDocument d; d[&quot;appip&quot;] = targetAppIP;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     // ---- LED config API (per-node, on-device) ----
