@@ -298,7 +298,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.6-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.7-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -571,7 +571,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.6-maker&quot;
+#define FW_VERSION   &quot;2.12.7-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -631,7 +631,7 @@ struct LedCfg {
   uint32_t bootColorA; uint32_t bootColorB;  // boot sweep colors
   int  bootEnable;     // 1 = play boot animation
 };
-LedCfg ledCfg = { &quot;WS2812B&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
+LedCfg ledCfg = { &quot;SK6812RGBW&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
                   LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT, /*magRot*/ 0, /*magFlip*/ 0,
                   /*magColor*/  0xFF2020, /*magAnim*/  0,   // red, directional
                   /*proxColor*/ 0x20E0FF, /*proxAnim*/ 2,   // cyan spin
@@ -1217,8 +1217,21 @@ void hardwareTask(void* pv) {
     prefs.begin(&quot;specter&quot;, true);
     ledCfg.count  = constrain(prefs.getInt(&quot;ledCount&quot;, ledCfg.count), 1, LED_MAX);
     { String ord = prefs.getString(&quot;ledOrd&quot;, ledCfg.order); strncpy(ledCfg.order, ord.c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; }
-    { String chp = prefs.getString(&quot;ledChip&quot;, ledCfg.chipset); strncpy(ledCfg.chipset, chp.c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; }
-    Serial.printf(&quot;[LED] boot chipset from NVS = &#x27;%s&#x27;\n&quot;, ledCfg.chipset);
+    // CHIPSET lives in its OWN namespace &quot;ledcfg&quot; so the hardware task&#x27;s frequent
+    // &quot;specter&quot; writes (proxSpan/proxNoise/hz) can never clobber it. Migrate a value
+    // that an older build left under &quot;specter&quot; if the dedicated key isn&#x27;t set yet.
+    {
+        Preferences cp; cp.begin(&quot;ledcfg&quot;, true);
+        String chp = cp.getString(&quot;chip&quot;, &quot;&quot;);
+        cp.end();
+        if (chp.length() == 0) {                    // not in dedicated ns yet
+            String legacy = prefs.getString(&quot;ledChip&quot;, &quot;&quot;);   // shared ns (read handle already open)
+            if (legacy.length()) chp = legacy;      // migrate old value
+        }
+        if (chp.length()) { strncpy(ledCfg.chipset, chp.c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; }
+        // else: keep the compile-time default (now SK6812RGBW)
+    }
+    Serial.printf(&quot;[LED] boot chipset = &#x27;%s&#x27;\n&quot;, ledCfg.chipset);
     ledCfg.bright = prefs.getInt(&quot;ledBright&quot;, ledCfg.bright);
     ledCfg.mFront = prefs.getInt(&quot;ledFront&quot;, ledCfg.mFront);
     ledCfg.mRight = prefs.getInt(&quot;ledRight&quot;, ledCfg.mRight);
@@ -2043,31 +2056,26 @@ void setupNetwork() {
         bool chipVerified = true;
         if (server.hasArg(&quot;chipset&quot;)){
             strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0;
-            // CHIPSET PERSIST -- the important one, and historically the flaky one
-            // (&quot;pick SK6812RGBW, reboot, back to WS2812B&quot;). The global `prefs` handle
-            // is shared with the hardware task (core 1) which opens the same &quot;specter&quot;
-            // namespace for proxSpan/proxNoise/etc; a concurrent open silently drops
-            // this putString. So we DON&#x27;T trust the shared handle here. Close it,
-            // write the chipset through a PRIVATE Preferences instance that we open,
-            // commit and close in isolation, then re-open a FRESH read handle to
-            // verify from actual flash (not the write cache).
-            prefs.end();                              // release the shared handle first
+            // Persist the chipset in its OWN namespace &quot;ledcfg&quot; -- completely isolated
+            // from the shared &quot;specter&quot; namespace that the hardware task writes to.
+            // That cross-task contention is what silently dropped the write before
+            // (survived a reboot as WS2812B despite &quot;verified&quot;). Own namespace = no
+            // contention. Write + commit + verify from a FRESH read handle (real flash).
             {
-                Preferences lp;
-                lp.begin(&quot;specter&quot;, false);           // private RW handle
-                lp.putString(&quot;ledChip&quot;, ledCfg.chipset);
-                lp.end();                             // &lt;-- commit happens here, in isolation
+                Preferences cp;
+                cp.begin(&quot;ledcfg&quot;, false);
+                cp.putString(&quot;chip&quot;, ledCfg.chipset);
+                cp.end();                             // commit
             }
             {
                 Preferences vp;
-                vp.begin(&quot;specter&quot;, true);            // private RO handle -&gt; reads FLASH
-                String rb = vp.getString(&quot;ledChip&quot;, &quot;&quot;);
+                vp.begin(&quot;ledcfg&quot;, true);             // fresh RO -&gt; reads flash, not cache
+                String rb = vp.getString(&quot;chip&quot;, &quot;&quot;);
                 vp.end();
                 chipVerified = rb.equals(ledCfg.chipset);
                 Serial.printf(&quot;[LED] save chipset=&#x27;%s&#x27; flash-readback=&#x27;%s&#x27; verified=%d\n&quot;,
                               ledCfg.chipset, rb.c_str(), chipVerified ? 1 : 0);
             }
-            prefs.begin(&quot;specter&quot;, false);            // re-open shared handle for the rest of this handler
             reboot = true;
         }
         if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); if (ledIsRGBW) rebindRgbw(); }  // live: RGB software-remap, RGBW rebinds NeoPixel
