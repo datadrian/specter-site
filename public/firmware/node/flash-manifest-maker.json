@@ -1,0 +1,13 @@
+{
+  "name": "SPECTER Node (Maker)",
+  "version": "2.12.3-maker",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "SPECTER-Node-maker-2.12.3-factory.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

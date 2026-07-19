@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flash Your SPECTER Node over USB | Browser Firmware Installer</title>
+  <meta name="description" content="Install or recover SPECTER Node firmware straight from your browser over USB. No Arduino IDE required. Plug the node into your computer, click Install, and the latest firmware is written directly to the ESP32." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://specter-imaging.com/help/flash-node/" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/docs.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <style>
+    .fn-hero{max-width:900px;margin:0 auto;padding:60px 32px 10px;}
+    .fn-hero h1{font-family:var(--heading);font-size:clamp(28px,5vw,48px);color:var(--cyan);margin:14px 0 12px;line-height:1.05;}
+    .fn-hero p.lead{font-size:18px;color:var(--text);max-width:680px;line-height:1.6;}
+    .fn-wrap{max-width:900px;margin:0 auto;padding:0 32px 100px;}
+    .fn-sec{margin-top:44px;}
+    .fn-sec h2{font-family:var(--heading);font-size:24px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:20px;letter-spacing:.02em;}
+    .flash-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:32px;text-align:center;box-shadow:0 0 44px rgba(0,229,255,.07);margin-top:8px;}
+    .flash-card .ver{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;margin-bottom:20px;}
+    .flash-card .ver b{color:var(--cyan);}
+    esp-web-install-button{--esp-tools-button-color:#04121a;--esp-tools-button-text-color:var(--cyan);}
+    .fake-btn{display:inline-flex;align-items:center;gap:10px;background:var(--cyan-glow);border:1px solid var(--cyan);color:var(--cyan);
+      font-family:var(--heading);font-size:15px;letter-spacing:.06em;padding:14px 30px;border-radius:6px;cursor:pointer;text-transform:uppercase;}
+    .nosup{display:block;margin-top:16px;color:#f2b8b8;font-family:var(--mono);font-size:12px;line-height:1.7;}
+    .fn-step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
+    .fn-step .num{flex:0 0 auto;width:26px;height:26px;border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;}
+    .fn-step .txt{color:var(--text);line-height:1.6;}
+    .fn-step .txt b{color:var(--cyan);}
+    .note{background:#070c11;border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:4px;padding:14px 16px;margin-top:18px;color:var(--text-dim);font-size:14px;line-height:1.65;}
+    .note b{color:var(--text);}
+    .browsers{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;margin-top:14px;}
+  </style>
+</head>
+<body class="docs-body">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo"><a href="/index.html" style="text-decoration:none;color:inherit;">SPECTER<span class="nav-logo-sub">// PARANORMAL IMAGING SYSTEM</span></a></div>
+      <div class="nav-links">
+        <a href="/index.html#features">CAPABILITIES</a>
+        <a href="/index.html#hardware">BUILD YOUR RIG</a>
+        <a href="/help/field-guide/">DOCUMENTATION</a>
+        <a href="/index.html#pricing" class="nav-cta">ACQUIRE UNIT</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="fn-hero">
+    <h1>Flash Your Node Over USB</h1>
+    <p class="lead">Install or recover your SPECTER Node firmware directly from this page. No Arduino IDE, no libraries, no wireless update needed. Plug the node into your computer with a USB cable and click Install.</p>
+  </header>
+
+  <div class="fn-wrap">
+
+    <section class="fn-sec">
+      <div class="flash-card">
+        <div class="ver">Latest firmware &middot; <b id="fw-ver">loading...</b></div>
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json">
+          <button class="fake-btn" slot="activate">Install / Recover Firmware</button>
+          <span slot="unsupported" class="nosup">
+            Your browser cannot flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.
+          </span>
+          <span slot="not-allowed" class="nosup">
+            This page must be served over HTTPS to flash. Make sure the node is plugged in and try again.
+          </span>
+        </esp-web-install-button>
+        <div class="browsers">WORKS IN CHROME &amp; EDGE ON DESKTOP</div>
+      </div>
+
+      <div class="note">
+        <b>When to use this:</b> use the USB flasher if wireless updates will not install, if the node is stuck after a bad update, or to set up a brand new board for the first time. Once you are on the latest firmware, future updates install wirelessly from the node's Settings page.
+      </div>
+    </section>
+
+    <section class="fn-sec">
+      <h2>How to flash</h2>
+      <div class="fn-step"><div class="num">1</div><div class="txt">Connect the node to your computer with a <b>data USB cable</b> (a charge-only cable will not work).</div></div>
+      <div class="fn-step"><div class="num">2</div><div class="txt">Click <b>Install / Recover Firmware</b> above.</div></div>
+      <div class="fn-step"><div class="num">3</div><div class="txt">In the popup, pick the serial port for the node. It usually shows as <b>CP2102</b>, <b>CH340</b>, or <b>USB Serial</b>. If nothing appears, install the USB-to-serial driver for your board and reconnect.</div></div>
+      <div class="fn-step"><div class="num">4</div><div class="txt">Choose <b>Install</b> and let it run. It erases and writes the full firmware, then the node reboots into the SPECTER portal.</div></div>
+      <div class="fn-step"><div class="num">5</div><div class="txt">Reconnect to the node's Wi-Fi portal and re-enter your network details. A full USB recovery may reset LED and threshold settings to defaults.</div></div>
+
+      <div class="note">
+        <b>Board will not enter flashing mode?</b> Hold the <b>BOOT</b> button on the ESP32 while you click Install, and release it once flashing starts. Some boards need this to accept a new image.
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    fetch('/firmware/node/latest-maker.json').then(function(r){return r.json()}).then(function(d){
+      document.getElementById('fw-ver').textContent = d.version || 'unknown';
+    }).catch(function(){ document.getElementById('fw-ver').textContent = 'unavailable'; });
+  </script>
+</body>
+</html>
