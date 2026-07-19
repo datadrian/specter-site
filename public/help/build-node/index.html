@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/docs.css" />
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <style>
     /* ---- Build Node page-specific ---- */
     .bn-hero{max-width:1080px;margin:0 auto;padding:60px 32px 20px;}
@@ -103,7 +104,22 @@
     .callout{border:1px solid var(--border);border-left:2px solid var(--cyan);background:var(--bg2);padding:14px 16px;border-radius:0 4px 4px 0;margin:16px 0;font-size:14px;color:var(--text);}
     .callout strong{color:var(--cyan);}
     .bn-cta{display:inline-block;margin-top:8px;}
-  </style>
+  
+    /* ---- embedded browser flasher card ---- */
+    .bn-flash{background:var(--bg2);border:1px solid var(--cyan);border-radius:10px;padding:28px 32px;margin:6px 0 26px;box-shadow:0 0 44px rgba(0,229,255,.08);}
+    .bn-flash .fl-tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--cyan);text-transform:uppercase;margin-bottom:8px;}
+    .bn-flash h3{margin:0 0 8px;font-family:var(--heading);color:var(--text);font-size:20px;}
+    .bn-flash p{color:var(--text-dim);max-width:640px;line-height:1.6;margin:0 0 18px;}
+    .bn-flash .fl-ver{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--text-dim);text-transform:uppercase;margin-top:14px;}
+    .bn-flash .fl-ver b{color:var(--cyan);}
+    .bn-flash esp-web-install-button{--esp-tools-button-color:#04121a;--esp-tools-button-text-color:var(--cyan);}
+    .bn-flash .fl-btn{display:inline-flex;align-items:center;gap:10px;background:var(--cyan-glow);border:1px solid var(--cyan);color:var(--cyan);
+      font-family:var(--heading);font-size:15px;letter-spacing:.06em;padding:14px 30px;border-radius:6px;cursor:pointer;text-transform:uppercase;}
+    .bn-flash .fl-nosup{display:block;margin-top:14px;color:#f2b8b8;font-family:var(--mono);font-size:12px;line-height:1.7;}
+    .bn-flash .fl-browsers{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;margin-top:12px;}
+    .bn-flash .fl-alt{margin-top:16px;font-size:13px;color:var(--text-dim);}
+    .bn-flash .fl-alt a{color:var(--cyan);}
+</style>
 </head>
 <body class="docs-body">
   <nav class="nav">
@@ -281,7 +297,22 @@
 
     <div class="bn-sec" id="code">
       <h2>The code</h2>
-      <p>This is the <b>complete firmware in a single file</b>  -  the on-device dashboard (live telemetry, the 3D field-vector graph, Wi-Fi setup and settings) is built right into it. No separate data upload, no extra plugins. Just paste it into the Arduino IDE, install the four libraries below, select your ESP32 board, and hit Upload.</p>
+
+      <div class="bn-flash">
+        <div class="fl-tag">Fastest way &middot; no Arduino IDE needed</div>
+        <h3>Flash your node straight from this page</h3>
+        <p>Once your board is wired up, you can install the SPECTER Node firmware right here over USB &ndash; no Arduino IDE, no libraries, no partition settings to worry about. Plug the ESP32 into your computer with a USB cable, click below, and pick the serial port. It comes preconfigured for RGBW (SK6812) rings, and you can tune everything from the on-device Settings page afterward.</p>
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json">
+          <button class="fl-btn" slot="activate">Install firmware over USB</button>
+          <span slot="unsupported" class="fl-nosup">Your browser can&rsquo;t flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.</span>
+          <span slot="not-allowed" class="fl-nosup">Serial access was blocked. Reload the page and allow the port when prompted.</span>
+        </esp-web-install-button>
+        <div class="fl-ver">Firmware &middot; <b id="bn-fw-ver">loading&hellip;</b></div>
+        <div class="fl-browsers">WORKS IN CHROME &amp; EDGE ON DESKTOP</div>
+        <div class="fl-alt">Prefer to build it yourself, or need to recover a stuck node? Full <a href="/help/flash-node/">browser flasher page</a> &middot; or follow the Arduino IDE steps below.</div>
+      </div>
+
+      <p>Rather do it by hand? This is the <b>complete firmware in a single file</b>  -  the on-device dashboard (live telemetry, the 3D field-vector graph, Wi-Fi setup and settings) is built right into it. No separate data upload, no extra plugins. Just paste it into the Arduino IDE, install the four libraries below, select your ESP32 board, and hit Upload.</p>
       <p style="color:var(--text-dim);max-width:720px;margin:8px 0 0;">After it uploads, the node hosts a Wi-Fi network called <b>SPECTER-NODE-01</b>. Join it from your phone, open <b>192.168.4.1</b> in a browser, and you&rsquo;ll land on the live telemetry page. Tap <b>Settings</b> to connect the node to your home Wi-Fi and tune it.</p>
       <h3>1 · Install libraries</h3>
       <p>In the Arduino IDE, open <em>Tools → Manage Libraries</em> and install:</p>
@@ -2305,6 +2336,10 @@ void loop() {
     </div>
   </footer>
 <script>
+// live firmware version for the embedded USB flasher card
+fetch('/firmware/node/latest-maker.json').then(function(r){return r.json()}).then(function(d){
+  var el=document.getElementById('bn-fw-ver'); if(el) el.textContent=(d.version||'unknown');
+}).catch(function(){ var el=document.getElementById('bn-fw-ver'); if(el) el.textContent='unavailable'; });
 // ---- copy button ----
 function copyCode(){
   var el=document.getElementById('fw-code');
