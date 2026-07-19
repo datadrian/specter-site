@@ -298,7 +298,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.3-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.4-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -392,7 +392,7 @@ const char PAGE_SETTINGS[] PROGMEM = R&quot;HTMLPAGE(
 :root{--bg-0:#07090b;--bg-1:#0a0d10;--bg-2:#0f1318;--line:#1c2329;--text-0:#c6d4dc;--text-1:#889aa3;--text-2:#586872;--text-dim:#3b4750;--accent:#6ad7a8;--warn:#f0b65e;--alert:#ff4d4f;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg-0);color:var(--text-0);font-family:var(--mono);font-size:14px}body{padding:16px 16px 90px;user-select:none}
 header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:8px}.brand{font-size:12px;font-weight:700;letter-spacing:.22em}.sub{font-size:10px;color:var(--text-dim);letter-spacing:.15em}
-h4{font-size:10px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase;margin:22px 0 8px}.card{background:var(--bg-1);border:1px solid var(--line);border-radius:5px;padding:14px}
+h4{font-size:10px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase;margin:22px 0 8px}.grp{font-size:11px;font-weight:700;letter-spacing:.24em;color:var(--accent);text-transform:uppercase;margin:30px 0 2px;padding-bottom:6px;border-bottom:1px solid var(--line)}.grp:first-of-type{margin-top:14px}.card{background:var(--bg-1);border:1px solid var(--line);border-radius:5px;padding:14px}
 button{font-family:var(--mono);background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);padding:11px 12px;border-radius:3px;font-size:11px;letter-spacing:.12em;cursor:pointer}button:active,button.on{border-color:var(--accent);color:var(--accent)}button[disabled]{opacity:.4}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row&gt;button{flex:1}label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text-2);margin:12px 0 4px;text-transform:uppercase}
 input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[type=password]{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:10px;border-radius:3px}.val{color:var(--text-0);font-size:12px}
@@ -401,12 +401,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[t
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
 &lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub&gt;SETTINGS&lt;/div&gt;&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;mdash;&lt;/div&gt;&lt;/header&gt;
+&lt;div class=grp&gt;Connection&lt;/div&gt;
 &lt;h4&gt;Wi-Fi&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status id=wifi-cur&gt;Current: &amp;mdash;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=wifi-scan&gt;SCAN NETWORKS&lt;/button&gt;&lt;/div&gt;&lt;div class=wifi-list id=wifi-list&gt;&lt;/div&gt;
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
 &lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Mag sensitivity &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=0 max=100 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Higher = reacts to smaller/farther field changes. Baseline auto-zeros to ambient, so any NEW field for a direction triggers.&lt;/div&gt;
@@ -427,11 +429,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=therm-refit class=mini&gt;REFIT RANGE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna. It sizes the field to THAT motion &amp;mdash; so your hand pass = full field.&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
-&lt;label style=&quot;margin-top:8px&quot;&gt;&lt;input type=checkbox id=rf-arm&gt; Suppress matching signals&lt;/label&gt;
-&lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
+&lt;div class=grp&gt;LED Ring&lt;/div&gt;
 &lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
@@ -461,6 +459,13 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;&lt;input type=checkbox id=boot-en style=&quot;width:auto;vertical-align:middle&quot;&gt; Play boot animation on startup&lt;/label&gt;
 &lt;div class=status&gt;On power-up the ring builds 1&amp;rarr;N, sweeps your two colors, then goes dark until a detection.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=boot-save&gt;SAVE BOOT&lt;/button&gt;&lt;button id=boot-test class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=grp&gt;Interference&lt;/div&gt;
+&lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;&lt;input type=checkbox id=rf-arm&gt; Suppress matching signals&lt;/label&gt;
+&lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
+&lt;div class=grp&gt;System&lt;/div&gt;
 &lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
@@ -518,10 +523,15 @@ $(&#x27;led-save&#x27;).onclick=function(){var b=new URLSearchParams({chipset:$(
    $(&#x27;led-status&#x27;).className=&#x27;status ok&#x27;;
    $(&#x27;led-status&#x27;).textContent=&#x27;Running: fw &#x27;+(s.fw||&#x27;?&#x27;)+&#x27; · &#x27;+(s.chipset||&#x27;?&#x27;)+&#x27; · order &#x27;+(s.order||&#x27;?&#x27;)+&#x27; · count &#x27;+(s.count!=null?s.count:&#x27;?&#x27;);
    if(d.rebootNeeded){
+    if(d.chipSaved===false){
+     $(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;
+     $(&#x27;led-status&#x27;).textContent=&#x27;Could not save chipset to the node. Not rebooting (it would revert). Try again.&#x27;;
+     return;
+    }
     $(&#x27;led-status&#x27;).className=&#x27;status&#x27;;
-    $(&#x27;led-status&#x27;).textContent=&#x27;Saved. Chipset/pin needs a reboot to bind -- rebooting the node now...&#x27;;
+    $(&#x27;led-status&#x27;).textContent=&#x27;Saved &#x27;+(d.chipset||$(&#x27;led-chip&#x27;).value)+&#x27;. Rebooting to bind it now...&#x27;;
     fetch(&#x27;/reboot&#x27;,{method:&#x27;POST&#x27;}).catch(function(){});
-    var n=8;var iv=setInterval(function(){n--;$(&#x27;led-status&#x27;).textContent=&#x27;Rebooting to bind &#x27;+($(&#x27;led-chip&#x27;).value)+&#x27;... reconnecting in &#x27;+n+&#x27;s&#x27;;if(n&lt;=0){clearInterval(iv);location.reload();}},1000);
+    var n=9;var iv=setInterval(function(){n--;$(&#x27;led-status&#x27;).textContent=&#x27;Rebooting to bind &#x27;+(d.chipset||$(&#x27;led-chip&#x27;).value)+&#x27;... reconnecting in &#x27;+n+&#x27;s&#x27;;if(n&lt;=0){clearInterval(iv);location.reload();}},1000);
    }
   });
  }).catch(function(){$(&#x27;led-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;led-status&#x27;).textContent=&#x27;Save failed&#x27;})};
@@ -561,7 +571,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.3-maker&quot;
+#define FW_VERSION   &quot;2.12.4-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -2020,7 +2030,20 @@ void setupNetwork() {
         // chipset + data/clock pin bind at compile time in FastLED -&gt; reflash needed.
         // count + order apply LIVE (count = pixels driven; order remapped in software).
         bool reboot=false;
-        if (server.hasArg(&quot;chipset&quot;)){ strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0; prefs.putString(&quot;ledChip&quot;, ledCfg.chipset); reboot=true; }
+        bool chipVerified = true;
+        if (server.hasArg(&quot;chipset&quot;)){
+            strncpy(ledCfg.chipset, server.arg(&quot;chipset&quot;).c_str(), sizeof(ledCfg.chipset)-1); ledCfg.chipset[sizeof(ledCfg.chipset)-1]=0;
+            size_t wrote = prefs.putString(&quot;ledChip&quot;, ledCfg.chipset);
+            // Read the value straight back out of NVS to confirm it actually stuck
+            // BEFORE we tell the browser to reboot. On a freshly-erased NVS the first
+            // write can silently no-op if the namespace handle is stale, which showed
+            // up in the field as &quot;picks SK6812RGBW, reboots, comes back on WS2812B&quot;.
+            String rb = prefs.getString(&quot;ledChip&quot;, &quot;&quot;);
+            chipVerified = (wrote &gt; 0) &amp;&amp; rb.equals(ledCfg.chipset);
+            Serial.printf(&quot;[LED] save chipset=&#x27;%s&#x27; wrote=%u readback=&#x27;%s&#x27; verified=%d\n&quot;,
+                          ledCfg.chipset, (unsigned)wrote, rb.c_str(), chipVerified ? 1 : 0);
+            reboot = true;
+        }
         if (server.hasArg(&quot;order&quot;))  { strncpy(ledCfg.order, server.arg(&quot;order&quot;).c_str(), sizeof(ledCfg.order)-1); ledCfg.order[sizeof(ledCfg.order)-1]=0; prefs.putString(&quot;ledOrd&quot;, ledCfg.order); if (ledIsRGBW) rebindRgbw(); }  // live: RGB software-remap, RGBW rebinds NeoPixel
         if (server.hasArg(&quot;dataPin&quot;)){ ledCfg.dataPin = server.arg(&quot;dataPin&quot;).toInt(); prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); reboot=true; }
         if (server.hasArg(&quot;clkPin&quot;)) { ledCfg.clkPin = server.arg(&quot;clkPin&quot;).toInt(); prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin); reboot=true; }
@@ -2037,7 +2060,7 @@ void setupNetwork() {
         prefs.end();
         FastLED.setBrightness(ledCfg.bright);
         ledTestReq = rotChanged ? 2 : 8;   // rot: show the mag lobe at the new angle; else just re-render idle
-        JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot; d[&quot;rot&quot;]=ledCfg.magRot; d[&quot;flip&quot;]=ledCfg.magFlip;
+        JsonDocument d; d[&quot;ok&quot;]=true; d[&quot;rebootNeeded&quot;]=reboot; d[&quot;chipSaved&quot;]=chipVerified; d[&quot;chipset&quot;]=ledCfg.chipset; d[&quot;rot&quot;]=ledCfg.magRot; d[&quot;flip&quot;]=ledCfg.magFlip;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
     // Preview a theme/boot animation live on the ring (portal PREVIEW buttons).
@@ -2119,8 +2142,12 @@ void setupNetwork() {
     // Restart the node so a chipset / data-pin change binds cleanly at boot.
     server.on(&quot;/reboot&quot;, HTTP_POST, []() {
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;rebooting\&quot;:true}&quot;);
-        delay(250);            // let the response flush
-        prefs.end();           // make sure any open NVS handle is committed/closed
+        delay(300);            // let the HTTP response fully flush to the browser
+        // NVS was already committed by whichever handler opened it (e.g. /led/config
+        // closes its own handle). Do NOT call a bare prefs.end() here: with no handle
+        // open it is a no-op at best, and it muddied the begin/end balance. Just give
+        // the flash a beat and restart cleanly so any pending NVS page is flushed.
+        delay(50);
         ESP.restart();
     });
 
