@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.7-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.8-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.7-maker&quot;
+#define FW_VERSION   &quot;2.13.8-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1985,6 +1985,26 @@ WebServer        server(80);
 AsyncUDP         udp;
 
 String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;;
+
+// Clean STA (re)connect. ESP-IDF (WiFi.persistent(true)) keeps its OWN copy of the
+// WiFi config in a separate NVS blob; after heavy flashing/OTA churn that blob can go
+// stale so the STA scans fine but never ASSOCIATES (&quot;sees networks, won&#x27;t connect&quot;).
+// wifiCleanBegin() force-disconnects + erases that SDK config, then begins fresh.
+// It also guards against re-kicking begin() while an attempt is still in flight, which
+// otherwise restarts the handshake every 15s and prevents a slow auth from ever finishing.
+static uint32_t wifiBeginAt = 0;              // millis() of the last begin(); 0 = idle
+void wifiCleanBegin(bool eraseSdk) {
+    if (eraseSdk) {
+        WiFi.persistent(false);               // stop writing junk while we reset
+        WiFi.disconnect(false, /*eraseap=*/true);  // wipe the stale SDK STA config
+        delay(60);
+        WiFi.persistent(true);                // resume persisting a KNOWN-GOOD config
+    }
+    WiFi.setSleep(false);                      // modem-sleep can stall association on some APs
+    WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
+    wifiBeginAt = millis();
+}
+
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
 
 void sendHello(int slot) {
@@ -2259,7 +2279,7 @@ void setupNetwork() {
     WiFi.persistent(true);          // keep station config across reboots/brownouts
     WiFi.setAutoReconnect(true);    // SDK auto-rejoins if the AP drops or comes back
     if (targetSSID != &quot;&quot;) {
-        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
+        wifiCleanBegin(/*eraseSdk=*/true);     // erase stale SDK WiFi config, then join fresh
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
         // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up --
         // the background retry in the network loop + auto-reconnect keep working on it.
@@ -2298,7 +2318,24 @@ void setupNetwork() {
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/wifi/scan&quot;, []() {
-        int n = WiFi.scanNetworks();
+        // Robust sync scan. A bare scanNetworks() often returns WIFI_SCAN_FAILED (-2)
+        // or BUSY (-1) when the softAP is up and/or the STA is mid-connect (exactly the
+        // state right after a failed update attempt). Clear any stale scan, then retry a
+        // few times with a short settle so a transient radio-busy doesn&#x27;t surface as
+        // &quot;scan failed&quot; in the portal. show_hidden=false, passive=false, per-channel 300ms.
+        WiFi.scanDelete();
+        int n = WIFI_SCAN_FAILED;
+        for (int attempt = 0; attempt &lt; 4; attempt++) {
+            n = WiFi.scanNetworks(/*async=*/false, /*show_hidden=*/false,
+                                  /*passive=*/false, /*max_ms_per_chan=*/300);
+            if (n &gt;= 0) break;           // success (0 = none found but scan worked)
+            WiFi.scanDelete();
+            delay(350);                  // let the radio settle, then retry
+        }
+        if (n &lt; 0) {                     // still failed after retries -- report cleanly, don&#x27;t 500
+            server.send(200, &quot;application/json&quot;, &quot;{\&quot;error\&quot;:\&quot;scan_busy\&quot;,\&quot;nets\&quot;:[]}&quot;);
+            return;
+        }
         JsonDocument d; JsonArray arr = d.to&lt;JsonArray&gt;();
         for (int i = 0; i &lt; n &amp;&amp; i &lt; 40; i++) {
             String ss = WiFi.SSID(i);
@@ -2329,7 +2366,7 @@ void setupNetwork() {
         WiFi.mode(WIFI_AP_STA);                 // keep AP up so the portal stays reachable
         WiFi.persistent(true);                  // let the SDK keep the config across resets
         WiFi.setAutoReconnect(true);            // auto-retry if the link drops
-        WiFi.begin(ssid.c_str(), pass.c_str());
+        wifiCleanBegin(/*eraseSdk=*/true);      // wipe any stale SDK STA config, then join fresh
         int t = 0;
         while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 24) { delay(500); t++; }
         JsonDocument d;
@@ -2624,11 +2661,18 @@ void loop() {
     // (e.g. rebooted while the router was still coming up after a power blip),
     // re-issue begin() every ~15s so the node rejoins on its own -- no manual reboot.
     static uint32_t lastWifiTry = 0;
+    static uint8_t  wifiFailStreak = 0;
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
-        &amp;&amp; now - lastWifiTry &gt;= 15000) {
+        &amp;&amp; now - lastWifiTry &gt;= 15000
+        &amp;&amp; (wifiBeginAt == 0 || now - wifiBeginAt &gt;= 12000)) {   // don&#x27;t restart an in-flight join
         lastWifiTry = now;
-        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
+        wifiFailStreak++;
+        // Every 3rd failed cycle, erase the SDK WiFi config too -- clears a stuck/stale
+        // association that makes the STA see the SSID but never join. Otherwise a plain
+        // clean begin (cheaper, keeps the persisted config).
+        wifiCleanBegin(/*eraseSdk=*/(wifiFailStreak % 3 == 0));
     }
+    if (WiFi.status() == WL_CONNECTED) { wifiBeginAt = 0; wifiFailStreak = 0; }
 
     if (now - lastNet &gt;= 1000) {
         lastNet = now;
