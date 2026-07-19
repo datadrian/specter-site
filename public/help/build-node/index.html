@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.7-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.8-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -602,7 +602,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.7-maker&quot;
+#define FW_VERSION   &quot;2.12.8-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -868,7 +868,7 @@ volatile int     effThreshProx = 40;  // ACTUAL prox trigger used = max(threshPr
 // event/alert path still fires when the field crosses threshProx, so snapshots
 // and the app dashboard keep working.
 volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
-volatile int     proxSpan     = 220;     // proxDelta that maps to full field (100). Auto-nudges up.
+volatile int     proxSpan     = 60;      // proxDelta that maps to full field (100). Auto-fits: nudges up on a bigger pass, slowly shrinks toward real passes so a fresh/NVS-erased node self-calibrates to its antenna within a few waves.
 volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
 volatile int     proxPeakSeen = 0;       // largest proxDelta seen since last refit (for smart REFIT)
 volatile bool    proxRefitReq = false;   // REFIT pressed -&gt; set span from the peak hand delta just seen
@@ -1569,6 +1569,25 @@ void hardwareTask(void* pv) {
         }
         // Auto-nudge span up if a hand ever pushes past it (self-fitting reach).
         if (effDelta &gt; proxSpan) proxSpan = (int)(proxSpan + 0.25f * (effDelta - proxSpan)) + 1;
+        // Auto-SHRINK: remember the best pass over a rolling window and let span decay
+        // toward it when idle. Without this, span only ever grew, so a fresh node (or
+        // one whose saved span was wiped by a USB flash) stayed stuck wide and felt
+        // dead. Now it self-tightens to the actual antenna within a handful of waves.
+        {
+            static int   spanBestPass = 0;      // strongest effDelta this window
+            static uint32_t spanWinAt = 0;      // window start
+            if (effDelta &gt; spanBestPass) spanBestPass = effDelta;
+            uint32_t nowMs = millis();
+            if (spanWinAt == 0) spanWinAt = nowMs;
+            // every 20s, if we saw a decent pass, ease span down toward it (never below
+            // a floor so idle jitter can&#x27;t collapse it). Only shrink, never below 40.
+            if (nowMs - spanWinAt &gt; 20000) {
+                if (spanBestPass &gt; 40 &amp;&amp; spanBestPass &lt; proxSpan)
+                    proxSpan = (int)(proxSpan + 0.5f * (spanBestPass - proxSpan));   // halve the gap toward the real pass
+                if (proxSpan &lt; 40) proxSpan = 40;
+                spanBestPass = 0; spanWinAt = nowMs;
+            }
+        }
         {
             float f = (proxSpan &gt; 0) ? (100.0f * (float)effDelta / (float)proxSpan) : 0.0f;
             static float fieldEma = 0.0f;
@@ -1947,7 +1966,7 @@ void setupNetwork() {
     threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     proxTheremin= prefs.getInt(&quot;therm&quot;, 1) == 1;   // default ON when unset
     proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 1) == 1;
-    proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 220);
+    proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
