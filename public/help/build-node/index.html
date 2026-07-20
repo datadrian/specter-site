@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.9-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.10-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -403,7 +403,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-cyc-raw&#x27;))$(&#x27;prox-cyc-raw&#x27;).textContent=m.prox;if(m.proxAuto!=null){var pa=$(&#x27;prox-auto&#x27;);if(pa&amp;&amp;!pa._userset){pa.checked=!!m.proxAuto;if($(&#x27;prox-auto-v&#x27;))$(&#x27;prox-auto-v&#x27;).textContent=m.proxAuto?&#x27;adaptive&#x27;:&#x27;manual&#x27;;}}if(m.touchCyc!=null){var pc=$(&#x27;prox-cyc&#x27;);if(pc&amp;&amp;!pc._userset){pc.value=m.touchCyc;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=m.touchCyc;}}if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -439,11 +439,6 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
 &lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;SPECTER App&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;If SPECTER can&#x27;t auto-find this node (e.g. Ethernet + Wi-Fi both on, or an AP that blocks device-to-device), type SPECTER&#x27;s IP here to link directly. Find it in SPECTER under the node/remote panel.&lt;/div&gt;
-&lt;div class=status id=app-cur&gt;Current: &amp;mdash;&lt;/div&gt;
-&lt;label&gt;SPECTER IP address&lt;/label&gt;&lt;input type=text id=app-ip placeholder=&quot;e.g. 10.151.62.84&quot;&gt;
-&lt;div class=status id=app-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=app-save&gt;SAVE &amp;amp; LINK&lt;/button&gt;&lt;button id=app-clear&gt;CLEAR&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
@@ -455,7 +450,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Applies instantly &amp;mdash; no reboot. If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; SAVE a different GPIO, then RECALIBRATE with your hand away. (4/27/32/33 are the safe touch pins; boot-strap pins are excluded.)&lt;/div&gt;&lt;label style=&quot;display:block;margin-top:10px&quot;&gt;&lt;input type=checkbox id=prox-auto checked style=&quot;width:auto;vertical-align:middle&quot;&gt; Adaptive auto-baseline &amp;mdash; &lt;span id=prox-auto-v&gt;adaptive&lt;/span&gt;&lt;/label&gt;&lt;div class=xyz id=prox-auto-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;ON: the node measures each new location for 5s, then sets the trigger as sensitive as is safe here, and re-measures after every detection settles. A manual REFIT re-measures now. Moving the Sensitivity slider below switches to manual.&lt;/div&gt;&lt;div class=row style=&quot;margin-top:10px&quot;&gt;&lt;label style=&quot;min-width:120px&quot;&gt;Sensitivity&lt;/label&gt;&lt;input type=range id=prox-cyc min=4096 max=65535 step=2048 style=&quot;flex:1&quot;&gt;&lt;span id=prox-cyc-v class=xyz style=&quot;min-width:54px;text-align:right&quot;&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;&lt;div class=xyz id=prox-cyc-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Widens the touch measurement window. Raw reading now: &lt;b id=prox-cyc-raw&gt;&amp;mdash;&lt;/b&gt;. Slide RIGHT if a hand barely moves the value (a long antenna saturates the reading into a tiny swing); slide until an approaching hand clearly swings the raw number. Applies instantly &amp;amp; re-baselines.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Applies instantly &amp;mdash; no reboot. If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; SAVE a different GPIO, then RECALIBRATE with your hand away. (4/27/32/33 are the safe touch pins; boot-strap pins are excluded.)&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin mode &amp;mdash; continuous field&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;The ring glows and (optionally) the buzzer plays a rising pitch as your hand approaches the antenna &amp;mdash; not just on trigger. Alerts + snapshots still fire.&lt;/div&gt;
@@ -527,7 +522,7 @@ rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=true;}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
-if($(&#x27;prox-auto&#x27;)){var pa=$(&#x27;prox-auto&#x27;);pa.onchange=function(){pa._userset=true;proxPost(&#x27;/prox/auto?on=&#x27;+(pa.checked?1:0)).then(function(d){if($(&#x27;prox-auto-v&#x27;))$(&#x27;prox-auto-v&#x27;).textContent=(d.auto?&#x27;adaptive&#x27;:&#x27;manual&#x27;);setTimeout(function(){pa._userset=false;},1500);});};}if($(&#x27;prox-cyc&#x27;)){var pc=$(&#x27;prox-cyc&#x27;);pc.oninput=function(){pc._userset=true;if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=pc.value;};pc.onchange=function(){proxPost(&#x27;/prox/cycles?cycles=&#x27;+pc.value).then(function(d){if($(&#x27;prox-cyc-v&#x27;))$(&#x27;prox-cyc-v&#x27;).textContent=(d.cycles||pc.value);setTimeout(function(){pc._userset=false;},1500);});};}if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
+if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=true;$(&#x27;therm-on&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:e.target.checked,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true})}}
 if($(&#x27;therm-tone&#x27;)){$(&#x27;therm-tone&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:e.target.checked})}}
 if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
@@ -536,9 +531,6 @@ if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._u=true;$(&#x27;therm-
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
-function appStatus(){fetch(&#x27;/app/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;app-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.appip?d.appip:&#x27;auto-discover (none set)&#x27;);if(d.appip&amp;&amp;!$(&#x27;app-ip&#x27;).value)$(&#x27;app-ip&#x27;).value=d.appip}).catch(function(){})}
-$(&#x27;app-save&#x27;).onclick=function(){var ip=$(&#x27;app-ip&#x27;).value.trim();if(!ip){$(&#x27;app-status&#x27;).textContent=&#x27;Enter SPECTER\u2019s IP&#x27;;$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;return}$(&#x27;app-status&#x27;).className=&#x27;status&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Linking to &#x27;+ip+&#x27;\u2026&#x27;;$(&#x27;app-save&#x27;).disabled=true;fetch(&#x27;/app/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({ip:ip})}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;app-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Saved \u00b7 linking to &#x27;+ip+&#x27;. It should appear in SPECTER shortly.&#x27;}else{$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Failed to save&#x27;}$(&#x27;app-save&#x27;).disabled=false;appStatus()}).catch(function(){$(&#x27;app-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Save request failed&#x27;;$(&#x27;app-save&#x27;).disabled=false})};
-$(&#x27;app-clear&#x27;).onclick=function(){$(&#x27;app-ip&#x27;).value=&#x27;&#x27;;$(&#x27;app-status&#x27;).className=&#x27;status&#x27;;$(&#x27;app-status&#x27;).textContent=&#x27;Cleared \u2014 back to auto-discover&#x27;;$(&#x27;app-save&#x27;).disabled=true;fetch(&#x27;/app/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({ip:&#x27;&#x27;})}).then(function(r){return r.json()}).then(function(){$(&#x27;app-save&#x27;).disabled=false;appStatus()}).catch(function(){$(&#x27;app-save&#x27;).disabled=false})};
 
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
@@ -604,13 +596,13 @@ function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).di
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
 $(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
-syncThr();wifiStatus();appStatus();connect();
+syncThr();wifiStatus();connect();
 fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(function(d){if(d)updRender(d)}).catch(function(){});
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.9-maker&quot;
+#define FW_VERSION   &quot;2.12.10-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -729,56 +721,8 @@ bool checkForUpdate() {
 // routine can disconnect them to free heap for the TLS handshake. The
 // port literal is used directly to avoid depending on a later #define.
 WebSocketsServer localWS(81);   // LOCAL_WS_PORT
-// MULTI-APP FAN-OUT (LAN multi-subscribe): the node used to keep a SINGLE
-// outbound client to ONE SPECTER app. It now maintains up to MAX_APPS parallel
-// client links, one per distinct app IP it discovers on the LAN, so two (or
-// more) SPECTER instances on the same network can both receive the full node
-// stream and both drive it. Capped small to stay within the ESP32 heap budget
-// (each client holds its own session + RX buffer). Every telemetry/event/ack
-// send fans out to all connected apps via appBroadcast().
-#define MAX_APPS 3
-WebSocketsClient appWS[MAX_APPS];
-bool             appStarted[MAX_APPS]   = { false };
-bool             appConnected[MAX_APPS] = { false };
-String           appIP[MAX_APPS];
-uint32_t         appStartAt[MAX_APPS]   = { 0 };   // millis() when begin() was called; watchdog frees a slot that never CONNECTs
-#define APP_LINK_TIMEOUT_MS 20000                   // started-but-not-connected longer than this -&gt; force-release so the next beacon retries
-// ---- Thread-safe hand-off from the async UDP beacon callback to loop() --------
-// CRITICAL: WebSocketsClient is NOT thread-safe. The UDP beacon fires in the
-// AsyncUDP/tcpip task, NOT the main loop. Calling appWS[].begin()/disconnect()/
-// onEvent() there races the main loop&#x27;s appWS[].loop() and corrupts the socket
-// layer, eventually wedging the ENTIRE network stack (portal + WS go dark until
-// reboot). So the callback ONLY records seen app IPs here; loop() does every
-// WS mutation. (Regression introduced when the beacon started re-linking directly.)
-#define MAX_SEEN 6
-portMUX_TYPE seenMux = portMUX_INITIALIZER_UNLOCKED;
-char         seenIP[MAX_SEEN][20];   // fixed buffers: NO heap alloc inside the lock
-int          seenPort[MAX_SEEN];
-volatile bool seenPending = false;
-// Called from the async UDP task -- keep it tiny and lock-guarded. No WS calls, and
-// no String/heap ops INSIDE the critical section (that can deadlock the allocator).
-void noteAppSeen(const String&amp; ip, int port) {
-  if (ip.length() == 0 || ip.length() &gt;= 20) return;
-  char buf[20];
-  ip.toCharArray(buf, sizeof(buf));   // heap-free copy BEFORE entering the lock
-  portENTER_CRITICAL(&amp;seenMux);
-  int slot = -1;
-  for (int i = 0; i &lt; MAX_SEEN; i++) { if (strcmp(seenIP[i], buf) == 0) { slot = i; break; } }
-  if (slot &lt; 0) for (int i = 0; i &lt; MAX_SEEN; i++) { if (seenIP[i][0] == &#x27;\0&#x27;) { slot = i; break; } }
-  if (slot &gt;= 0) { strncpy(seenIP[slot], buf, sizeof(seenIP[slot])); seenPort[slot] = port; seenPending = true; }
-  portEXIT_CRITICAL(&amp;seenMux);
-}
+WebSocketsClient appWS;
 Preferences prefs;   // moved above performUpdate: it persists OTA-failure reason to NVS
-
-// True if ANY app link is currently connected (replaces the old single flag).
-static inline bool anyAppConnected() {
-  for (int i = 0; i &lt; MAX_APPS; i++) if (appConnected[i]) return true;
-  return false;
-}
-// Send text to EVERY connected app link (LAN fan-out).
-static inline void appBroadcast(String&amp; out) {
-  for (int i = 0; i &lt; MAX_APPS; i++) if (appConnected[i]) appWS[i].sendTXT(out);
-}
 
 void performUpdate(const String&amp; url) {
   if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
@@ -797,7 +741,7 @@ void performUpdate(const String&amp; url) {
   // buffers are released, giving the TLS handshake the largest possible
   // contiguous heap block. This is the real fix on core 2.0.17 (which does not
   // expose WiFiClientSecure buffer sizing) for OTA failing on long-uptime nodes.
-  for (int i = 0; i &lt; MAX_APPS; i++) appWS[i].disconnect();
+  appWS.disconnect();
   localWS.disconnect();
   delay(250);                               // let the sockets fully release
   otaFreeHeap = ESP.getFreeHeap();          // capture AFTER freeing, for diagnostics
@@ -916,60 +860,7 @@ volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert 
                                           //  own drive, sputtering on/off at low level).
 volatile int     threshProx = 8;      // OPERATOR-set floor from the app slider (abs deviation, LSB)
 volatile int     proxNoiseFloor = 0;  // measured rest jitter (max |sample-mean|) during boot settle
-volatile int     effThreshProx = 40;  // ACTUAL prox trigger used (see applyProxThreshold)
-
-// ADAPTIVE AUTO-BASELINE (Adrian): the node is moved to new places constantly, so
-// instead of a fixed slider we run a fresh 5s ambient measurement -- on boot AND
-// after every prox detection settles -- then set the trigger as SENSITIVE as is
-// safe for THIS spot: effThreshProx = noiseFloor + adaptive margin (margin scales
-// with how noisy the spot is). A manual REFIT / slider / recal overrides it until
-// the next cycle. Persisted; default ON.
-volatile bool     proxAutoBase = true;
-#define PROX_AUTOBASE_MS   5000    // duration of each prox-only auto-baseline window
-// Prox-only re-baseline window state (mirrors the boot-baseline accumulators but
-// for prox alone, so mag stays live the whole time).
-volatile bool     pbActive   = false;    // a prox auto-baseline window is running
-volatile uint32_t pbEndAt    = 0;        // millis() when the window closes
-volatile double   pbProxSum  = 0;        // running sum for the mean baseline
-volatile uint32_t pbSamples  = 0;
-volatile int      pbNoise    = 0;        // measured rest jitter this window
-
-// Compute the effective proximity trigger from the operator&#x27;s slider value (MANUAL
-// mode). The slider is authoritative; the measured boot noise floor only sets a
-// small anti-jitter minimum (capped by PROX_JITTER_GUARD_MAX) so idle drift can&#x27;t
-// sputter false hits and one noisy boot reading can&#x27;t desensitize the session.
-#define PROX_ABS_FLOOR        4    // never trigger below this (raw LSB) -- physical noise ~1-2
-#define PROX_JITTER_GUARD_MAX 10   // most the boot noise floor may raise the minimum
-static inline int applyProxThreshold(int sliderVal) {
-    // Jitter guard: a small margin above measured rest jitter, but capped so a
-    // noisy boot can&#x27;t dominate. This is the LOWEST the trigger may sit.
-    int guard = proxNoiseFloor + 4;
-    if (guard &gt; PROX_JITTER_GUARD_MAX) guard = PROX_JITTER_GUARD_MAX;
-    if (guard &lt; PROX_ABS_FLOOR)        guard = PROX_ABS_FLOOR;
-    // Operator slider wins: use it directly, only clamped up to the jitter guard
-    // so idle drift can&#x27;t chatter. Raising sensitivity (lower slider) now works
-    // all the way down to `guard`.
-    int eff = sliderVal;
-    if (eff &lt; guard) eff = guard;
-    return eff;
-}
-// ADAPTIVE trigger from a measured noise floor: sit just above the rest jitter so
-// the sensor is as sensitive as it can be WITHOUT chattering. The margin scales
-// with the noise so a quiet spot gets a tight, very sensitive threshold and a
-// noisy spot gets a proportionally safer one. Clamped to a sane minimum.
-static inline int adaptiveProxThresh(int noise) {
-    int margin = noise / 2; if (margin &lt; 3) margin = 3;
-    int eff = noise + margin;
-    if (eff &lt; PROX_ABS_FLOOR) eff = PROX_ABS_FLOOR;
-    return eff;
-}
-// Arm a fresh 5s prox-only auto-baseline window (mag stays live). Call on boot and
-// after each prox detection settles. Cheap; the hardwareTask field block runs it.
-static inline void proxBaseArm() {
-    pbActive  = true;
-    pbEndAt   = millis() + PROX_AUTOBASE_MS;
-    pbProxSum = 0; pbSamples = 0; pbNoise = 0;
-}
+volatile int     effThreshProx = 40;  // ACTUAL prox trigger used = max(threshProx, proxNoiseFloor+margin)
 // ── THEREMIN MODE ───────────────────────────────────────────────────────────
 // When on, proximity behaves like a theremin: a CONTINUOUS 0..100 &quot;field&quot; that
 // rises smoothly as a hand approaches (well before the trigger), driving LED
@@ -988,7 +879,6 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 //  proxMode 0 = touchRead (default, ~15cm, no extra hardware)
 //  proxMode 1 = LC oscillator via PCNT on OSC_PIN (theremin range, needs 74HC14 board)
 volatile int      proxMode   = 0;
-volatile int      touchCycles = 0x6000;  // touchSetCycles measure window; bigger = larger values + more dynamic range on a long antenna (runtime-tunable /prox/cycles)
 volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
 volatile bool     oscReady   = false; // PCNT unit configured + baseline captured
@@ -1067,17 +957,6 @@ static bool i2cReg(uint8_t addr, uint8_t reg, uint8_t&amp; out) {
     if (!Wire.available()) return false;
     out = Wire.read(); return true;
 }
-// Apply the capacitive-touch measurement window. Bigger &#x27;measure&#x27; cycles = larger
-// touchRead values and more dynamic range, which a long telescopic antenna needs
-// (its big fixed capacitance otherwise saturates the reading into a tiny swing).
-// touchSetCycles only exists on the ORIGINAL ESP32 + classic v2.x core (see note
-// in initSensors); elsewhere it&#x27;s a harmless no-op and touchRead still works.
-void applyTouchCycles() {
-#if defined(CONFIG_IDF_TARGET_ESP32) &amp;&amp; (!defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION &lt; ESP_ARDUINO_VERSION_VAL(3,0,0))
-    uint16_t meas = (uint16_t)constrain(touchCycles, 0x1000, 0xFFFF);
-    touchSetCycles(meas, 0x1000);
-#endif
-}
 void initSensors() {
     // --- Capacitive touch sensitivity tuning ---
     // A long telescopic antenna adds a big fixed capacitance that pulls touchRead()&#x27;s
@@ -1090,7 +969,9 @@ void initSensors() {
     // and the newer chips use a different touch peripheral -- calling it there fails to
     // compile (&quot;not declared in this scope&quot;). Guard on chip + core version; it&#x27;s just
     // a sensitivity tweak, so a no-op elsewhere is fine (touchRead still works).
-    applyTouchCycles();   // apply the (possibly portal-tuned) measure window
+#if defined(CONFIG_IDF_TARGET_ESP32) &amp;&amp; (!defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION &lt; ESP_ARDUINO_VERSION_VAL(3,0,0))
+    touchSetCycles(0x6000, 0x1000);
+#endif
     Wire.begin(I2C_SDA, I2C_SCL);
     Wire.setClock(400000);
     magType = 0; magPresent = false;
@@ -1634,21 +1515,12 @@ void hardwareTask(void* pv) {
                     baseMagZ = (int)(blMagZsum / blSamples);
                     baseProx = (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
-                    // OPERATOR SLIDER IS AUTHORITATIVE. The noise floor only sets a
-                    // SMALL anti-jitter minimum so idle drift can&#x27;t chatter -- it must
-                    // never override an operator who wants high sensitivity. Cap the
-                    // floor&#x27;s influence so one noisy boot reading can&#x27;t desensitize
-                    // the whole session (was: effThreshProx = noiseFloor + margin,
-                    // which pinned the trigger high and made the slider a no-op).
-                    if (proxAutoBase) {
-                        // Adaptive: sit just above the boot noise floor for max
-                        // sensitivity here, then keep re-measuring per location.
-                        effThreshProx  = adaptiveProxThresh(proxNoiseFloor);
-                        proxBaseArm();   // start the first recurring 5s window
-                    } else {
-                        // Manual: operator slider is authoritative (jitter-guarded).
-                        effThreshProx = applyProxThreshold(threshProx);
-                    }
+                    // Guard band: the real trigger sits at least (noiseFloor + 60%)
+                    // above rest, and never below the operator&#x27;s slider value. This
+                    // is what stops the constant low-level proximity chatter.
+                    effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
+                    if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
+                    if (effThreshProx &lt; 12) effThreshProx = 12;
                 } else {
                     recalibrate = true;   // no samples (shouldn&#x27;t happen) -&gt; single-shot fallback
                 }
@@ -1666,32 +1538,6 @@ void hardwareTask(void* pv) {
         if (proxRecalibrate) {
             baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
             proxRecalibrate = false;
-        }
-        // ---------- RECURRING ADAPTIVE PROX AUTO-BASELINE (per location) ----------
-        // While a window is active we sample the RESTING prox (mag untouched) to
-        // measure this spot&#x27;s noise floor, then set the trigger just above it for
-        // maximum safe sensitivity. Runs on boot and after each detection settles.
-        // A manual override (recalibrate / slider / refit) cancels the window.
-        if (pbActive &amp;&amp; proxAutoBase &amp;&amp; !recalibrate &amp;&amp; !proxRecalibrate) {
-            pbProxSum += proxVal; pbSamples++;
-            if (pbSamples &gt; 3) {
-                int runMean = (int)(pbProxSum / pbSamples);
-                int dev = abs(proxVal - runMean);
-                if (dev &gt; pbNoise) pbNoise = dev;
-            }
-            if ((int32_t)(millis() - pbEndAt) &gt;= 0) {
-                // Window closed: adopt the mean as the clean prox baseline and set
-                // an adaptive, maximally-sensitive trigger for THIS location.
-                if (pbSamples &gt; 0) {
-                    baseProx = (int)(pbProxSum / pbSamples);
-                    proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
-                    proxNoiseFloor = pbNoise;
-                    effThreshProx  = adaptiveProxThresh(proxNoiseFloor);
-                }
-                pbActive = false;
-            }
-        } else if (pbActive &amp;&amp; !proxAutoBase) {
-            pbActive = false;   // auto-base turned off mid-window: stop cleanly
         }
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
         // a touch is active so the baseline doesn&#x27;t creep toward the touched value.
@@ -1872,8 +1718,7 @@ void hardwareTask(void* pv) {
             // PROX COOLDOWN: prox stays quiet (no prox beep, no prox event, no
             // prox LEDs). Mag is unaffected and handled separately below.
             if (nowMs - alertPhaseStart &gt;= COOLDOWN_MS) {
-                if (proxAutoBase) proxBaseArm();       // fresh 5s adaptive re-measure for this spot
-                else              proxRecalibrate = true;  // manual mode: plain re-zero
+                proxRecalibrate = true;    // re-zero prox baseline to current ambient
                 alertPhase = 0;
                 alertPhaseStart = 0;
             }
@@ -1992,31 +1837,11 @@ WebServer        server(80);
 // (localWS/appWS declared earlier, above performUpdate, so OTA can tear them down)
 AsyncUDP         udp;
 
+bool     isAppConnected = false, appWSStarted = false;
 String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;;
-
-// Clean STA (re)connect. ESP-IDF (WiFi.persistent(true)) keeps its OWN copy of the
-// WiFi config in a separate NVS blob; after heavy flashing/OTA churn that blob can go
-// stale so the STA scans fine but never ASSOCIATES (&quot;sees networks, won&#x27;t connect&quot;).
-// wifiCleanBegin() force-disconnects + erases that SDK config, then begins fresh.
-// It also guards against re-kicking begin() while an attempt is still in flight, which
-// otherwise restarts the handshake every 15s and prevents a slow auth from ever finishing.
-static uint32_t wifiBeginAt = 0;              // millis() of the last begin(); 0 = idle
-void wifiCleanBegin(bool eraseSdk) {
-    if (eraseSdk) {
-        WiFi.persistent(false);               // stop writing junk while we reset
-        WiFi.disconnect(false, /*eraseap=*/true);  // wipe the stale SDK STA config
-        delay(60);
-        WiFi.persistent(true);                // resume persisting a KNOWN-GOOD config
-    }
-    WiFi.setSleep(false);                      // modem-sleep can stall association on some APs
-    WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
-    wifiBeginAt = millis();
-}
-
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
 
-void sendHello(int slot) {
-    if (slot &lt; 0 || slot &gt;= MAX_APPS) return;
+void sendHello() {
     JsonDocument doc;
     doc[&quot;t&quot;] = &quot;hello&quot;; doc[&quot;device&quot;] = DEVICE_TYPE; doc[&quot;fw&quot;] = FW_VERSION;
     doc[&quot;name&quot;] = nodeName;
@@ -2025,8 +1850,7 @@ void sendHello(int slot) {
     doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;;
     JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
     th[&quot;magSens&quot;] = magSens; th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
-    // hello is per-link: only the app that just connected needs the handshake.
-    String out; serializeJson(doc, out); appWS[slot].sendTXT(out);
+    String out; serializeJson(doc, out); appWS.sendTXT(out);
 }
 
 void persistThresholds() {
@@ -2041,9 +1865,7 @@ void sendAck(int src, long id, bool ok, uint8_t localNum) {
     if (id &lt; 0) return;                       // only _sendAcked frames carry an id
     JsonDocument a; a[&quot;t&quot;] = &quot;ack&quot;; a[&quot;id&quot;] = id; a[&quot;ok&quot;] = ok;
     String out; serializeJson(a, out);
-    // src==0: ack the SPECIFIC app link the command came in on (slot in localNum),
-    // NOT a broadcast -- the requesting app matches acks by id on its own socket.
-    if (src == 0) { if (localNum &lt; MAX_APPS &amp;&amp; appConnected[localNum]) appWS[localNum].sendTXT(out); }
+    if (src == 0) { if (isAppConnected) appWS.sendTXT(out); }
     else          { localWS.sendTXT(localNum, out); }
 }
 
@@ -2056,27 +1878,18 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     long ackId = doc[&quot;id&quot;] | -1;
     if (!strcmp(cmd, &quot;ping&quot;)) {
         JsonDocument p; p[&quot;t&quot;] = &quot;pong&quot;; p[&quot;ts&quot;] = millis();
-        String out; serializeJson(p, out); appBroadcast(out);
+        String out; serializeJson(p, out); if (isAppConnected) appWS.sendTXT(out);
     } else if (!strcmp(cmd, &quot;setThreshold&quot;)) {
         const char* ch = doc[&quot;channel&quot;] | &quot;&quot;; int val = doc[&quot;value&quot;] | 0;
         if (!strcmp(ch, &quot;mag&quot;))  magSens = constrain(val, 0, 100);   // mag slider is 0..100 sensitivity
         if (!strcmp(ch, &quot;prox&quot;)) {
             threshProx = val;
-            // Moving the prox slider is an EXPLICIT manual override: leave adaptive
-            // auto-baseline mode so the operator&#x27;s chosen sensitivity sticks (they
-            // can re-enable auto-base from the portal toggle). Recompute directly.
-            proxAutoBase = false; pbActive = false;
-            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, 0); prefs.end();
-            effThreshProx = applyProxThreshold(threshProx);
+            // Re-apply the guard band around the operator&#x27;s new value.
+            effThreshProx = proxNoiseFloor + 8;   // clear idle jitter by a fixed margin, stay reachable by a real touch
+            if (effThreshProx &lt; threshProx) effThreshProx = threshProx;
+            if (effThreshProx &lt; 12) effThreshProx = 12;
         }
         persistThresholds();
-    } else if (!strcmp(cmd, &quot;setProxAuto&quot;)) {
-        // Adaptive auto-baseline on/off. Turning ON immediately arms a fresh window
-        // so it re-measures the current spot and cranks sensitivity right away.
-        proxAutoBase = (doc[&quot;on&quot;] | true);
-        prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, proxAutoBase ? 1 : 0); prefs.end();
-        if (proxAutoBase) proxBaseArm(); else pbActive = false;
-        sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
         proxTheremin = (bool)(doc[&quot;on&quot;] | false);
         if (doc[&quot;tone&quot;].is&lt;bool&gt;()) proxToneOn = (bool)doc[&quot;tone&quot;];
@@ -2164,23 +1977,11 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     }
 }
 
-void appWsEvent(int slot, WStype_t type, uint8_t* payload, size_t length) {
-    if (slot &lt; 0 || slot &gt;= MAX_APPS) return;
-    if (type == WStype_CONNECTED) { appConnected[slot] = true; appStartAt[slot] = 0; sendHello(slot); }
-    else if (type == WStype_DISCONNECTED) {
-        // Mark not-connected, but DON&#x27;T tear the slot down from inside the event
-        // callback: arduinoWebSockets can fire a spurious DISCONNECTED during the
-        // handshake, and calling appStarted=false / disconnect() here would stop the
-        // slot from ever completing its connect. Just flag it disconnected and (re)stamp
-        // the watchdog clock; the MAIN-task watchdog in pumpAppLinks() owns teardown +
-        // re-link. This keeps ALL slot mutation on the main task (no re-entrant WS ops).
-        appConnected[slot] = false;
-        if (appStarted[slot] &amp;&amp; appStartAt[slot] == 0) appStartAt[slot] = millis();
-    }
+void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
+    if (type == WStype_CONNECTED) { isAppConnected = true; sendHello(); }
+    else if (type == WStype_DISCONNECTED) { isAppConnected = false; }
     else if (type == WStype_TEXT) {
-        // Route the command with the slot index in the localNum arg so its ack
-        // goes back to THIS app link only (see sendAck src==0).
-        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 0, (uint8_t)slot);
+        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 0, 0);
     }
 }
 void sendHelloTo(uint8_t num) {
@@ -2202,61 +2003,9 @@ void localWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
 }
 
 void connectToApp(const String&amp; ip, int port) {
-    if (ip.length() == 0) return;
-    // Already linked (or linking) to this app IP? Ignore repeat beacons.
-    for (int i = 0; i &lt; MAX_APPS; i++) if (appStarted[i] &amp;&amp; appIP[i] == ip) return;
-    // Find a free slot; if all MAX_APPS are taken, drop the extra app (cap).
-    int slot = -1;
-    for (int i = 0; i &lt; MAX_APPS; i++) if (!appStarted[i]) { slot = i; break; }
-    if (slot &lt; 0) return;
-    appIP[slot] = ip; appStarted[slot] = true; appStartAt[slot] = millis();
-    appWS[slot].begin(ip, port, &quot;/&quot;);
-    // Capture the slot index so the shared handler knows WHICH app link fired.
-    appWS[slot].onEvent([slot](WStype_t type, uint8_t* payload, size_t length) {
-        appWsEvent(slot, type, payload, length);
-    });
-    // Re-discovery is driven by the app&#x27;s 2s UDP beacon, NOT the client&#x27;s internal
-    // auto-reconnect -- a long internal reconnect can block the shared loop and
-    // freeze every other app link. Push it far out so loop() never stalls on it;
-    // a dropped link frees its slot (see WStype_DISCONNECTED) and the next beacon
-    // re-links. Also enable a light heartbeat so a wedged socket is detected fast.
-    appWS[slot].setReconnectInterval(600000);           // effectively off; beacon re-links
-    appWS[slot].enableHeartbeat(5000, 3000, 3);          // ping 5s, pong timeout 3s, drop after 3 misses (~15s grace, tolerant of app GC pauses)
-}
-
-// Drain the app-seen inbox on the MAIN task and open any missing links. This is
-// the ONLY place (besides setup) that mutates WebSocketsClient, so there is no
-// cross-task race with loop()&#x27;s appWS[].loop(). Called every loop iteration; the
-// dedup in connectToApp makes repeated calls cheap (returns immediately if linked).
-void pumpAppLinks() {
-    // WATCHDOG (runs every loop): if a slot has been &quot;started&quot; but never reached
-    // CONNECTED within APP_LINK_TIMEOUT_MS, the WS layer is wedged (half-open
-    // socket, missed DISCONNECTED event, app was mid-restart when we linked, etc.)
-    // Internal auto-reconnect is disabled, and connectToApp() refuses to retry a
-    // slot it thinks is already linked -&gt; the node would stay dark until a reboot.
-    // Force-release the slot here (on the MAIN task) so the next beacon re-links.
-    // THIS is the fix for &quot;only a reboot finds the app again&quot; after 2.13.x.
-    uint32_t now = millis();
-    for (int i = 0; i &lt; MAX_APPS; i++) {
-        if (appStarted[i] &amp;&amp; !appConnected[i] &amp;&amp; appStartAt[i] &amp;&amp;
-            (uint32_t)(now - appStartAt[i]) &gt; APP_LINK_TIMEOUT_MS) {
-            appStarted[i]   = false;
-            appIP[i]        = &quot;&quot;;
-            appStartAt[i]   = 0;
-            appWS[i].disconnect();   // main-task disconnect (safe; not from the WS callback)
-            seenPending     = true;  // re-try any app IP still in the inbox this iteration (don&#x27;t wait 2s for the next beacon)
-        }
-    }
-    if (!seenPending) return;
-    char ips[MAX_SEEN][20]; int ports[MAX_SEEN]; int n = 0;
-    portENTER_CRITICAL(&amp;seenMux);
-    for (int i = 0; i &lt; MAX_SEEN; i++) {
-        if (seenIP[i][0] != &#x27;\0&#x27;) { strncpy(ips[n], seenIP[i], 20); ports[n] = seenPort[i]; n++; }
-    }
-    seenPending = false;
-    portEXIT_CRITICAL(&amp;seenMux);
-    // String construction + WS begin() happen OUTSIDE the lock, on the main task.
-    for (int i = 0; i &lt; n; i++) connectToApp(String(ips[i]), ports[i]);
+    if (appWSStarted) return;
+    appWS.begin(ip, port, &quot;/&quot;); appWS.onEvent(appWsEvent);
+    appWS.setReconnectInterval(3000); appWSStarted = true;
 }
 
 void setupNetwork() {
@@ -2270,8 +2019,6 @@ void setupNetwork() {
     proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 1) == 1;
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
-    touchCycles = prefs.getInt(&quot;touchCyc&quot;, 0x6000);
-    proxAutoBase= prefs.getInt(&quot;proxAuto&quot;, 1) == 1;   // adaptive auto-baseline default ON
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
@@ -2287,7 +2034,7 @@ void setupNetwork() {
     WiFi.persistent(true);          // keep station config across reboots/brownouts
     WiFi.setAutoReconnect(true);    // SDK auto-rejoins if the AP drops or comes back
     if (targetSSID != &quot;&quot;) {
-        wifiCleanBegin(/*eraseSdk=*/true);     // erase stale SDK WiFi config, then join fresh
+        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
         // If it didn&#x27;t come up in 10s (slow router after a power blip), don&#x27;t give up --
         // the background retry in the network loop + auto-reconnect keep working on it.
@@ -2295,15 +2042,11 @@ void setupNetwork() {
     if (WiFi.status() == WL_CONNECTED) {
         if (udp.listen(BEACON_PORT)) {
             udp.onPacket([](AsyncUDPPacket packet) {
-                // Multi-app: don&#x27;t gate on &quot;already connected&quot; -- a beacon from a
-                // DIFFERENT app IP should open an additional link. connectToApp
-                // dedups by IP and caps at MAX_APPS, so this is safe to call often.
-                // ASYNC CONTEXT -- do NOT touch WebSocketsClient here. Just record
-                // the app IP; loop() opens/reuses the link on the main task.
+                if (isAppConnected || appWSStarted) return;
                 JsonDocument doc;
                 if (deserializeJson(doc, packet.data(), packet.length())) return;
                 if (doc[&quot;svc&quot;] == &quot;specter-app&quot;)
-                    noteAppSeen(doc[&quot;ip&quot;].as&lt;String&gt;(), doc[&quot;ws&quot;] | APP_WS_PORT);
+                    connectToApp(doc[&quot;ip&quot;].as&lt;String&gt;(), doc[&quot;ws&quot;] | APP_WS_PORT);
             });
         }
         if (targetAppIP != &quot;&quot;) connectToApp(targetAppIP, APP_WS_PORT);
@@ -2326,24 +2069,7 @@ void setupNetwork() {
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/wifi/scan&quot;, []() {
-        // Robust sync scan. A bare scanNetworks() often returns WIFI_SCAN_FAILED (-2)
-        // or BUSY (-1) when the softAP is up and/or the STA is mid-connect (exactly the
-        // state right after a failed update attempt). Clear any stale scan, then retry a
-        // few times with a short settle so a transient radio-busy doesn&#x27;t surface as
-        // &quot;scan failed&quot; in the portal. show_hidden=false, passive=false, per-channel 300ms.
-        WiFi.scanDelete();
-        int n = WIFI_SCAN_FAILED;
-        for (int attempt = 0; attempt &lt; 4; attempt++) {
-            n = WiFi.scanNetworks(/*async=*/false, /*show_hidden=*/false,
-                                  /*passive=*/false, /*max_ms_per_chan=*/300);
-            if (n &gt;= 0) break;           // success (0 = none found but scan worked)
-            WiFi.scanDelete();
-            delay(350);                  // let the radio settle, then retry
-        }
-        if (n &lt; 0) {                     // still failed after retries -- report cleanly, don&#x27;t 500
-            server.send(200, &quot;application/json&quot;, &quot;{\&quot;error\&quot;:\&quot;scan_busy\&quot;,\&quot;nets\&quot;:[]}&quot;);
-            return;
-        }
+        int n = WiFi.scanNetworks();
         JsonDocument d; JsonArray arr = d.to&lt;JsonArray&gt;();
         for (int i = 0; i &lt; n &amp;&amp; i &lt; 40; i++) {
             String ss = WiFi.SSID(i);
@@ -2374,7 +2100,7 @@ void setupNetwork() {
         WiFi.mode(WIFI_AP_STA);                 // keep AP up so the portal stays reachable
         WiFi.persistent(true);                  // let the SDK keep the config across resets
         WiFi.setAutoReconnect(true);            // auto-retry if the link drops
-        wifiCleanBegin(/*eraseSdk=*/true);      // wipe any stale SDK STA config, then join fresh
+        WiFi.begin(ssid.c_str(), pass.c_str());
         int t = 0;
         while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 24) { delay(500); t++; }
         JsonDocument d;
@@ -2385,24 +2111,6 @@ void setupNetwork() {
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
             d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
         }
-        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
-    });
-    // ---- Manual app-IP override: connect straight to SPECTER&#x27;s IP, skipping ----
-    // ---- UDP discovery entirely (bulletproof when broadcast is filtered or the ----
-    // ---- app is on a different NIC/subnet). POST ip=&lt;SPECTER LAN IP&gt;. ip=&quot;&quot; clears. --
-    server.on(&quot;/app/save&quot;, HTTP_POST, []() {
-        String ip = server.hasArg(&quot;ip&quot;) ? server.arg(&quot;ip&quot;) : &quot;&quot;;
-        ip.trim();
-        targetAppIP = ip;
-        prefs.begin(&quot;specter&quot;, false);
-        prefs.putString(&quot;appip&quot;, ip);
-        prefs.end();
-        if (ip.length() &gt; 0) connectToApp(ip, APP_WS_PORT);   // link immediately, no wait for beacon
-        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;appip&quot;] = ip;
-        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
-    });
-    server.on(&quot;/app/status&quot;, []() {
-        JsonDocument d; d[&quot;appip&quot;] = targetAppIP;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     // ---- LED config API (per-node, on-device) ----
@@ -2562,35 +2270,8 @@ void setupNetwork() {
         server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;pin\&quot;:&quot;) + touchPin + &quot;}&quot;);
     });
     server.on(&quot;/prox/recal&quot;, HTTP_POST, []() {
-        // &quot;Re-measure this spot now&quot;: in adaptive mode arm a fresh 5s window so the
-        // trigger re-fits to the current location; in manual mode single-shot re-zero.
-        if (proxAutoBase) proxBaseArm(); else recalibrate = true;
+        recalibrate = true;
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
-    });
-    // Toggle adaptive auto-baseline (the &quot;measure the spot, crank sensitivity as
-    // high as safe, re-measure after each detection&quot; behavior). Persisted.
-    server.on(&quot;/prox/auto&quot;, HTTP_POST, []() {
-        if (server.hasArg(&quot;on&quot;)) {
-            proxAutoBase = (server.arg(&quot;on&quot;) == &quot;1&quot; || server.arg(&quot;on&quot;) == &quot;true&quot;);
-            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxAuto&quot;, proxAutoBase ? 1 : 0); prefs.end();
-            if (proxAutoBase) proxBaseArm(); else pbActive = false;
-        }
-        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;auto\&quot;:&quot;) + (proxAutoBase?&quot;true&quot;:&quot;false&quot;) + &quot;}&quot;);
-    });
-    // Live-tune the touch measurement window. Bigger = larger raw values + wider
-    // hand-approach swing on a long antenna (fixes the &quot;barely moves&quot; saturation).
-    // Applied immediately + re-baselined, so you can watch the raw prox swing open
-    // up in the live readout without reflashing. Persisted across reboots.
-    server.on(&quot;/prox/cycles&quot;, HTTP_POST, []() {
-        if (server.hasArg(&quot;cycles&quot;)) {
-            int c = server.arg(&quot;cycles&quot;).toInt();
-            touchCycles = constrain(c, 0x1000, 0xFFFF);
-            applyTouchCycles();
-            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;touchCyc&quot;, touchCycles); prefs.end();
-            recalibrate = true;   // single-shot rebaseline at the new sensitivity
-            if (proxAutoBase) proxBaseArm();   // then re-measure the noise floor for adaptive trigger
-        }
-        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;cycles\&quot;:&quot;) + touchCycles + &quot;}&quot;);
     });
 
     // Restart the node so a chipset / data-pin change binds cleanly at boot.
@@ -2649,10 +2330,7 @@ void setup() {
 }
 
 void loop() {
-    server.handleClient(); localWS.loop();
-    for (int i = 0; i &lt; MAX_APPS; i++) appWS[i].loop();   // pump ALL slots -- .loop() drives the async connect+handshake to completion; gating on appStarted froze links mid-handshake
-    pumpAppLinks();   // main-task: open/reuse app links recorded by the UDP beacon
-
+    server.handleClient(); localWS.loop(); appWS.loop();
     uint32_t now = millis();
     uint32_t period = 1000 / (telemetryHz &gt; 0 ? telemetryHz : TELEMETRY_HZ_DEFAULT);
 
@@ -2660,7 +2338,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz; doc[&quot;touchCyc&quot;] = touchCycles; doc[&quot;proxAuto&quot;] = proxAutoBase;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
@@ -2670,7 +2348,7 @@ void loop() {
         doc[&quot;magChip&quot;]  = (magType==2)?&quot;5883P&quot;:(magType==1)?&quot;5883L&quot;:&quot;none&quot;;
         doc[&quot;hz&quot;] = telemetryHz;
         String out; serializeJson(doc, out);
-        appBroadcast(out);
+        if (isAppConnected) appWS.sendTXT(out);
         localWS.broadcastTXT(out);
 
         if (eventPending) {
@@ -2678,7 +2356,7 @@ void loop() {
             e[&quot;t&quot;] = &quot;event&quot;; e[&quot;ts&quot;] = now; e[&quot;kind&quot;] = evtKind; e[&quot;channel&quot;] = evtChannel;
             e[&quot;value&quot;] = evtValue; e[&quot;threshold&quot;] = evtThreshold; e[&quot;severity&quot;] = evtSeverity;
             String eo; serializeJson(e, eo);
-            appBroadcast(eo);
+            if (isAppConnected) appWS.sendTXT(eo);
             localWS.broadcastTXT(eo);
             eventPending = false;
         }
@@ -2687,18 +2365,11 @@ void loop() {
     // (e.g. rebooted while the router was still coming up after a power blip),
     // re-issue begin() every ~15s so the node rejoins on its own -- no manual reboot.
     static uint32_t lastWifiTry = 0;
-    static uint8_t  wifiFailStreak = 0;
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
-        &amp;&amp; now - lastWifiTry &gt;= 15000
-        &amp;&amp; (wifiBeginAt == 0 || now - wifiBeginAt &gt;= 12000)) {   // don&#x27;t restart an in-flight join
+        &amp;&amp; now - lastWifiTry &gt;= 15000) {
         lastWifiTry = now;
-        wifiFailStreak++;
-        // Every 3rd failed cycle, erase the SDK WiFi config too -- clears a stuck/stale
-        // association that makes the STA see the SSID but never join. Otherwise a plain
-        // clean begin (cheaper, keeps the persisted config).
-        wifiCleanBegin(/*eraseSdk=*/(wifiFailStreak % 3 == 0));
+        WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
     }
-    if (WiFi.status() == WL_CONNECTED) { wifiBeginAt = 0; wifiFailStreak = 0; }
 
     if (now - lastNet &gt;= 1000) {
         lastNet = now;
@@ -2707,12 +2378,8 @@ void loop() {
         n[&quot;ip&quot;] = WiFi.localIP().toString(); n[&quot;uptime&quot;] = (now - bootMs) / 1000;
         n[&quot;ssid&quot;] = WiFi.SSID(); n[&quot;clients&quot;] = WiFi.softAPgetStationNum();
         n[&quot;magOk&quot;] = magPresent;
-        // How many SPECTER apps are currently subscribed to this node (LAN
-        // multi-subscribe). 0 = only the local portal is watching.
-        int appsUp = 0; for (int i = 0; i &lt; MAX_APPS; i++) if (appConnected[i]) appsUp++;
-        n[&quot;apps&quot;] = appsUp; n[&quot;linked&quot;] = anyAppConnected();
         String no; serializeJson(n, no);
-        appBroadcast(no);
+        if (isAppConnected) appWS.sendTXT(no);
         localWS.broadcastTXT(no);
     }
 }
