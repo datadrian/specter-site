@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.12-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.13-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -611,7 +611,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.12-maker&quot;
+#define FW_VERSION   &quot;2.12.13-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1850,6 +1850,7 @@ bool     isAppConnected = false, appWSStarted = false;
 uint32_t appStartAt = 0;        // millis() when we last began an app WS connect (0 = idle)
 uint32_t appLinkOkAt = 0;       // millis() of last CONNECTED / inbound frame
 #define  APP_LINK_TIMEOUT_MS 15000   // started-but-never-connected -&gt; tear down + rediscover
+#define  APP_LINK_RELINK_MS  30000   // connected-then-down-this-long -&gt; reopen discovery (app moved / IP changed)
 String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;, relayUrl = &quot;&quot;;
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
 
@@ -1992,12 +1993,18 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
 void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
     if (type == WStype_CONNECTED) { isAppConnected = true; appLinkOkAt = millis(); sendHello(); }
     else if (type == WStype_DISCONNECTED) {
-        // A dropped link (or a failed connect to a stale saved IP) must NOT lock
-        // the node out of discovery. Release the &quot;started&quot; flag so the UDP beacon
-        // path can re-acquire the app, and re-arm the link watchdog clock.
+        // Only mark the link down. Do NOT clear appWSStarted/appStartAt here:
+        // WebSocketsClient fires transient DISCONNECTED events BETWEEN its own
+        // auto-reconnect attempts (setReconnectInterval), and on a higher-latency
+        // link (e.g. a phone hotspot) the handshake needs several seconds. If we
+        // released appWSStarted on each blip, the next 2s discovery beacon would
+        // call connectToApp() -&gt; appWS.begin() again and re-init the client
+        // mid-handshake, throwing away the attempt that was about to succeed --
+        // an endless start/almost-connect/restart churn that never links.
+        // Let the library&#x27;s own reconnect finish the job; the APP_LINK watchdog
+        // in loop() is the ONE place that deliberately tears down + reopens
+        // discovery, and only after APP_LINK_TIMEOUT_MS with no CONNECTED.
         isAppConnected = false;
-        appWSStarted = false;
-        appStartAt = 0;
     }
     else if (type == WStype_TEXT) {
         appLinkOkAt = millis();
@@ -2468,7 +2475,10 @@ void loop() {
     // appip from a previous config) is unreachable. Tear the client down and
     // release the started flag so the UDP beacon path can rediscover the app.
     // Relay mode is exempt (it has no beacon to fall back to).
-    if (appWSStarted &amp;&amp; !isAppConnected &amp;&amp; relayUrl.length() == 0
+    // Fire ONLY when we began a connect and have NEVER reached CONNECTED
+    // (appLinkOkAt == 0). If we connected at least once, a later drop is a
+    // transient the library will reconnect on its own -- don&#x27;t tear it down.
+    if (appWSStarted &amp;&amp; !isAppConnected &amp;&amp; appLinkOkAt == 0 &amp;&amp; relayUrl.length() == 0
         &amp;&amp; appStartAt != 0 &amp;&amp; now - appStartAt &gt;= APP_LINK_TIMEOUT_MS) {
         appWS.disconnect();
         appWSStarted = false;
@@ -2478,6 +2488,19 @@ void loop() {
             targetAppIP = &quot;&quot;;
             prefs.begin(&quot;specter&quot;, false); prefs.remove(&quot;appip&quot;); prefs.end();
         }
+    }
+
+    // Long-drop recovery: we DID connect once, but the link has now been down
+    // for much longer than the reconnect interval (app quit, or the hotspot
+    // handed the app a new IP so the library keeps retrying a dead address).
+    // Reopen LAN discovery so a fresh beacon can point us at the new IP. Only
+    // in LAN mode, and only after a generous grace so normal blips self-heal.
+    if (appWSStarted &amp;&amp; !isAppConnected &amp;&amp; appLinkOkAt != 0 &amp;&amp; relayUrl.length() == 0
+        &amp;&amp; now - appLinkOkAt &gt;= APP_LINK_RELINK_MS) {
+        appWS.disconnect();
+        appWSStarted = false;
+        appStartAt = 0;
+        appLinkOkAt = 0;   // require a fresh CONNECTED before this branch can fire again
     }
 
     if (now - lastNet &gt;= 1000) {
