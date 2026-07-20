@@ -47,7 +47,12 @@ function names(machineId) {
   // A 4th level (m-xxx.remote.specter-imaging.com) would need paid Advanced
   // Certificate Manager and would throw SSL errors on phones otherwise.
   const root = process.env.TUNNEL_ROOT || 'specter-imaging.com';
-  return { tunnelName: `specter-${sub}`, hostname: `${sub}.${root}` };
+  // Node relay host lives at the SAME 3rd level so the free *.specter-imaging.com
+  // wildcard cert covers it (n-xxx.specter-imaging.com). The ESP32 node connects
+  // wss:// here; Cloudflare edge terminates TLS and forwards ws to the local node
+  // WS server (:47846). This is ADDITIVE to the phone-viewer hostname (m-xxx).
+  const nodeSub = `n-${slug}`;
+  return { tunnelName: `specter-${sub}`, hostname: `${sub}.${root}`, nodeHostname: `${nodeSub}.${root}` };
 }
 
 // Find an existing remotely-managed tunnel by name (not deleted), else create.
@@ -69,17 +74,22 @@ async function getTunnelToken(accountId, tunnelId) {
   return cf(`/accounts/${accountId}/cfd_tunnel/${tunnelId}/token`);
 }
 
-async function setTunnelConfig(accountId, tunnelId, hostname, port) {
+async function setTunnelConfig(accountId, tunnelId, hostname, port, nodeHostname) {
+  // ORDER MATTERS: the phone-viewer HTTP host stays the FIRST rule (unchanged).
+  // The node WS host is appended as a SECOND rule; the 404 catch-all stays last.
+  // The node WS server is fixed at 47846 (NODE_WS_PORT), independent of the
+  // remote-server HTTP port so the phone viewer is never affected.
+  const NODE_WS_PORT = 47846;
+  const ingress = [
+    { hostname, service: `http://127.0.0.1:${port}` },
+  ];
+  if (nodeHostname) {
+    ingress.push({ hostname: nodeHostname, service: `http://127.0.0.1:${NODE_WS_PORT}` });
+  }
+  ingress.push({ service: 'http_status:404' });
   return cf(`/accounts/${accountId}/cfd_tunnel/${tunnelId}/configurations`, {
     method: 'PUT',
-    body: JSON.stringify({
-      config: {
-        ingress: [
-          { hostname, service: `http://127.0.0.1:${port}` },
-          { service: 'http_status:404' },
-        ],
-      },
-    }),
+    body: JSON.stringify({ config: { ingress } }),
   });
 }
 
@@ -129,17 +139,18 @@ exports.handler = async (event) => {
 
   const accountId = process.env.CF_ACCOUNT_ID;
   const zoneId = process.env.CF_ZONE_ID;
-  const { tunnelName, hostname } = names(machineId);
+  const { tunnelName, hostname, nodeHostname } = names(machineId);
 
   try {
     const tunnel = await ensureTunnel(accountId, tunnelName);
     const tunnelId = tunnel.id;
-    await setTunnelConfig(accountId, tunnelId, hostname, port);
+    await setTunnelConfig(accountId, tunnelId, hostname, port, nodeHostname);
     await ensureDns(zoneId, hostname, tunnelId);
+    await ensureDns(zoneId, nodeHostname, tunnelId);
     // A freshly-created tunnel returns its connector token inline; an existing
     // one does not, so fetch it from the /token endpoint in that case.
     const token = tunnel.token || await getTunnelToken(accountId, tunnelId);
-    return json(200, { hostname, token });
+    return json(200, { hostname, nodeHostname, token });
   } catch (e) {
     return json(502, { error: 'Provisioning failed: ' + (e && e.message ? e.message : 'unknown') });
   }
