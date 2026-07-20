@@ -1,9 +1,10 @@
 {
-  "version": "2.12.11-maker",
-  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.11.bin",
-  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.11.bin",
-  "sha256": "e43adcdff177dce6fa0dc191836c453b46993c765003b15a71da9a67826ee46b",
-  "size": 1134976,
-  "notes": "Internet relay mode (Cloudflare tunnel to one SPECTER). LAN unchanged when relay URL blank.",
-  "built": "2026-07-20T01:52:33Z"
+  "version": "2.12.9-maker",
+  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.9-maker.bin",
+  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.9-maker.bin",
+  "sha256": "5d92cd3283e726786bae02d0e053490a218c717b7b88bf047a89025c2831f7c4",
+  "size": 1135088,
+  "notes": "Maker build from ef23ce9",
+  "built": "2026-07-20T03:03:04Z",
+  "commit": "ef23ce92841ba4d2399e324dbdafb9db716306c6"
 }

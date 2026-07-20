@@ -329,7 +329,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.10-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.9-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -439,6 +439,11 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
 &lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Internet Relay&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=status id=relay-cur&gt;Mode: LAN discovery&lt;/div&gt;
+&lt;label&gt;SPECTER Relay URL&lt;/label&gt;&lt;input type=text id=relay-url placeholder=&quot;Paste the relay address SPECTER shows (leave blank for LAN)&quot;&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Set this to connect to ONE SPECTER over the internet through a secure tunnel. Leave blank to use local-network discovery. Reboot after saving.&lt;/div&gt;
+&lt;div class=status id=relay-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=relay-save&gt;SAVE RELAY&lt;/button&gt;&lt;button id=relay-clear class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
@@ -531,6 +536,10 @@ if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._u=true;$(&#x27;therm-
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+function relayStatus(){fetch(&#x27;/relay/get&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=d.url||&#x27;&#x27;;$(&#x27;relay-cur&#x27;).textContent=&#x27;Mode: &#x27;+(d.active?&#x27;INTERNET RELAY · &#x27;+d.url:&#x27;LAN discovery&#x27;)}).catch(function(){})}
+$(&#x27;relay-save&#x27;).onclick=function(){var u=$(&#x27;relay-url&#x27;).value.trim();$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Saving…&#x27;;$(&#x27;relay-save&#x27;).disabled=true;var body=new URLSearchParams({url:u});fetch(&#x27;/relay/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Saved.&#x27;)+&#x27; Reboot to apply.&#x27;;$(&#x27;relay-save&#x27;).disabled=false;relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Save failed&#x27;;$(&#x27;relay-save&#x27;).disabled=false})};
+$(&#x27;relay-clear&#x27;).onclick=function(){$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clearing…&#x27;;fetch(&#x27;/relay/clear&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=&#x27;&#x27;;$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Cleared.&#x27;);relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clear failed&#x27;})};
+relayStatus();
 
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
@@ -602,7 +611,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.10-maker&quot;
+#define FW_VERSION   &quot;2.12.9-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1838,7 +1847,7 @@ WebServer        server(80);
 AsyncUDP         udp;
 
 bool     isAppConnected = false, appWSStarted = false;
-String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;;
+String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;, relayUrl = &quot;&quot;;
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
 
 void sendHello() {
@@ -2008,11 +2017,43 @@ void connectToApp(const String&amp; ip, int port) {
     appWS.setReconnectInterval(3000); appWSStarted = true;
 }
 
+// ---- INTERNET RELAY MODE -------------------------------------------------
+// When a relay URL is saved (via the portal), the node reaches ONE SPECTER
+// instance over the public internet through a Cloudflare tunnel, instead of
+// LAN beacon discovery. Cloudflare terminates TLS at the edge, so the node
+// speaks wss:// on 443; the tunnel forwards plaintext ws to the app&#x27;s WS
+// server (:47846) unchanged. Accepts &quot;wss://host&quot;, &quot;host&quot;, or &quot;host:port&quot;.
+// This is purely additive: an empty relayUrl leaves LAN discovery untouched.
+void connectToRelay(const String&amp; url) {
+    if (appWSStarted) return;
+    if (url.length() == 0) return;
+    // Parse: strip scheme, split host[:port][/path]
+    String u = url;
+    if (u.startsWith(&quot;wss://&quot;)) u = u.substring(6);
+    else if (u.startsWith(&quot;https://&quot;)) u = u.substring(8);
+    else if (u.startsWith(&quot;ws://&quot;)) u = u.substring(5);
+    else if (u.startsWith(&quot;http://&quot;)) u = u.substring(7);
+    String path = &quot;/&quot;;
+    int slash = u.indexOf(&#x27;/&#x27;);
+    if (slash &gt;= 0) { path = u.substring(slash); u = u.substring(0, slash); }
+    int port = 443;
+    int colon = u.indexOf(&#x27;:&#x27;);
+    if (colon &gt;= 0) { port = u.substring(colon + 1).toInt(); u = u.substring(0, colon); if (port &lt;= 0) port = 443; }
+    // TLS handshake needs contiguous heap; the node&#x27;s HTTPS OTA proves this
+    // hardware can do it, but guard anyway so a low-heap moment fails soft.
+    if (ESP.getFreeHeap() &lt; 20000) return;
+    appWS.beginSSL(u.c_str(), port, path.c_str());
+    appWS.onEvent(appWsEvent);
+    appWS.setReconnectInterval(5000);
+    appWSStarted = true;
+}
+
 void setupNetwork() {
     prefs.begin(&quot;specter&quot;, true);
     targetSSID  = prefs.getString(&quot;ssid&quot;, &quot;&quot;);
     targetPASS  = prefs.getString(&quot;pass&quot;, &quot;&quot;);
     targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
+    relayUrl    = prefs.getString(&quot;relayurl&quot;, &quot;&quot;);
     magSens     = prefs.getInt(&quot;magSens&quot;, 70);
     threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     proxTheremin= prefs.getInt(&quot;therm&quot;, 1) == 1;   // default ON when unset
@@ -2040,16 +2081,24 @@ void setupNetwork() {
         // the background retry in the network loop + auto-reconnect keep working on it.
     }
     if (WiFi.status() == WL_CONNECTED) {
-        if (udp.listen(BEACON_PORT)) {
-            udp.onPacket([](AsyncUDPPacket packet) {
-                if (isAppConnected || appWSStarted) return;
-                JsonDocument doc;
-                if (deserializeJson(doc, packet.data(), packet.length())) return;
-                if (doc[&quot;svc&quot;] == &quot;specter-app&quot;)
-                    connectToApp(doc[&quot;ip&quot;].as&lt;String&gt;(), doc[&quot;ws&quot;] | APP_WS_PORT);
-            });
+        // RELAY MODE takes priority: if a relay URL is saved, connect over the
+        // internet tunnel and skip LAN beacon discovery entirely.
+        if (relayUrl.length() &gt; 0) {
+            connectToRelay(relayUrl);
+        } else {
+            // LAN discovery (unchanged): listen for the app&#x27;s UDP beacon and/or
+            // connect to a saved app IP.
+            if (udp.listen(BEACON_PORT)) {
+                udp.onPacket([](AsyncUDPPacket packet) {
+                    if (isAppConnected || appWSStarted) return;
+                    JsonDocument doc;
+                    if (deserializeJson(doc, packet.data(), packet.length())) return;
+                    if (doc[&quot;svc&quot;] == &quot;specter-app&quot;)
+                        connectToApp(doc[&quot;ip&quot;].as&lt;String&gt;(), doc[&quot;ws&quot;] | APP_WS_PORT);
+                });
+            }
+            if (targetAppIP != &quot;&quot;) connectToApp(targetAppIP, APP_WS_PORT);
         }
-        if (targetAppIP != &quot;&quot;) connectToApp(targetAppIP, APP_WS_PORT);
     }
     // ---- Standalone portal (embedded, no LittleFS) ----
     // &quot;/&quot;         live telemetry + 3D field-vector graph
@@ -2111,6 +2160,38 @@ void setupNetwork() {
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
             d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
         }
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+
+    // ---- INTERNET RELAY URL (Cloudflare tunnel to one SPECTER instance) -----
+    // Saved to its OWN habit-safe NVS key &quot;relayurl&quot;. Empty = LAN discovery
+    // (default, unchanged). Set = node connects wss:// over the internet on boot.
+    server.on(&quot;/relay/get&quot;, []() {
+        prefs.begin(&quot;specter&quot;, true);
+        String u = prefs.getString(&quot;relayurl&quot;, &quot;&quot;);
+        prefs.end();
+        JsonDocument d; d[&quot;url&quot;] = u; d[&quot;active&quot;] = (u.length() &gt; 0);
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/relay/save&quot;, HTTP_POST, []() {
+        String u = server.hasArg(&quot;url&quot;) ? server.arg(&quot;url&quot;) : &quot;&quot;;
+        u.trim();
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.putString(&quot;relayurl&quot;, u);
+        prefs.end();
+        relayUrl = u;
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;url&quot;] = u;
+        d[&quot;note&quot;] = &quot;Saved. Reboot the node to connect over the internet relay.&quot;;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/relay/clear&quot;, HTTP_POST, []() {
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.putString(&quot;relayurl&quot;, &quot;&quot;);
+        prefs.remove(&quot;appip&quot;);   // also drop any stale saved app IP from older firmware
+        prefs.end();
+        relayUrl = &quot;&quot;;
+        JsonDocument d; d[&quot;ok&quot;] = true;
+        d[&quot;note&quot;] = &quot;Cleared. Reboot to return to LAN discovery.&quot;;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     // ---- LED config API (per-node, on-device) ----
