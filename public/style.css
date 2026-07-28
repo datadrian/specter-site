@@ -1157,3 +1157,25 @@ a { color: var(--cyan); text-decoration: none; }
   flex-wrap: wrap;
   margin-top: 1.5rem;
 }
+
+/* --- Screenshot showcase helpers (added for EVP / displays / node sections) --- */
+.shot-wide {
+  max-width: 860px;
+  margin: 2.4rem auto 0;
+}
+.shot-phone {
+  max-width: 300px;
+  margin: 2rem auto 0;
+}
+.shot-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  max-width: 980px;
+  margin: 2.4rem auto 0;
+}
+.shot-pair .screen-shot { margin: 0; }
+@media (max-width: 800px) {
+  .shot-pair { grid-template-columns: 1fr; }
+  .shot-wide, .shot-phone { max-width: 92%; }
+}
