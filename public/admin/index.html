@@ -41,6 +41,7 @@
         <button type="button" data-panel="mint">Mint comp key</button>
         <button type="button" data-panel="replacement">Issue replacement</button>
         <button type="button" data-panel="outreach">Outreach</button>
+        <button type="button" data-panel="analytics">Analytics</button>
       </nav>
       <main class="content">
         <section id="panel-dashboard" class="panel active">
@@ -120,7 +121,7 @@
           <p style="font-size:11px;color:var(--muted);max-width:640px">
             Discovers communities where posting about SPECTER could be relevant, reads their self-promotion
             rules, and drafts a tailored post per community. Runs automatically once a week. Auto-posting is
-            only ever executed for communities you've explicitly allow-listed below — everything else is a
+            only ever executed for communities you've explicitly allow-listed below, everything else is a
             draft for you to review and post yourself.
           </p>
           <div class="toolbar">
@@ -186,6 +187,43 @@
               <thead><tr><th>Community</th><th>Method</th><th>Posted</th><th>Outcome</th><th></th></tr></thead>
               <tbody id="postlog-body"></tbody>
             </table>
+          </div>
+        </section>
+
+        <section id="panel-analytics" class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <h2 style="margin:0">Site analytics</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="analytics-range">
+                <option value="today">Today</option>
+                <option value="7d" selected>Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+                <option value="custom">Custom range</option>
+              </select>
+              <input type="date" id="analytics-start" class="hidden">
+              <input type="date" id="analytics-end" class="hidden">
+              <button type="button" id="analytics-refresh" class="btn secondary">Refresh</button>
+            </div>
+          </div>
+
+          <div class="stats" id="analytics-stats-grid"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 8px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Visits over time</div>
+            <div style="font-size:10px;color:var(--muted)"><span style="color:var(--accent)">&#9632;</span> Pageviews &nbsp; <span style="color:var(--danger)">&#9632;</span> Downloads</div>
+          </div>
+          <canvas id="analytics-chart" height="220" style="width:100%;max-width:100%;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,0.02)"></canvas>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px">
+            <div>
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top pages</div>
+              <table><tbody id="analytics-top-pages"></tbody></table>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Traffic sources</div>
+              <table><tbody id="analytics-top-referrers"></tbody></table>
+            </div>
           </div>
         </section>
       </main>

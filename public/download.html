@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Download SPECTER: 10-minute field demo</title>
   <link rel="stylesheet" href="/site.css">
+  <script src="/analytics-track.js" defer></script>
 </head>
 <body>
   <nav class="site-nav">
@@ -23,7 +24,7 @@
       <p class="lead">Every SPECTER install includes a built-in demo. Launch the desktop app, connect your sensor, and run the full field interface for <strong>10 cumulative minutes per machine</strong>.</p>
 
       <div class="btn-row">
-        <a class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download for Windows</a>
+        <a onclick="window.specterTrackDownload && window.specterTrackDownload(this.href)" class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download for Windows</a>
         <a class="btn secondary" href="/#pricing">Buy license $399</a>
       </div>
 

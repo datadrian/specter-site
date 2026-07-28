@@ -3,6 +3,7 @@ const { requireAdmin } = require('./_lib/auth');
 const { configureStore, getStats } = require('./_lib/license-store');
 const { configureStore: configureTicketStore, listTickets } = require('./_lib/ticket-store');
 const { configureStore: configureOutreachStore, listCommunities, listDrafts } = require('./_lib/outreach-store');
+const { configureStore: configureAnalyticsStore, listEventsInRange } = require('./_lib/analytics-store');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return corsPreflight();
@@ -13,11 +14,22 @@ exports.handler = async (event) => {
   configureStore(event);
   configureTicketStore(event);
   configureOutreachStore(event);
+  configureAnalyticsStore(event);
 
-  const [licenseStats, tickets, communities, drafts] = await Promise.all([
-    getStats(), listTickets(), listCommunities(), listDrafts(),
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const [licenseStats, tickets, communities, drafts, todayEvents] = await Promise.all([
+    getStats(),
+    listTickets(),
+    listCommunities(),
+    listDrafts(),
+    listEventsInRange(todayStr, todayStr),
   ]);
+  
   const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'waiting').length;
+  
+  const todayPageviews = todayEvents.filter(e => e.type === 'pageview').length;
+  const todayDownloads = todayEvents.filter(e => e.type === 'download').length;
 
   return json(200, {
     ok: true,
@@ -33,6 +45,10 @@ exports.handler = async (event) => {
       allowlisted: communities.filter(c => c.status === 'vetted_allowlisted').length,
       pendingDrafts: drafts.filter(d => d.status === 'pending_review').length,
       approvedDrafts: drafts.filter(d => d.status === 'approved').length,
+    },
+    analytics: {
+      todayPageviews,
+      todayDownloads,
     },
   });
 };

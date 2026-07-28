@@ -45,7 +45,7 @@
         dot.classList.toggle('active', Boolean(recent));
       }
     } catch (e) {
-      // quiet failure — this widget shouldn't interrupt the rest of the console
+      // quiet failure, this widget shouldn't interrupt the rest of the console
       console.warn('[agent-console]', e.message);
     }
   }
@@ -120,6 +120,7 @@
     if (panel === 'licenses') loadLicenses();
     if (panel === 'tickets') loadTickets();
     if (panel === 'outreach') loadOutreach();
+    if (panel === 'analytics') loadAnalytics();
   }
 
   function showApp() {
@@ -180,6 +181,8 @@
       <div class="stat"><div class="stat-n">${o.needsReview || 0}</div><div class="stat-l">COMMUNITIES TO VET</div></div>
       <div class="stat"><div class="stat-n">${o.pendingDrafts || 0}</div><div class="stat-l">DRAFTS TO REVIEW</div></div>
       <div class="stat"><div class="stat-n">${o.allowlisted || 0}</div><div class="stat-l">ALLOW-LISTED</div></div>
+      <div class="stat"><div class="stat-n">${(data.analytics && data.analytics.todayPageviews) || 0}</div><div class="stat-l">PAGEVIEWS TODAY</div></div>
+      <div class="stat"><div class="stat-n">${(data.analytics && data.analytics.todayDownloads) || 0}</div><div class="stat-l">DOWNLOADS TODAY</div></div>
     `;
   }
 
@@ -462,7 +465,7 @@
         <td style="max-width:320px;font-size:11px;color:var(--muted)">${esc((c.rulesSummary || '').slice(0, 140))}</td>
         <td><button type="button" class="btn secondary" data-open-community="${c.id}">Open</button></td>
       </tr>
-    `).join('') || '<tr><td colspan="7">No communities yet — run discovery.</td></tr>';
+    `).join('') || '<tr><td colspan="7">No communities yet, run discovery.</td></tr>';
 
     $('communities-body').querySelectorAll('[data-open-community]').forEach(btn => {
       btn.addEventListener('click', () => openCommunity(btn.dataset.openCommunity));
@@ -484,11 +487,13 @@
           <button type="button" class="btn secondary" data-action="status" data-value="approved">Approve</button>
           <button type="button" class="btn secondary" data-action="status" data-value="pending_review">Un-approve</button>
           <button type="button" class="btn secondary" data-action="status" data-value="rejected">Reject</button>
+          ${(d.status === 'approved' && community && community.status === 'vetted_allowlisted') ? `<button type="button" class="btn" data-action="post-now">Post Now (Automatically)</button>` : ''}
           <button type="button" class="btn secondary" data-action="mark-posted">Mark posted</button>
           <button type="button" class="btn secondary" data-action="copy">Copy text</button>
         </div>
       </div>
       <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
+      <p class="post-now-status" data-post-now-status="${d.id}" style="font-size:11px;color:var(--accent);display:none"></p>
       ${d.status === 'posted' ? `
         <p style="font-size:11px;color:var(--accent)">
           ${d.postUrl ? `<a href="${escAttr(d.postUrl)}" target="_blank" rel="noopener">View post ↗</a>` : 'Posted (no post link recorded).'}
@@ -518,7 +523,7 @@
     const markPostedBtn = scopeEl.querySelector('[data-action="mark-posted"]');
     if (markPostedBtn) {
       markPostedBtn.addEventListener('click', async () => {
-        const postUrl = prompt('Link to the actual post (URL) — leave blank if not available:', '');
+        const postUrl = prompt('Link to the actual post (URL), leave blank if not available:', '');
         if (postUrl === null) return; // cancelled
         const postedAsUsername = prompt('Posted as which username/account?', '');
         if (postedAsUsername === null) return; // cancelled
@@ -536,6 +541,38 @@
         navigator.clipboard?.writeText(d.draftText || '');
         copyBtn.textContent = 'Copied!';
         setTimeout(() => { copyBtn.textContent = 'Copy text'; }, 1500);
+      });
+    }
+
+    // Post Now: hands off to the outreach agent, which does the real browser
+    // automation. This function just triggers it and reflects the result -
+    // watch the live "OUTREACH AGENT" widget (top-right) for real-time progress.
+    const postNowBtn = scopeEl.querySelector('[data-action="post-now"]');
+    if (postNowBtn) {
+      postNowBtn.addEventListener('click', async () => {
+        const statusEl = scopeEl.querySelector(`[data-post-now-status="${d.id}"]`);
+        const showStatus = (msg, isError) => {
+          if (!statusEl) return;
+          statusEl.style.display = 'block';
+          statusEl.style.color = isError ? 'var(--danger)' : 'var(--accent)';
+          statusEl.textContent = msg;
+        };
+        if (!confirm(`Post this now to ${community ? community.name : 'this community'}? This is a real, live action.`)) return;
+        postNowBtn.disabled = true;
+        postNowBtn.textContent = 'Posting...';
+        showStatus('Triggering the outreach agent, watch the live log above for progress...');
+        try {
+          const res = await api('admin-outreach-post-now', {
+            method: 'POST',
+            body: JSON.stringify({ draftId: d.id }),
+          });
+          showStatus(res.message || 'Triggered. Watch the live agent log for progress.');
+        } catch (e) {
+          showStatus(e.message || 'Failed to trigger. See console.', true);
+        } finally {
+          postNowBtn.disabled = false;
+          postNowBtn.textContent = 'Post Now (Automatically)';
+        }
       });
     }
   }
@@ -592,7 +629,7 @@
     if (autopostToggle) {
       autopostToggle.addEventListener('change', async () => {
         // Always include status alongside autoPostEnabled here (this toggle only
-        // renders when status is already vetted_allowlisted) — avoids a race with
+        // renders when status is already vetted_allowlisted), avoids a race with
         // Blobs' brief read-after-write lag if this fires right after allow-listing.
         await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
           method: 'PATCH',

@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Editor workflow: install SPECTER on Windows, point it at the daily Specter media folder, and screen-capture the gallery, 3D depth orbits, EVP audio, and wall/sensor feeds for the edit.">
   <link rel="stylesheet" href="/site.css">
+  <script src="/analytics-track.js" defer></script>
 </head>
 <body>
   <nav class="site-nav">
@@ -44,7 +45,7 @@
 
     <section id="install">
       <h2>1. DOWNLOAD AND INSTALL</h2>
-      <p><a class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download SPECTER for Windows</a></p>
+      <p><a onclick="window.specterTrackDownload && window.specterTrackDownload(this.href)" class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download SPECTER for Windows</a></p>
       <ol>
         <li>Download and run <code>SPECTER-Setup.exe</code>.</li>
         <li>If Windows SmartScreen shows a "Windows protected your PC" prompt, click <strong>More info</strong> then <strong>Run anyway</strong>. The app is safe; it is just not code-signed for mass distribution.</li>
