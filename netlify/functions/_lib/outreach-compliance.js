@@ -26,4 +26,12 @@ function scanForbiddenTerms(text) {
   return { passed: hits.length === 0, hits };
 }
 
-module.exports = { FORBIDDEN_TERMS, scanForbiddenTerms };
+// Em-dash (—) is banned from outreach drafts too, same house style as the
+// public site (see the site's own no-em-dash rule) — Adrian wants this
+// enforced on every draft, not just the marketing site.
+function scanEmDash(text) {
+  const hasEmDash = /—/.test(String(text || ''));
+  return { passed: !hasEmDash, hits: hasEmDash ? ['em-dash character (—) is not allowed, use a comma or period instead'] : [] };
+}
+
+module.exports = { FORBIDDEN_TERMS, scanForbiddenTerms, scanEmDash };

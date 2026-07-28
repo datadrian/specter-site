@@ -4,7 +4,7 @@
 // these calls and persist results via outreach-store.js.
 
 const { generate, extractJson, MODEL_FLASH, MODEL_PRO } = require('./gemini');
-const { FORBIDDEN_TERMS, scanForbiddenTerms } = require('./outreach-compliance');
+const { FORBIDDEN_TERMS, scanForbiddenTerms, scanEmDash } = require('./outreach-compliance');
 const store = require('./outreach-store');
 
 const SPECTER_POSITIONING = `SPECTER is a paranormal-investigation instrument (hardware + software) that
@@ -15,6 +15,9 @@ and enthusiasts, one-time license, $399. Public site: specter-imaging.com.`;
 
 const FORBIDDEN_NOTE = `Never mention or hint at, under any phrasing: ${FORBIDDEN_TERMS.join(', ')}, or any
 other hidden/producer-only feature. SPECTER is described ONLY as a detection/evidence-capture instrument.`;
+
+const EM_DASH_NOTE = `Do NOT use the em-dash character anywhere in the text. Use a comma, period, colon, or
+parentheses instead wherever you would normally reach for a dash.`;
 
 // ---- Discovery ----
 
@@ -126,6 +129,38 @@ async function fetchPageText(url) {
   return stripHtml(html);
 }
 
+// ---- Recency-of-activity check ----
+// Adrian's rule: a community should have visible activity from today (or very
+// recent) before it's worth allow-listing — don't waste posts on dead forums.
+// Uses live Google Search grounding (not just the one scraped URL) since several
+// platform types (Reddit, Facebook Groups) commonly block server-side scraping
+// but ARE well-indexed by Google, so search finds recent posts even when our own
+// fetch of community.url fails.
+async function checkRecentActivity(community) {
+  const today = new Date().toISOString().slice(0, 10);
+  const prompt = `Today's date is ${today}. Using web search, look at the online community "${community.name}"
+(${community.url}, platform: ${community.platformType}) and determine how recently it has had real activity
+(a new post, thread, or comment). Find the most recent visible post/thread you can and note its date.
+
+Respond with ONLY JSON in this exact shape:
+{"mostRecentActivityDate": "YYYY-MM-DD, or null if you cannot determine one",
+ "hasActivityToday": true or false or null,
+ "activityRecencySummary": "one short sentence describing what you found"}
+If you cannot find reliable evidence either way, use null for the fields you're unsure of and say so
+honestly in the summary. Do not guess or assume activity just because the community exists.`;
+  try {
+    const text = await generate({ model: MODEL_PRO, useSearch: true, prompt, temperature: 0.1 });
+    const j = extractJson(text);
+    return {
+      mostRecentActivityDate: j.mostRecentActivityDate || null,
+      hasActivityToday: typeof j.hasActivityToday === 'boolean' ? j.hasActivityToday : null,
+      activityRecencySummary: j.activityRecencySummary || '',
+    };
+  } catch (e) {
+    return { mostRecentActivityDate: null, hasActivityToday: null, activityRecencySummary: `Activity check unavailable: ${e.message}` };
+  }
+}
+
 async function analyzeCommunity(community) {
   let pageText = '';
   let fetchError = null;
@@ -135,6 +170,10 @@ async function analyzeCommunity(community) {
     fetchError = e.message;
   }
 
+  // Run the activity check regardless of whether our own scrape succeeded —
+  // search grounding often succeeds even when direct fetch is blocked (Reddit/FB).
+  const activity = await checkRecentActivity(community);
+
   if (!pageText || pageText.length < 200) {
     return store.updateCommunity(community.id, {
       rulesSummary: fetchError
@@ -143,6 +182,9 @@ async function analyzeCommunity(community) {
       allowsSelfPromotion: 'unknown',
       status: 'needs_review',
       lastCheckedAt: new Date().toISOString(),
+      mostRecentActivityDate: activity.mostRecentActivityDate,
+      hasActivityToday: activity.hasActivityToday,
+      activityRecencySummary: activity.activityRecencySummary,
     });
   }
 
@@ -171,13 +213,16 @@ If the text doesn't clearly state a self-promotion policy, use "unknown" — do 
     activityNotes: j.activityNotes || '',
     status: 'needs_review', // analysis never self-allowlists — only Adrian can promote to vetted_allowlisted
     lastCheckedAt: new Date().toISOString(),
+    mostRecentActivityDate: activity.mostRecentActivityDate,
+    hasActivityToday: activity.hasActivityToday,
+    activityRecencySummary: activity.activityRecencySummary,
   });
 }
 
 // ---- Drafting + compliance ----
 
 async function draftPostText(community, redraftNote) {
-  const prompt = `${SPECTER_POSITIONING}\n\n${FORBIDDEN_NOTE}\n\nWrite a single forum/social post introducing
+  const prompt = `${SPECTER_POSITIONING}\n\n${FORBIDDEN_NOTE}\n\n${EM_DASH_NOTE}\n\nWrite a single forum/social post introducing
 SPECTER to this specific community, written to sound like a genuine long-time member sharing something
 useful — NOT like an advertisement. Community: ${community.name} (${community.platformType}).
 Self-promotion policy: ${community.allowsSelfPromotion}. Notes: ${community.selfPromoNotes || 'none'}.
@@ -218,11 +263,14 @@ Respond with ONLY JSON: {"passes": true|false, "flags": ["short description of e
 async function draftForCommunity(community) {
   let result = await draftPostText(community);
   let keywordScan = scanForbiddenTerms(result.draftText);
+  let emDashScan = scanEmDash(result.draftText);
 
-  if (!keywordScan.passed) {
+  if (!keywordScan.passed || !emDashScan.passed) {
     // one redraft attempt, explicitly told what was flagged
-    result = await draftPostText(community, `\nIMPORTANT: your previous draft used forbidden language: ${keywordScan.hits.join(', ')}. Do not use these terms or anything similar.`);
+    const issues = [...keywordScan.hits, ...emDashScan.hits];
+    result = await draftPostText(community, `\nIMPORTANT: your previous draft had these problems: ${issues.join(', ')}. Fix them: do not use forbidden language, and do not use the em-dash character anywhere, use a comma or period instead.`);
     keywordScan = scanForbiddenTerms(result.draftText);
+    emDashScan = scanEmDash(result.draftText);
   }
 
   let semantic = { passes: true, flags: [] };
@@ -232,8 +280,8 @@ async function draftForCommunity(community) {
     semantic = { passes: true, flags: [`semantic check unavailable: ${e.message}`] }; // keyword scan is still authoritative
   }
 
-  const passed = keywordScan.passed && semantic.passes !== false;
-  const flags = [...keywordScan.hits, ...(Array.isArray(semantic.flags) ? semantic.flags : [])];
+  const passed = keywordScan.passed && emDashScan.passed && semantic.passes !== false;
+  const flags = [...keywordScan.hits, ...emDashScan.hits, ...(Array.isArray(semantic.flags) ? semantic.flags : [])];
 
   return store.createDraft({
     communityId: community.id,
@@ -246,4 +294,24 @@ async function draftForCommunity(community) {
   });
 }
 
-module.exports = { discoverCommunities, analyzeCommunity, draftForCommunity, normalizeUrl };
+// ---- Em-dash purge (one-off migration for drafts written before the no-em-dash rule) ----
+
+async function purgeEmDashFromDraft(draftText) {
+  const emdash = String.fromCharCode(8212);
+  const prompt = `Rewrite the following text to remove EVERY em-dash character (${emdash}), replacing each one with
+whatever punctuation reads most naturally in its place (a comma, period, colon, or parentheses). Do NOT
+change anything else: keep every word, sentence, meaning, tone, and disclosure exactly as it is. Only fix
+the em-dashes.
+
+Text:
+START_TEXT
+REPLACE_TEXT
+END_TEXT
+
+Respond with ONLY JSON in this exact shape: {"text": "the rewritten text with no em-dashes"}`;
+  const text = await generate({ model: MODEL_FLASH, prompt, temperature: 0.1 });
+  const j = extractJson(text);
+  return j.text || draftText;
+}
+
+module.exports = { discoverCommunities, analyzeCommunity, draftForCommunity, purgeEmDashFromDraft, normalizeUrl };

@@ -15,7 +15,7 @@
 // ever act on the FIRST one per run.
 const { json, corsPreflight } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
-const { configureStore, listCommunities, listDrafts, listPostLog } = require('./_lib/outreach-store');
+const { configureStore, listCommunities, listDrafts, listPostLog, getSettings } = require('./_lib/outreach-store');
 
 const PLATFORM_COOLDOWN_DAYS = 4;
 const MAX_AUTO_POSTS_PER_DAY = 1;
@@ -26,6 +26,11 @@ exports.handler = async (event) => {
   const auth = requireAdmin(event);
   if (!auth.authorized) return auth.response;
   configureStore(event);
+
+  const settings = await getSettings();
+  if (settings.autoPostPaused) {
+    return json(200, { ok: true, candidates: [], throttled: true, reason: 'Auto-posting is paused (Stop button is active).' });
+  }
 
   const [communities, drafts, postlog] = await Promise.all([listCommunities(), listDrafts(), listPostLog()]);
 

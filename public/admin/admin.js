@@ -19,6 +19,84 @@
     return data;
   }
 
+  // ---- Agent console widget (top-right, always visible) ----
+  let agentConsoleCollapsed = false;
+  let agentLogPollTimer = null;
+
+  function fmtLogTime(iso) {
+    try { return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+    catch { return iso; }
+  }
+
+  async function pollAgentLog() {
+    try {
+      const data = await api('admin-outreach-agent-log?limit=40');
+      const entries = data.entries || [];
+      const body = $('agent-console-body');
+      if (body) {
+        body.innerHTML = entries.length
+          ? entries.map(e => `<div class="agent-console-line level-${esc(e.level)}"><span class="ts">${fmtLogTime(e.ts)}</span>${esc(e.message)}</div>`).join('')
+          : '<div class="agent-console-empty">No activity logged yet.</div>';
+      }
+      const dot = $('agent-console-dot');
+      if (dot) {
+        const latest = entries[0];
+        const recent = latest && (Date.now() - new Date(latest.ts).getTime()) < 2 * 60 * 1000;
+        dot.classList.toggle('active', Boolean(recent));
+      }
+    } catch (e) {
+      // quiet failure — this widget shouldn't interrupt the rest of the console
+      console.warn('[agent-console]', e.message);
+    }
+  }
+
+  function startAgentConsolePolling() {
+    pollAgentLog();
+    if (agentLogPollTimer) clearInterval(agentLogPollTimer);
+    agentLogPollTimer = setInterval(pollAgentLog, 6000);
+  }
+
+  const consoleToggleBtn = document.getElementById('agent-console-toggle');
+  if (consoleToggleBtn) {
+    consoleToggleBtn.addEventListener('click', () => {
+      agentConsoleCollapsed = !agentConsoleCollapsed;
+      $('agent-console').classList.toggle('collapsed', agentConsoleCollapsed);
+      consoleToggleBtn.textContent = agentConsoleCollapsed ? '+' : '_';
+    });
+  }
+
+  // ---- Auto-posting stop/resume ----
+  async function refreshAutopostStatus() {
+    try {
+      const data = await api('admin-outreach-settings');
+      const paused = Boolean(data.settings && data.settings.autoPostPaused);
+      const label = $('autopost-status-label');
+      if (label) label.textContent = `Auto-posting: ${paused ? 'PAUSED' : 'RUNNING'}`;
+      const stopBtn = $('autopost-stop-btn');
+      const resumeBtn = $('autopost-resume-btn');
+      if (stopBtn) stopBtn.classList.toggle('hidden', paused);
+      if (resumeBtn) resumeBtn.classList.toggle('hidden', !paused);
+    } catch (e) {
+      console.warn('[autopost-status]', e.message);
+    }
+  }
+
+  const stopBtnEl = document.getElementById('autopost-stop-btn');
+  if (stopBtnEl) {
+    stopBtnEl.addEventListener('click', async () => {
+      if (!confirm('Stop the auto-poster immediately? No new auto-posts will go out until you resume.')) return;
+      await api('admin-outreach-settings', { method: 'PATCH', body: JSON.stringify({ autoPostPaused: true }) });
+      await refreshAutopostStatus();
+    });
+  }
+  const resumeBtnEl = document.getElementById('autopost-resume-btn');
+  if (resumeBtnEl) {
+    resumeBtnEl.addEventListener('click', async () => {
+      await api('admin-outreach-settings', { method: 'PATCH', body: JSON.stringify({ autoPostPaused: false }) });
+      await refreshAutopostStatus();
+    });
+  }
+
   function initialPanel() {
     const target = `${location.pathname} ${location.hash}`.toLowerCase();
     if (target.includes('ticket')) return 'tickets';
@@ -48,6 +126,7 @@
     $('login-view').classList.add('hidden');
     $('app-view').classList.remove('hidden');
     activatePanel(initialPanel());
+    startAgentConsolePolling();
   }
 
   function logout() {
@@ -318,6 +397,7 @@
 
   function loadOutreach() {
     activateOutreachSub(outreachSubTab);
+    refreshAutopostStatus();
   }
 
   async function runOutreachAction(action, btn) {
@@ -329,6 +409,8 @@
       const data = await api('admin-outreach-run', { method: 'POST', body: JSON.stringify({ action }) });
       if (action === 'discover') {
         statusEl.textContent = `Found ${data.createdCount} new (${data.skipped} already known).`;
+      } else if (action === 'purge_em_dashes') {
+        statusEl.textContent = `Cleaned ${data.succeeded}/${data.affectedCount} draft(s) with em-dashes.`;
       } else {
         statusEl.textContent = `Processed ${data.processed}, ${data.succeeded} succeeded, ${data.remaining} left.`;
       }
@@ -348,6 +430,7 @@
   $('outreach-run-discover').addEventListener('click', (e) => runOutreachAction('discover', e.target));
   $('outreach-run-analyze').addEventListener('click', (e) => runOutreachAction('analyze', e.target));
   $('outreach-run-draft').addEventListener('click', (e) => runOutreachAction('draft', e.target));
+  $('outreach-purge-emdashes').addEventListener('click', (e) => runOutreachAction('purge_em_dashes', e.target));
 
   async function loadCommunities() {
     const data = await api('admin-outreach-communities');
@@ -360,6 +443,12 @@
     return `<span class="badge ${map[v] || 'promo-unknown'}">${esc(v || 'unknown')}</span>`;
   }
 
+  function activityBadge(c) {
+    if (c.hasActivityToday === true) return '<span class="badge activity-today">active today</span>';
+    if (c.mostRecentActivityDate) return `<span class="badge activity-stale" title="${escAttr(c.activityRecencySummary || '')}">${esc(c.mostRecentActivityDate)}</span>`;
+    return '<span class="badge activity-unknown">unknown</span>';
+  }
+
   function renderCommunities() {
     const f = $('community-status-filter').value;
     const rows = communitiesCache.filter(c => !f || c.status === f);
@@ -369,10 +458,11 @@
         <td>${esc(c.platformType)}</td>
         <td><span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></td>
         <td>${promoBadge(c.allowsSelfPromotion)}</td>
+        <td>${activityBadge(c)}</td>
         <td style="max-width:320px;font-size:11px;color:var(--muted)">${esc((c.rulesSummary || '').slice(0, 140))}</td>
         <td><button type="button" class="btn secondary" data-open-community="${c.id}">Open</button></td>
       </tr>
-    `).join('') || '<tr><td colspan="6">No communities yet — run discovery.</td></tr>';
+    `).join('') || '<tr><td colspan="7">No communities yet — run discovery.</td></tr>';
 
     $('communities-body').querySelectorAll('[data-open-community]').forEach(btn => {
       btn.addEventListener('click', () => openCommunity(btn.dataset.openCommunity));
@@ -400,6 +490,7 @@
       <p style="font-size:12px">${esc(c.rulesSummary || 'Not analyzed yet.')}</p>
       ${c.selfPromoNotes ? `<p style="font-size:11px;color:var(--muted)">Conditions: ${esc(c.selfPromoNotes)}</p>` : ''}
       ${c.activityNotes ? `<p style="font-size:11px;color:var(--muted)">Tone notes: ${esc(c.activityNotes)}</p>` : ''}
+      <p style="font-size:11px;color:var(--muted)">Activity: ${activityBadge(c)} ${esc(c.activityRecencySummary || '')}</p>
       ${c.status === 'vetted_allowlisted' ? `
         <label style="font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:8px">
           <input type="checkbox" id="community-autopost-toggle" ${c.autoPostEnabled ? 'checked' : ''}> Auto-post enabled for this community
@@ -470,19 +561,30 @@
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
         <div><strong>${esc(community ? community.name : d.communityId)}</strong> · <span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></div>
         <div>
+          ${d.status !== 'posted' && community ? `<button type="button" class="btn secondary" id="goto-forum-btn">Go to forum ↗</button>` : ''}
           <button type="button" class="btn secondary" data-draft-status="approved">Approve</button>
           <button type="button" class="btn secondary" data-draft-status="pending_review">Un-approve</button>
           <button type="button" class="btn secondary" data-draft-status="rejected">Reject</button>
-          <button type="button" class="btn secondary" data-draft-status="posted">Mark posted</button>
+          <button type="button" class="btn secondary" id="mark-posted-btn">Mark posted</button>
           <button type="button" class="btn secondary" id="copy-draft-btn">Copy text</button>
         </div>
       </div>
       <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
+      ${d.status === 'posted' ? `
+        <p style="font-size:11px;color:var(--accent)">
+          ${d.postUrl ? `<a href="${escAttr(d.postUrl)}" target="_blank" rel="noopener">View post ↗</a>` : 'Posted (no post link recorded).'}
+          ${d.postedAsUsername ? ` · Posted as: ${esc(d.postedAsUsername)}` : ''}
+        </p>` : ''}
       <div class="draft-text">${esc(d.draftText)}</div>
       ${(d.complianceFlags && d.complianceFlags.length) ? `<div class="flag-list">Flags: ${esc(d.complianceFlags.join('; '))}</div>` : ''}
       ${d.rejectionNote ? `<p style="font-size:11px;color:var(--danger)">Note: ${esc(d.rejectionNote)}</p>` : ''}
       ${(d.autoPostFailureCount > 0) ? `<p style="font-size:11px;color:var(--muted)">Auto-post attempts failed: ${d.autoPostFailureCount}</p>` : ''}
     `;
+
+    const gotoBtn = $('goto-forum-btn');
+    if (gotoBtn && community) {
+      gotoBtn.addEventListener('click', () => window.open(community.url, '_blank', 'noopener'));
+    }
 
     el.querySelectorAll('[data-draft-status]').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -492,9 +594,25 @@
         });
         await loadDrafts();
         openDraft(id);
-        if (btn.dataset.draftStatus === 'posted') loadPostlog();
       });
     });
+
+    const markPostedBtn = $('mark-posted-btn');
+    if (markPostedBtn) {
+      markPostedBtn.addEventListener('click', async () => {
+        const postUrl = prompt('Link to the actual post (URL) — leave blank if not available:', '');
+        if (postUrl === null) return; // cancelled
+        const postedAsUsername = prompt('Posted as which username/account?', '');
+        if (postedAsUsername === null) return; // cancelled
+        await api(`admin-outreach-drafts?id=${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'posted', postUrl: postUrl || null, postedAsUsername: postedAsUsername || null }),
+        });
+        await loadDrafts();
+        openDraft(id);
+        loadPostlog();
+      });
+    }
     const copyBtn = $('copy-draft-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
@@ -515,9 +633,10 @@
         <td>${esc(community ? community.name : p.communityId)}</td>
         <td>${esc(p.method)}</td>
         <td>${fmtDate(p.postedAt)}</td>
-        <td style="font-size:11px;color:var(--muted)">${esc(p.outcome || '-')}</td>
+        <td style="font-size:11px;color:var(--muted)">${esc(p.outcome || '-')}${p.postedAsUsername ? ` · as ${esc(p.postedAsUsername)}` : ''}</td>
+        <td>${p.postUrl ? `<a href="${escAttr(p.postUrl)}" target="_blank" rel="noopener">View ↗</a>` : '-'}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="4">No posts logged yet.</td></tr>';
+    }).join('') || '<tr><td colspan="5">No posts logged yet.</td></tr>';
   }
 
   $('refresh-postlog').addEventListener('click', loadPostlog);

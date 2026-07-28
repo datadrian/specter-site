@@ -106,6 +106,13 @@ async function createCommunity(fields) {
     memberCount: fields.memberCount || '',
     activityNotes: fields.activityNotes || '',
     autoPostEnabled: Boolean(fields.autoPostEnabled),
+    // Recency-of-activity signal (added per Adrian's request: don't allow-list dead
+    // communities — a real forum should have visible activity from today/very recent).
+    // Never gates status automatically, same "inform Adrian, he decides" pattern as
+    // allowsSelfPromotion — just surfaced in the console for his judgment call.
+    mostRecentActivityDate: fields.mostRecentActivityDate || null, // YYYY-MM-DD or null if unknown
+    hasActivityToday: typeof fields.hasActivityToday === 'boolean' ? fields.hasActivityToday : null,
+    activityRecencySummary: fields.activityRecencySummary || '',
     createdAt: now,
     updatedAt: now,
   };
@@ -147,6 +154,8 @@ async function createDraft(fields) {
     complianceCheckPassed: Boolean(fields.complianceCheckPassed),
     complianceFlags: fields.complianceFlags || [],
     autoPostFailureCount: 0,
+    postUrl: null,
+    postedAsUsername: null,
   };
   await saveRecord(`draft:${id}`, record);
   return record;
@@ -177,9 +186,53 @@ async function createPostLog(fields) {
     method: fields.method || 'manual', // auto | manual
     outcome: fields.outcome || '',
     modFeedback: fields.modFeedback || null,
+    postUrl: fields.postUrl || null,
+    postedAsUsername: fields.postedAsUsername || null,
   };
   await saveRecord(`postlog:${id}`, record);
   return record;
+}
+
+// ---- Settings (singleton) ----
+// One global settings record. Currently just the auto-poster kill switch, but
+// the shape leaves room to grow. autoPostPaused is checked server-side by
+// admin-outreach-ready-to-post.js — this is the actual stop mechanism, not
+// just a UI flag, so hitting Stop takes effect immediately regardless of
+// what the scheduled agent step does.
+const SETTINGS_KEY = 'settings:global';
+const DEFAULT_SETTINGS = { autoPostPaused: false };
+
+async function getSettings() {
+  const rec = await getRecord(SETTINGS_KEY);
+  return { ...DEFAULT_SETTINGS, ...(rec || {}) };
+}
+
+async function updateSettings(patch) {
+  const current = await getSettings();
+  const next = { ...current, ...patch, updatedAt: new Date().toISOString() };
+  await saveRecord(SETTINGS_KEY, next);
+  return next;
+}
+
+// ---- Agent log (for the live "what's the agent doing" console widget) ----
+// Stored as ONE blob holding a capped array, not one-blob-per-line — this is a
+// high-frequency append/read pattern and per-line blobs would proliferate fast.
+const AGENT_LOG_KEY = 'agentlog:main';
+const AGENT_LOG_MAX = 200;
+
+async function appendAgentLog(level, message) {
+  const rec = (await getRecord(AGENT_LOG_KEY)) || { entries: [] };
+  const entry = { ts: new Date().toISOString(), level: level || 'info', message: String(message || '') };
+  rec.entries = [...(rec.entries || []), entry].slice(-AGENT_LOG_MAX);
+  await saveRecord(AGENT_LOG_KEY, rec);
+  return entry;
+}
+
+async function listAgentLog(limit) {
+  const rec = await getRecord(AGENT_LOG_KEY);
+  const entries = (rec && rec.entries) || [];
+  const n = limit || 50;
+  return entries.slice(-n).reverse(); // newest first
 }
 
 module.exports = {
@@ -187,5 +240,7 @@ module.exports = {
   listCommunities, getCommunity, createCommunity, updateCommunity,
   listDrafts, getDraft, createDraft, updateDraft,
   listPostLog, createPostLog,
+  getSettings, updateSettings,
+  appendAgentLog, listAgentLog,
   deleteRecord,
 };

@@ -23,7 +23,7 @@ exports.handler = async (event) => {
   configureStore(event);
 
   const body = readJson(event);
-  const { draftId, success, outcome, modFeedback } = body;
+  const { draftId, success, outcome, modFeedback, postUrl, username } = body;
   if (!draftId || typeof success !== 'boolean') {
     return json(400, { ok: false, error: 'draftId and success (boolean) are required.' });
   }
@@ -33,13 +33,20 @@ exports.handler = async (event) => {
   const community = await getCommunity(draft.communityId);
 
   if (success) {
-    const updated = await updateDraft(draftId, { status: 'posted', postedAt: new Date().toISOString() });
+    const updated = await updateDraft(draftId, {
+      status: 'posted',
+      postedAt: new Date().toISOString(),
+      postUrl: postUrl || null,
+      postedAsUsername: username || null,
+    });
     await createPostLog({
       communityId: draft.communityId,
       draftId,
       method: 'auto',
       outcome: outcome || `Auto-posted to ${community ? community.name : draft.communityId}.`,
       modFeedback: modFeedback || null,
+      postUrl: postUrl || null,
+      postedAsUsername: username || null,
     });
     return json(200, { ok: true, draft: updated });
   }

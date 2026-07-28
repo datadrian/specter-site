@@ -49,13 +49,22 @@ exports.handler = async (event) => {
 
     if (body.status === 'posted') {
       // Only meaningful once approved; record as a manual post + audit log entry.
-      const updated = await updateDraft(id, { status: 'posted', postedAt: new Date().toISOString() });
+      // postUrl / postedAsUsername are optional but strongly encouraged — they're
+      // what let the console show "View post" links and who it was posted as.
+      const updated = await updateDraft(id, {
+        status: 'posted',
+        postedAt: new Date().toISOString(),
+        postUrl: body.postUrl || null,
+        postedAsUsername: body.postedAsUsername || null,
+      });
       const community = await getCommunity(draft.communityId);
       await createPostLog({
         communityId: draft.communityId,
         draftId: draft.id,
         method: 'manual',
         outcome: `Marked posted by admin${community ? ' to ' + community.name : ''}.`,
+        postUrl: body.postUrl || null,
+        postedAsUsername: body.postedAsUsername || null,
       });
       return json(200, { ok: true, draft: updated });
     }

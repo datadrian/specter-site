@@ -5,9 +5,10 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
 const {
-  configureStore, listCommunities, listDrafts,
+  configureStore, listCommunities, listDrafts, updateDraft,
 } = require('./_lib/outreach-store');
-const { discoverCommunities, analyzeCommunity, draftForCommunity } = require('./_lib/outreach-engine');
+const { discoverCommunities, analyzeCommunity, draftForCommunity, purgeEmDashFromDraft } = require('./_lib/outreach-engine');
+const { scanForbiddenTerms, scanEmDash } = require('./_lib/outreach-compliance');
 
 const BATCH_SIZE = 3;
 
@@ -47,7 +48,29 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, processed: batch.length, succeeded: okCount, remaining: candidates.length - batch.length, errors });
     }
 
-    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft' });
+    if (action === 'purge_em_dashes') {
+      // One-off migration for drafts written before the no-em-dash rule was added
+      // (and a safety net for anything that slips through in the future).
+      const drafts = await listDrafts();
+      const affected = drafts.filter(d => /\u2014/.test(d.draftText || ''));
+      const results = await Promise.allSettled(affected.map(async (d) => {
+        const cleaned = await purgeEmDashFromDraft(d.draftText);
+        const kw = scanForbiddenTerms(cleaned);
+        const ed = scanEmDash(cleaned);
+        const keptFlags = (d.complianceFlags || []).filter(f => !/em-dash/i.test(f) && !kw.hits.includes(f));
+        const flags = [...kw.hits, ...ed.hits, ...keptFlags];
+        await updateDraft(d.id, {
+          draftText: cleaned,
+          complianceCheckPassed: kw.passed && ed.passed,
+          complianceFlags: flags,
+        });
+      }));
+      const okCount = results.filter(r => r.status === 'fulfilled').length;
+      const errors = results.filter(r => r.status === 'rejected').map(r => r.reason?.message || String(r.reason));
+      return json(200, { ok: true, action, affectedCount: affected.length, succeeded: okCount, errors });
+    }
+
+    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, purge_em_dashes' });
   } catch (e) {
     console.error('[admin-outreach-run]', e);
     return json(500, { ok: false, error: e.message });

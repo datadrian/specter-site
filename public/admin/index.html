@@ -24,6 +24,15 @@
         <button type="button" id="logout-btn">Sign out</button>
       </div>
     </header>
+
+    <div id="agent-console" class="agent-console">
+      <div class="agent-console-header">
+        <span id="agent-console-dot" class="agent-console-dot"></span>
+        <span>OUTREACH AGENT</span>
+        <button type="button" id="agent-console-toggle" class="agent-console-toggle">_</button>
+      </div>
+      <div id="agent-console-body" class="agent-console-body"></div>
+    </div>
     <div class="layout">
       <nav class="sidebar">
         <button type="button" data-panel="dashboard" class="active">Dashboard</button>
@@ -118,7 +127,13 @@
             <button type="button" id="outreach-run-discover" class="btn">Run discovery</button>
             <button type="button" id="outreach-run-analyze" class="btn secondary">Analyze rules (batch)</button>
             <button type="button" id="outreach-run-draft" class="btn secondary">Draft posts (batch)</button>
+            <button type="button" id="outreach-purge-emdashes" class="btn secondary">Purge em-dashes</button>
             <span id="outreach-run-status" class="run-status"></span>
+          </div>
+          <div class="toolbar" style="margin-top:-6px">
+            <span id="autopost-status-label" style="font-size:10px;color:var(--muted)">Auto-posting: …</span>
+            <button type="button" id="autopost-stop-btn" class="btn danger">Stop auto-posting</button>
+            <button type="button" id="autopost-resume-btn" class="btn secondary hidden">Resume auto-posting</button>
           </div>
 
           <div class="outreach-sub-tabs">
@@ -139,7 +154,7 @@
               </select>
             </div>
             <table>
-              <thead><tr><th>Name</th><th>Platform</th><th>Status</th><th>Self-promo</th><th>Rules summary</th><th></th></tr></thead>
+              <thead><tr><th>Name</th><th>Platform</th><th>Status</th><th>Self-promo</th><th>Activity</th><th>Rules summary</th><th></th></tr></thead>
               <tbody id="communities-body"></tbody>
             </table>
             <div id="community-detail" class="draft-detail hidden"></div>
@@ -168,7 +183,7 @@
               <button type="button" id="refresh-postlog">Refresh</button>
             </div>
             <table>
-              <thead><tr><th>Community</th><th>Method</th><th>Posted</th><th>Outcome</th></tr></thead>
+              <thead><tr><th>Community</th><th>Method</th><th>Posted</th><th>Outcome</th><th></th></tr></thead>
               <tbody id="postlog-body"></tbody>
             </table>
           </div>
