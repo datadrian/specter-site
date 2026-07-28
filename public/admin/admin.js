@@ -334,6 +334,7 @@
       }
       if (data.errors && data.errors.length) statusEl.textContent += ` (${data.errors.length} error(s), see console)`;
       if (data.errors && data.errors.length) console.warn('[outreach]', data.errors);
+      await new Promise(r => setTimeout(r, 2000)); // let Blobs settle before refreshing (brief read-after-write lag)
       await loadCommunities();
       await loadDrafts();
     } catch (e) {
