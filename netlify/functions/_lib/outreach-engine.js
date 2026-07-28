@@ -19,6 +19,19 @@ other hidden/producer-only feature. SPECTER is described ONLY as a detection/evi
 const EM_DASH_NOTE = `Do NOT use the em-dash character anywhere in the text. Use a comma, period, colon, or
 parentheses instead wherever you would normally reach for a dash.`;
 
+// Adrian's quality bar (added per his request): only pursue communities that
+// are both large (5,000+ members) and demonstrably active. This note nudges
+// discovery to surface bigger, established communities in the first place;
+// the REAL enforcement is the verified check in evaluateQualityBar() below —
+// discovery's own guesses about size aren't trustworthy enough to gate on.
+const SIZE_PREFERENCE_NOTE = `Strongly prefer larger, well-established communities with a meaningfully
+large, active membership (thousands of members) over small, obscure, or low-traffic ones.`;
+
+const MIN_MEMBER_COUNT = 5000;
+// How stale "most recent activity" can be before a community that isn't
+// active *today* still counts as active enough - forums move slower than Reddit.
+const ACTIVITY_STALE_DAYS = 30;
+
 // ---- Discovery ----
 
 const DISCOVERY_QUERIES = [
@@ -27,29 +40,31 @@ const DISCOVERY_QUERIES = [
     label: 'Reddit',
     prompt: `Search for currently active subreddits (real, existing, still-active communities) where people
 discuss paranormal investigation, ghost hunting, EVP research, or related equipment/gadgets — include at
-least one general skeptic or DIY-electronics subreddit that sometimes discusses this gear too. Return the
-3-5 best real matches you can verify exist right now.`,
+least one general skeptic or DIY-electronics subreddit that sometimes discusses this gear too. ${SIZE_PREFERENCE_NOTE}
+Return the 3-5 best real matches you can verify exist right now.`,
   },
   {
     platformType: 'forum',
     label: 'Dedicated paranormal forums',
     prompt: `Search for currently active dedicated paranormal/ghost-hunting discussion forums (standalone
 forum websites, not Reddit or Facebook — e.g. things like AboveTopSecret or similar long-running paranormal
-community forums). Return the 3-5 best real, currently-reachable matches you can verify exist right now.`,
+community forums). ${SIZE_PREFERENCE_NOTE} Return the 3-5 best real, currently-reachable matches you can
+verify exist right now.`,
   },
   {
     platformType: 'facebook_group',
     label: 'Facebook Groups',
     prompt: `Search for currently active public Facebook Groups about paranormal investigation or ghost
-hunting. Return the 3-5 best real matches you can verify exist right now, with their Facebook Group URLs.`,
+hunting. ${SIZE_PREFERENCE_NOTE} Return the 3-5 best real matches you can verify exist right now, with
+their Facebook Group URLs.`,
   },
   {
     platformType: 'other',
     label: 'Broad discovery',
     prompt: `Search broadly for any other kind of currently active online community (Discord server
 listing pages, niche forums, blogs with active comment communities, YouTube channel communities, etc.)
-where paranormal investigators or ghost-hunting enthusiasts gather and discuss gear/equipment. Return the
-3-5 best real matches you can verify exist right now.`,
+where paranormal investigators or ghost-hunting enthusiasts gather and discuss gear/equipment. ${SIZE_PREFERENCE_NOTE}
+Return the 3-5 best real matches you can verify exist right now.`,
   },
 ];
 
@@ -129,61 +144,132 @@ async function fetchPageText(url) {
   return stripHtml(html);
 }
 
-// ---- Recency-of-activity check ----
+// ---- Recency-of-activity + size check ----
 // Adrian's rule: a community should have visible activity from today (or very
-// recent) before it's worth allow-listing — don't waste posts on dead forums.
-// Uses live Google Search grounding (not just the one scraped URL) since several
-// platform types (Reddit, Facebook Groups) commonly block server-side scraping
-// but ARE well-indexed by Google, so search finds recent posts even when our own
-// fetch of community.url fails.
-async function checkRecentActivity(community) {
+// recent), AND a real membership of 5,000+, before it's worth allow-listing —
+// don't waste posts on dead or tiny forums. Uses live Google Search grounding
+// (not just the one scraped URL) since several platform types (Reddit, Facebook
+// Groups) commonly block server-side scraping but ARE well-indexed by Google,
+// so search finds member counts/recent posts even when our own fetch of
+// community.url fails.
+async function checkActivityAndSize(community) {
   const today = new Date().toISOString().slice(0, 10);
-  const prompt = `Today's date is ${today}. Using web search, look at the online community "${community.name}"
-(${community.url}, platform: ${community.platformType}) and determine how recently it has had real activity
-(a new post, thread, or comment). Find the most recent visible post/thread you can and note its date.
+  const prompt = `Today's date is ${today}. Using web search, research the online community "${community.name}"
+(${community.url}, platform: ${community.platformType}) and determine two things:
+
+1. Its approximate member/subscriber count — a real number, taken from the platform's own member-count
+   display, About page, or a reliable secondary source. Not a guess.
+2. How recently it has had real activity (a new post, thread, or comment). Find the most recent visible
+   post/thread you can and note its date.
 
 Respond with ONLY JSON in this exact shape:
-{"mostRecentActivityDate": "YYYY-MM-DD, or null if you cannot determine one",
+{"memberCount": a number, or null if you cannot find a reliable count,
+ "memberCountSummary": "one short sentence on where that count came from / how confident you are",
+ "mostRecentActivityDate": "YYYY-MM-DD, or null if you cannot determine one",
  "hasActivityToday": true or false or null,
  "activityRecencySummary": "one short sentence describing what you found"}
 If you cannot find reliable evidence either way, use null for the fields you're unsure of and say so
-honestly in the summary. Do not guess or assume activity just because the community exists.`;
+honestly in the summaries. Do not guess or assume a count or activity just because the community exists.`;
   try {
     const text = await generate({ model: MODEL_PRO, useSearch: true, prompt, temperature: 0.1 });
     const j = extractJson(text);
     return {
+      memberCount: typeof j.memberCount === 'number' ? j.memberCount : null,
+      memberCountSummary: j.memberCountSummary || '',
       mostRecentActivityDate: j.mostRecentActivityDate || null,
       hasActivityToday: typeof j.hasActivityToday === 'boolean' ? j.hasActivityToday : null,
       activityRecencySummary: j.activityRecencySummary || '',
     };
   } catch (e) {
-    return { mostRecentActivityDate: null, hasActivityToday: null, activityRecencySummary: `Activity check unavailable: ${e.message}` };
+    return {
+      memberCount: null,
+      memberCountSummary: `Check unavailable: ${e.message}`,
+      mostRecentActivityDate: null,
+      hasActivityToday: null,
+      activityRecencySummary: `Activity check unavailable: ${e.message}`,
+    };
   }
 }
 
+// Judges the verified activity/size check against Adrian's quality bar. Only
+// auto-rejects on POSITIVE evidence of failing (a real verified count under
+// the bar, or confirmed staleness) — same "never assume fine, never assume
+// failure, on unknown" pattern already used for the self-promotion rule below:
+// a community we couldn't verify still goes to needs_review for Adrian's own
+// eyes, it just isn't thrown out automatically for lack of data.
+function evaluateQualityBar(activity) {
+  const reasons = [];
+  if (typeof activity.memberCount === 'number' && activity.memberCount < MIN_MEMBER_COUNT) {
+    reasons.push(`Only ~${activity.memberCount.toLocaleString()} members (need ${MIN_MEMBER_COUNT.toLocaleString()}+).`);
+  }
+  if (activity.hasActivityToday === false) {
+    const ageDays = activity.mostRecentActivityDate
+      ? (Date.now() - new Date(activity.mostRecentActivityDate).getTime()) / 86400000
+      : null;
+    const stale = ageDays === null || ageDays > ACTIVITY_STALE_DAYS;
+    if (stale) {
+      reasons.push(activity.mostRecentActivityDate
+        ? `No activity found since ${activity.mostRecentActivityDate} (looks inactive).`
+        : `No recent activity could be found (looks inactive).`);
+    }
+  }
+  if (reasons.length > 0) return { failed: true, meetsBar: false, note: reasons.join(' ') };
+  const fullyVerified = typeof activity.memberCount === 'number' && activity.hasActivityToday !== null;
+  return {
+    failed: false,
+    meetsBar: fullyVerified ? true : null, // null = passes so far, but unverified - not a confirmed pass
+    note: fullyVerified
+      ? `Meets quality bar: ~${activity.memberCount.toLocaleString()} members, active.`
+      : 'Member count and/or activity could not be fully verified — needs a manual look.',
+  };
+}
+
 async function analyzeCommunity(community) {
-  // Run the page scrape and the (independent) search-grounded activity check
-  // CONCURRENTLY, not sequentially — this used to be two serial awaits, which
-  // combined with the rules-analysis call afterward was pushing analyze batches
-  // past Netlify's function time limit. They don't depend on each other.
+  // Run the page scrape and the (independent) search-grounded activity+size
+  // check CONCURRENTLY, not sequentially — this used to be two serial awaits,
+  // which combined with the rules-analysis call afterward was pushing analyze
+  // batches past Netlify's function time limit. They don't depend on each other.
   const [pageTextResult, activity] = await Promise.all([
     fetchPageText(community.url).then(text => ({ text, error: null })).catch(e => ({ text: '', error: e.message })),
-    checkRecentActivity(community),
+    checkActivityAndSize(community),
   ]);
   const pageText = pageTextResult.text;
   const fetchError = pageTextResult.error;
 
+  const qualityBar = evaluateQualityBar(activity);
+  const sizeActivityFields = {
+    lastCheckedAt: new Date().toISOString(),
+    memberCount: activity.memberCount,
+    memberCountSummary: activity.memberCountSummary,
+    mostRecentActivityDate: activity.mostRecentActivityDate,
+    hasActivityToday: activity.hasActivityToday,
+    activityRecencySummary: activity.activityRecencySummary,
+    meetsQualityBar: qualityBar.meetsBar,
+    qualityGateNote: qualityBar.note,
+  };
+
+  if (qualityBar.failed) {
+    // Confirmed too small and/or confirmed inactive - auto-reject without
+    // spending an extra LLM call on rules-analysis for a community we're not
+    // going to pursue anyway. This is a SAFE automatic action (a rejection,
+    // not an allow-list): the self-promotion "never self-allowlist" guardrail
+    // below is untouched, this only ever auto-DISCARDS clear duds so Adrian
+    // isn't stuck manually rejecting every dead/tiny forum discovery turns up.
+    return store.updateCommunity(community.id, {
+      ...sizeActivityFields,
+      status: 'rejected',
+      rulesSummary: `Auto-rejected on quality bar: ${qualityBar.note}`,
+    });
+  }
+
   if (!pageText || pageText.length < 200) {
     return store.updateCommunity(community.id, {
+      ...sizeActivityFields,
       rulesSummary: fetchError
         ? `Unavailable — could not retrieve page (${fetchError}). May require login or JavaScript.`
         : 'Unavailable — page returned little to no readable content.',
       allowsSelfPromotion: 'unknown',
       status: 'needs_review',
-      lastCheckedAt: new Date().toISOString(),
-      mostRecentActivityDate: activity.mostRecentActivityDate,
-      hasActivityToday: activity.hasActivityToday,
-      activityRecencySummary: activity.activityRecencySummary,
     });
   }
 
@@ -206,15 +292,12 @@ If the text doesn't clearly state a self-promotion policy, use "unknown" — do 
   const j = extractJson(text);
 
   return store.updateCommunity(community.id, {
+    ...sizeActivityFields,
     rulesSummary: j.rulesSummary || '',
     allowsSelfPromotion: ['yes', 'conditional', 'no', 'unknown'].includes(j.allowsSelfPromotion) ? j.allowsSelfPromotion : 'unknown',
     selfPromoNotes: j.selfPromoNotes || '',
     activityNotes: j.activityNotes || '',
     status: 'needs_review', // analysis never self-allowlists — only Adrian can promote to vetted_allowlisted
-    lastCheckedAt: new Date().toISOString(),
-    mostRecentActivityDate: activity.mostRecentActivityDate,
-    hasActivityToday: activity.hasActivityToday,
-    activityRecencySummary: activity.activityRecencySummary,
   });
 }
 

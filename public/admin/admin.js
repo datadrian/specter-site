@@ -489,6 +489,16 @@
     return '<span class="badge activity-unknown">unknown</span>';
   }
 
+  // Adrian's quality bar: 5,000+ verified members. Reuses the promo-yes/no/unknown
+  // badge colors (green/red/gray) rather than adding new CSS for the same meaning.
+  function membersBadge(c) {
+    if (typeof c.memberCount === 'number') {
+      const ok = c.memberCount >= 5000;
+      return `<span class="badge ${ok ? 'promo-yes' : 'promo-no'}" title="${escAttr(c.memberCountSummary || '')}">${c.memberCount.toLocaleString()}</span>`;
+    }
+    return '<span class="badge promo-unknown">unknown</span>';
+  }
+
   // A community's own `status` (discovered/needs_review/vetted_allowlisted/
   // rejected) tracks VETTING, not posting - a vetted community stays vetted
   // across many posts over time (4-day cooldown rotation), so it deliberately
@@ -512,6 +522,7 @@
         <td>${esc(c.platformType)}</td>
         <td><span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></td>
         <td>${promoBadge(c.allowsSelfPromotion)}</td>
+        <td>${membersBadge(c)}</td>
         <td>${activityBadge(c)}</td>
         <td>${postedBadge(c)}</td>
         <td style="max-width:320px;font-size:11px;color:var(--muted)">${esc((c.rulesSummary || '').slice(0, 140))}</td>
@@ -520,7 +531,7 @@
           <button type="button" class="btn danger" data-delete-community="${c.id}">Delete</button>
         </td>
       </tr>
-    `).join('') || '<tr><td colspan="8">No communities yet, run discovery.</td></tr>';
+    `).join('') || '<tr><td colspan="9">No communities yet, run discovery.</td></tr>';
 
     $('communities-body').querySelectorAll('[data-open-community]').forEach(btn => {
       btn.addEventListener('click', () => openCommunity(btn.dataset.openCommunity));
@@ -694,7 +705,8 @@
            <button type="button" class="btn secondary" id="community-analyze-now-btn">Analyze now</button>`}
       ${c.selfPromoNotes ? `<p style="font-size:11px;color:var(--muted)">Conditions: ${esc(c.selfPromoNotes)}</p>` : ''}
       ${c.activityNotes ? `<p style="font-size:11px;color:var(--muted)">Tone notes: ${esc(c.activityNotes)}</p>` : ''}
-      <p style="font-size:11px;color:var(--muted)">Activity: ${activityBadge(c)} ${esc(c.activityRecencySummary || '')}</p>
+      <p style="font-size:11px;color:var(--muted)">Members: ${membersBadge(c)} · Activity: ${activityBadge(c)} ${esc(c.activityRecencySummary || '')}</p>
+      ${c.qualityGateNote ? `<p style="font-size:11px;color:${c.meetsQualityBar === false ? 'var(--danger)' : 'var(--muted)'}">Quality bar (5k+ members, active): ${esc(c.qualityGateNote)}</p>` : ''}
       ${c.status === 'vetted_allowlisted' ? `
         <label style="font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:8px">
           <input type="checkbox" id="community-autopost-toggle" ${c.autoPostEnabled ? 'checked' : ''}> Auto-post enabled for this community

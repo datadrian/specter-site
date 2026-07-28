@@ -135,13 +135,22 @@ async function createCommunity(fields) {
     status: fields.status || 'discovered', // discovered | needs_review | vetted_allowlisted | rejected
     lastCheckedAt: fields.lastCheckedAt || null,
     discoveredVia: fields.discoveredVia || '',
-    memberCount: fields.memberCount || '',
+    // memberCount: real verified count from analyzeCommunity()'s search-grounded
+    // check, null until analyzed. Separate memberCountSummary explains the source/
+    // confidence. Together with the activity fields below, feeds Adrian's quality
+    // bar (5,000+ members AND demonstrably active) - see evaluateQualityBar() in
+    // outreach-engine.js. meetsQualityBar is true/false once fully verified, or
+    // null if unverified (never assumed either way).
+    memberCount: typeof fields.memberCount === 'number' ? fields.memberCount : null,
+    memberCountSummary: fields.memberCountSummary || '',
+    meetsQualityBar: typeof fields.meetsQualityBar === 'boolean' ? fields.meetsQualityBar : null,
+    qualityGateNote: fields.qualityGateNote || '',
     activityNotes: fields.activityNotes || '',
     autoPostEnabled: Boolean(fields.autoPostEnabled),
     // Recency-of-activity signal (added per Adrian's request: don't allow-list dead
     // communities — a real forum should have visible activity from today/very recent).
-    // Never gates status automatically, same "inform Adrian, he decides" pattern as
-    // allowsSelfPromotion — just surfaced in the console for his judgment call.
+    // Combined with memberCount above into the quality-bar auto-reject check in
+    // analyzeCommunity() - unverified is never auto-approved OR auto-rejected.
     mostRecentActivityDate: fields.mostRecentActivityDate || null, // YYYY-MM-DD or null if unknown
     hasActivityToday: typeof fields.hasActivityToday === 'boolean' ? fields.hasActivityToday : null,
     activityRecencySummary: fields.activityRecencySummary || '',
