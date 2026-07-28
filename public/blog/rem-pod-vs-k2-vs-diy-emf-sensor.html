@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REM Pod vs K2 Meter vs a Free DIY EMF Sensor: What's the Difference?</title>
+  <meta name="description" content="How a REM pod and a K2 (K-II) EMF meter actually work, what they can't do, and how to build a wireless DIY EMF and proximity sensor for about $20 in parts using free firmware, no purchase required.">
+  <meta name="keywords" content="REM pod, K2 meter, K-II EMF meter, EMF meter for ghost hunting, DIY EMF sensor, build your own EMF meter, wireless ghost hunting sensor, REM pod alternative, K2 meter alternative, paranormal investigation equipment">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://specter-imaging.com/blog/rem-pod-vs-k2-vs-diy-emf-sensor.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="REM Pod vs K2 Meter vs a Free DIY EMF Sensor: What's the Difference?">
+  <meta property="og:description" content="How a REM pod and a K2 meter actually work, what they can't do, and how to build a wireless EMF and proximity sensor for about $20 in parts using free firmware.">
+  <meta property="og:url" content="https://specter-imaging.com/blog/rem-pod-vs-k2-vs-diy-emf-sensor.html">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    .manual { max-width: 880px; }
+    .manual-masthead {
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--accent);
+      background: var(--card);
+      padding: 28px 30px 22px;
+      margin-bottom: 10px;
+    }
+    .manual-masthead .doc-kicker { font-size: 10px; letter-spacing: 0.32em; color: var(--accent); margin: 0 0 14px; }
+    .manual-masthead h1 { text-align: left; font-size: 26px; letter-spacing: 0.04em; margin: 0 0 16px; line-height: 1.25; }
+    .doc-meta {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px;
+      font-size: 11px; letter-spacing: 0.06em;
+    }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #07120d; font-weight: 700;
+      font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px;
+      border: 1px solid var(--accent);
+    }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-dl.ghost { background: transparent; color: var(--accent); }
+    .manual h2 { font-size: 15px; letter-spacing: 0.06em; color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 38px 0 14px; }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 13px; color: var(--accent); letter-spacing: 0.04em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); font-size: 14px; }
+    .manual ul, .manual ol { color: var(--text); font-size: 13.5px; padding-left: 20px; line-height: 1.7; }
+    .manual ul li, .manual ol li { margin-bottom: 6px; }
+    .compare-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0;
+    }
+    .compare-card { border: 1px solid var(--line); background: var(--card); padding: 16px 18px; }
+    .compare-card h3 { margin-top: 0; }
+    .compare-card .price { font-size: 18px; font-weight: 700; color: var(--text); margin: 4px 0 10px; }
+    .compare-card.win { border-color: var(--accent); }
+    .compare-card p { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+    .doc-note { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item .q { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .faq-item .a { font-size: 13px; color: var(--muted); }
+    .doc-foot { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "REM Pod vs K2 Meter vs a Free DIY EMF Sensor: What's the Difference?",
+    "description": "How a REM pod and a K2 EMF meter actually work, what they can't do, and how to build a wireless EMF and proximity sensor for about $20 in parts using free firmware.",
+    "datePublished": "2026-07-28",
+    "dateModified": "2026-07-28",
+    "author": { "@type": "Organization", "name": "SPECTER" },
+    "publisher": { "@type": "Organization", "name": "SPECTER" },
+    "mainEntityOfPage": "https://specter-imaging.com/blog/rem-pod-vs-k2-vs-diy-emf-sensor.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a REM pod used for?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A REM pod is a handheld device with a telescopic antenna that radiates its own small electromagnetic field. When something disturbs that field (a hand, a body, or in some cases stray radio interference), an onboard light and tone trigger, giving investigators a standalone proximity alert." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a K2 meter (K-II EMF meter)?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A K2 meter, also called a K-II meter, is a handheld electromagnetic field detector with a row of LED lights that climb from green to red as ambient EMF strength increases. It reads passively rather than radiating its own field, and is commonly used to first rule out wiring and appliances before being used as a field instrument." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I build my own EMF sensor for ghost hunting?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. An ESP32 microcontroller with a magnetometer breakout and a capacitive antenna can read magnetic field and proximity data at low cost, roughly $15 to $25 in parts. The SPECTER Node is a free, open build guide and firmware for exactly this kind of sensor." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the SPECTER Node free to build?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The build guide, wiring diagram, and Arduino firmware for the SPECTER Node are free with no purchase required. You only pay for the roughly $15 to $25 in electronic parts. Streaming its readings live into the SPECTER desktop app requires the SPECTER software, which includes a free 10-minute demo." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the SPECTER Node replace a REM pod or K2 meter?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The SPECTER Node combines a capacitive proximity antenna, similar in concept to a REM pod's field-disruption trigger, with a magnetometer reading in the spirit of a K2 meter's ambient field readout, but it is wireless, timestamped, threshold-configurable, and logs directly into an evidence archive instead of only giving a standalone light and tone." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/blog.html" class="active">Field Journal</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// FIELD JOURNAL &middot; EQUIPMENT</p>
+      <h1>REM Pod vs K2 Meter vs a Free DIY EMF Sensor: What's the Difference?</h1>
+      <div class="doc-meta">
+        <div><span>TOPIC</span><strong>Equipment comparison</strong></div>
+        <div><span>READ TIME</span><strong>~6 min</strong></div>
+        <div><span>PUBLISHED</span><strong>July 28, 2026</strong></div>
+        <div><span>BUILD COST</span><strong>$15-25 (free guide)</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <p class="lead">If you've been shopping for ghost hunting equipment, you've run into a REM pod and a K2 meter. Both are staples of the field. Neither one logs a timestamp, neither talks to a camera, and neither tells you afterward whether what it caught lines up with anything else in the room. Here's what each one actually does, where they fall short, and how to build a wireless sensor that covers similar ground for about $20 in parts, using a build guide and firmware that are both free.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">1.0</span>What is a REM Pod?</h2>
+      <p>A REM pod (Radiating Electromagnetic Field Pod) is a small tower with a telescopic antenna. Power it on and it radiates its own low-level electromagnetic field around itself. When an object, commonly a hand, a body, or a piece of equipment, enters and disturbs that field, the pod lights up and sounds a tone. Some models add a temperature sensor or a second ambient light channel.</p>
+      <p>The idea is simple: instead of passively waiting to detect a change in the room's existing EM field, the pod creates a small field of its own and watches for interference. In practice, that also means it can trigger from stray Wi-Fi and cell signal interference, static buildup, or anything else that disturbs the antenna, including the investigator standing too close.</p>
+      <p><strong>What it can't do:</strong> log anything. A REM pod gives you a light and a beep in the moment. If nobody is in the room, or nobody is looking right at it, the event is gone. There's no timestamp to line up against a camera clip, and no way to see how the reading trended over the course of the session.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>What is a K2 Meter (K-II EMF Meter)?</h2>
+      <p>A K2 meter, often called a K-II meter, is a handheld EMF detector with a row of five LEDs that climb from green through amber to red as ambient electromagnetic field strength increases. Unlike a REM pod, it doesn't radiate its own field, it passively reads whatever field is already present. Investigators typically sweep a location with one before a session starts, to rule out wiring, breaker boxes, and appliances that would otherwise produce a constant false reading.</p>
+      <p><strong>What it can't do:</strong> the same as the REM pod. It's a visual readout only, an investigator has to be watching it at the exact moment something happens. No history, no export, no way to correlate a spike with what the room actually looked like ten seconds later.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>The Common Problem</h2>
+      <p>Both instruments are standalone. Both require a person watching them in real time. Neither one can tell you, after the fact, exactly when a reading happened relative to a visual anomaly, an EVP hit, or a thermal shift somewhere else in the room. If you're running a single-person investigation with a camera, a recorder, and a handheld EMF meter, you physically cannot watch all three at once.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>A Wireless Sensor You Build Yourself, Free</h2>
+      <p>The <a href="/help/build-node/">SPECTER Node</a> is a small ESP32-based field sensor that pairs a capacitive proximity antenna, conceptually the same trigger idea as a REM pod's field disruption, with a 3-axis magnetometer, reading ambient magnetic field the way a K2 meter reads EMF, but as a live vector instead of five LEDs. The difference is what happens to the reading afterward.</p>
+      <ul>
+        <li><strong>It's wireless and logged.</strong> Every reading streams over your own Wi-Fi straight into the SPECTER desktop app, timestamped against the same global clock as your camera, thermal, and EVP capture.</li>
+        <li><strong>You set the thresholds.</strong> Instead of a fixed light-and-tone response, you decide what counts as a real crossing, and the app fires a snapshot the instant it happens.</li>
+        <li><strong>It shows direction, not just magnitude.</strong> A bearing needle on the node's own phone-friendly readout points toward the source, so you know which way to look.</li>
+        <li><strong>It auto-baselines.</strong> Set it down anywhere and it calibrates to that room's ambient field rather than assuming a fixed zero point.</li>
+      </ul>
+      <div class="doc-note">The build guide, wiring diagram, and Arduino firmware are completely free, no purchase or account required. You only pay for the electronics: roughly $15 to $25 depending on where you source parts. Seeing the node's live telemetry inside SPECTER just needs the app, which includes a free 10-minute demo.</div>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>Cost and Capability, Side by Side</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>REM POD</h3>
+          <div class="price">~$80-160 retail</div>
+          <p>Radiates its own field, triggers on disturbance</p>
+          <p>Light + tone only, no logging</p>
+          <p>Prone to radio and static false triggers</p>
+        </div>
+        <div class="compare-card">
+          <h3>K2 / K-II METER</h3>
+          <div class="price">~$50-90 retail</div>
+          <p>Passive ambient EMF readout, 5-LED bar</p>
+          <p>Visual only, no logging, no history</p>
+          <p>Must be watched in real time</p>
+        </div>
+        <div class="compare-card win">
+          <h3>SPECTER NODE</h3>
+          <div class="price">~$15-25 in parts, free guide</div>
+          <p>Proximity antenna + 3-axis magnetometer, wireless</p>
+          <p>Timestamped, thresholded, auto-logged to your archive</p>
+          <p>Bearing radar shows direction, not just magnitude</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>Getting Started</h2>
+      <p>You don't need to buy anything to start. Read the guide, order the roughly $20 in parts if it makes sense for you, and build at your own pace, no soldering required for a basic breadboard build.</p>
+      <div class="doc-actions">
+        <a class="doc-dl" href="/help/build-node/">OPEN THE FREE BUILD GUIDE</a>
+        <a class="doc-dl ghost" href="/download.html">DOWNLOAD THE FREE DEMO</a>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">7.0</span>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="q">What is a REM pod used for?</div>
+        <div class="a">A REM pod is a handheld device with a telescopic antenna that radiates its own small electromagnetic field. When something disturbs that field, an onboard light and tone trigger, giving investigators a standalone proximity alert.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What is a K2 meter (K-II EMF meter)?</div>
+        <div class="a">A K2 meter is a handheld electromagnetic field detector with a row of LEDs that climb from green to red as ambient EMF strength increases. It reads passively rather than radiating its own field, and is commonly used to first rule out wiring and appliances before being used as a field instrument.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Can I build my own EMF sensor for ghost hunting?</div>
+        <div class="a">Yes. An ESP32 microcontroller with a magnetometer breakout and a capacitive antenna can read magnetic field and proximity data at low cost, roughly $15 to $25 in parts. The SPECTER Node is a free, open build guide and firmware for exactly this kind of sensor.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Is the SPECTER Node free to build?</div>
+        <div class="a">The build guide, wiring diagram, and Arduino firmware are free with no purchase required. You only pay for the parts. Streaming its readings live into the SPECTER desktop app requires the SPECTER software, which includes a free 10-minute demo.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Does the SPECTER Node replace a REM pod or K2 meter?</div>
+        <div class="a">It combines a capacitive proximity antenna, similar in concept to a REM pod's field-disruption trigger, with a magnetometer reading in the spirit of a K2 meter's ambient field readout, but wireless, timestamped, threshold-configurable, and logged directly into an evidence archive instead of only giving a standalone light and tone.</div>
+      </div>
+    </section>
+
+    <p class="doc-foot">SPECTER FIELD JOURNAL &middot; <a href="/blog.html">MORE ARTICLES</a> &middot; <a href="/">SPECTER-IMAGING.COM</a></p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

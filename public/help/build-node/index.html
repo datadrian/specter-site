@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Build Your Own SPECTER Node | DIY Wireless EMF Sensor for Ghost Hunting</title>
-  <meta name="description" content="Build your own SPECTER Node: a DIY wireless ESP32 field sensor with a capacitive antenna and magnetometer that streams live EMF and proximity telemetry into SPECTER paranormal investigation software. Full parts list, wiring diagram, and copy-paste Arduino code." />
+  <meta name="description" content="Build your own SPECTER Node: a free, DIY wireless ESP32 EMF and proximity sensor, a REM pod and K2 meter alternative, that streams live telemetry into SPECTER paranormal investigation software. Full parts list, wiring diagram, and copy-paste Arduino firmware, no purchase required." />
+  <meta name="keywords" content="build your own EMF sensor, DIY EMF meter, REM pod alternative, K2 meter alternative, K-II EMF meter, ESP32 ghost hunting sensor, wireless paranormal sensor, free ghost hunting firmware" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://specter-imaging.com/help/build-node/" />
   <meta property="og:type" content="article" />
@@ -120,6 +121,29 @@
     .bn-flash .fl-alt{margin-top:16px;font-size:13px;color:var(--text-dim);}
     .bn-flash .fl-alt a{color:var(--cyan);}
 </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is the SPECTER Node build guide free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The build guide, wiring diagram, and Arduino firmware are free, no purchase or account required. You only pay for the roughly $15 to $25 in electronic parts." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to know how to solder to build a SPECTER Node?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. A basic breadboard build with jumper wires works fine. Soldering is only needed if you want a permanent, rugged pod." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the SPECTER Node replace a REM pod or K2 meter?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It covers similar ground, a capacitive proximity antenna in the spirit of a REM pod, and a magnetometer reading in the spirit of a K2 meter, but wireless, timestamped, and logged automatically into an evidence archive instead of a standalone light and tone." }
+      }
+    ]
+  }
+  </script>
 </head>
 <body class="docs-body">
   <nav class="nav">
@@ -1885,7 +1909,7 @@ void sendAck(int src, long id, bool ok, uint8_t localNum) {
 void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     if (doc[&quot;t&quot;] != &quot;cmd&quot;) return;
     const char* cmd = doc[&quot;cmd&quot;] | &quot;&quot;;
-    // Every field-driver command (trigger/pattern/inject-as-diag) carries an `id`
+    // Every output command (trigger/pattern/inject-as-diag) carries an `id`
     // that the app is waiting to see echoed in an ack within 500ms; without it the
     // app assumes the hardware didn&#x27;t fire and drops to the synthetic fallback.
     long ackId = doc[&quot;id&quot;] | -1;
@@ -2522,6 +2546,30 @@ void loop() {
       <div class="bn-step"><span class="num">3</span><div>Open SPECTER on the same network. Enable the SPECTER Node feature in settings. The node discovers the app automatically and appears in the instrument rail within a couple of seconds.</div></div>
       <div class="callout"><strong>That's it.</strong> Wave your hand near the antenna or move a magnet nearby - you'll see the field mesh react and the buzzer chirp. Tune the alert thresholds from inside SPECTER; the node remembers them across reboots.</div>
       <a href="/index.html#pricing" class="btn-primary bn-cta">GET SPECTER</a>
+    </div>
+
+    <!-- REM POD / K2 COMPARISON -->
+    <div class="bn-sec" id="compare">
+      <h2>How this compares to a REM pod or K2 meter</h2>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:18px;">If you've used a REM pod or a K2 (K-II) EMF meter, the SPECTER Node covers similar ground with a capacitive proximity antenna in the spirit of a REM pod's field-disruption trigger, and a magnetometer reading in the spirit of a K2 meter's ambient field readout, but wireless, timestamped, and logged straight into an evidence archive instead of just a light and a tone.</p>
+      <table class="bn-table">
+        <thead><tr><th></th><th>REM pod</th><th>K2 / K-II meter</th><th>SPECTER Node</th></tr></thead>
+        <tbody>
+          <tr><td>Typical cost</td><td>$80-160 retail</td><td>$50-90 retail</td><td>$15-25 in parts, free guide</td></tr>
+          <tr><td>Output</td><td>Light + tone</td><td>5-LED bar</td><td>Timestamped data, logged and archived</td></tr>
+          <tr><td>Direction</td><td>No</td><td>No</td><td>Bearing needle points toward the source</td></tr>
+          <tr><td>Wireless</td><td>No</td><td>No</td><td>Yes, streams over Wi-Fi to SPECTER</td></tr>
+        </tbody>
+      </table>
+      <p class="sim-note">Read the full write-up: <a href="/blog/rem-pod-vs-k2-vs-diy-emf-sensor.html" style="color:var(--cyan)">REM Pod vs K2 Meter vs a Free DIY EMF Sensor &rarr;</a></p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="bn-sec" id="faq">
+      <h2>Frequently asked questions</h2>
+      <div class="callout"><strong>Is this free?</strong> Yes. The build guide, wiring diagram, and Arduino firmware are free, no purchase or account required. You only pay for the roughly $15 to $25 in electronic parts. Streaming the node's telemetry live into the desktop app needs the SPECTER software, which includes a free 10-minute demo.</div>
+      <div class="callout"><strong>Do I need to know how to solder?</strong> No. A basic breadboard build with jumper wires works fine. Soldering is only needed if you want a permanent, rugged pod.</div>
+      <div class="callout"><strong>Does this replace a REM pod or K2 meter?</strong> It covers similar ground, proximity and ambient field sensing, but wireless, timestamped, and logged automatically instead of a standalone light and tone.</div>
     </div>
 
   </div>
