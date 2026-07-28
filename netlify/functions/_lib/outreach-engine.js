@@ -304,13 +304,21 @@ the em-dashes.
 
 Text:
 START_TEXT
-REPLACE_TEXT
+${draftText}
 END_TEXT
 
 Respond with ONLY JSON in this exact shape: {"text": "the rewritten text with no em-dashes"}`;
   const text = await generate({ model: MODEL_FLASH, prompt, temperature: 0.1 });
   const j = extractJson(text);
-  return j.text || draftText;
+  const cleaned = j.text || '';
+  // Safety net: refuse to accept an empty or suspiciously short rewrite rather than
+  // risk overwriting real draft content with garbage (this is exactly the class of
+  // bug that previously destroyed 5 real drafts — an un-interpolated prompt
+  // placeholder caused the model to echo back a literal token instead of real text).
+  if (!cleaned || cleaned.length < draftText.length * 0.5) {
+    throw new Error('purgeEmDashFromDraft: rewrite looked invalid (empty or too short) — refusing to overwrite original draft text');
+  }
+  return cleaned;
 }
 
 module.exports = { discoverCommunities, analyzeCommunity, draftForCommunity, purgeEmDashFromDraft, normalizeUrl };
