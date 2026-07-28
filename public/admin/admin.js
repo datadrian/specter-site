@@ -722,6 +722,144 @@
 
   $('refresh-postlog').addEventListener('click', loadPostlog);
 
+  // ---- Analytics ----
+  // Self-hosted, no third-party tracker: reads whatever public/analytics-track.js
+  // has recorded via /api/track-event, aggregated server-side by
+  // admin-analytics-summary. Chart is hand-drawn on canvas (no CDN dependency).
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
+  }
+
+  function drawAnalyticsChart(daily) {
+    const canvas = $('analytics-chart');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || canvas.parentElement.clientWidth || 600;
+    const cssHeight = 110;
+    canvas.width = cssWidth * dpr;
+    canvas.height = cssHeight * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    if (!daily.length) {
+      ctx.fillStyle = cssVar('--muted');
+      ctx.font = '11px monospace';
+      ctx.fillText('No data in this range yet.', 10, cssHeight / 2);
+      return;
+    }
+
+    const padL = 30, padR = 6, padT = 6, padB = 16;
+    const chartW = cssWidth - padL - padR;
+    const chartH = cssHeight - padT - padB;
+    const maxVal = Math.max(1, ...daily.map(d => Math.max(d.pageviews, d.downloads)));
+    const barGroupW = chartW / daily.length;
+    const barW = Math.max(2, Math.min(14, barGroupW * 0.32));
+
+    ctx.strokeStyle = cssVar('--line');
+    ctx.fillStyle = cssVar('--muted');
+    ctx.font = '9px monospace';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 2; i++) {
+      const y = padT + chartH - (chartH * i / 2);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + chartW, y);
+      ctx.stroke();
+      const val = Math.round(maxVal * i / 2);
+      ctx.fillText(String(val), 2, y + 3);
+    }
+
+    const accent = cssVar('--accent');
+    const danger = cssVar('--danger');
+    const showEveryLabel = daily.length <= 10;
+
+    daily.forEach((d, i) => {
+      const groupX = padL + i * barGroupW + barGroupW / 2;
+      const pvH = (d.pageviews / maxVal) * chartH;
+      const dlH = (d.downloads / maxVal) * chartH;
+
+      ctx.fillStyle = accent;
+      ctx.fillRect(groupX - barW - 1, padT + chartH - pvH, barW, pvH);
+
+      ctx.fillStyle = danger;
+      ctx.fillRect(groupX + 1, padT + chartH - dlH, barW, dlH);
+
+      if (showEveryLabel || i === 0 || i === daily.length - 1 || i % Math.ceil(daily.length / 6) === 0) {
+        ctx.fillStyle = cssVar('--muted');
+        ctx.font = '8px monospace';
+        const label = d.date.slice(5);
+        ctx.fillText(label, groupX - 10, cssHeight - 3);
+      }
+    });
+  }
+
+  function fmtSeconds(sec) {
+    if (!sec) return '0s';
+    if (sec < 60) return `${Math.round(sec)}s`;
+    const m = Math.floor(sec / 60);
+    const s2 = Math.round(sec % 60);
+    return `${m}m ${s2}s`;
+  }
+
+  async function loadAnalytics() {
+    const range = $('analytics-range').value;
+    const startInput = $('analytics-start');
+    const endInput = $('analytics-end');
+    const isCustom = range === 'custom';
+    startInput.classList.toggle('hidden', !isCustom);
+    endInput.classList.toggle('hidden', !isCustom);
+
+    let qs = `range=${encodeURIComponent(range)}`;
+    if (isCustom) {
+      if (!startInput.value || !endInput.value) return;
+      qs += `&start=${encodeURIComponent(startInput.value)}&end=${encodeURIComponent(endInput.value)}`;
+    }
+
+    let data;
+    try {
+      data = await api(`admin-analytics-summary?${qs}`);
+    } catch (err) {
+      $('analytics-stats-grid').innerHTML = `<div class="stat"><div class="stat-l" style="color:var(--danger)">Failed to load analytics: ${esc(err.message || 'unknown error')}</div></div>`;
+      return;
+    }
+
+    const t = data.totals || {};
+    $('analytics-stats-grid').innerHTML = `
+      <div class="stat"><div class="stat-n">${t.pageviews || 0}</div><div class="stat-l">PAGEVIEWS</div></div>
+      <div class="stat"><div class="stat-n">${t.uniqueSessions || 0}</div><div class="stat-l">UNIQUE VISITORS</div></div>
+      <div class="stat"><div class="stat-n">${t.downloads || 0}</div><div class="stat-l">DOWNLOADS</div></div>
+      <div class="stat"><div class="stat-n">${fmtSeconds(t.avgSessionDurationSec)}</div><div class="stat-l">AVG TIME ON SITE</div></div>
+    `;
+
+    drawAnalyticsChart(data.daily || []);
+
+    const pages = (data.topPages || []).slice(0, 5);
+    $('analytics-top-pages').innerHTML = pages.map(p => `
+      <tr><td>${esc(p.path)}</td><td style="text-align:right;color:var(--muted)">${p.views}</td></tr>
+    `).join('') || '<tr><td colspan="2">No pageviews yet.</td></tr>';
+
+    const refs = (data.topReferrers || []).slice(0, 5);
+    $('analytics-top-referrers').innerHTML = refs.map(r => `
+      <tr><td>${esc(r.referrer)}</td><td style="text-align:right;color:var(--muted)">${r.visits}</td></tr>
+    `).join('') || '<tr><td colspan="2">No referrer data yet.</td></tr>';
+  }
+
+  $('analytics-range').addEventListener('change', loadAnalytics);
+  $('analytics-start').addEventListener('change', loadAnalytics);
+  $('analytics-end').addEventListener('change', loadAnalytics);
+  $('analytics-refresh').addEventListener('click', loadAnalytics);
+  window.addEventListener('resize', () => {
+    if ($('panel-analytics') && $('panel-analytics').classList.contains('active')) loadAnalytics();
+  });
+  let analyticsAutoRefreshTimer = null;
+  function analyticsMaybeAutoRefresh() {
+    if ($('panel-analytics') && $('panel-analytics').classList.contains('active')) loadAnalytics();
+  }
+  analyticsAutoRefreshTimer = setInterval(analyticsMaybeAutoRefresh, 10000);
+
 
   if (token) {
     api('admin-dashboard').then(showApp).catch(logout);
