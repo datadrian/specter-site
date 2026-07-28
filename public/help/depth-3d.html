@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: DEPTH &amp; 3D Depth Controls</title>
-  <meta name="description" content="How SPECTER's DEPTH and DEPTH_3D views work: RANGE slider, DEPTH COLOR (false-color vs mono), orbit navigation, and saved viewpoint.">
+  <meta name="description" content="How SPECTER's DEPTH and DEPTH_3D views work: RANGE and GAIN controls, DEPTH COLOR (false-color vs mono), live depth tuning, orbit navigation, and saved viewpoint.">
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
@@ -28,6 +28,7 @@
         <thead><tr><th>Control</th><th>Function</th></tr></thead>
         <tbody>
           <tr><td><strong>RANGE</strong> slider</td><td>Maps scene depth to the display. <strong>Center (50)</strong> auto-fits the full scene, near and far. Left emphasizes close objects; right emphasizes far objects.</td></tr>
+          <tr><td><strong>GAIN</strong> control</td><td>Adjusts the brightness intensity of the 2D grayscale/mono depth map. Also applies to the live 3D point cloud and the gallery 3D scan viewer, bringing out subtle depth structures.</td></tr>
           <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>ON = false-color by distance (red through blue). OFF = mono grey by distance.</td></tr>
         </tbody>
       </table>
@@ -40,6 +41,7 @@
         <thead><tr><th>Control</th><th>Function</th></tr></thead>
         <tbody>
           <tr><td><strong>RANGE</strong></td><td>Same as 2D, affects both mono and false-color in 3D.</td></tr>
+          <tr><td><strong>GAIN</strong></td><td>Adjusts the brightness / intensity scale of the point cloud points in mono/grayscale. Applies to both live point clouds and the gallery 3D scan viewer.</td></tr>
           <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>False-color vs mono grey point cloud.</td></tr>
           <tr><td><strong>↻ RESET</strong></td><td>Return to the saved default camera angle (or auto-fit if none saved).</td></tr>
           <tr><td><strong>⊡ SAVE VIEW</strong></td><td>Store the current orbit as the startup default for 3D depth.</td></tr>
@@ -67,6 +69,18 @@
       <div class="callout">
         Seeing flicker on an older build? Update to the latest build (range smoothing fix) and keep RANGE near <strong>center</strong>.
       </div>
+    </section>
+
+    <section id="depth-tuning">
+      <h2>LIVE DEPTH TUNING</h2>
+      <p>Fine-tune your depth sensor's capture quality in real time under <strong>Settings &gt; Cameras &gt; DEPTH TUNING</strong>. These adjustments apply live to your active feeds without requiring a restart:</p>
+      <ul>
+        <li><strong>Hole-fill</strong>: Fills empty or black pixels in the depth map (caused by light-absorbing or reflective surfaces) by interpolating data from neighboring depth points.</li>
+        <li><strong>Visual preset</strong>: Cycle through built-in sensor profiles (such as short range, high accuracy, or high fill-rate) optimized for different venue shapes.</li>
+        <li><strong>Temporal persistence</strong>: A temporal filter that averages depth frames over time to eliminate rapid pixel flickering and stabilize structural shapes.</li>
+        <li><strong>Spatial smoothing</strong>: An edge-preserving filter that smooths out jagged contours and suppresses high-frequency sensor noise across flat planes.</li>
+        <li><strong>Max range</strong>: Sets a hard cut-off boundary (in meters) for depth calculations, ignoring background noise and far-off movement outside your immediate investigation site.</li>
+      </ul>
     </section>
 
     <section id="saved-view">

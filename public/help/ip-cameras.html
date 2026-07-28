@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: Security System / IP Camera Wall</title>
-  <meta name="description" content="Connect a Lorex or any RTSP / ONVIF NVR to SPECTER and run live anomaly detection across four security camera feeds at once in the IP Camera Wall.">
+  <meta name="description" content="Connect a Lorex or any RTSP / ONVIF NVR to SPECTER and run live anomaly detection across up to eight security camera feeds at once in the IP Camera Wall with customizable layouts.">
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <h1>SECURITY SYSTEM INTEGRATION</h1>
     <p class="tagline">Bring the cameras already covering your location into SPECTER and run detection on all of them at once</p>
 
-    <p>Most locations worth investigating already have security cameras watching the halls, the stairwell, or the room you cannot sit in all night. SPECTER can pull those feeds straight into the app through the <strong>IP Camera Wall</strong> and run its full anomaly detection on up to four of them at the same time, right alongside your primary sensor. Every hit is captured in HD and filed in the same evidence archive with a synchronized timecode.</p>
+    <p>Most locations worth investigating already have security cameras watching the halls, the stairwell, or the room you cannot sit in all night. SPECTER can pull those feeds straight into the app through the <strong>IP Camera Wall</strong> and run its full anomaly detection on up to eight of them at the same time, right alongside your primary sensor. Every camera feed supports real-time anomaly detection, manual snapshot triggers, and live thumbnail previews in the right rail of the interface. Every hit is captured in HD and filed in the same evidence archive as a synchronized, multi-camera layer bundle.</p>
 
     <div class="callout ok">
       This works with a Lorex system or any NVR or camera that speaks standard <strong>RTSP</strong>, and SPECTER can auto-discover ONVIF cameras on your network. If your kit is Lorex or Dahua based, the built-in defaults are already set up for it.
@@ -30,10 +30,12 @@
     <section id="what">
       <h2>WHAT THE IP CAMERA WALL DOES</h2>
       <ul>
-        <li>Shows up to four camera feeds in a live 2x2 grid.</li>
-        <li>Runs independent anomaly, figure, and skeletal detection on every cell at once.</li>
-        <li>Captures a full-resolution HD frame from a camera the instant it flags something.</li>
-        <li>Files every capture in your evidence archive with type, class, confidence, and timecode.</li>
+        <li>Shows up to eight camera feeds in a customizable live layout (Single, 2x2, 3x2, 4x2, or 3x3) configured via <strong>Settings &gt; Cameras &gt; Wall layout</strong>.</li>
+        <li>Displays live per-camera thumbnails in the right rail for quick status monitoring of all connected feeds.</li>
+        <li>Runs independent anomaly, figure, and skeletal detection on every active camera feed at once.</li>
+        <li>Provides a manual snapshot trigger and independent detection triggers on every camera in the layout.</li>
+        <li>Captures and saves a single bundled gallery entry containing synchronized per-camera layers the instant any camera flags a detection.</li>
+        <li>Files every capture bundle in your evidence archive with type, class, confidence, and global timecode.</li>
         <li>Lets you double-click any cell to blow it up to full screen, then press Esc to go back.</li>
       </ul>
     </section>
@@ -56,6 +58,7 @@
       <ol>
         <li>Open <strong>Settings</strong> and go to the <strong>Cameras</strong> tab.</li>
         <li>Find the <strong>IP Cameras (Lorex / RTSP)</strong> card and turn it on.</li>
+        <li>Configure your camera arrangement under <strong>Wall layout</strong> (choose Single, 2x2, 3x2, 4x2, or 3x3).</li>
         <li>Choose how your cameras are wired:
           <ul>
             <li><strong>Through NVR</strong> - enter the one NVR address and pick channels 1 through 8. Best for a Lorex or any recorder based setup.</li>
@@ -74,7 +77,7 @@
 
     <section id="evidence">
       <h2>WHERE THE EVIDENCE LANDS</h2>
-      <p>An IP camera capture is stored exactly like any other detection: a full HD frame, the detection type and class, the confidence score, and the global timecode so it lines up with everything else in the session. It shows up in the gallery and on the Evidence Wall next to your primary sensor captures. Editors reviewing the footage will find these files in the standard evidence folders.</p>
+      <p>An IP camera capture is saved as a single bundled gallery entry containing synchronized per-camera layers for all connected cameras. Instead of scattered individual files, you get a cohesive, multi-angle view captured at the exact millisecond of detection. Each capture bundle includes a full HD frame for every layer, the detection type, confidence score, and global timecode. These bundles appear in the gallery and on the Evidence Wall. Editors can easily separate and sync the per-camera layers in post-production using the global timecode stamp.</p>
     </section>
 
     <section id="related">
