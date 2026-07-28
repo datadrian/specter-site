@@ -827,11 +827,15 @@
     }
 
     const t = data.totals || {};
+    const totalNewRet = (t.newVisitors || 0) + (t.returningVisitors || 0);
+    const returningPct = totalNewRet > 0 ? Math.round((t.returningVisitors / totalNewRet) * 100) : 0;
     $('analytics-stats-grid').innerHTML = `
       <div class="stat"><div class="stat-n">${t.pageviews || 0}</div><div class="stat-l">PAGEVIEWS</div></div>
       <div class="stat"><div class="stat-n">${t.uniqueSessions || 0}</div><div class="stat-l">UNIQUE VISITORS</div></div>
       <div class="stat"><div class="stat-n">${t.downloads || 0}</div><div class="stat-l">DOWNLOADS</div></div>
       <div class="stat"><div class="stat-n">${fmtSeconds(t.avgSessionDurationSec)}</div><div class="stat-l">AVG TIME ON SITE</div></div>
+      <div class="stat"><div class="stat-n">${t.avgPagesPerSession || 0}</div><div class="stat-l">PAGES / SESSION</div></div>
+      <div class="stat"><div class="stat-n">${returningPct}%</div><div class="stat-l">RETURNING VISITORS</div></div>
     `;
 
     drawAnalyticsChart(data.daily || []);
@@ -845,6 +849,22 @@
     $('analytics-top-referrers').innerHTML = refs.map(r => `
       <tr><td>${esc(r.referrer)}</td><td style="text-align:right;color:var(--muted)">${r.visits}</td></tr>
     `).join('') || '<tr><td colspan="2">No referrer data yet.</td></tr>';
+
+    const renderSmallTable = (elId, rows, labelKey, valueKey, emptyLabel) => {
+      const el = $(elId);
+      if (!el) return;
+      const list = (rows || []).slice(0, 6);
+      el.innerHTML = list.map(r => `
+        <tr><td>${esc(String(r[labelKey] || 'Unknown'))}</td><td style="text-align:right;color:var(--muted)">${r[valueKey]}</td></tr>
+      `).join('') || `<tr><td colspan="2">${emptyLabel}</td></tr>`;
+    };
+
+    renderSmallTable('analytics-top-devices', data.topDevices, 'device', 'views', 'No device data yet.');
+    renderSmallTable('analytics-top-browsers', data.topBrowsers, 'browser', 'views', 'No browser data yet.');
+    renderSmallTable('analytics-top-os', data.topOS, 'os', 'views', 'No OS data yet.');
+    renderSmallTable('analytics-top-countries', data.topCountries, 'country', 'views', 'No country data available.');
+    renderSmallTable('analytics-top-utm-sources', data.topUtmSources, 'source', 'views', 'No campaign traffic yet.');
+    renderSmallTable('analytics-top-utm-campaigns', data.topUtmCampaigns, 'campaign', 'views', 'No campaign traffic yet.');
   }
 
   $('analytics-range').addEventListener('change', loadAnalytics);

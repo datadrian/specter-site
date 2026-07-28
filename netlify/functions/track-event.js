@@ -1,6 +1,24 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { configureStore, recordEvent } = require('./_lib/analytics-store');
 
+// Netlify populates x-nf-geo on requests that pass through its edge network with
+// base64-encoded JSON geolocation data. Not guaranteed present on every plan/setup,
+// so this degrades to 'unknown' rather than guessing - same pattern used elsewhere
+// in this codebase for "no data found" cases.
+function parseGeo(event) {
+  try {
+    const raw = event.headers?.['x-nf-geo'] || event.headers?.['X-Nf-Geo'];
+    if (!raw) return { country: '', city: '' };
+    const decoded = JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
+    return {
+      country: decoded?.country?.code || decoded?.country?.name || '',
+      city: decoded?.city || '',
+    };
+  } catch (_) {
+    return { country: '', city: '' };
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return corsPreflight();
@@ -14,7 +32,7 @@ exports.handler = async (event) => {
     configureStore(event);
     
     const body = readJson(event);
-    const { type, path, referrer, sessionId, durationMs, timestamp } = body;
+    const { type, path, referrer, sessionId, durationMs, timestamp, isReturningVisitor, utmSource, utmMedium, utmCampaign } = body;
     
     // Basic validation. If invalid, we respond with 200 ok: true but do not store.
     const allowedTypes = ['pageview', 'download', 'session_heartbeat'];
@@ -38,6 +56,7 @@ exports.handler = async (event) => {
     }
     
     const userAgent = event.headers?.['user-agent'] || event.headers?.['User-Agent'] || '';
+    const geo = parseGeo(event);
     
     const eventObj = {
       type,
@@ -46,10 +65,18 @@ exports.handler = async (event) => {
       sessionId: typeof sessionId === 'string' ? sessionId.trim() : '',
       ts,
       userAgent,
+      country: geo.country,
     };
     
     if (durationMs !== undefined && durationMs !== null && !isNaN(durationMs)) {
       eventObj.durationMs = Number(durationMs);
+    }
+    
+    if (type === 'pageview') {
+      eventObj.isReturningVisitor = Boolean(isReturningVisitor);
+      eventObj.utmSource = typeof utmSource === 'string' ? utmSource.trim().slice(0, 100) : '';
+      eventObj.utmMedium = typeof utmMedium === 'string' ? utmMedium.trim().slice(0, 100) : '';
+      eventObj.utmCampaign = typeof utmCampaign === 'string' ? utmCampaign.trim().slice(0, 100) : '';
     }
     
     await recordEvent(eventObj);
