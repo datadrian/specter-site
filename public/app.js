@@ -59,15 +59,29 @@ if (checkoutBtn) {
 
 /* ---- SCREENSHOT LIGHTBOX ---- */
 (function () {
-  var lb = document.getElementById('lightbox');
-  if (!lb) return;
-  var lbImg = document.getElementById('lightboxImg');
-  var lbCap = document.getElementById('lightboxCap');
-  var lbClose = document.getElementById('lightboxClose');
+  // Build the lightbox container once, on any page.
+  var lb = document.createElement('div');
+  lb.className = 'lb';
+  lb.setAttribute('aria-hidden', 'true');
+  lb.innerHTML =
+    '<button class="lb-close" aria-label="Close">&times;</button>' +
+    '<figure class="lb-figure">' +
+      '<img class="lb-img" alt="" />' +
+      '<figcaption class="lb-cap"></figcaption>' +
+    '</figure>' +
+    '<div class="lb-hint">Click anywhere or press Esc to close</div>';
+  document.body.appendChild(lb);
 
-  function openLb(src, caption) {
+  var lbImg = lb.querySelector('.lb-img');
+  var lbCap = lb.querySelector('.lb-cap');
+  var lbClose = lb.querySelector('.lb-close');
+
+  function openLb(src, cap) {
+    if (!src) return;
     lbImg.src = src;
-    lbCap.textContent = caption || '';
+    lbImg.alt = cap || '';
+    lbCap.textContent = cap || '';
+    lbCap.style.display = cap ? 'block' : 'none';
     lb.classList.add('open');
     lb.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -79,16 +93,21 @@ if (checkoutBtn) {
     setTimeout(function () { lbImg.src = ''; }, 200);
   }
 
-  document.querySelectorAll('.screen-shot[data-full], .vm-shot[data-full]').forEach(function (fig) {
+  // Any screenshot figure image is zoomable. data-full overrides src if present.
+  document.querySelectorAll('.screen-shot, .vm-shot').forEach(function (fig) {
+    var img = fig.querySelector('img');
+    if (!img) return;
     fig.style.cursor = 'zoom-in';
-    fig.addEventListener('click', function () {
+    fig.addEventListener('click', function (e) {
+      e.preventDefault();
       var cap = fig.querySelector('figcaption');
-      openLb(fig.getAttribute('data-full'), cap ? cap.textContent : '');
+      var full = fig.getAttribute('data-full') || img.currentSrc || img.src;
+      openLb(full, cap ? cap.textContent : (img.alt || ''));
     });
   });
 
   lbClose.addEventListener('click', closeLb);
-  lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+  lb.addEventListener('click', function (e) { if (e.target !== lbImg && e.target !== lbCap) closeLb(); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && lb.classList.contains('open')) closeLb();
   });
