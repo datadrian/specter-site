@@ -41,6 +41,12 @@ exports.handler = async (event) => {
       return json(200, { ok: true, draft: updated });
     }
 
+    if (body.status === 'pending_review') {
+      // "un-approve" — send an approved-by-mistake draft back to review, clearing any posted state.
+      const updated = await updateDraft(id, { status: 'pending_review', postedAt: null });
+      return json(200, { ok: true, draft: updated });
+    }
+
     if (body.status === 'posted') {
       // Only meaningful once approved; record as a manual post + audit log entry.
       const updated = await updateDraft(id, { status: 'posted', postedAt: new Date().toISOString() });
