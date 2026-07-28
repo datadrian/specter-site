@@ -113,6 +113,7 @@ exports.handler = async (event) => {
     const countryMap = {};
     const utmSourceMap = {};
     const utmCampaignMap = {};
+    const outreachReferralMap = {};
     // First pageview per session determines new vs. returning for that session.
     const sessionFirstSeen = {}; // sessionId -> isReturningVisitor (bool)
     const pageviewsBySession = {}; // sessionId -> count, for pages-per-session
@@ -163,6 +164,12 @@ exports.handler = async (event) => {
         if (dailyMap[dateStr]) {
           dailyMap[dateStr].downloads++;
         }
+      } else if (evt.type === 'outreach_referral') {
+        // Clicks through a /r/<slug> outreach link - see outreach-go.js. Counted
+        // separately from regular pageviews since the click is logged by the
+        // redirect function itself, before the resulting pageview fires.
+        const label = evt.communityName || evt.trackingSlug || 'unknown';
+        bump(outreachReferralMap, label);
       }
       
       if (evt.durationMs !== undefined && evt.durationMs !== null && !isNaN(evt.durationMs)) {
@@ -221,6 +228,7 @@ exports.handler = async (event) => {
     const topCountries = topN(countryMap, 10).map(([k, v]) => ({ country: k, views: v }));
     const topUtmSources = topN(utmSourceMap, 10).map(([k, v]) => ({ source: k, views: v }));
     const topUtmCampaigns = topN(utmCampaignMap, 10).map(([k, v]) => ({ campaign: k, views: v }));
+    const topOutreachReferrals = topN(outreachReferralMap, 10).map(([k, v]) => ({ community: k, clicks: v }));
       
     return json(200, {
       ok: true,
@@ -235,6 +243,7 @@ exports.handler = async (event) => {
       topCountries,
       topUtmSources,
       topUtmCampaigns,
+      topOutreachReferrals,
     });
   } catch (err) {
     console.error('[admin-analytics-summary] Error generating summary:', err);

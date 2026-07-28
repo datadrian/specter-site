@@ -77,5 +77,10 @@
   to = "/success.html"
   status = 200
 
+[[redirects]]
+  from = "/r/*"
+  to = "/.netlify/functions/outreach-go?slug=:splat"
+  status = 200
+
 [functions."outreach-scheduled"]
   schedule = "@weekly"

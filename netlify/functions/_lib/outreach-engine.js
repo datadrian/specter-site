@@ -11,7 +11,7 @@ const SPECTER_POSITIONING = `SPECTER is a paranormal-investigation instrument (h
 captures and analyzes environmental evidence — depth/3D sensing, RGB, thermal imaging, EVP audio capture,
 a wireless field sensor node, and remote phone monitoring — fused into a live anomaly score and a
 searchable evidence archive. It is sold as a detection and evidence-capture instrument for investigators
-and enthusiasts, one-time license, $399. Public site: specter-imaging.com.`;
+and enthusiasts, one-time license, $399.`;
 
 const FORBIDDEN_NOTE = `Never mention or hint at, under any phrasing: ${FORBIDDEN_TERMS.join(', ')}, or any
 other hidden/producer-only feature. SPECTER is described ONLY as a detection/evidence-capture instrument.`;
@@ -221,7 +221,16 @@ If the text doesn't clearly state a self-promotion policy, use "unknown" — do 
 // ---- Drafting + compliance ----
 
 async function draftPostText(community, redraftNote) {
-  const prompt = `${SPECTER_POSITIONING}\n\n${FORBIDDEN_NOTE}\n\n${EM_DASH_NOTE}\n\nWrite a single forum/social post introducing
+  // Use a clean per-community tracking link ("specter-imaging.com/r/<slug>") instead
+  // of a raw domain + visible ?utm_ query string - a tracking parameter in text someone
+  // typed themselves reads as a marketing tool and undermines the genuine, disclosed
+  // tone this whole system is built around. The /r/ redirect still logs which
+  // community drove the click server-side, just without exposing that in the post.
+  const link = community.trackingSlug ? `specter-imaging.com/r/${community.trackingSlug}` : 'specter-imaging.com';
+  const LINK_NOTE = `If you mention where to learn more, reference it as exactly "${link}" (not any other URL,
+not a shortened or modified form) - write it naturally in a sentence the same way you'd casually mention any
+website, e.g. "check it out at ${link}".`;
+  const prompt = `${SPECTER_POSITIONING}\n\n${LINK_NOTE}\n\n${FORBIDDEN_NOTE}\n\n${EM_DASH_NOTE}\n\nWrite a single forum/social post introducing
 SPECTER to this specific community, written to sound like a genuine long-time member sharing something
 useful — NOT like an advertisement. Community: ${community.name} (${community.platformType}).
 Self-promotion policy: ${community.allowsSelfPromotion}. Notes: ${community.selfPromoNotes || 'none'}.
@@ -260,6 +269,12 @@ Respond with ONLY JSON: {"passes": true|false, "flags": ["short description of e
 }
 
 async function draftForCommunity(community) {
+  if (!community.trackingSlug) {
+    const existing = await store.listCommunities();
+    const slug = await store.generateUniqueTrackingSlug(community.name, existing);
+    const updated = await store.updateCommunity(community.id, { trackingSlug: slug });
+    if (updated) community = updated;
+  }
   let result = await draftPostText(community);
   let keywordScan = scanForbiddenTerms(result.draftText);
   let emDashScan = scanEmDash(result.draftText);

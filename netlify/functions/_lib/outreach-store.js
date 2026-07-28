@@ -40,6 +40,29 @@ function newId(prefix) {
   return `${prefix}_${Date.now().toString(36)}${crypto.randomBytes(3).toString('hex')}`;
 }
 
+function slugify(text) {
+  return (text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40) || 'community';
+}
+
+// Used for the clean /r/<slug> outreach tracking links (see outreach-go.js) - a
+// short, human-readable, natural-looking path instead of a visible ?utm_ query
+// string, so a pasted forum link doesn't look like a marketing tracker.
+async function generateUniqueTrackingSlug(name, existingCommunities) {
+  const base = slugify(name);
+  const taken = new Set((existingCommunities || []).map(c => c.trackingSlug).filter(Boolean));
+  if (!taken.has(base)) return base;
+  for (let i = 2; i < 1000; i++) {
+    const candidate = `${base}-${i}`;
+    if (!taken.has(candidate)) return candidate;
+  }
+  return `${base}-${crypto.randomBytes(2).toString('hex')}`;
+}
+
 async function getRecord(key) {
   const store = getBlobStore();
   if (store) return store.get(key, { type: 'json' });
@@ -89,13 +112,22 @@ async function getCommunity(id) {
   return getRecord(`community:${id}`);
 }
 
+async function getCommunityBySlug(slug) {
+  if (!slug) return null;
+  const rows = await listCommunities();
+  return rows.find(c => c.trackingSlug === slug) || null;
+}
+
 async function createCommunity(fields) {
   const now = new Date().toISOString();
   const id = newId('cm');
+  const existing = await listCommunities();
+  const trackingSlug = fields.trackingSlug || await generateUniqueTrackingSlug(fields.name || 'community', existing);
   const record = {
     id,
     name: fields.name || '',
     url: fields.url || '',
+    trackingSlug,
     platformType: fields.platformType || 'other', // reddit | forum | facebook_group | other
     rulesSummary: fields.rulesSummary || '',
     allowsSelfPromotion: fields.allowsSelfPromotion || 'unknown', // yes | conditional | no | unknown
@@ -237,7 +269,7 @@ async function listAgentLog(limit) {
 
 module.exports = {
   configureStore,
-  listCommunities, getCommunity, createCommunity, updateCommunity,
+  listCommunities, getCommunity, getCommunityBySlug, createCommunity, updateCommunity, generateUniqueTrackingSlug,
   listDrafts, getDraft, createDraft, updateDraft,
   listPostLog, createPostLog,
   getSettings, updateSettings,

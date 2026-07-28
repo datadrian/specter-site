@@ -74,6 +74,19 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, affectedCount: affected.length, succeeded: okCount, errors });
     }
 
+    if (action === 'analyze_one') {
+      // On-demand single-community analysis, triggered from the Community detail
+      // panel so Adrian doesn't have to wait for a batch run to assess one specific
+      // community he's looking at right now. Same analyzeCommunity() pipeline as
+      // the batch path (never skips the "unknown if unclear" guardrails).
+      const communityId = body.communityId;
+      if (!communityId) return json(400, { ok: false, error: 'communityId is required' });
+      const community = await getCommunity(communityId);
+      if (!community) return json(404, { ok: false, error: 'community not found' });
+      const updated = await analyzeCommunity(community);
+      return json(200, { ok: true, action, community: updated });
+    }
+
     if (action === 'draft_one') {
       // On-demand single-community draft, triggered from the Community detail
       // panel's "Generate draft now" button — doesn't wait for the weekly batch
@@ -114,7 +127,7 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, foundBroken: broken.length, succeeded: okCount, errors });
     }
 
-    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, draft_one, purge_em_dashes, repair_broken_drafts' });
+    return json(400, { ok: false, error: 'action must be one of: discover, analyze, analyze_one, draft, draft_one, purge_em_dashes, repair_broken_drafts' });
   } catch (e) {
     console.error('[admin-outreach-run]', e);
     return json(500, { ok: false, error: e.message });

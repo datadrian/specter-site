@@ -19,6 +19,39 @@
     return data;
   }
 
+  // Shared feedback wrapper for every button that triggers a write: disables the
+  // button, shows a brief green/red flash on success/failure, and surfaces the
+  // error instead of failing silently. Blobs (the storage backing every write
+  // here) has a brief read-after-write lag, so callers should also `await
+  // settle()` before re-fetching - without it, a refresh can show stale data
+  // and make a working button look like it did nothing.
+  async function runWithFeedback(btn, fn, opts = {}) {
+    if (!btn) return fn();
+    const original = btn.textContent;
+    if (opts.busyText) btn.textContent = opts.busyText;
+    btn.disabled = true;
+    try {
+      const result = await fn();
+      btn.classList.remove('btn-flash-err');
+      btn.classList.add('btn-flash-ok');
+      setTimeout(() => btn.classList.remove('btn-flash-ok'), 900);
+      return result;
+    } catch (e) {
+      btn.classList.remove('btn-flash-ok');
+      btn.classList.add('btn-flash-err');
+      setTimeout(() => btn.classList.remove('btn-flash-err'), 1300);
+      alert(`Action failed: ${e.message || 'Unknown error'}`);
+      throw e;
+    } finally {
+      btn.disabled = false;
+      if (opts.busyText) btn.textContent = original;
+    }
+  }
+
+  function settle(ms = 1200) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
   // ---- Agent console widget (top-right, always visible) ----
   let agentConsoleCollapsed = false;
   let agentLogPollTimer = null;
@@ -492,6 +525,8 @@
           <button type="button" class="btn secondary" data-action="copy">Copy text</button>
         </div>
       </div>
+      ${(d.status === 'approved' && community && community.status !== 'vetted_allowlisted') ? `<p style="font-size:11px;color:var(--warn)">"Post Now" is hidden until this community is Allow-listed above.</p>` : ''}
+      ${(d.status !== 'approved' && community && community.status === 'vetted_allowlisted') ? `<p style="font-size:11px;color:var(--warn)">"Post Now" is hidden until this draft is Approved.</p>` : ''}
       <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
       <p class="post-now-status" data-post-now-status="${d.id}" style="font-size:11px;color:var(--accent);display:none"></p>
       ${d.status === 'posted' ? `
@@ -512,10 +547,15 @@
 
     scopeEl.querySelectorAll('[data-action="status"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: btn.dataset.value }),
-        });
+        try {
+          await runWithFeedback(btn, async () => {
+            await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ status: btn.dataset.value }),
+            });
+            await settle();
+          }, { busyText: 'Saving...' });
+        } catch (e) { return; }
         await onChanged();
       });
     });
@@ -527,10 +567,15 @@
         if (postUrl === null) return; // cancelled
         const postedAsUsername = prompt('Posted as which username/account?', '');
         if (postedAsUsername === null) return; // cancelled
-        await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'posted', postUrl: postUrl || null, postedAsUsername: postedAsUsername || null }),
-        });
+        try {
+          await runWithFeedback(markPostedBtn, async () => {
+            await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ status: 'posted', postUrl: postUrl || null, postedAsUsername: postedAsUsername || null }),
+            });
+            await settle();
+          }, { busyText: 'Saving...' });
+        } catch (e) { return; }
         await onChanged();
         loadPostlog();
       });
@@ -596,7 +641,10 @@
         </div>
       </div>
       <p style="font-size:11px;color:var(--muted)"><a href="${escAttr(c.url)}" target="_blank" rel="noopener">${esc(c.url)}</a></p>
-      <p style="font-size:12px">${esc(c.rulesSummary || 'Not analyzed yet.')}</p>
+      ${c.rulesSummary
+        ? `<p style="font-size:12px">${esc(c.rulesSummary)}</p>`
+        : `<p style="font-size:12px;color:var(--warn)">Not analyzed yet - allow-listing before analysis skips the real self-promotion check.</p>
+           <button type="button" class="btn secondary" id="community-analyze-now-btn">Analyze now</button>`}
       ${c.selfPromoNotes ? `<p style="font-size:11px;color:var(--muted)">Conditions: ${esc(c.selfPromoNotes)}</p>` : ''}
       ${c.activityNotes ? `<p style="font-size:11px;color:var(--muted)">Tone notes: ${esc(c.activityNotes)}</p>` : ''}
       <p style="font-size:11px;color:var(--muted)">Activity: ${activityBadge(c)} ${esc(c.activityRecencySummary || '')}</p>
@@ -617,24 +665,52 @@
 
     el.querySelectorAll('[data-vet]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: btn.dataset.vet }),
-        });
+        try {
+          await runWithFeedback(btn, async () => {
+            await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ status: btn.dataset.vet }),
+            });
+            await settle();
+          }, { busyText: 'Saving...' });
+        } catch (e) { return; }
         await loadCommunities();
         openCommunity(id);
       });
     });
+    const analyzeNowBtn = $('community-analyze-now-btn');
+    if (analyzeNowBtn) {
+      analyzeNowBtn.addEventListener('click', async () => {
+        try {
+          await runWithFeedback(analyzeNowBtn, async () => {
+            await api('admin-outreach-run', { method: 'POST', body: JSON.stringify({ action: 'analyze_one', communityId: id }) });
+            await settle(1500);
+          }, { busyText: 'Analyzing...' });
+        } catch (e) { return; }
+        await loadCommunities();
+        openCommunity(id);
+      });
+    }
     const autopostToggle = $('community-autopost-toggle');
     if (autopostToggle) {
       autopostToggle.addEventListener('change', async () => {
         // Always include status alongside autoPostEnabled here (this toggle only
         // renders when status is already vetted_allowlisted), avoids a race with
         // Blobs' brief read-after-write lag if this fires right after allow-listing.
-        await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'vetted_allowlisted', autoPostEnabled: autopostToggle.checked }),
-        });
+        const desired = autopostToggle.checked;
+        autopostToggle.disabled = true;
+        try {
+          await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: 'vetted_allowlisted', autoPostEnabled: desired }),
+          });
+          await settle(1000);
+        } catch (e) {
+          autopostToggle.checked = !desired;
+          alert(`Failed to update auto-post setting: ${e.message || 'unknown error'}`);
+        } finally {
+          autopostToggle.disabled = false;
+        }
         await loadCommunities();
       });
     }
@@ -865,6 +941,7 @@
     renderSmallTable('analytics-top-countries', data.topCountries, 'country', 'views', 'No country data available.');
     renderSmallTable('analytics-top-utm-sources', data.topUtmSources, 'source', 'views', 'No campaign traffic yet.');
     renderSmallTable('analytics-top-utm-campaigns', data.topUtmCampaigns, 'campaign', 'views', 'No campaign traffic yet.');
+    renderSmallTable('analytics-top-outreach-referrals', data.topOutreachReferrals, 'community', 'clicks', 'No outreach link clicks yet.');
   }
 
   $('analytics-range').addEventListener('change', loadAnalytics);
