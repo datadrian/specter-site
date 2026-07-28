@@ -74,6 +74,24 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, affectedCount: affected.length, succeeded: okCount, errors });
     }
 
+    if (action === 'draft_one') {
+      // On-demand single-community draft, triggered from the Community detail
+      // panel's "Generate draft now" button — doesn't wait for the weekly batch
+      // cadence or the general eligibility batch. Still runs the exact same
+      // draftForCommunity() pipeline (redraft-on-failure + semantic check), and
+      // still refuses to create a second draft for a community that already has
+      // one (use the existing draft's own actions instead of duplicating it).
+      const communityId = body.communityId;
+      if (!communityId) return json(400, { ok: false, error: 'communityId is required' });
+      const community = await getCommunity(communityId);
+      if (!community) return json(404, { ok: false, error: 'community not found' });
+      const drafts = await listDrafts();
+      const existing = drafts.find(d => d.communityId === communityId);
+      if (existing) return json(409, { ok: false, error: 'a draft already exists for this community', draftId: existing.id });
+      const draft = await draftForCommunity(community);
+      return json(200, { ok: true, action, draft });
+    }
+
     if (action === 'repair_broken_drafts') {
       // One-off repair for a specific incident (2026-07-28): a bug in
       // purgeEmDashFromDraft sent Gemini a prompt with an un-interpolated
@@ -96,7 +114,7 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, foundBroken: broken.length, succeeded: okCount, errors });
     }
 
-    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, purge_em_dashes, repair_broken_drafts' });
+    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, draft_one, purge_em_dashes, repair_broken_drafts' });
   } catch (e) {
     console.error('[admin-outreach-run]', e);
     return json(500, { ok: false, error: e.message });

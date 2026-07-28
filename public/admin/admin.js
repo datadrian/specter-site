@@ -472,9 +472,81 @@
   $('refresh-communities').addEventListener('click', loadCommunities);
   $('community-status-filter').addEventListener('change', renderCommunities);
 
-  function openCommunity(id) {
+  // Shared renderer for a draft's action row + body text + flags, used both by
+  // the Drafts tab's own detail panel and embedded inside a Community's detail
+  // panel (so opening a community shows the whole workflow: vet -> draft -> post).
+  function draftBlockHtml(d, community) {
+    return `
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <div><span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></div>
+        <div>
+          ${d.status !== 'posted' && community ? `<button type="button" class="btn secondary" data-action="goto">Go to forum ↗</button>` : ''}
+          <button type="button" class="btn secondary" data-action="status" data-value="approved">Approve</button>
+          <button type="button" class="btn secondary" data-action="status" data-value="pending_review">Un-approve</button>
+          <button type="button" class="btn secondary" data-action="status" data-value="rejected">Reject</button>
+          <button type="button" class="btn secondary" data-action="mark-posted">Mark posted</button>
+          <button type="button" class="btn secondary" data-action="copy">Copy text</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
+      ${d.status === 'posted' ? `
+        <p style="font-size:11px;color:var(--accent)">
+          ${d.postUrl ? `<a href="${escAttr(d.postUrl)}" target="_blank" rel="noopener">View post ↗</a>` : 'Posted (no post link recorded).'}
+          ${d.postedAsUsername ? ` · Posted as: ${esc(d.postedAsUsername)}` : ''}
+        </p>` : ''}
+      <div class="draft-text">${esc(d.draftText)}</div>
+      ${(d.complianceFlags && d.complianceFlags.length) ? `<div class="flag-list">Flags: ${esc(d.complianceFlags.join('; '))}</div>` : ''}
+      ${d.rejectionNote ? `<p style="font-size:11px;color:var(--danger)">Note: ${esc(d.rejectionNote)}</p>` : ''}
+      ${(d.autoPostFailureCount > 0) ? `<p style="font-size:11px;color:var(--muted)">Auto-post attempts failed: ${d.autoPostFailureCount}</p>` : ''}
+    `;
+  }
+
+  function wireDraftBlock(scopeEl, d, community, onChanged) {
+    const gotoBtn = scopeEl.querySelector('[data-action="goto"]');
+    if (gotoBtn && community) gotoBtn.addEventListener('click', () => window.open(community.url, '_blank', 'noopener'));
+
+    scopeEl.querySelectorAll('[data-action="status"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: btn.dataset.value }),
+        });
+        await onChanged();
+      });
+    });
+
+    const markPostedBtn = scopeEl.querySelector('[data-action="mark-posted"]');
+    if (markPostedBtn) {
+      markPostedBtn.addEventListener('click', async () => {
+        const postUrl = prompt('Link to the actual post (URL) — leave blank if not available:', '');
+        if (postUrl === null) return; // cancelled
+        const postedAsUsername = prompt('Posted as which username/account?', '');
+        if (postedAsUsername === null) return; // cancelled
+        await api(`admin-outreach-drafts?id=${encodeURIComponent(d.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'posted', postUrl: postUrl || null, postedAsUsername: postedAsUsername || null }),
+        });
+        await onChanged();
+        loadPostlog();
+      });
+    }
+    const copyBtn = scopeEl.querySelector('[data-action="copy"]');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText(d.draftText || '');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy text'; }, 1500);
+      });
+    }
+  }
+
+  async function openCommunity(id) {
+    // Refresh drafts too so the embedded workflow section below always reflects
+    // the latest state (e.g. right after a batch draft run or a manual generate).
+    await loadDrafts();
     const c = communitiesCache.find(x => x.id === id);
     if (!c) return;
+    const draft = draftsCache.find(x => x.communityId === id);
     const el = $('community-detail');
     el.classList.remove('hidden');
     el.innerHTML = `
@@ -495,6 +567,14 @@
         <label style="font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:8px">
           <input type="checkbox" id="community-autopost-toggle" ${c.autoPostEnabled ? 'checked' : ''}> Auto-post enabled for this community
         </label>` : ''}
+      <hr style="border-color:var(--line);margin:14px 0">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Draft & post workflow</div>
+      <div id="community-draft-workflow">
+        ${draft ? draftBlockHtml(draft, c) : `
+          <p style="font-size:12px;color:var(--muted)">No draft yet for this community.</p>
+          <button type="button" class="btn" id="community-generate-draft-btn">Generate draft now</button>
+        `}
+      </div>
     `;
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -520,6 +600,27 @@
         });
         await loadCommunities();
       });
+    }
+
+    if (draft) {
+      wireDraftBlock($('community-draft-workflow'), draft, c, async () => { await openCommunity(id); });
+    } else {
+      const genBtn = $('community-generate-draft-btn');
+      if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+          genBtn.disabled = true;
+          genBtn.textContent = 'Generating…';
+          try {
+            await api('admin-outreach-run', { method: 'POST', body: JSON.stringify({ action: 'draft_one', communityId: id }) });
+            await new Promise(r => setTimeout(r, 2000)); // let Blobs settle before refetching
+            await openCommunity(id);
+          } catch (e) {
+            genBtn.disabled = false;
+            genBtn.textContent = 'Generate draft now';
+            alert(`Failed to generate draft: ${e.message}`);
+          }
+        });
+      }
     }
   }
 
@@ -559,70 +660,11 @@
     const el = $('draft-detail');
     el.classList.remove('hidden');
     el.innerHTML = `
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-        <div><strong>${esc(community ? community.name : d.communityId)}</strong> · <span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></div>
-        <div>
-          ${d.status !== 'posted' && community ? `<button type="button" class="btn secondary" id="goto-forum-btn">Go to forum ↗</button>` : ''}
-          <button type="button" class="btn secondary" data-draft-status="approved">Approve</button>
-          <button type="button" class="btn secondary" data-draft-status="pending_review">Un-approve</button>
-          <button type="button" class="btn secondary" data-draft-status="rejected">Reject</button>
-          <button type="button" class="btn secondary" id="mark-posted-btn">Mark posted</button>
-          <button type="button" class="btn secondary" id="copy-draft-btn">Copy text</button>
-        </div>
-      </div>
-      <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
-      ${d.status === 'posted' ? `
-        <p style="font-size:11px;color:var(--accent)">
-          ${d.postUrl ? `<a href="${escAttr(d.postUrl)}" target="_blank" rel="noopener">View post ↗</a>` : 'Posted (no post link recorded).'}
-          ${d.postedAsUsername ? ` · Posted as: ${esc(d.postedAsUsername)}` : ''}
-        </p>` : ''}
-      <div class="draft-text">${esc(d.draftText)}</div>
-      ${(d.complianceFlags && d.complianceFlags.length) ? `<div class="flag-list">Flags: ${esc(d.complianceFlags.join('; '))}</div>` : ''}
-      ${d.rejectionNote ? `<p style="font-size:11px;color:var(--danger)">Note: ${esc(d.rejectionNote)}</p>` : ''}
-      ${(d.autoPostFailureCount > 0) ? `<p style="font-size:11px;color:var(--muted)">Auto-post attempts failed: ${d.autoPostFailureCount}</p>` : ''}
+      <div style="margin-bottom:6px"><strong>${esc(community ? community.name : d.communityId)}</strong></div>
+      ${draftBlockHtml(d, community)}
     `;
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    const gotoBtn = $('goto-forum-btn');
-    if (gotoBtn && community) {
-      gotoBtn.addEventListener('click', () => window.open(community.url, '_blank', 'noopener'));
-    }
-
-    el.querySelectorAll('[data-draft-status]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        await api(`admin-outreach-drafts?id=${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: btn.dataset.draftStatus }),
-        });
-        await loadDrafts();
-        openDraft(id);
-      });
-    });
-
-    const markPostedBtn = $('mark-posted-btn');
-    if (markPostedBtn) {
-      markPostedBtn.addEventListener('click', async () => {
-        const postUrl = prompt('Link to the actual post (URL) — leave blank if not available:', '');
-        if (postUrl === null) return; // cancelled
-        const postedAsUsername = prompt('Posted as which username/account?', '');
-        if (postedAsUsername === null) return; // cancelled
-        await api(`admin-outreach-drafts?id=${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'posted', postUrl: postUrl || null, postedAsUsername: postedAsUsername || null }),
-        });
-        await loadDrafts();
-        openDraft(id);
-        loadPostlog();
-      });
-    }
-    const copyBtn = $('copy-draft-btn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard?.writeText(d.draftText || '');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => { copyBtn.textContent = 'Copy text'; }, 1500);
-      });
-    }
+    wireDraftBlock(el, d, community, async () => { await loadDrafts(); openDraft(id); });
   }
 
   async function loadPostlog() {
