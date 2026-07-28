@@ -52,6 +52,11 @@
       <p>Captures made without a depth sensor active show <strong>NO DEPTH DATA</strong> in place of the 3D layer. The visual layers stay available.</p>
     </section>
 
+    <section id="thumb-source">
+      <h2>THUMBNAIL SOURCE</h2>
+      <p>The detection rail and gallery grid can show each hit as any of its saved channels. Use the <strong>thumbnail source</strong> selector to switch every thumbnail between RGB, DEPTH (heatmap), DEPTH GREY, THERMAL, or IP CAMERA. Grey depth thumbnails are rendered live from the raw depth data and honor the same GAIN setting, so older detections captured before a channel existed simply fall back to RGB. Your choice is remembered between sessions.</p>
+    </section>
+
     <section id="edit">
       <h2>EDIT PANEL (✎ EDIT)</h2>
       <h3>Image tools (RGB and DEPTH)</h3>
@@ -64,6 +69,7 @@
       <h3>Depth tools (visible when the DEPTH layer is active)</h3>
       <ul>
         <li><strong>RANGE</strong>, same semantics as the live view (center = full scene)</li>
+        <li><strong>GAIN</strong>, brightness multiplier for the grey depth map. Turn it up to lift faint or distant returns out of the dark so a shape sitting at the far end of a room reads clearly. Applies to the grey view (not the RGB camera mode) and is remembered as a global setting.</li>
         <li><strong>DEPTH COLOR ON/OFF</strong>, false-color vs mono grey</li>
       </ul>
       <div class="callout">
@@ -89,6 +95,7 @@
         <tbody>
           <tr><td><strong>RGB / HEAT / MONO</strong></td><td>Color mode, RGB uses the saved color-at-depth JPEG if present.</td></tr>
           <tr><td><strong>RANGE</strong></td><td>Affects <strong>both</strong> HEAT and MONO (not the RGB camera mode).</td></tr>
+          <tr><td><strong>GAIN</strong></td><td>Brightens faint and distant points in the 3D cloud. Applies to HEAT and MONO coloring (RGB stays true color). Shared with the live 3D view setting.</td></tr>
           <tr><td><strong>DEPTH COLOR ON/OFF</strong></td><td>Quick toggle between heatmap and mono.</td></tr>
           <tr><td><strong>↻ RESET / ⊡ SAVE VIEW</strong></td><td>Orbit default for the gallery 3D modal (global setting).</td></tr>
           <tr><td><strong>⊟ SAVE NEW</strong></td><td>Screenshot of the current 3D view + JSON state into the detection folder.</td></tr>

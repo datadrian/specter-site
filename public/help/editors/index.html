@@ -165,6 +165,7 @@
     <section id="clips">
       <h2>8. RECORDED DETECTION CLIPS</h2>
       <p>Many detections include a short <strong>clip</strong> (an MP4 of the moment) and, for tracked subjects, a tracking video. You can play these inside the detection's review view.</p>
+      <p>The automatic detection clip runs about <strong>20 seconds</strong>, built from roughly 10 seconds captured <strong>before</strong> the event plus 10 seconds after, so the buildup is already in the file and you rarely have to reach for other footage to show what led up to a hit.</p>
       <p>To grab the raw file directly, use the reveal-in-Explorer control on the folder path (Settings, Recording), then browse into the matching <code>session_*</code> detection subfolder. The clip is saved as <code>clip.mp4</code>.</p>
     </section>
 
@@ -185,6 +186,7 @@
         <li>Each IP camera detection is its own gallery card with a still frame, timecode, and metadata, exactly like a main-feed detection.</li>
         <li>When a sensor event fires while the camera wall is up, SPECTER captures every camera at that moment, so you may see several stills that share the same timecode from different cameras. Those are meant to be reviewed together as one event.</li>
         <li>Look at the metadata panel for the camera label so you know which angle each still came from when you build the sequence.</li>
+        <li>When a hit fires on the camera wall, SPECTER bundles a frame from <strong>every</strong> camera into one detection. In the review view you can click through the <strong>camera layers</strong> (CAM 1, CAM 2 and so on) to see the same instant from each angle. The angle that flagged the event carries the red detection box; the others are clean reference frames. In the metadata this is the <code>camera_layers</code> list.</li>
       </ul>
       <p class="fine">If the operator also screen-recorded the camera wall during the session, that MP4 lands in the screen-recordings folder (see the previous section) and is great B-roll of the multi-camera view.</p>
     </section>
@@ -218,7 +220,8 @@
         <li><code>snapshot.png</code> - the clean camera still.</li>
         <li><code>snapshot_annotated.png</code> - the same still with the on-screen detection markers baked in.</li>
         <li><code>overlay.png</code> - just the marker overlay, transparent background.</li>
-        <li><code>snapshot_depth.png</code> - the false-color depth image (distance shown as color).</li>
+        <li><code>snapshot_depth.png</code> - the false-color (heatmap) depth image, distance shown as color.</li>
+        <li><code>snapshot_depth_grey.png</code> - the grayscale depth image, distance shown as brightness. Nearer is brighter. The app can also rebuild this live from the raw depth with an adjustable brightness gain that lifts faint or distant returns, so a shape at the far end of a room reads clearly.</li>
         <li><code>snapshot_3d.png</code> - a pre-rendered still of the 3D view for quick preview.</li>
         <li><code>depth_raw.bin</code> - the raw depth data. Needed to rebuild the orbitable 3D point cloud.</li>
         <li><code>depth_rgb.jpg</code> - the color image aligned to the depth frame.</li>
