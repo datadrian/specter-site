@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: View Modes &amp; Performance Presets</title>
-  <meta name="description" content="SPECTER view modes (RGB, DEPTH, 3D, point cloud, room map) and Light / Balanced / Show performance presets.">
+  <meta name="description" content="SPECTER view modes (including RGB, DEPTH, DEPTH BLEND, POINT CLOUD, ROOM MAP, CONTROL CENTER, THERMAL, IP CAMERAS) and performance presets.">
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
@@ -23,22 +23,36 @@
 
     <section id="views">
       <h2>VIEW MODES</h2>
-      <p>Press <code>V</code> to cycle through the available views. The exact order depends on your sensor and performance preset.</p>
+      <p>Press <code>V</code> to cycle through the available views. The exact order depends on your sensor configuration, connected camera streams, and performance preset.</p>
       <table class="help-table">
         <thead><tr><th>View</th><th>What you see</th><th>Requires</th></tr></thead>
         <tbody>
-          <tr><td><strong>RGB</strong></td><td>Live color feed with overlays</td><td>RGB source</td></tr>
-          <tr><td><strong>DEPTH</strong></td><td>False-color or mono depth map</td><td>Depth sensor</td></tr>
-          <tr><td><strong>DEPTH_3D</strong></td><td>Orbitable 3D depth point cloud</td><td>Depth sensor</td></tr>
-          <tr><td><strong>POINT_CLOUD</strong></td><td>3D cloud colored from the live RGB feed</td><td>Depth + RGB</td></tr>
-          <tr><td><strong>ROOM_MAP</strong></td><td>Accumulating 3D room scan</td><td>Depth + ROOM MAP mode</td></tr>
-          <tr><td><strong>DEPTH_BLEND</strong> <em>(optional)</em></td><td>RGB with semi-transparent depth on top</td><td>Enable depth blend view in Settings</td></tr>
+          <tr><td><strong>RGB</strong></td><td>Live color feed with detection overlays.</td><td>RGB source</td></tr>
+          <tr><td><strong>DEPTH</strong></td><td>False-color or mono depth map.</td><td>Depth sensor</td></tr>
+          <tr><td><strong>DEPTH BLEND</strong></td><td>RGB with semi-transparent depth map overlaid on top.</td><td>Depth + RGB source</td></tr>
+          <tr><td><strong>POINT CLOUD (3D)</strong></td><td>Orbitable 3D depth point cloud colored from the live RGB feed.</td><td>Depth + RGB source</td></tr>
+          <tr><td><strong>ROOM MAP</strong></td><td>Accumulating 3D room scan of your physical environment.</td><td>Depth + ROOM MAP mode</td></tr>
+          <tr><td><strong>CONTROL CENTER (2x2 multi-feed)</strong></td><td>A consolidated view displaying up to four active camera feeds in a 2x2 grid.</td><td>Multiple active video feeds</td></tr>
+          <tr><td><strong>THERMAL</strong></td><td>Heat-signature mapping overlay or standalone thermal video feed.</td><td>Thermal camera accessory</td></tr>
+          <tr><td><strong>IP CAMERAS</strong></td><td>Live network-connected RTSP or MJPEG camera streams.</td><td>Connected IP cameras on network</td></tr>
         </tbody>
       </table>
       <div class="callout ok">
-        The <strong>Show</strong> performance preset enables the 3D views and DEPTH_BLEND in the cycle.
+        The <strong>Show</strong> performance preset enables the 3D views and DEPTH BLEND in the view cycle.
       </div>
-      <p>For DEPTH and DEPTH_3D controls (RANGE, DEPTH COLOR, RESET, SAVE VIEW), see <a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>.</p>
+      <p>For DEPTH and POINT CLOUD (3D) controls (RANGE, DEPTH COLOR, RESET, SAVE VIEW), see <a href="/help/depth-3d.html">DEPTH &amp; 3D depth controls</a>.</p>
+    </section>
+
+    <section id="detector-toggles">
+      <h2>PER-FEED DETECTOR TOGGLES</h2>
+      <p>In SPECTER, each camera or sensor feed operates as an independent analysis channel. Through the user interface or Settings panel (accessible via <code>Ctrl+Shift+G</code>), investigators can configure per-feed detector toggles. This allows you to independently enable or disable specific analytical detectors on each active camera feed:</p>
+      <ul>
+        <li><strong>Face Detector:</strong> Pinpoints facial contours and expressions within the stream.</li>
+        <li><strong>Body Detector:</strong> Detects and maps human skeletal structures.</li>
+        <li><strong>SLS Detector:</strong> Employs structured light sensor analysis to identify stick-figure overlays in real time.</li>
+        <li><strong>Anomaly Detector:</strong> Monitors pixels and depth readings for unexpected environmental disruptions.</li>
+      </ul>
+      <p>This independent toggling ensures you can dedicate specific feeds to targeted tracking while leaving other feeds running purely clean visual capture, optimizing both CPU utilization and on-screen clarity during intense investigations.</p>
     </section>
 
     <section id="presets">
@@ -49,7 +63,7 @@
         <tbody>
           <tr><td><strong>Light</strong></td><td>Laptop is struggling, depth-only path; RGB feed and color ML off.</td></tr>
           <tr><td><strong>Balanced</strong></td><td>Default, RGB and depth balanced for most investigations.</td></tr>
-          <tr><td><strong>Show</strong></td><td>Demo reel or max quality, turns on the 3D views and DEPTH_BLEND in the view cycle.</td></tr>
+          <tr><td><strong>Show</strong></td><td>Demo reel or max quality, turns on the 3D views and DEPTH BLEND in the view cycle.</td></tr>
         </tbody>
       </table>
       <div class="callout">

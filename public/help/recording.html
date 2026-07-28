@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: Recording (MP4)</title>
-  <meta name="description" content="Record SPECTER sessions to MP4 (H.264) with the F9 hotkey, smaller optimized files, and a transcode progress bar on fallback.">
+  <meta name="description" content="Record SPECTER sessions to MP4 (H.264) with quality tiers up to 28 Mbps Ultra, automatic detection clips, and metadata-stamped global timecodes.">
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
@@ -34,9 +34,32 @@
       </div>
     </section>
 
+    <section id="quality-tiers">
+      <h2>RECORDING QUALITY TIERS</h2>
+      <p>Configure your recording parameters within the Settings panel (accessible via <code>Ctrl+Shift+G</code>). SPECTER provides several quality tiers to fit your storage and analytical requirements:</p>
+      <table class="help-table">
+        <thead><tr><th>Quality Tier</th><th>Bitrate</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Standard</strong></td><td>8 Mbps</td><td>Optimized for long overnight surveillance sessions to prevent disk exhaustion.</td></tr>
+          <tr><td><strong>Broadcast</strong></td><td>16 Mbps</td><td>Industry standard high-fidelity output for detailed evidence and audio review.</td></tr>
+          <tr><td><strong>Ultra</strong></td><td>28 Mbps</td><td>Maximum image detail retention, perfect for frame-by-frame analysis of visual anomalies.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="detection-clips">
+      <h2>AUTOMATIC DETECTION CLIPS</h2>
+      <p>When an active detector triggers, SPECTER automatically records an isolated 20-second high-resolution video clip of the event. Each clip is structured as follows:</p>
+      <ul>
+        <li><strong>10 seconds pre-roll:</strong> Pre-buffer footage captured immediately leading up to the detection trigger.</li>
+        <li><strong>10 seconds post-roll:</strong> Post-buffer footage captured immediately following the trigger.</li>
+      </ul>
+      <p>This automatic pre-roll and post-roll capturing ensures investigators never miss the vital physical context preceding or trailing a detection event.</p>
+    </section>
+
     <section id="timecode">
-      <h2>TIMECODE</h2>
-      <p>If you set a project start timecode and frame rate in Settings, recordings and captures share that same global timecode. This lets you line SPECTER footage up with external cameras and audio recorders when you review the session. See the <a href="/help/field-guide.html#timecode">field guide</a> for details.</p>
+      <h2>TIMECODE &amp; EVIDENCE METADATA</h2>
+      <p>If you set a project start timecode and frame rate in Settings (<code>Ctrl+Shift+G</code>), recordings and captures share that same global timecode. In addition to being burned into the video visually, this global timecode is permanently stamped directly into each clip's evidence metadata. This allows investigators to effortlessly align SPECTER footage with external cameras, environmental logging hardware, and audio recorders during post-investigation review. See the <a href="/help/field-guide.html#timecode">field guide</a> for details.</p>
     </section>
 
     <section id="transcode">
