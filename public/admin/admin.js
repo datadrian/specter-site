@@ -476,6 +476,8 @@
       <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
       <div class="draft-text">${esc(d.draftText)}</div>
       ${(d.complianceFlags && d.complianceFlags.length) ? `<div class="flag-list">Flags: ${esc(d.complianceFlags.join('; '))}</div>` : ''}
+      ${d.rejectionNote ? `<p style="font-size:11px;color:var(--danger)">Note: ${esc(d.rejectionNote)}</p>` : ''}
+      ${(d.autoPostFailureCount > 0) ? `<p style="font-size:11px;color:var(--muted)">Auto-post attempts failed: ${d.autoPostFailureCount}</p>` : ''}
     `;
 
     el.querySelectorAll('[data-draft-status]').forEach(btn => {

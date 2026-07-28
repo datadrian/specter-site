@@ -146,6 +146,7 @@ async function createDraft(fields) {
     adaptationReasoning: fields.adaptationReasoning || '',
     complianceCheckPassed: Boolean(fields.complianceCheckPassed),
     complianceFlags: fields.complianceFlags || [],
+    autoPostFailureCount: 0,
   };
   await saveRecord(`draft:${id}`, record);
   return record;
