@@ -471,6 +471,7 @@
         <div><strong>${esc(community ? community.name : d.communityId)}</strong> · <span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></div>
         <div>
           <button type="button" class="btn secondary" data-draft-status="approved">Approve</button>
+          <button type="button" class="btn secondary" data-draft-status="pending_review">Un-approve</button>
           <button type="button" class="btn secondary" data-draft-status="rejected">Reject</button>
           <button type="button" class="btn secondary" data-draft-status="posted">Mark posted</button>
           <button type="button" class="btn secondary" id="copy-draft-btn">Copy text</button>
