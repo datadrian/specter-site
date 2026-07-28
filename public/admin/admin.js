@@ -41,6 +41,7 @@
     if (panel === 'dashboard') loadDashboard();
     if (panel === 'licenses') loadLicenses();
     if (panel === 'tickets') loadTickets();
+    if (panel === 'outreach') loadOutreach();
   }
 
   function showApp() {
@@ -88,6 +89,7 @@
     const data = await api('admin-dashboard');
     const s = data.licenses;
     const t = data.tickets;
+    const o = data.outreach || {};
     $('stats-grid').innerHTML = `
       <div class="stat"><div class="stat-n">${s.total}</div><div class="stat-l">TOTAL KEYS</div></div>
       <div class="stat"><div class="stat-n">${s.activated}</div><div class="stat-l">ACTIVATED</div></div>
@@ -96,6 +98,9 @@
       <div class="stat"><div class="stat-n">${s.replacement || 0}</div><div class="stat-l">REPLACEMENTS</div></div>
       <div class="stat"><div class="stat-n">${t.open}</div><div class="stat-l">OPEN TICKETS</div></div>
       <div class="stat"><div class="stat-n">${t.total}</div><div class="stat-l">ALL TICKETS</div></div>
+      <div class="stat"><div class="stat-n">${o.needsReview || 0}</div><div class="stat-l">COMMUNITIES TO VET</div></div>
+      <div class="stat"><div class="stat-n">${o.pendingDrafts || 0}</div><div class="stat-l">DRAFTS TO REVIEW</div></div>
+      <div class="stat"><div class="stat-n">${o.allowlisted || 0}</div><div class="stat-l">ALLOW-LISTED</div></div>
     `;
   }
 
@@ -291,6 +296,225 @@
     if (r.replacedBy) parts.push(`replaced by ${r.replacedBy}`);
     return parts.join(' · ');
   }
+
+
+  // ---- Outreach ----
+  let communitiesCache = [];
+  let draftsCache = [];
+  let outreachSubTab = 'communities';
+
+  document.querySelectorAll('.outreach-sub-tabs button').forEach(btn => {
+    btn.addEventListener('click', () => activateOutreachSub(btn.dataset.sub));
+  });
+
+  function activateOutreachSub(sub) {
+    outreachSubTab = sub;
+    document.querySelectorAll('.outreach-sub-tabs button').forEach(b => b.classList.toggle('active', b.dataset.sub === sub));
+    document.querySelectorAll('.outreach-sub-panel').forEach(p => p.classList.toggle('active', p.id === `outreach-sub-${sub}`));
+    if (sub === 'communities') loadCommunities();
+    if (sub === 'drafts') loadDrafts();
+    if (sub === 'postlog') loadPostlog();
+  }
+
+  function loadOutreach() {
+    activateOutreachSub(outreachSubTab);
+  }
+
+  async function runOutreachAction(action, btn) {
+    const statusEl = $('outreach-run-status');
+    const original = btn.textContent;
+    btn.disabled = true;
+    statusEl.textContent = 'Running…';
+    try {
+      const data = await api('admin-outreach-run', { method: 'POST', body: JSON.stringify({ action }) });
+      if (action === 'discover') {
+        statusEl.textContent = `Found ${data.createdCount} new (${data.skipped} already known).`;
+      } else {
+        statusEl.textContent = `Processed ${data.processed}, ${data.succeeded} succeeded, ${data.remaining} left.`;
+      }
+      if (data.errors && data.errors.length) statusEl.textContent += ` (${data.errors.length} error(s), see console)`;
+      if (data.errors && data.errors.length) console.warn('[outreach]', data.errors);
+      await loadCommunities();
+      await loadDrafts();
+    } catch (e) {
+      statusEl.textContent = `Failed: ${e.message}`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  $('outreach-run-discover').addEventListener('click', (e) => runOutreachAction('discover', e.target));
+  $('outreach-run-analyze').addEventListener('click', (e) => runOutreachAction('analyze', e.target));
+  $('outreach-run-draft').addEventListener('click', (e) => runOutreachAction('draft', e.target));
+
+  async function loadCommunities() {
+    const data = await api('admin-outreach-communities');
+    communitiesCache = data.communities || [];
+    renderCommunities();
+  }
+
+  function promoBadge(v) {
+    const map = { yes: 'promo-yes', conditional: 'promo-conditional', no: 'promo-no', unknown: 'promo-unknown' };
+    return `<span class="badge ${map[v] || 'promo-unknown'}">${esc(v || 'unknown')}</span>`;
+  }
+
+  function renderCommunities() {
+    const f = $('community-status-filter').value;
+    const rows = communitiesCache.filter(c => !f || c.status === f);
+    $('communities-body').innerHTML = rows.map(c => `
+      <tr>
+        <td><a href="${escAttr(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a></td>
+        <td>${esc(c.platformType)}</td>
+        <td><span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></td>
+        <td>${promoBadge(c.allowsSelfPromotion)}</td>
+        <td style="max-width:320px;font-size:11px;color:var(--muted)">${esc((c.rulesSummary || '').slice(0, 140))}</td>
+        <td><button type="button" class="btn secondary" data-open-community="${c.id}">Open</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="6">No communities yet — run discovery.</td></tr>';
+
+    $('communities-body').querySelectorAll('[data-open-community]').forEach(btn => {
+      btn.addEventListener('click', () => openCommunity(btn.dataset.openCommunity));
+    });
+  }
+
+  $('refresh-communities').addEventListener('click', loadCommunities);
+  $('community-status-filter').addEventListener('change', renderCommunities);
+
+  function openCommunity(id) {
+    const c = communitiesCache.find(x => x.id === id);
+    if (!c) return;
+    const el = $('community-detail');
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div><strong>${esc(c.name)}</strong> · ${esc(c.platformType)} · <span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></div>
+        <div>
+          <button type="button" class="btn secondary" data-vet="vetted_allowlisted">Allow-list</button>
+          <button type="button" class="btn secondary" data-vet="needs_review">Needs review</button>
+          <button type="button" class="btn secondary" data-vet="rejected">Reject</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted)"><a href="${escAttr(c.url)}" target="_blank" rel="noopener">${esc(c.url)}</a></p>
+      <p style="font-size:12px">${esc(c.rulesSummary || 'Not analyzed yet.')}</p>
+      ${c.selfPromoNotes ? `<p style="font-size:11px;color:var(--muted)">Conditions: ${esc(c.selfPromoNotes)}</p>` : ''}
+      ${c.activityNotes ? `<p style="font-size:11px;color:var(--muted)">Tone notes: ${esc(c.activityNotes)}</p>` : ''}
+      ${c.status === 'vetted_allowlisted' ? `
+        <label style="font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:8px">
+          <input type="checkbox" id="community-autopost-toggle" ${c.autoPostEnabled ? 'checked' : ''}> Auto-post enabled for this community
+        </label>` : ''}
+    `;
+
+    el.querySelectorAll('[data-vet]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: btn.dataset.vet }),
+        });
+        await loadCommunities();
+        openCommunity(id);
+      });
+    });
+    const autopostToggle = $('community-autopost-toggle');
+    if (autopostToggle) {
+      autopostToggle.addEventListener('change', async () => {
+        await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ autoPostEnabled: autopostToggle.checked }),
+        });
+        await loadCommunities();
+      });
+    }
+  }
+
+  async function loadDrafts() {
+    const data = await api('admin-outreach-drafts');
+    draftsCache = data.drafts || [];
+    renderDrafts();
+  }
+
+  function renderDrafts() {
+    const f = $('draft-status-filter').value;
+    const rows = draftsCache.filter(d => !f || d.status === f);
+    $('drafts-body').innerHTML = rows.map(d => {
+      const community = communitiesCache.find(c => c.id === d.communityId);
+      return `
+      <tr>
+        <td>${esc(community ? community.name : d.communityId)}</td>
+        <td><span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></td>
+        <td>${d.complianceCheckPassed ? '<span class="badge vetted_allowlisted">clean</span>' : '<span class="badge rejected">flagged</span>'}</td>
+        <td>${fmtDate(d.createdAt)}</td>
+        <td><button type="button" class="btn secondary" data-open-draft="${d.id}">Open</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5">No drafts yet.</td></tr>';
+
+    $('drafts-body').querySelectorAll('[data-open-draft]').forEach(btn => {
+      btn.addEventListener('click', () => openDraft(btn.dataset.openDraft));
+    });
+  }
+
+  $('refresh-drafts').addEventListener('click', loadDrafts);
+  $('draft-status-filter').addEventListener('change', renderDrafts);
+
+  function openDraft(id) {
+    const d = draftsCache.find(x => x.id === id);
+    if (!d) return;
+    const community = communitiesCache.find(c => c.id === d.communityId);
+    const el = $('draft-detail');
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <div><strong>${esc(community ? community.name : d.communityId)}</strong> · <span class="badge ${d.status}">${esc(d.status.replace('_',' '))}</span></div>
+        <div>
+          <button type="button" class="btn secondary" data-draft-status="approved">Approve</button>
+          <button type="button" class="btn secondary" data-draft-status="rejected">Reject</button>
+          <button type="button" class="btn secondary" data-draft-status="posted">Mark posted</button>
+          <button type="button" class="btn secondary" id="copy-draft-btn">Copy text</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted)">Target: ${esc(d.targetContext)} · ${esc(d.adaptationReasoning || '')}</p>
+      <div class="draft-text">${esc(d.draftText)}</div>
+      ${(d.complianceFlags && d.complianceFlags.length) ? `<div class="flag-list">Flags: ${esc(d.complianceFlags.join('; '))}</div>` : ''}
+    `;
+
+    el.querySelectorAll('[data-draft-status]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await api(`admin-outreach-drafts?id=${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: btn.dataset.draftStatus }),
+        });
+        await loadDrafts();
+        openDraft(id);
+        if (btn.dataset.draftStatus === 'posted') loadPostlog();
+      });
+    });
+    const copyBtn = $('copy-draft-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText(d.draftText || '');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy text'; }, 1500);
+      });
+    }
+  }
+
+  async function loadPostlog() {
+    const data = await api('admin-outreach-postlog');
+    const entries = data.entries || [];
+    $('postlog-body').innerHTML = entries.map(p => {
+      const community = communitiesCache.find(c => c.id === p.communityId);
+      return `
+      <tr>
+        <td>${esc(community ? community.name : p.communityId)}</td>
+        <td>${esc(p.method)}</td>
+        <td>${fmtDate(p.postedAt)}</td>
+        <td style="font-size:11px;color:var(--muted)">${esc(p.outcome || '-')}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4">No posts logged yet.</td></tr>';
+  }
+
+  $('refresh-postlog').addEventListener('click', loadPostlog);
+
 
   if (token) {
     api('admin-dashboard').then(showApp).catch(logout);

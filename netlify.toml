@@ -76,3 +76,6 @@
   from = "/success"
   to = "/success.html"
   status = 200
+
+[functions."outreach-scheduled"]
+  schedule = "@weekly"

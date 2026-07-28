@@ -80,3 +80,25 @@ code { font-size: 10px; color: var(--accent); }
 .msg-meta { font-size: 9px; color: var(--muted); margin-bottom: 4px; }
 .reply-box textarea { width: 100%; min-height: 100px; background: #080c0f; border: 1px solid var(--line); color: var(--text); font: inherit; padding: 10px; border-radius: 4px; }
 .mint-result { margin-top: 12px; padding: 12px; background: rgba(106,215,168,0.08); border: 1px solid var(--accent); border-radius: 4px; font-size: 12px; }
+
+/* Outreach panel */
+.badge.discovered { background: rgba(120,180,255,0.12); color: #9dc8ff; }
+.badge.needs_review { background: rgba(240,182,94,0.15); color: var(--warn); }
+.badge.vetted_allowlisted { background: rgba(106,215,168,0.12); color: var(--accent); }
+.badge.rejected { background: rgba(224,112,112,0.15); color: var(--danger); }
+.badge.pending_review { background: rgba(240,182,94,0.15); color: var(--warn); }
+.badge.approved { background: rgba(106,215,168,0.12); color: var(--accent); }
+.badge.posted { background: rgba(120,120,120,0.15); color: var(--muted); }
+.badge.promo-yes { background: rgba(106,215,168,0.12); color: var(--accent); }
+.badge.promo-conditional { background: rgba(240,182,94,0.15); color: var(--warn); }
+.badge.promo-no { background: rgba(224,112,112,0.15); color: var(--danger); }
+.badge.promo-unknown { background: rgba(120,120,120,0.15); color: var(--muted); }
+.outreach-sub-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.outreach-sub-tabs button { background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 6px 14px; font: inherit; font-size: 10px; letter-spacing: 0.1em; cursor: pointer; border-radius: 3px; }
+.outreach-sub-tabs button.active, .outreach-sub-tabs button:hover { border-color: var(--accent); color: var(--accent); }
+.outreach-sub-panel { display: none; }
+.outreach-sub-panel.active { display: block; }
+.draft-detail { margin-top: 16px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.draft-detail .draft-text { white-space: pre-wrap; font-size: 12px; line-height: 1.6; background: #080c0f; border: 1px solid var(--line); padding: 12px; border-radius: 4px; margin: 10px 0; }
+.flag-list { color: var(--danger); font-size: 10px; }
+.run-status { font-size: 10px; color: var(--muted); margin-left: 10px; }

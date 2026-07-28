@@ -31,6 +31,7 @@
         <button type="button" data-panel="tickets">Support tickets</button>
         <button type="button" data-panel="mint">Mint comp key</button>
         <button type="button" data-panel="replacement">Issue replacement</button>
+        <button type="button" data-panel="outreach">Outreach</button>
       </nav>
       <main class="content">
         <section id="panel-dashboard" class="panel active">
@@ -103,6 +104,74 @@
             <button type="button" id="replace-btn" class="btn">Issue replacement key</button>
           </div>
           <div id="replace-result" class="mint-result hidden"></div>
+        </section>
+
+        <section id="panel-outreach" class="panel">
+          <h2 style="font-size:12px;letter-spacing:0.15em;color:var(--accent);margin-top:0">COMMUNITY OUTREACH</h2>
+          <p style="font-size:11px;color:var(--muted);max-width:640px">
+            Discovers communities where posting about SPECTER could be relevant, reads their self-promotion
+            rules, and drafts a tailored post per community. Runs automatically once a week. Auto-posting is
+            only ever executed for communities you've explicitly allow-listed below — everything else is a
+            draft for you to review and post yourself.
+          </p>
+          <div class="toolbar">
+            <button type="button" id="outreach-run-discover" class="btn">Run discovery</button>
+            <button type="button" id="outreach-run-analyze" class="btn secondary">Analyze rules (batch)</button>
+            <button type="button" id="outreach-run-draft" class="btn secondary">Draft posts (batch)</button>
+            <span id="outreach-run-status" class="run-status"></span>
+          </div>
+
+          <div class="outreach-sub-tabs">
+            <button type="button" data-sub="communities" class="active">Communities</button>
+            <button type="button" data-sub="drafts">Drafts</button>
+            <button type="button" data-sub="postlog">Post log</button>
+          </div>
+
+          <div id="outreach-sub-communities" class="outreach-sub-panel active">
+            <div class="toolbar">
+              <button type="button" id="refresh-communities">Refresh</button>
+              <select id="community-status-filter">
+                <option value="">All statuses</option>
+                <option value="discovered">Discovered (unanalyzed)</option>
+                <option value="needs_review">Needs review</option>
+                <option value="vetted_allowlisted">Allow-listed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <table>
+              <thead><tr><th>Name</th><th>Platform</th><th>Status</th><th>Self-promo</th><th>Rules summary</th><th></th></tr></thead>
+              <tbody id="communities-body"></tbody>
+            </table>
+            <div id="community-detail" class="draft-detail hidden"></div>
+          </div>
+
+          <div id="outreach-sub-drafts" class="outreach-sub-panel">
+            <div class="toolbar">
+              <button type="button" id="refresh-drafts">Refresh</button>
+              <select id="draft-status-filter">
+                <option value="">All statuses</option>
+                <option value="pending_review">Pending review</option>
+                <option value="approved">Approved</option>
+                <option value="posted">Posted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <table>
+              <thead><tr><th>Community</th><th>Status</th><th>Compliance</th><th>Created</th><th></th></tr></thead>
+              <tbody id="drafts-body"></tbody>
+            </table>
+            <div id="draft-detail" class="draft-detail hidden"></div>
+          </div>
+
+          <div id="outreach-sub-postlog" class="outreach-sub-panel">
+            <div class="toolbar">
+              <button type="button" id="refresh-postlog">Refresh</button>
+            </div>
+            <table>
+              <thead><tr><th>Community</th><th>Method</th><th>Posted</th><th>Outcome</th></tr></thead>
+              <tbody id="postlog-body"></tbody>
+            </table>
+          </div>
         </section>
       </main>
     </div>
