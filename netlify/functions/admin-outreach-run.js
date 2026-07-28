@@ -5,7 +5,7 @@
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
 const {
-  configureStore, listCommunities, listDrafts, updateDraft,
+  configureStore, listCommunities, listDrafts, updateDraft, getCommunity, deleteRecord,
 } = require('./_lib/outreach-store');
 const { discoverCommunities, analyzeCommunity, draftForCommunity, purgeEmDashFromDraft } = require('./_lib/outreach-engine');
 const { scanForbiddenTerms, scanEmDash } = require('./_lib/outreach-compliance');
@@ -74,7 +74,29 @@ exports.handler = async (event) => {
       return json(200, { ok: true, action, affectedCount: affected.length, succeeded: okCount, errors });
     }
 
-    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, purge_em_dashes' });
+    if (action === 'repair_broken_drafts') {
+      // One-off repair for a specific incident (2026-07-28): a bug in
+      // purgeEmDashFromDraft sent Gemini a prompt with an un-interpolated
+      // placeholder instead of the real draft text, so 5 drafts got
+      // overwritten with the literal string "REPLACE_TEXT". The original
+      // text is gone, so the only fix is regenerating a fresh, fully
+      // compliance-checked draft per affected community. Deletes the broken
+      // record first so draftForCommunity's normal createDraft path doesn't
+      // leave a duplicate behind.
+      const drafts = await listDrafts();
+      const broken = drafts.filter(d => (d.draftText || '').trim() === 'REPLACE_TEXT');
+      const results = await Promise.allSettled(broken.map(async (d) => {
+        const community = await getCommunity(d.communityId);
+        if (!community) throw new Error(`community ${d.communityId} not found for draft ${d.id}`);
+        await deleteRecord(`draft:${d.id}`);
+        return draftForCommunity(community);
+      }));
+      const okCount = results.filter(r => r.status === 'fulfilled').length;
+      const errors = results.filter(r => r.status === 'rejected').map(r => r.reason?.message || String(r.reason));
+      return json(200, { ok: true, action, foundBroken: broken.length, succeeded: okCount, errors });
+    }
+
+    return json(400, { ok: false, error: 'action must be one of: discover, analyze, draft, purge_em_dashes, repair_broken_drafts' });
   } catch (e) {
     console.error('[admin-outreach-run]', e);
     return json(500, { ok: false, error: e.message });

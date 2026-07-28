@@ -496,6 +496,7 @@
           <input type="checkbox" id="community-autopost-toggle" ${c.autoPostEnabled ? 'checked' : ''}> Auto-post enabled for this community
         </label>` : ''}
     `;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     el.querySelectorAll('[data-vet]').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -580,6 +581,7 @@
       ${d.rejectionNote ? `<p style="font-size:11px;color:var(--danger)">Note: ${esc(d.rejectionNote)}</p>` : ''}
       ${(d.autoPostFailureCount > 0) ? `<p style="font-size:11px;color:var(--muted)">Auto-post attempts failed: ${d.autoPostFailureCount}</p>` : ''}
     `;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     const gotoBtn = $('goto-forum-btn');
     if (gotoBtn && community) {
