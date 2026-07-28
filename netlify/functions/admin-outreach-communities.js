@@ -4,7 +4,7 @@
 // the discovery/analysis engine never does this itself.
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
-const { configureStore, listCommunities, getCommunity, updateCommunity } = require('./_lib/outreach-store');
+const { configureStore, listCommunities, getCommunity, updateCommunity, deleteCommunity } = require('./_lib/outreach-store');
 
 const VALID_STATUS = ['discovered', 'needs_review', 'vetted_allowlisted', 'rejected'];
 
@@ -49,6 +49,13 @@ exports.handler = async (event) => {
 
     const updated = await updateCommunity(id, patch);
     return json(200, { ok: true, community: updated });
+  }
+
+  if (event.httpMethod === 'DELETE' && id) {
+    const current = await getCommunity(id);
+    if (!current) return json(404, { ok: false, error: 'Community not found.' });
+    const { deletedDraftCount } = await deleteCommunity(id);
+    return json(200, { ok: true, deletedDraftCount });
   }
 
   return json(405, { error: 'Method not allowed' });

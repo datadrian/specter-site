@@ -160,6 +160,20 @@ async function updateCommunity(id, patch) {
   return rec;
 }
 
+// Deletes a community outright (e.g. a forum that's gone dead/defunct). Cascades
+// to any draft(s) for it too, since a draft with no community behind it is just
+// orphaned dead weight in the Drafts tab. Does NOT touch PostLog - those are a
+// historical audit trail of real posts that happened and should stay intact even
+// if the community entry itself is later removed (loadPostlog already falls back
+// to showing the raw communityId when the community lookup misses).
+async function deleteCommunity(id) {
+  const drafts = await listDrafts();
+  const own = drafts.filter(d => d.communityId === id);
+  for (const d of own) await deleteRecord(`draft:${d.id}`);
+  await deleteRecord(`community:${id}`);
+  return { deletedDraftCount: own.length };
+}
+
 // ---- Drafts ----
 
 async function listDrafts() {
@@ -269,7 +283,7 @@ async function listAgentLog(limit) {
 
 module.exports = {
   configureStore,
-  listCommunities, getCommunity, getCommunityBySlug, createCommunity, updateCommunity, generateUniqueTrackingSlug,
+  listCommunities, getCommunity, getCommunityBySlug, createCommunity, updateCommunity, deleteCommunity, generateUniqueTrackingSlug,
   listDrafts, getDraft, createDraft, updateDraft,
   listPostLog, createPostLog,
   getSettings, updateSettings,

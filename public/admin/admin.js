@@ -469,8 +469,12 @@
   $('outreach-purge-emdashes').addEventListener('click', (e) => runOutreachAction('purge_em_dashes', e.target));
 
   async function loadCommunities() {
-    const data = await api('admin-outreach-communities');
-    communitiesCache = data.communities || [];
+    const [communitiesData, draftsData] = await Promise.all([
+      api('admin-outreach-communities'),
+      api('admin-outreach-drafts'),
+    ]);
+    communitiesCache = communitiesData.communities || [];
+    draftsCache = draftsData.drafts || [];
     renderCommunities();
   }
 
@@ -485,6 +489,20 @@
     return '<span class="badge activity-unknown">unknown</span>';
   }
 
+  // A community's own `status` (discovered/needs_review/vetted_allowlisted/
+  // rejected) tracks VETTING, not posting - a vetted community stays vetted
+  // across many posts over time (4-day cooldown rotation), so it deliberately
+  // never flips to anything like "posted". This renders a separate indicator
+  // pulled from that community's draft so the main list actually shows when
+  // a post has gone out, without repurposing the vetting field.
+  function postedBadge(c) {
+    const d = draftsCache.find(x => x.communityId === c.id);
+    if (d && d.status === 'posted') {
+      return `<span class="badge posted" title="${escAttr(d.postedAt || '')}">posted${d.postedAt ? ' ' + esc(fmtDate(d.postedAt)) : ''}</span>`;
+    }
+    return '<span style="color:var(--muted)">-</span>';
+  }
+
   function renderCommunities() {
     const f = $('community-status-filter').value;
     const rows = communitiesCache.filter(c => !f || c.status === f);
@@ -495,14 +513,39 @@
         <td><span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></td>
         <td>${promoBadge(c.allowsSelfPromotion)}</td>
         <td>${activityBadge(c)}</td>
+        <td>${postedBadge(c)}</td>
         <td style="max-width:320px;font-size:11px;color:var(--muted)">${esc((c.rulesSummary || '').slice(0, 140))}</td>
-        <td><button type="button" class="btn secondary" data-open-community="${c.id}">Open</button></td>
+        <td>
+          <button type="button" class="btn secondary" data-open-community="${c.id}">Open</button>
+          <button type="button" class="btn danger" data-delete-community="${c.id}">Delete</button>
+        </td>
       </tr>
-    `).join('') || '<tr><td colspan="7">No communities yet, run discovery.</td></tr>';
+    `).join('') || '<tr><td colspan="8">No communities yet, run discovery.</td></tr>';
 
     $('communities-body').querySelectorAll('[data-open-community]').forEach(btn => {
       btn.addEventListener('click', () => openCommunity(btn.dataset.openCommunity));
     });
+    $('communities-body').querySelectorAll('[data-delete-community]').forEach(btn => {
+      btn.addEventListener('click', () => deleteCommunityFlow(btn.dataset.deleteCommunity, btn));
+    });
+  }
+
+  // Deletes a community outright (e.g. a dead/defunct forum). Cascades server-
+  // side to any draft for it too, so nothing orphaned lingers in the Drafts tab.
+  async function deleteCommunityFlow(id, btn) {
+    const c = communitiesCache.find(x => x.id === id);
+    const name = c ? c.name : id;
+    if (!confirm(`Delete "${name}" permanently? This also deletes its draft, if any. Past post-log entries are kept.`)) return;
+    try {
+      await runWithFeedback(btn, async () => {
+        await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        await settle();
+      }, { busyText: 'Deleting...' });
+    } catch (e) { return; }
+    if (!$('community-detail').classList.contains('hidden') && $('community-detail').dataset.communityId === id) {
+      $('community-detail').classList.add('hidden');
+    }
+    await loadCommunities();
   }
 
   $('refresh-communities').addEventListener('click', loadCommunities);
@@ -557,6 +600,7 @@
           }, { busyText: 'Saving...' });
         } catch (e) { return; }
         await onChanged();
+        renderCommunities(); // refresh the main Communities list's Posted indicator too
       });
     });
 
@@ -577,6 +621,7 @@
           }, { busyText: 'Saving...' });
         } catch (e) { return; }
         await onChanged();
+        renderCommunities(); // refresh the main Communities list's Posted indicator too
         loadPostlog();
       });
     }
@@ -631,6 +676,7 @@
     const draft = draftsCache.find(x => x.communityId === id);
     const el = $('community-detail');
     el.classList.remove('hidden');
+    el.dataset.communityId = id;
     el.innerHTML = `
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
         <div><strong>${esc(c.name)}</strong> · ${esc(c.platformType)} · <span class="badge ${c.status}">${esc(c.status.replace('_',' '))}</span></div>
@@ -638,6 +684,7 @@
           <button type="button" class="btn secondary" data-vet="vetted_allowlisted">Allow-list</button>
           <button type="button" class="btn secondary" data-vet="needs_review">Needs review</button>
           <button type="button" class="btn secondary" data-vet="rejected">Reject</button>
+          <button type="button" class="btn danger" id="community-delete-btn">Delete</button>
         </div>
       </div>
       <p style="font-size:11px;color:var(--muted)"><a href="${escAttr(c.url)}" target="_blank" rel="noopener">${esc(c.url)}</a></p>
@@ -662,6 +709,9 @@
       </div>
     `;
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const deleteBtn = $('community-delete-btn');
+    if (deleteBtn) deleteBtn.addEventListener('click', () => deleteCommunityFlow(id, deleteBtn));
 
     el.querySelectorAll('[data-vet]').forEach(btn => {
       btn.addEventListener('click', async () => {
