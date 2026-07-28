@@ -16,6 +16,10 @@ const { configureStore, listCommunities, listDrafts } = require('./_lib/outreach
 const { discoverCommunities, analyzeCommunity, draftForCommunity } = require('./_lib/outreach-engine');
 
 const BATCH_SIZE = 3;
+// analyze runs 2 LLM calls per community now (rules + the search-grounded
+// activity check) instead of 1 — use a smaller batch here since this function
+// already does discover+analyze+draft in one invocation and needs headroom.
+const ANALYZE_BATCH_SIZE = 2;
 
 function readJsonSafe(event) {
   try { return JSON.parse(event.body || '{}'); } catch { return {}; }
@@ -40,7 +44,7 @@ exports.handler = async (event) => {
 
   try {
     const communities = await listCommunities();
-    const batch = communities.filter(c => c.status === 'discovered').slice(0, BATCH_SIZE);
+    const batch = communities.filter(c => c.status === 'discovered').slice(0, ANALYZE_BATCH_SIZE);
     const results = await Promise.allSettled(batch.map(c => analyzeCommunity(c)));
     summary.analyzed = results.filter(r => r.status === 'fulfilled').length;
     results.filter(r => r.status === 'rejected').forEach(r => summary.errors.push(`analyze: ${r.reason?.message || r.reason}`));

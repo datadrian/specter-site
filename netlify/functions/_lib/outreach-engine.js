@@ -162,17 +162,16 @@ honestly in the summary. Do not guess or assume activity just because the commun
 }
 
 async function analyzeCommunity(community) {
-  let pageText = '';
-  let fetchError = null;
-  try {
-    pageText = await fetchPageText(community.url);
-  } catch (e) {
-    fetchError = e.message;
-  }
-
-  // Run the activity check regardless of whether our own scrape succeeded —
-  // search grounding often succeeds even when direct fetch is blocked (Reddit/FB).
-  const activity = await checkRecentActivity(community);
+  // Run the page scrape and the (independent) search-grounded activity check
+  // CONCURRENTLY, not sequentially — this used to be two serial awaits, which
+  // combined with the rules-analysis call afterward was pushing analyze batches
+  // past Netlify's function time limit. They don't depend on each other.
+  const [pageTextResult, activity] = await Promise.all([
+    fetchPageText(community.url).then(text => ({ text, error: null })).catch(e => ({ text: '', error: e.message })),
+    checkRecentActivity(community),
+  ]);
+  const pageText = pageTextResult.text;
+  const fetchError = pageTextResult.error;
 
   if (!pageText || pageText.length < 200) {
     return store.updateCommunity(community.id, {

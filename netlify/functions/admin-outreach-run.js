@@ -11,6 +11,10 @@ const { discoverCommunities, analyzeCommunity, draftForCommunity, purgeEmDashFro
 const { scanForbiddenTerms, scanEmDash } = require('./_lib/outreach-compliance');
 
 const BATCH_SIZE = 3;
+// analyze now runs 2 LLM calls per community (rules analysis + the new
+// search-grounded activity check) instead of 1, so a smaller batch keeps us
+// well inside Netlify's function time limit even with both calls concurrent.
+const ANALYZE_BATCH_SIZE = 2;
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return corsPreflight();
@@ -30,7 +34,7 @@ exports.handler = async (event) => {
 
     if (action === 'analyze') {
       const communities = await listCommunities();
-      const batch = communities.filter(c => c.status === 'discovered').slice(0, BATCH_SIZE);
+      const batch = communities.filter(c => c.status === 'discovered').slice(0, ANALYZE_BATCH_SIZE);
       const results = await Promise.allSettled(batch.map(c => analyzeCommunity(c)));
       const okCount = results.filter(r => r.status === 'fulfilled').length;
       const errors = results.filter(r => r.status === 'rejected').map(r => r.reason?.message || String(r.reason));
