@@ -419,9 +419,12 @@
     const autopostToggle = $('community-autopost-toggle');
     if (autopostToggle) {
       autopostToggle.addEventListener('change', async () => {
+        // Always include status alongside autoPostEnabled here (this toggle only
+        // renders when status is already vetted_allowlisted) — avoids a race with
+        // Blobs' brief read-after-write lag if this fires right after allow-listing.
         await api(`admin-outreach-communities?id=${encodeURIComponent(id)}`, {
           method: 'PATCH',
-          body: JSON.stringify({ autoPostEnabled: autopostToggle.checked }),
+          body: JSON.stringify({ status: 'vetted_allowlisted', autoPostEnabled: autopostToggle.checked }),
         });
         await loadCommunities();
       });
