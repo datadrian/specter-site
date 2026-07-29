@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Camera Footage vs SPECTER: Hours of Unwatched Video vs Real-Time Detection</title>
+  <meta name="description" content="A typical NVR or IP camera system records around the clock but nobody is watching it live. See how SPECTER's IP Camera Wall runs real-time anomaly detection on your existing security cameras and alerts you the instant something happens, instead of leaving it buried in unreviewed footage.">
+  <meta name="keywords" content="security camera footage review, NVR unwatched footage, IP camera anomaly detection, security camera ghost hunting, Lorex camera detection, RTSP camera anomaly detection, real time camera monitoring alerts">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://specter-imaging.com/blog/security-camera-footage-vs-specter.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Security Camera Footage vs SPECTER: Hours of Unwatched Video vs Real-Time Detection">
+  <meta property="og:description" content="A typical security camera system records constantly with nobody watching. See how SPECTER runs real-time detection on those same feeds instead.">
+  <meta property="og:url" content="https://specter-imaging.com/blog/security-camera-footage-vs-specter.html">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    .manual { max-width: 880px; }
+    .manual-masthead { border: 1px solid var(--line); border-top: 3px solid var(--accent); background: var(--card); padding: 28px 30px 22px; margin-bottom: 10px; }
+    .manual-masthead .doc-kicker { font-size: 10px; letter-spacing: 0.32em; color: var(--accent); margin: 0 0 14px; }
+    .manual-masthead h1 { text-align: left; font-size: 26px; letter-spacing: 0.04em; margin: 0 0 16px; line-height: 1.25; }
+    .doc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 11px; letter-spacing: 0.06em; }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #07120d; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px; border: 1px solid var(--accent); }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-dl.ghost { background: transparent; color: var(--accent); }
+    .manual h2 { font-size: 15px; letter-spacing: 0.06em; color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 38px 0 14px; }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 13px; color: var(--accent); letter-spacing: 0.04em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); font-size: 14px; }
+    .manual ul, .manual ol { color: var(--text); font-size: 13.5px; padding-left: 20px; line-height: 1.7; }
+    .manual ul li, .manual ol li { margin-bottom: 6px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+    .compare-card { border: 1px solid var(--line); background: var(--card); padding: 16px 18px; }
+    .compare-card h3 { margin-top: 0; }
+    .compare-card .price { font-size: 18px; font-weight: 700; color: var(--text); margin: 4px 0 10px; }
+    .compare-card.win { border-color: var(--accent); }
+    .compare-card p { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+    .doc-note { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item .q { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .faq-item .a { font-size: 13px; color: var(--muted); }
+    .doc-foot { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Security Camera Footage vs SPECTER: Hours of Unwatched Video vs Real-Time Detection",
+    "description": "A typical NVR or IP camera system records around the clock but nobody is watching it live. See how SPECTER's IP Camera Wall runs real-time anomaly detection on your existing security cameras and alerts you the instant something happens.",
+    "datePublished": "2026-07-29",
+    "dateModified": "2026-07-29",
+    "author": { "@type": "Organization", "name": "SPECTER" },
+    "publisher": { "@type": "Organization", "name": "SPECTER" },
+    "mainEntityOfPage": "https://specter-imaging.com/blog/security-camera-footage-vs-specter.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why does nobody watch security camera footage live?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Most security systems are built to record continuously and store the footage for later, not for someone to watch every camera in real time. A typical multi-camera NVR setup produces far more video per night than one person can review, so unless something prompts you to go looking, hours of footage usually go completely unreviewed." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can SPECTER use my existing security cameras?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. SPECTER's IP Camera Wall connects to any NVR or camera that speaks standard RTSP, including common Lorex and Dahua-based systems, and can auto-discover ONVIF cameras on your network. It runs alongside your primary sensor rather than replacing your existing security setup." }
+      },
+      {
+        "@type": "Question",
+        "name": "How many cameras can SPECTER monitor at once?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The IP Camera Wall supports up to eight camera feeds at the same time, shown in a customizable live layout, with independent real-time anomaly, figure, and skeletal detection running on every active feed." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does SPECTER alert me when something happens on camera?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. When any connected camera flags a detection, SPECTER captures it in HD and can push a phone alert so you find out the moment it happens instead of discovering it later while scrubbing through hours of recorded video." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this replace my NVR's recording?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, your NVR keeps recording exactly as it always has. SPECTER adds a real-time detection and evidence-capture layer on top: every confirmed hit is saved as its own timestamped, multi-camera bundle in SPECTER's evidence archive, alongside whatever your NVR is separately storing." }
+      }
+    ]
+  }
+  </script>
+  <script src="/analytics-track.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/blog.html" class="active">Field Journal</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// FIELD JOURNAL &middot; SECURITY &amp; MONITORING</p>
+      <h1>Security Camera Footage vs SPECTER: Hours of Unwatched Video vs Real-Time Detection</h1>
+      <div class="doc-meta">
+        <div><span>TOPIC</span><strong>Security &amp; monitoring</strong></div>
+        <div><span>READ TIME</span><strong>~6 min</strong></div>
+        <div><span>PUBLISHED</span><strong>July 29, 2026</strong></div>
+        <div><span>CAMERAS SUPPORTED</span><strong>Up to 8 at once</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <p class="lead">Most locations worth investigating already have security cameras watching the halls, the stairwell, or the room nobody wants to sit in all night. Almost none of that footage gets watched live. It just accumulates, hour after hour, until something after the fact gives you a reason to go dig through it. Here's the difference between a camera that only records and a camera feed that's actually being watched, in real time, the whole session.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">1.0</span>What a Typical Security Setup Actually Does</h2>
+      <p>An NVR or IP camera system is built to record continuously and hold onto the footage, not to have someone watching every feed live. With even a modest four to eight camera setup, one night produces far more video than one person can realistically sit through. Unless a specific event points you back to a specific timestamp, that footage just sits there. Hours of it, most nights, completely unreviewed.</p>
+      <p><strong>What it can't do on its own:</strong> flag anything as it happens, tell you which of eight feeds is worth watching right now, or hand you a specific moment instead of a full night of raw video to scrub through later.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>The Gap Between Recording and Watching</h2>
+      <p>Recording and monitoring are not the same thing. A camera that records solves storage, not attention. If nothing prompts you to go looking at a specific timestamp, whatever happened in front of that camera stays buried in a file nobody opens. For an investigation, that's the exact gap that matters most, since you don't know in advance which second, out of eight cameras running all night, is the one worth reviewing.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>Bringing Real-Time Detection to Cameras You Already Own</h2>
+      <p>The <a href="/help/ip-cameras.html">SPECTER IP Camera Wall</a> connects to cameras and NVR systems you already have, over standard RTSP, with auto-discovery for ONVIF devices on your network. If your setup is Lorex or Dahua based, the built-in defaults are already set up for it. Instead of just storing the feed, SPECTER actively watches it.</p>
+      <ul>
+        <li><strong>Up to eight feeds at once.</strong> Every connected camera runs its own real-time anomaly, figure, and skeletal detection simultaneously, shown in a customizable live layout (single, 2x2, 3x2, 4x2, or 3x3).</li>
+        <li><strong>Live thumbnails, always visible.</strong> A right-rail thumbnail strip keeps every connected feed in view for quick status monitoring, so you're never guessing which camera to check.</li>
+        <li><strong>Captured the instant it happens.</strong> A confirmed detection on any camera saves a synchronized, multi-camera bundle in HD immediately, filed straight into your evidence archive with global timecode.</li>
+        <li><strong>Alerts follow you.</strong> A detection can push a phone alert, so you find out the moment something happens instead of discovering it later while scrubbing through a night of footage.</li>
+      </ul>
+      <div class="doc-note">SPECTER doesn't replace your NVR's own recording. Your existing system keeps storing footage exactly as it always has. SPECTER adds a real-time detection layer on top, so a confirmed hit gets its own timestamped, evidence-archive entry instead of relying on someone manually finding it later.</div>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>Unwatched Recording vs Real-Time Detection</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>NVR / SECURITY CAMERAS ALONE</h3>
+          <div class="price">Records continuously, watched rarely</div>
+          <p>Hours of footage per night, almost never reviewed live</p>
+          <p>No alert unless you're already looking at the right feed</p>
+          <p>Finding a moment means scrubbing through raw video after the fact</p>
+        </div>
+        <div class="compare-card win">
+          <h3>SAME CAMERAS + SPECTER</h3>
+          <div class="price">Included with SPECTER, free demo available</div>
+          <p>Real-time detection running on up to 8 feeds at once</p>
+          <p>Phone alerts the instant a detection fires</p>
+          <p>Every hit filed as a timestamped, multi-camera bundle automatically</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>Getting Started</h2>
+      <p>If you already have IP cameras or an NVR, point SPECTER at the RTSP stream or let it auto-discover your ONVIF devices, and it starts watching those feeds alongside your primary sensor. Nothing about your existing recording setup has to change.</p>
+      <div class="doc-actions">
+        <a class="doc-dl" href="/help/ip-cameras.html">READ THE IP CAMERA WALL GUIDE</a>
+        <a class="doc-dl ghost" href="/download.html">DOWNLOAD THE FREE DEMO</a>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="q">Why does nobody watch security camera footage live?</div>
+        <div class="a">Most security systems are built to record continuously and store the footage for later, not for someone to watch every camera in real time. A typical multi-camera NVR setup produces far more video per night than one person can review, so unless something prompts you to go looking, hours of footage usually go completely unreviewed.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Can SPECTER use my existing security cameras?</div>
+        <div class="a">Yes. SPECTER's IP Camera Wall connects to any NVR or camera that speaks standard RTSP, including common Lorex and Dahua-based systems, and can auto-discover ONVIF cameras on your network. It runs alongside your primary sensor rather than replacing your existing security setup.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">How many cameras can SPECTER monitor at once?</div>
+        <div class="a">The IP Camera Wall supports up to eight camera feeds at the same time, shown in a customizable live layout, with independent real-time anomaly, figure, and skeletal detection running on every active feed.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Does SPECTER alert me when something happens on camera?</div>
+        <div class="a">Yes. When any connected camera flags a detection, SPECTER captures it in HD and can push a phone alert so you find out the moment it happens instead of discovering it later while scrubbing through hours of recorded video.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Does this replace my NVR's recording?</div>
+        <div class="a">No, your NVR keeps recording exactly as it always has. SPECTER adds a real-time detection and evidence-capture layer on top: every confirmed hit is saved as its own timestamped, multi-camera bundle in SPECTER's evidence archive, alongside whatever your NVR is separately storing.</div>
+      </div>
+    </section>
+
+    <p class="doc-foot">SPECTER FIELD JOURNAL &middot; <a href="/blog.html">MORE ARTICLES</a> &middot; <a href="/">SPECTER-IMAGING.COM</a></p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How EVP Recorders Actually Work (and What Happens After You Hit Record)</title>
+  <meta name="description" content="What a digital voice recorder actually captures during an EVP session, why the moment of recording is only half the job, and how to review, isolate, and correlate what you caught against everything else in the room.">
+  <meta name="keywords" content="EVP recorder, how EVP recorders work, digital voice recorder ghost hunting, EVP session, electronic voice phenomenon, EVP analysis software, spectrogram EVP, EVP evidence review">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://specter-imaging.com/blog/how-evp-recorders-work.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How EVP Recorders Actually Work (and What Happens After You Hit Record)">
+  <meta property="og:description" content="What a digital voice recorder actually captures during an EVP session, and why the review afterward matters more than the recording itself.">
+  <meta property="og:url" content="https://specter-imaging.com/blog/how-evp-recorders-work.html">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    .manual { max-width: 880px; }
+    .manual-masthead { border: 1px solid var(--line); border-top: 3px solid var(--accent); background: var(--card); padding: 28px 30px 22px; margin-bottom: 10px; }
+    .manual-masthead .doc-kicker { font-size: 10px; letter-spacing: 0.32em; color: var(--accent); margin: 0 0 14px; }
+    .manual-masthead h1 { text-align: left; font-size: 26px; letter-spacing: 0.04em; margin: 0 0 16px; line-height: 1.25; }
+    .doc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 11px; letter-spacing: 0.06em; }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #07120d; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px; border: 1px solid var(--accent); }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-dl.ghost { background: transparent; color: var(--accent); }
+    .manual h2 { font-size: 15px; letter-spacing: 0.06em; color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 38px 0 14px; }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 13px; color: var(--accent); letter-spacing: 0.04em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); font-size: 14px; }
+    .manual ul, .manual ol { color: var(--text); font-size: 13.5px; padding-left: 20px; line-height: 1.7; }
+    .manual ul li, .manual ol li { margin-bottom: 6px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+    .compare-card { border: 1px solid var(--line); background: var(--card); padding: 16px 18px; }
+    .compare-card h3 { margin-top: 0; }
+    .compare-card .price { font-size: 18px; font-weight: 700; color: var(--text); margin: 4px 0 10px; }
+    .compare-card.win { border-color: var(--accent); }
+    .compare-card p { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+    .doc-note { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item .q { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .faq-item .a { font-size: 13px; color: var(--muted); }
+    .doc-foot { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How EVP Recorders Actually Work (and What Happens After You Hit Record)",
+    "description": "What a digital voice recorder actually captures during an EVP session, why the moment of recording is only half the job, and how to review, isolate, and correlate what you caught against everything else in the room.",
+    "datePublished": "2026-07-29",
+    "dateModified": "2026-07-29",
+    "author": { "@type": "Organization", "name": "SPECTER" },
+    "publisher": { "@type": "Organization", "name": "SPECTER" },
+    "mainEntityOfPage": "https://specter-imaging.com/blog/how-evp-recorders-work.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is EVP in ghost hunting?",
+        "acceptedAnswer": { "@type": "Answer", "text": "EVP stands for electronic voice phenomenon: a voice or voice-like sound that appears on an audio recording but was not audibly heard in the room while recording. Investigators typically capture EVP with a digital voice recorder during a quiet session, then review the audio afterward." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the best recorder for EVP sessions?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Any digital recorder with a clean low-noise preamp works: a dedicated handheld recorder, a phone voice memo app, or a lav mic into a laptop. What matters more than the recorder itself is what happens after the session: isolating the moment, viewing it as a spectrogram, and checking it against a timestamp from everything else running in the room." }
+      },
+      {
+        "@type": "Question",
+        "name": "Why do EVP recordings need a spectrogram, not just playback?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A spectrogram shows frequency content over time as an image, which makes faint or overlapping speech-like sound easier to spot visually than by ear alone, especially at low volume or under background noise. It also helps rule out likely artifacts like electrical hum or HVAC noise, which show up as flat, regular bands rather than the varying shape of speech." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can SPECTER analyze EVP recordings?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The SPECTER EVP Audio Lab lets you review session audio as a waveform and spectrogram, mark and loop a region, and export a clean clip. Every recording is timestamped to the same running timecode as your camera, thermal, and sensor data, so you can check exactly what else the room's other instruments logged at that same moment." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need special hardware to do EVP work in SPECTER?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. SPECTER records from your computer's own microphone or a phone connected as a remote mic, no dedicated EVP recorder purchase required. A free 10-minute demo is available to try the EVP Audio Lab and the rest of the app before buying." }
+      }
+    ]
+  }
+  </script>
+  <script src="/analytics-track.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/blog.html" class="active">Field Journal</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// FIELD JOURNAL &middot; AUDIO EVIDENCE</p>
+      <h1>How EVP Recorders Actually Work (and What Happens After You Hit Record)</h1>
+      <div class="doc-meta">
+        <div><span>TOPIC</span><strong>Audio equipment</strong></div>
+        <div><span>READ TIME</span><strong>~5 min</strong></div>
+        <div><span>PUBLISHED</span><strong>July 29, 2026</strong></div>
+        <div><span>WHAT YOU NEED</span><strong>Any digital recorder</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <p class="lead">An EVP recorder isn't a special piece of ghost-hunting technology. It's a plain digital voice recorder, and the interesting part of an EVP session almost never happens while you're recording, it happens afterward, when you sit down and actually listen back closely. Here's what the recorder itself is doing, why the review step is where the real work is, and how to correlate what you hear with everything else that was happening in the room.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">1.0</span>What "EVP" Actually Means</h2>
+      <p>Electronic voice phenomenon (EVP) refers to a voice or voice-like sound that shows up on a recording but wasn't consciously heard by anyone in the room at the time. The recorder itself has no way to detect or flag this, it just captures whatever audio reaches its microphone, at whatever noise floor that microphone has. The phenomenon, if there is one, only becomes apparent on playback.</p>
+      <p>That means the recorder's job during a session is narrow: stay running, stay quiet, and capture as clean a noise floor as possible. Any handheld digital recorder, a phone's voice memo app, or a lav mic into a laptop all do this equally well. There is no hardware feature that makes a recorder better at "catching" EVP, only a cleaner preamp and lower self-noise, which matters for hearing something faint later.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>Where a Plain Recorder Falls Short</h2>
+      <p>A standalone recorder gives you one long audio file and nothing else. To find a moment worth reviewing, you have to scrub through the whole session by ear, which is slow and easy to miss things in, especially anything quiet or layered under room noise. And once you do find something, a plain recorder gives you no way to check it against what the room actually looked like at that exact second, or whether anything else in the space registered a reading at the same time.</p>
+      <p><strong>What it can't do:</strong> isolate a moment visually, show frequency content instead of just amplitude, or tell you whether a camera, a thermal sensor, or a field sensor logged anything else at that same timestamp.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>Why a Spectrogram Changes the Review</h2>
+      <p>A spectrogram plots frequency content over time as an image instead of just a waveform. Speech-like sound has a distinctive, varying shape across frequency bands, while common artifacts like electrical hum, HVAC rumble, or a distant fan tend to sit as flat, regular bands. Looking at a session as a spectrogram makes it much faster to spot the handful of seconds actually worth a close listen, instead of scrubbing an entire recording by ear.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>Reviewing and Correlating in SPECTER</h2>
+      <p>The <a href="/help/evp-lab.html">SPECTER EVP Audio Lab</a> is built around this exact review step. It lays a session out as a waveform and a spectrogram side by side, with a live spectrum readout and an EQ so you can pull a faint sound forward. Drag across the waveform to mark an in point and an out point, and playback loops that region so you can listen closely without re-scrubbing the whole file.</p>
+      <ul>
+        <li><strong>Everything is timestamped together.</strong> A running timecode (HH:MM:SS:FF) overlays the playback, synced to the same global project clock as your camera, thermal, and sensor evidence, so a moment on the audio maps directly to what every other instrument logged at that same second.</li>
+        <li><strong>Per-event camera cycling.</strong> When an audio moment lines up with a detection event, you can step through the camera views that were active at that timestamp without leaving the lab.</li>
+        <li><strong>Export a clean clip.</strong> Once you've isolated a region, export it as its own share pack instead of handing someone the whole raw session.</li>
+      </ul>
+      <div class="doc-note">SPECTER records from your computer's own microphone or a phone connected as a remote mic, no dedicated EVP recorder purchase required. A free 10-minute demo is available to try the EVP Audio Lab before buying.</div>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>Recorder vs a Correlated Review Workflow</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>PLAIN DIGITAL RECORDER</h3>
+          <div class="price">$20-100 retail</div>
+          <p>Captures one long audio file, nothing else</p>
+          <p>No spectrogram, waveform review only in a generic media player</p>
+          <p>No link to what the camera or sensors logged at the same time</p>
+        </div>
+        <div class="compare-card win">
+          <h3>SPECTER EVP AUDIO LAB</h3>
+          <div class="price">Included with SPECTER, free demo available</div>
+          <p>Waveform, spectrogram, spectrum, and EQ for close review</p>
+          <p>Region marking, looped playback, clean clip export</p>
+          <p>Global timecode ties every moment to your camera and sensor evidence</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>Getting Started</h2>
+      <p>You don't need new hardware to start. Record a session with whatever microphone you already have, load it into SPECTER, and use the spectrogram to find the moments worth a closer listen.</p>
+      <div class="doc-actions">
+        <a class="doc-dl" href="/help/evp-lab.html">READ THE EVP LAB GUIDE</a>
+        <a class="doc-dl ghost" href="/download.html">DOWNLOAD THE FREE DEMO</a>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">7.0</span>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="q">What is EVP in ghost hunting?</div>
+        <div class="a">EVP stands for electronic voice phenomenon: a voice or voice-like sound that appears on an audio recording but was not audibly heard in the room while recording. Investigators typically capture EVP with a digital voice recorder during a quiet session, then review the audio afterward.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What is the best recorder for EVP sessions?</div>
+        <div class="a">Any digital recorder with a clean low-noise preamp works: a dedicated handheld recorder, a phone voice memo app, or a lav mic into a laptop. What matters more than the recorder itself is what happens after the session: isolating the moment, viewing it as a spectrogram, and checking it against a timestamp from everything else running in the room.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Why do EVP recordings need a spectrogram, not just playback?</div>
+        <div class="a">A spectrogram shows frequency content over time as an image, which makes faint or overlapping speech-like sound easier to spot visually than by ear alone, especially at low volume or under background noise. It also helps rule out likely artifacts like electrical hum or HVAC noise, which show up as flat, regular bands rather than the varying shape of speech.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Can SPECTER analyze EVP recordings?</div>
+        <div class="a">The SPECTER EVP Audio Lab lets you review session audio as a waveform and spectrogram, mark and loop a region, and export a clean clip. Every recording is timestamped to the same running timecode as your camera, thermal, and sensor data, so you can check exactly what else the room's other instruments logged at that same moment.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Do I need special hardware to do EVP work in SPECTER?</div>
+        <div class="a">No. SPECTER records from your computer's own microphone or a phone connected as a remote mic, no dedicated EVP recorder purchase required. A free 10-minute demo is available to try the EVP Audio Lab and the rest of the app before buying.</div>
+      </div>
+    </section>
+
+    <p class="doc-foot">SPECTER FIELD JOURNAL &middot; <a href="/blog.html">MORE ARTICLES</a> &middot; <a href="/">SPECTER-IMAGING.COM</a></p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

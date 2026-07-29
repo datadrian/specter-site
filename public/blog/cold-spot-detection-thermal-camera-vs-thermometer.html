@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cold Spot Detection: Thermal Camera vs a Pocket Thermometer</title>
+  <meta name="description" content="Why chasing a cold spot with a handheld thermometer misses the point, how a thermal camera actually finds a localized temperature drop, and how to log a cold spot as timestamped evidence instead of a one-off reading.">
+  <meta name="keywords" content="cold spot ghost hunting, cold spot detection, thermal camera ghost hunting, infrared thermometer ghost hunting, temperature drop paranormal, thermal imaging camera cold spot">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://specter-imaging.com/blog/cold-spot-detection-thermal-camera-vs-thermometer.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Cold Spot Detection: Thermal Camera vs a Pocket Thermometer">
+  <meta property="og:description" content="Why a handheld thermometer misses a cold spot, how a thermal camera actually finds one, and how to log it as timestamped evidence.">
+  <meta property="og:url" content="https://specter-imaging.com/blog/cold-spot-detection-thermal-camera-vs-thermometer.html">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    .manual { max-width: 880px; }
+    .manual-masthead { border: 1px solid var(--line); border-top: 3px solid var(--accent); background: var(--card); padding: 28px 30px 22px; margin-bottom: 10px; }
+    .manual-masthead .doc-kicker { font-size: 10px; letter-spacing: 0.32em; color: var(--accent); margin: 0 0 14px; }
+    .manual-masthead h1 { text-align: left; font-size: 26px; letter-spacing: 0.04em; margin: 0 0 16px; line-height: 1.25; }
+    .doc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 11px; letter-spacing: 0.06em; }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #07120d; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px; border: 1px solid var(--accent); }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-dl.ghost { background: transparent; color: var(--accent); }
+    .manual h2 { font-size: 15px; letter-spacing: 0.06em; color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 38px 0 14px; }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 13px; color: var(--accent); letter-spacing: 0.04em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); font-size: 14px; }
+    .manual ul, .manual ol { color: var(--text); font-size: 13.5px; padding-left: 20px; line-height: 1.7; }
+    .manual ul li, .manual ol li { margin-bottom: 6px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+    .compare-card { border: 1px solid var(--line); background: var(--card); padding: 16px 18px; }
+    .compare-card h3 { margin-top: 0; }
+    .compare-card .price { font-size: 18px; font-weight: 700; color: var(--text); margin: 4px 0 10px; }
+    .compare-card.win { border-color: var(--accent); }
+    .compare-card p { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+    .doc-note { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item .q { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .faq-item .a { font-size: 13px; color: var(--muted); }
+    .doc-foot { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Cold Spot Detection: Thermal Camera vs a Pocket Thermometer",
+    "description": "Why chasing a cold spot with a handheld thermometer misses the point, how a thermal camera actually finds a localized temperature drop, and how to log a cold spot as timestamped evidence instead of a one-off reading.",
+    "datePublished": "2026-07-29",
+    "dateModified": "2026-07-29",
+    "author": { "@type": "Organization", "name": "SPECTER" },
+    "publisher": { "@type": "Organization", "name": "SPECTER" },
+    "mainEntityOfPage": "https://specter-imaging.com/blog/cold-spot-detection-thermal-camera-vs-thermometer.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What causes a cold spot in ghost hunting?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Investigators use 'cold spot' to describe a localized area that reads noticeably colder than the surrounding space with no obvious source, like a draft, an open window, or an HVAC vent. A single point reading isn't enough to confirm one, since drafts and airflow are the most common ordinary explanation and can only be ruled out by seeing the shape and edges of the temperature drop." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can an infrared thermometer detect a cold spot?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A handheld infrared thermometer only reads one small point at a time, wherever you aim it. It can confirm a single spot is cold, but it can't show you the shape or edges of the cool area, whether it's moving, or whether it lines up with a draft source, which makes it easy to miss the difference between a real localized anomaly and ordinary airflow." }
+      },
+      {
+        "@type": "Question",
+        "name": "How does a thermal camera find a cold spot?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A thermal camera images an entire scene as a temperature map at once, so a localized cool region shows up as a visibly distinct shape against the rest of the frame in real time. That makes it possible to see whether the cool area has a defined edge, whether it moves, and whether it lines up with a vent, window, or doorway before treating it as anything unexplained." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does SPECTER detect cold spots automatically?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. SPECTER can bring in a thermal camera feed and run live anomaly detection on it, including a dedicated Cold Spot detection type for a localized low-temperature region in the thermal frame. A confirmed hit is captured automatically with a timestamp and filed into the same evidence archive as your other sensors." }
+      },
+      {
+        "@type": "Question",
+        "name": "What thermal camera works with SPECTER?",
+        "acceptedAnswer": { "@type": "Answer", "text": "SPECTER supports thermal imaging cameras over RTSP, including common consumer thermal-over-IP models, alongside its RGB and depth camera inputs." }
+      }
+    ]
+  }
+  </script>
+  <script src="/analytics-track.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/blog.html" class="active">Field Journal</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// FIELD JOURNAL &middot; EQUIPMENT</p>
+      <h1>Cold Spot Detection: Thermal Camera vs a Pocket Thermometer</h1>
+      <div class="doc-meta">
+        <div><span>TOPIC</span><strong>Equipment comparison</strong></div>
+        <div><span>READ TIME</span><strong>~5 min</strong></div>
+        <div><span>PUBLISHED</span><strong>July 29, 2026</strong></div>
+        <div><span>THERMAL CAMERA</span><strong>Works over RTSP</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <p class="lead">"Cold spot" is one of the oldest reports in the field, and one of the easiest to get wrong with the wrong tool. A handheld thermometer can tell you one point is cold. It can't tell you the shape of the cool area, whether it has a defined edge, or whether it's just a draft from the door you didn't notice. Here's the difference between chasing a cold spot by hand and actually imaging one.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">1.0</span>What a Cold Spot Report Actually Means</h2>
+      <p>A cold spot is a localized area that reads noticeably colder than the space around it, with no obvious source like an open window, a vent, or a draft under a door. The key word is localized: a whole room being cold isn't a cold spot, it's just a cold room. What makes a reading worth investigating is a defined, bounded area of temperature drop that doesn't line up with an ordinary airflow source.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>Why a Pocket Thermometer Falls Short</h2>
+      <p>A handheld infrared thermometer reads exactly one point, wherever you aim it, one reading at a time. That's enough to confirm a spot is cold, but not enough to see its shape, its edges, or whether it's actually a thin stream of air moving across the room from a door or vent you didn't clock. Sweeping a handheld unit point by point across a wall is slow, and by the time you've covered the area, whatever caused the reading may have already moved or dissipated.</p>
+      <p><strong>What it can't do:</strong> show a whole scene at once, capture a shape or a moving boundary, or log the reading anywhere beyond whatever number you wrote down.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>What a Thermal Camera Sees Instead</h2>
+      <p>A thermal imaging camera images an entire scene as a temperature map, all at once, in real time. A localized cool region shows up immediately as a visibly distinct shape against the rest of the frame, so you can see its edges, whether it's moving, and whether it traces back to a vent, window, or doorway before treating it as anything unusual. That's the difference between a single number and an actual picture of what's happening across the space.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>Turning a Thermal Feed Into Logged Evidence</h2>
+      <p>SPECTER can bring a thermal camera feed in over RTSP and run live anomaly detection on it, including a dedicated <a href="/help/detection-types.html">Cold Spot</a> detection type built specifically for a localized low-temperature region in the thermal frame. When one fires, it isn't a number you have to write down, it's captured automatically.</p>
+      <ul>
+        <li><strong>Automatic capture on a hit.</strong> A confirmed cold spot detection saves a snapshot the instant it crosses threshold, no one has to be watching the feed at that exact second.</li>
+        <li><strong>Global timecode.</strong> Every capture is timestamped against the same project clock as your other cameras and sensors, so you can check what else was happening in the room at that moment.</li>
+        <li><strong>Filed in your evidence archive.</strong> Every hit is saved with type, class, confidence, and timecode alongside everything else from the session, not scattered across notes.</li>
+      </ul>
+      <div class="doc-note">Thermal input works alongside SPECTER's RGB and depth cameras, not in place of them, so a cold spot hit can be checked against a visual or depth reading from the exact same moment.</div>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>Thermometer vs Thermal Camera, Side by Side</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>HANDHELD THERMOMETER</h3>
+          <div class="price">~$15-40 retail</div>
+          <p>One point at a time, no shape or boundary</p>
+          <p>No logging, easy to miss a moving source</p>
+          <p>Must be aimed and read manually</p>
+        </div>
+        <div class="compare-card win">
+          <h3>THERMAL CAMERA + SPECTER</h3>
+          <div class="price">Thermal camera required, detection included with SPECTER</div>
+          <p>Whole-scene temperature map in real time</p>
+          <p>Automatic Cold Spot detection, no one has to watch it live</p>
+          <p>Timestamped and filed alongside your other sensor evidence</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>Getting Started</h2>
+      <p>If you already run a thermal camera, connect it over RTSP and let SPECTER watch it for you instead of sweeping the room by hand. If you don't have one yet, the rest of SPECTER's detection still runs on RGB and depth alone.</p>
+      <div class="doc-actions">
+        <a class="doc-dl" href="/help/detection-types.html">READ THE DETECTION TYPES REFERENCE</a>
+        <a class="doc-dl ghost" href="/download.html">DOWNLOAD THE FREE DEMO</a>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">7.0</span>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="q">What causes a cold spot in ghost hunting?</div>
+        <div class="a">Investigators use "cold spot" to describe a localized area that reads noticeably colder than the surrounding space with no obvious source, like a draft, an open window, or an HVAC vent. A single point reading isn't enough to confirm one, since drafts and airflow are the most common ordinary explanation and can only be ruled out by seeing the shape and edges of the temperature drop.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Can an infrared thermometer detect a cold spot?</div>
+        <div class="a">A handheld infrared thermometer only reads one small point at a time, wherever you aim it. It can confirm a single spot is cold, but it can't show you the shape or edges of the cool area, whether it's moving, or whether it lines up with a draft source, which makes it easy to miss the difference between a real localized anomaly and ordinary airflow.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">How does a thermal camera find a cold spot?</div>
+        <div class="a">A thermal camera images an entire scene as a temperature map at once, so a localized cool region shows up as a visibly distinct shape against the rest of the frame in real time. That makes it possible to see whether the cool area has a defined edge, whether it moves, and whether it lines up with a vent, window, or doorway before treating it as anything unexplained.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Does SPECTER detect cold spots automatically?</div>
+        <div class="a">Yes. SPECTER can bring in a thermal camera feed and run live anomaly detection on it, including a dedicated Cold Spot detection type for a localized low-temperature region in the thermal frame. A confirmed hit is captured automatically with a timestamp and filed into the same evidence archive as your other sensors.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What thermal camera works with SPECTER?</div>
+        <div class="a">SPECTER supports thermal imaging cameras over RTSP, including common consumer thermal-over-IP models, alongside its RGB and depth camera inputs.</div>
+      </div>
+    </section>
+
+    <p class="doc-foot">SPECTER FIELD JOURNAL &middot; <a href="/blog.html">MORE ARTICLES</a> &middot; <a href="/">SPECTER-IMAGING.COM</a></p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>
