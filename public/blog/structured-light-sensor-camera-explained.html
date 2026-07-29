@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Structured Light Sensor Camera Explained: How SLS Cameras Detect a Figure</title>
+  <meta name="description" content="How a structured light sensor camera actually works: the infrared dot pattern it projects, how depth data becomes a skeleton overlay, why it was built for motion tracking, and how it got repurposed for ghost hunting.">
+  <meta name="keywords" content="structured light sensor camera, structured light sensor camera system, SLS camera, SLS detector, what is a structured light sensor, SLS camera ghost hunting, structured light 3D scanning, Kinect structured light, depth camera skeleton tracking">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://specter-imaging.com/blog/structured-light-sensor-camera-explained.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Structured Light Sensor Camera Explained: How SLS Cameras Detect a Figure">
+  <meta property="og:description" content="How a structured light sensor camera works: the infrared dot pattern, how depth data becomes a skeleton overlay, and how it got repurposed for ghost hunting.">
+  <meta property="og:url" content="https://specter-imaging.com/blog/structured-light-sensor-camera-explained.html">
+  <meta property="og:image" content="https://specter-imaging.com/assets/screenshots/specter-main-ui.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Structured Light Sensor Camera Explained: How SLS Cameras Detect a Figure">
+  <meta name="twitter:description" content="How a structured light sensor camera actually works, and how it got repurposed for ghost hunting.">
+  <meta name="twitter:image" content="https://specter-imaging.com/assets/screenshots/specter-main-ui.png">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    .manual { max-width: 880px; }
+    .manual-masthead { border: 1px solid var(--line); border-top: 3px solid var(--accent); background: var(--card); padding: 28px 30px 22px; margin-bottom: 10px; }
+    .manual-masthead .doc-kicker { font-size: 10px; letter-spacing: 0.32em; color: var(--accent); margin: 0 0 14px; }
+    .manual-masthead h1 { text-align: left; font-size: 26px; letter-spacing: 0.04em; margin: 0 0 16px; line-height: 1.25; }
+    .doc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 24px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 11px; letter-spacing: 0.06em; }
+    .doc-meta div span { color: var(--muted); display: block; margin-bottom: 2px; }
+    .doc-meta div strong { color: var(--text); font-weight: 700; }
+    .doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 30px; }
+    .doc-dl { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #07120d; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; padding: 11px 18px; border: 1px solid var(--accent); }
+    .doc-dl:hover { text-decoration: none; opacity: 0.9; }
+    .doc-dl.ghost { background: transparent; color: var(--accent); }
+    .manual h2 { font-size: 15px; letter-spacing: 0.06em; color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 38px 0 14px; }
+    .manual h2 .num { color: var(--accent); margin-right: 10px; }
+    .manual h3 { font-size: 13px; color: var(--accent); letter-spacing: 0.04em; margin: 22px 0 6px; }
+    .manual p { color: var(--text); font-size: 13.5px; margin: 10px 0; }
+    .manual .lead { color: var(--muted); font-size: 14px; }
+    .manual ul, .manual ol { color: var(--text); font-size: 13.5px; padding-left: 20px; line-height: 1.7; }
+    .manual ul li, .manual ol li { margin-bottom: 6px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+    .compare-card { border: 1px solid var(--line); background: var(--card); padding: 16px 18px; }
+    .compare-card h3 { margin-top: 0; }
+    .compare-card .price { font-size: 18px; font-weight: 700; color: var(--text); margin: 4px 0 10px; }
+    .compare-card.win { border-color: var(--accent); }
+    .compare-card p { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+    .doc-note { border: 1px solid var(--line); background: var(--card); padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 16px 0; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item .q { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .faq-item .a { font-size: 13px; color: var(--muted); }
+    .doc-foot { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Structured Light Sensor Camera Explained: How SLS Cameras Detect a Figure",
+    "description": "How a structured light sensor camera actually works: the infrared dot pattern it projects, how depth data becomes a skeleton overlay, why it was built for motion tracking, and how it got repurposed for ghost hunting.",
+    "datePublished": "2026-07-29",
+    "dateModified": "2026-07-29",
+    "author": { "@type": "Organization", "name": "SPECTER" },
+    "publisher": { "@type": "Organization", "name": "SPECTER" },
+    "mainEntityOfPage": "https://specter-imaging.com/blog/structured-light-sensor-camera-explained.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a structured light sensor?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A structured light sensor is a depth-sensing device that projects a known pattern of infrared light, usually a dense grid of dots, onto a scene and measures how that pattern distorts across surfaces to calculate distance at every point. The result is a full depth map of the room rather than a single distance reading." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a structured light sensor camera system?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A structured light sensor camera system pairs that depth-sensing hardware, commonly a Kinect or an Intel RealSense, with software that turns the depth map into a skeleton overlay wherever it detects a humanoid shape. In ghost hunting, that overlay is used to check whether a room shows a moving figure that isn't visible on a normal camera." }
+      },
+      {
+        "@type": "Question",
+        "name": "How does an SLS camera detect a figure?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The sensor's infrared projector casts thousands of dots across the room, and its infrared receiver reads how each dot shifts based on the distance and angle of whatever surface it lands on. Skeletal-tracking software then looks for the proportions and joint arrangement of a human body inside that depth data, and draws a stick-figure overlay over anything that matches." }
+      },
+      {
+        "@type": "Question",
+        "name": "What hardware is used for an SLS camera?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The two most common choices are the Microsoft Kinect (V1 and V2) and the Intel RealSense D400 series, both originally built for motion tracking and robotics rather than ghost hunting. Both project structured infrared light and output a real-time depth stream that skeletal-tracking software can read." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can a structured light sensor camera see in the dark?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Because it measures an infrared pattern rather than visible light, a structured light sensor camera builds a full depth map in complete darkness, which is exactly why it ended up useful for night-time investigation work despite being designed for a completely different purpose." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is a structured light sensor the same as a thermal camera?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. A structured light sensor measures distance and shape using an infrared dot pattern, producing a depth map and skeleton overlay. A thermal camera measures surface temperature across a scene. They answer different questions, one is about shape and motion, the other is about heat, and most serious setups run both rather than substituting one for the other." }
+      }
+    ]
+  }
+  </script>
+  <script src="/analytics-track.js" defer></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand-link" href="/">◢ SPECTER</a>
+    <a href="/download.html">Download</a>
+    <a href="/">Buy</a>
+    <a href="/blog.html" class="active">Field Journal</a>
+    <a href="/help/">Help</a>
+    <a href="/support.html">Support</a>
+  </nav>
+
+  <main class="page page-wide manual">
+
+    <div class="manual-masthead">
+      <p class="doc-kicker">// FIELD JOURNAL &middot; CAMERA TECHNOLOGY</p>
+      <h1>Structured Light Sensor Camera Explained: How SLS Cameras Detect a Figure</h1>
+      <div class="doc-meta">
+        <div><span>TOPIC</span><strong>Depth-sensing hardware</strong></div>
+        <div><span>READ TIME</span><strong>~6 min</strong></div>
+        <div><span>PUBLISHED</span><strong>July 29, 2026</strong></div>
+        <div><span>WHAT YOU NEED</span><strong>Kinect or RealSense hardware</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <p class="lead">A structured light sensor camera, usually just called an SLS camera in ghost hunting circles, doesn't work anything like a normal camera. It doesn't capture light reflecting off a scene, it projects its own infrared pattern and reads how that pattern bends across every surface in the room. Here's what that actually means, and why a piece of motion-tracking hardware ended up as one of the most-used tools in paranormal investigation.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">1.0</span>What "Structured Light" Actually Means</h2>
+      <p>Structured light is a known, fixed pattern of light, usually thousands of infrared dots, projected onto a scene from a fixed point. A sensor next to the projector reads that same pattern back. Because the sensor knows exactly what the pattern looked like when it left the projector, it can measure exactly how each dot shifted based on the distance and angle of whatever it hit. Do that across every dot in the pattern, and you get a full depth map of the room, not a photo, a measurement of distance at every point in the frame.</p>
+      <p>This is different from a stereo camera (which compares two lenses) and different from time-of-flight (which times a light pulse's round trip). Structured light gets its depth reading from pattern distortion instead, and it works in complete darkness since the "light" it's reading is infrared, not visible.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2.0</span>From Depth Map to Skeleton Overlay</h2>
+      <p>A raw depth map on its own is just a grid of distances, useful, but not something you can glance at and interpret. The second half of an SLS camera system is skeletal-tracking software that scans that depth data for the proportions and joint layout of a human body: head, shoulders, elbows, hips, knees, in roughly the arrangement a body holds them in. When it finds a match, it draws a stick-figure skeleton over that shape in the live feed.</p>
+      <p>That's the part people usually mean when they say "SLS camera", the combination of the depth sensor and the software drawing a skeleton over whatever it thinks is a humanoid figure, whether or not that figure is visible in a normal RGB image of the same room.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">3.0</span>Why the Hardware Wasn't Built for This</h2>
+      <p>Every structured light sensor commonly used for ghost hunting, the Microsoft Kinect (V1 and V2) and the Intel RealSense D400 series, was designed for something else entirely: motion-controlled gaming, robotics navigation, and industrial 3D scanning. None of them shipped with a "detect a ghost" mode. What they shipped with was accurate, real-time human skeletal tracking in the dark, which turned out to be exactly the tool paranormal investigators wanted for a completely different reason: checking whether a room contains a moving figure nobody can see with their own eyes or a normal camera.</p>
+      <div class="doc-note">This is worth being direct about: an SLS camera doesn't detect ghosts. It detects a shape in a depth field that its software classifies as humanoid. What that shape actually is, in a given case, is exactly the question an investigator is trying to answer, the camera just gives you a rigorous way to ask it.</div>
+    </section>
+
+    <section>
+      <h2><span class="num">4.0</span>What a Structured Light Sensor Can and Can't Tell You</h2>
+      <ul>
+        <li><strong>Can:</strong> detect a humanoid-shaped depth pattern in a scene, in complete darkness, in real time.</li>
+        <li><strong>Can:</strong> track that shape's position and rough posture as it moves.</li>
+        <li><strong>Can't:</strong> tell you what caused the shape. Pets, hanging objects, drapes catching air movement, and sensor noise can all occasionally produce a false skeleton lock.</li>
+        <li><strong>Can't:</strong> replace thermal or audio evidence. A skeleton with no correlated reading from anything else in the room is a weaker piece of evidence than a skeleton that lines up with an EMF spike or a cold spot at the same timestamp.</li>
+      </ul>
+      <p>That last point is the real reason serious setups run an SLS camera alongside other instruments rather than by itself, a skeleton overlay is far more convincing when something else in the room reacted at the same moment.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">5.0</span>SLS Camera vs a Single-Sensor Setup</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>SLS ALONE</h3>
+          <div class="price">One data stream</div>
+          <p>A skeleton overlay with no other instrument to correlate against</p>
+          <p>Harder to rule out a false positive on its own</p>
+        </div>
+        <div class="compare-card win">
+          <h3>SPECTER (SLS + everything else)</h3>
+          <div class="price">Free demo available</div>
+          <p>Neural-network entity tracking (not the classic single-skeleton overlay) running alongside thermal, EMF, EVP, and camera monitoring</p>
+          <p>Every detection, from every instrument, timestamped into one evidence archive</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.0</span>Getting Started With SLS</h2>
+      <p>If you already have a Kinect V1, Kinect V2, or Intel RealSense D435i sitting in a closet, that's a working structured light sensor, no purchase needed. SPECTER's free demo supports all three, running live neural-network entity tracking rather than the older single-skeleton overlay most SLS software ships with.</p>
+      <div class="doc-actions">
+        <a class="doc-dl" href="/download.html">DOWNLOAD THE FREE DEMO</a>
+        <a class="doc-dl ghost" href="/build-your-rig.html">SEE HARDWARE OPTIONS</a>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">7.0</span>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="q">What is a structured light sensor?</div>
+        <div class="a">A structured light sensor is a depth-sensing device that projects a known pattern of infrared light, usually a dense grid of dots, onto a scene and measures how that pattern distorts across surfaces to calculate distance at every point. The result is a full depth map of the room rather than a single distance reading.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What is a structured light sensor camera system?</div>
+        <div class="a">A structured light sensor camera system pairs that depth-sensing hardware, commonly a Kinect or an Intel RealSense, with software that turns the depth map into a skeleton overlay wherever it detects a humanoid shape. In ghost hunting, that overlay is used to check whether a room shows a moving figure that isn't visible on a normal camera.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">How does an SLS camera detect a figure?</div>
+        <div class="a">The sensor's infrared projector casts thousands of dots across the room, and its infrared receiver reads how each dot shifts based on the distance and angle of whatever surface it lands on. Skeletal-tracking software then looks for the proportions and joint arrangement of a human body inside that depth data, and draws a stick-figure overlay over anything that matches.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What hardware is used for an SLS camera?</div>
+        <div class="a">The two most common choices are the Microsoft Kinect (V1 and V2) and the Intel RealSense D400 series, both originally built for motion tracking and robotics rather than ghost hunting. Both project structured infrared light and output a real-time depth stream that skeletal-tracking software can read.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Can a structured light sensor camera see in the dark?</div>
+        <div class="a">Yes. Because it measures an infrared pattern rather than visible light, a structured light sensor camera builds a full depth map in complete darkness, which is exactly why it ended up useful for night-time investigation work despite being designed for a completely different purpose.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Is a structured light sensor the same as a thermal camera?</div>
+        <div class="a">No. A structured light sensor measures distance and shape using an infrared dot pattern, producing a depth map and skeleton overlay. A thermal camera measures surface temperature across a scene. They answer different questions, one is about shape and motion, the other is about heat, and most serious setups run both rather than substituting one for the other.</div>
+      </div>
+    </section>
+
+    <p class="doc-foot">SPECTER FIELD JOURNAL &middot; <a href="/blog.html">MORE ARTICLES</a> &middot; <a href="/">SPECTER-IMAGING.COM</a></p>
+  </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
+</body>
+</html>

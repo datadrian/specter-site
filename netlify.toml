@@ -53,6 +53,11 @@
   status = 200
 
 [[redirects]]
+  from = "/best-ghost-hunting-equipment-2026"
+  to = "/best-ghost-hunting-equipment-2026.html"
+  status = 200
+
+[[redirects]]
   from = "/license"
   to = "/help/index.html"
   status = 200
