@@ -53,7 +53,7 @@
 <!-- antenna node to pins 1 and 2 -->
 <path class="wireA" d="M105 340H230V264H380M230 264V331H380"/>
 <circle class="ja junction" cx="230" cy="264" r="7"/>
-<text x="242" y="245" fill="#f4c95d" font-family="monospace" font-weight="bold">ANTENNA NODE A</text>
+<text x="205" y="235" fill="#f4c95d" font-family="monospace" font-weight="bold">ANTENNA NODE A</text>
 
 <!-- pin3 to pins4/5 -->
 <path class="wireB" d="M380 398H320V465H380M320 465V532H380"/>
