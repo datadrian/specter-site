@@ -94,7 +94,7 @@
     .bn-table th,.bn-table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
     .bn-table th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;}
     .bn-table td.pin{font-family:var(--mono);color:var(--cyan);white-space:nowrap;}
-    .bn-diagram{width:100%;border:1px solid var(--border);border-radius:6px;margin-top:8px;}
+    .bn-diagram{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:6px;margin-top:8px;background:#070a0f;padding:8px;box-sizing:border-box;}
     /* code block */
     .code-head{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.12em;}
     .copy-btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:3px;cursor:pointer;}
@@ -247,7 +247,7 @@
     <div class="bn-sec" id="wiring">
       <h2>Wiring, basic build</h2>
       <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin. This is the build most people should start with - no extra chip, ~15cm proximity range.</p>
-      <object type="image/svg+xml" data="/assets/build-node/wiring-basic.svg" class="bn-diagram" aria-label="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND." style="background:#070a0f;padding:8px;"></object>
+      <img src="/assets/build-node/wiring-basic.svg" width="960" height="680" class="bn-diagram" alt="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND.">
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 pin</th></tr></thead>
         <tbody>
@@ -268,7 +268,7 @@
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, theremin build (Road B)</h2>
       <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna into part of an LC oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
-      <object type="image/svg+xml" data="/assets/build-node/wiring-theremin.svg" class="bn-diagram" aria-label="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build." style="background:#070a0f;padding:8px;"></object>
+      <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
         <tbody>
