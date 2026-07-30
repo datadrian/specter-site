@@ -240,16 +240,19 @@
       </table>
       <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
       <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Theremin build (Road B) extra parts</h3>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds an RC oscillator front-end for extended range vs touchRead alone. Everything from the basic build above stays the same - this just adds one chip and two passive parts ahead of the antenna. (An earlier version of this doc called out an inductor here - it was a mistake, dropped below, the circuit is a plain Rf+C relaxation oscillator.)</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds a real Colpitts LC oscillator front-end for extended range. The transistor and LC tank generate a frequency that shifts as a hand changes the antenna capacitance. The 74HC14 only cleans that waveform into a square wave for the ESP32 hardware pulse counter on fixed GPIO14.</p>
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
-          <tr><td>74HC14 hex Schmitt-trigger inverter (DIP-14)</td><td>Oscillator gain stage</td><td>$0.50–1</td></tr>
-          <tr><td>Capacitor, 100–330pF (start ~220pF)</td><td>Sets oscillator timing, with Rf</td><td>$0.10</td></tr>
-          <tr><td>Resistor, ~1MΩ</td><td>Schmitt-trigger feedback</td><td>$0.10</td></tr>
+          <tr><td>74HC14 hex Schmitt-trigger inverter (DIP-14)</td><td>Squares the LC oscillator waveform for GPIO14</td><td>$0.50–1</td></tr>
+          <tr><td>2N3904 or BC547 NPN transistor</td><td>Active Colpitts oscillator stage</td><td>$0.10–0.50</td></tr>
+          <tr><td>L1 1mH inductor / RF choke</td><td>Feeds the oscillator while isolating the tank from the supply</td><td>$0.20–1</td></tr>
+          <tr><td>L2 100uH inductor</td><td>LC tank inductor</td><td>$0.20–1</td></tr>
+          <tr><td>Capacitors: 15pF, 1000pF, 3300pF, 10nF, optional 100nF</td><td>Antenna coupling, tank, output coupling, optional emitter bypass</td><td>$0.50–1</td></tr>
+          <tr><td>Resistors: 1MΩ, 22kΩ, 10kΩ, 470Ω</td><td>74HC14 self-bias and transistor bias</td><td>$0.50</td></tr>
         </tbody>
       </table>
-      <p class="sim-note">These values are starting points, not fixed specs - tune the capacitor or antenna length to get a clean, stable oscillation with your specific antenna, and confirm actual range on your own bench before relying on it.</p>
+      <p class="sim-note">The calculated starting frequency is about 575kHz with L2 100uH, Ctop 1000pF, and Cbot 3300pF. Tune Cant or antenna length on the bench for a clean, stable frequency shift before relying on it in the field.</p>
     </div>
 
     <!-- WIRING: BASIC -->
@@ -279,24 +282,25 @@
     <!-- WIRING: THEREMIN / ROAD B -->
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, theremin build (Road B)</h2>
-      <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna and a capacitor into an RC relaxation oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
+      <p>An optional upgrade path for more range. A transistor Colpitts oscillator converts antenna capacitance into a frequency shift. The 74HC14 squares that waveform, and the ESP32 counts it in hardware on fixed GPIO14. The QMC5883L, LED ring, and buzzer remain wired exactly like the basic build.</p>
+      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.14" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE THEREMIN WIRING DIAGRAM</a></p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an RC relaxation oscillator with a capacitor and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
+        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.14" width="1230" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node extended-range theremin wiring diagram showing a transistor Colpitts LC oscillator, a 74HC14 squaring buffer, and the fixed GPIO14 oscillator input on the ESP32.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
       <table class="bn-table">
-        <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
+        <thead><tr><th>Connection</th><th>Destination / value</th></tr></thead>
         <tbody>
-          <tr><td>74HC14 · pin 14 (VCC) / pin 7 (GND)</td><td class="pin">3.3V / GND</td></tr>
-          <tr><td>Antenna wire + C, joined at one node</td><td class="pin">74HC14 pin 1 (1A, input), this shared node IS the oscillator input</td></tr>
-          <tr><td>C, other leg (antenna is NOT wired here)</td><td class="pin">GND</td></tr>
-          <tr><td>74HC14 · pin 2 (1Y, output)</td><td class="pin">GPIO14 (oscillator square wave in)</td></tr>
-          <tr><td>74HC14 · unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND (standard practice for unused CMOS gate inputs)</td></tr>
-          <tr><td>Feedback resistor (~1MΩ)</td><td class="pin">74HC14 pin 2 (output) back to pin 1 (input)</td></tr>
-          <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build (see above)</td></tr>
+          <tr><td>74HC14 pin 14 / pin 7</td><td class="pin">3.3V / GND</td></tr>
+          <tr><td>74HC14 pin 2 (squared output)</td><td class="pin">ESP32 GPIO14, fixed oscillator input</td></tr>
+          <tr><td>74HC14 unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND</td></tr>
+          <tr><td>Q1 collector / emitter / base</td><td class="pin">Wire exactly as shown in the full diagram</td></tr>
+          <tr><td>L2 / Ctop / Cbot</td><td class="pin">100uH / 1000pF / 3300pF tank</td></tr>
+          <tr><td>L1</td><td class="pin">1mH RF choke from 3.3V to collector/tank node</td></tr>
+          <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build</td></tr>
         </tbody>
       </table>
-      <div class="callout">This is an optional upgrade, not a replacement - build the basic version first, confirm it works, then add this front-end if you want more range. The node firmware picks the sense source with a <code>proxMode</code> setting (0 = basic touch, 1 = oscillator) - if you wire this in, set <code>proxMode</code> to <code>1</code> before flashing.</div>
+      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range LC oscillator (GPIO14 fixed)</strong>. The separate Antenna GPIO selector applies only to basic capacitive-touch mode. Theremin response controls the continuous light and pitch behavior, not the hardware input pin.</div>
     </div>
 
     <!-- CODE -->
@@ -401,7 +405,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.13-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.14-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -475,7 +479,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+m.touchPin;var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.oscFreq,m.oscBase);if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -523,14 +527,18 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
 &lt;h4&gt;Antenna / proximity&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;&amp;mdash;&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;&amp;mdash;&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;&amp;mdash;&lt;/b&gt;&lt;/div&gt;
-&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
+&lt;label&gt;Sense source &lt;span class=val id=prox-mode-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
+&lt;select id=prox-mode style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
+&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range LC oscillator (GPIO14 fixed)&lt;/option&gt;&lt;/select&gt;
+&lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
+&lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
 &lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
-&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Applies instantly &amp;mdash; no reboot. If the reading sits very low (~50) and a hand does little, the antenna is saturating this pin &amp;mdash; SAVE a different GPIO, then RECALIBRATE with your hand away. (4/27/32/33 are the safe touch pins; boot-strap pins are excluded.)&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE TOUCH PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Touch mode only. Applies instantly, no reboot. GPIO4/27/32/33 are the safe touch pins; boot-strap pins are excluded.&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin mode &amp;mdash; continuous field&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;The ring glows and (optionally) the buzzer plays a rising pitch as your hand approaches the antenna &amp;mdash; not just on trigger. Alerts + snapshots still fire.&lt;/div&gt;
+&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous glow and pitch behavior, not the hardware sense source above. Alerts and snapshots still fire.&lt;/div&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone checked&gt; Play pitch on buzzer&lt;/label&gt;
 &lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;&amp;mdash;&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;&amp;mdash;&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
 &lt;div class=bar style=&quot;margin-top:4px&quot;&gt;&lt;i id=therm-bar style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
@@ -597,7 +605,9 @@ if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;
 if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
 rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
-if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=true;}
+function updateProxModeUi(mode,touch,hz,base){var osc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=osc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=osc?&#x27;LC / GPIO14&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=osc?&#x27;GPIO14 (fixed)&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=osc;if(save)save.disabled=osc;if(msg)msg.textContent=osc?&#x27;LC oscillator input is fixed on GPIO14. Live &#x27;+(hz||0)+&#x27; Hz, baseline &#x27;+(base||0)+&#x27; Hz. The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}
+if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,proxMode:pm});}}
+if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
 if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=true;$(&#x27;therm-on&#x27;).onchange=function(e){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:e.target.checked,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true})}}
@@ -683,7 +693,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.13-maker&quot;
+#define FW_VERSION   &quot;2.12.14-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -696,14 +706,13 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- RC oscillator (extended-range prox, optional Road B hardware) ----
-// A 74HC14 Schmitt-trigger relaxation oscillator (cap + antenna as the sense plate,
-// no inductor - an earlier inductor spec here was wrong for these R/C values and
-// would have loaded the input to near-0V instead of resonating) feeds a square wave
-// into OSC_PIN. We count its frequency with the ESP32 hardware pulse counter (PCNT).
-// A hand near the antenna raises capacitance -&gt; LOWERS the frequency; that Hz drop
-// is the field. Extended range vs touchRead alone - verify actual range on your bench.
-#define OSC_PIN        14      // GPIO14 -- 74HC14 oscillator output in
+// ---- LC oscillator (extended-range prox, optional Road B hardware) ----
+// A transistor Colpitts LC oscillator turns antenna capacitance into a frequency
+// shift. A 74HC14 squares that waveform, then feeds this FIXED GPIO14 input. The
+// portal&#x27;s selectable touch pin applies only to proxMode 0, never oscillator mode.
+// A hand near the antenna raises capacitance -&gt; LOWERS frequency; that Hz drop is
+// converted into the same rising proximity convention used throughout the firmware.
+#define OSC_PIN        14      // GPIO14 - fixed 74HC14 squared oscillator input
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -960,7 +969,7 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 
 // ---- prox sense source ----
 //  proxMode 0 = touchRead (default, ~15cm, no extra hardware)
-//  proxMode 1 = RC oscillator via PCNT on OSC_PIN (extended range, needs 74HC14 board)
+//  proxMode 1 = Colpitts LC oscillator via PCNT on fixed OSC_PIN/GPIO14
 volatile int      proxMode   = 0;
 volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
@@ -1288,7 +1297,7 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 }
 
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
-// ============ RC OSCILLATOR PROX (PCNT) ============
+// ============ COLPITTS LC OSCILLATOR PROX (PCNT) ============
 // Configure PCNT unit 0 to count rising edges on OSC_PIN. We gate the count over a
 // fixed window and convert to Hz. Called once when prox mode switches to oscillator.
 void oscBegin() {
@@ -1304,7 +1313,7 @@ void oscBegin() {
     cfg.counter_h_lim  = 32767;
     cfg.counter_l_lim  = 0;
     pcnt_unit_config(&amp;cfg);
-    pcnt_set_filter_value(PCNT_UNIT_0, 100);   // ignore glitches &lt;100 APB ticks
+    pcnt_set_filter_value(PCNT_UNIT_0, 10);    // ~125ns filter: rejects tiny glitches but passes ~575kHz LC pulses
     pcnt_filter_enable(PCNT_UNIT_0);
     pcnt_counter_pause(PCNT_UNIT_0);
     pcnt_counter_clear(PCNT_UNIT_0);
@@ -1544,7 +1553,7 @@ void hardwareTask(void* pv) {
             ledIdle(); ledShow();
             diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
-        // Proximity source: RC oscillator (extended range) if enabled + wired, else
+        // Proximity source: Colpitts LC oscillator on fixed GPIO14 if enabled + wired, else
         // the built-in touchRead. Either way we end up with a single `proxVal` in the
         // same units the rest of the pipeline already understands, so baseline,
         // deadband, span, field, alerts and the theremin overlay are unchanged.
@@ -1989,7 +1998,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
-        // Prox sense source: 0 = touchRead, 1 = RC oscillator (extended range).
+        // Prox sense source: 0 = touchRead on selected touchPin, 1 = LC oscillator on fixed GPIO14.
         if (doc[&quot;proxMode&quot;].is&lt;int&gt;()) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
             if (pm != proxMode) { proxMode = pm; oscReady = false; oscBaseHz = 0; proxInit = false; recalibrate = true; }
@@ -2511,7 +2520,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = (baseProx - proxVal &gt; 0 ? baseProx - proxVal : 0); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
