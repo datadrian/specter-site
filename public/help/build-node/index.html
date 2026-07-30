@@ -239,19 +239,17 @@
         </tbody>
       </table>
       <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
-      <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Theremin build (Road B) extra parts</h3>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Uses a 74HC00 quad NAND chip as the complete antenna oscillator. Three gates form a ring oscillator, and the fourth buffers the square wave into fixed ESP32 GPIO14. A 1MΩ feedback resistor and the antenna's own capacitance set the frequency. No transistor and no inductors are required.</p>
+      <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Extended-range resistor build (Road B) extra parts</h3>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Uses two ESP32 pins and one high-value resistor instead of an oscillator chip. GPIO18 charges the antenna node through 1MΩ while GPIO4 measures how long that node takes to rise. A nearby hand adds capacitance and increases the measured charge time.</p>
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
-          <tr><td>74HC00 quad 2-input NAND chip (DIP-14)</td><td>Three-gate oscillator plus one output buffer</td><td>$0.50–1</td></tr>
-          <tr><td>1MΩ resistor</td><td>Feedback and timing resistor</td><td>$0.10</td></tr>
-          <tr><td>4.7kΩ resistor</td><td>Series protection between pin 11 and GPIO14</td><td>$0.10</td></tr>
-          <tr><td>100µF / 35V electrolytic capacitor</td><td>Bulk power smoothing, positive to 3.3V and negative to GND</td><td>on hand</td></tr>
-          <tr><td>Optional 100nF ceramic capacitor, marked 104</td><td>High-frequency bypass directly across 74HC00 pins 14 and 7</td><td>$0.10</td></tr>
+          <tr><td>1MΩ resistor</td><td>Required charge path from GPIO18 to the GPIO4 antenna sense node</td><td>$0.10</td></tr>
+          <tr><td>Optional 10kΩ resistor</td><td>Series protection between the telescopic antenna and sense node</td><td>$0.10</td></tr>
+          <tr><td>100µF / 35V electrolytic capacitor</td><td>Optional bulk power smoothing, positive to 3.3V and negative to GND</td><td>on hand</td></tr>
         </tbody>
       </table>
-      <p class="sim-note">Do not place the 100µF capacitor on the antenna node. The antenna itself supplies the tiny timing capacitance. If the oscillator is too fast or unstable, add only a small 10pF to 100pF ceramic capacitor from the antenna node to GND.</p>
+      <p class="sim-note">The 1MΩ resistor belongs between GPIO18 and the sense node. Do not connect it from the antenna node to GND. The optional 10kΩ resistor sits between the antenna and sense node and provides limited input protection without changing the measurement method.</p>
     </div>
 
     <!-- WIRING: BASIC -->
@@ -280,28 +278,24 @@
 
     <!-- WIRING: THEREMIN / ROAD B -->
     <div class="bn-sec" id="wiring-theremin">
-      <h2>Wiring, theremin build (Road B)</h2>
-      <p>This version is built from the parts already on hand. Three gates inside a 74HC00 form the antenna oscillator. The fourth gate buffers the output into fixed ESP32 GPIO14. A nearby hand increases antenna capacitance and lowers the oscillator frequency, exactly matching the firmware's proximity logic.</p>
-      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.15-diy5" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE DIY 74HC00 PIN WIRING DIAGRAM</a></p>
+      <h2>Wiring, extended-range resistor build (Road B)</h2>
+      <p>This version uses GPIO18 as a controlled drive pin and GPIO4 as the antenna sense pin. The required 1MΩ resistor creates a measurable charge time. A nearby hand increases antenna capacitance, so the measured charge time and proximity value rise together.</p>
+      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.17-rc1" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE RESISTOR SENSOR WIRING DIAGRAM</a></p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.15-diy5" width="1600" height="1120" class="bn-diagram" data-zoomable="1" alt="DIY top-view SPECTER Node wiring diagram showing the physical DIP-14 74HC00, notch orientation, numbered pins, every oscillator jumper, ESP32 GPIO14, QMC5883L magnetometer, LED ring, buzzer, and polarized power capacitor.">
+        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.17-rc1" width="1600" height="1120" class="bn-diagram" data-zoomable="1" alt="Complete SPECTER Node resistor sensor wiring diagram showing GPIO18 through a 1 megaohm resistor to the GPIO4 antenna sense node, an optional 10 kiloohm antenna protection resistor, QMC5883L magnetometer, LED ring, buzzer, and polarized power capacitor.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
       <table class="bn-table">
         <thead><tr><th>Connection</th><th>Destination</th></tr></thead>
         <tbody>
-          <tr><td>74HC00 pin 14 / pin 7</td><td class="pin">3.3V / GND</td></tr>
-          <tr><td>Antenna node</td><td class="pin">74HC00 pins 1 + 2 tied together</td></tr>
-          <tr><td>Gate 1 output</td><td class="pin">pin 3 to pins 4 + 5</td></tr>
-          <tr><td>Gate 2 output</td><td class="pin">pin 6 to pins 9 + 10</td></tr>
-          <tr><td>Gate 3 feedback</td><td class="pin">pin 8 through 1MΩ to antenna node, pins 1 + 2</td></tr>
-          <tr><td>Gate 4 buffer input</td><td class="pin">pin 8 to pins 12 + 13</td></tr>
-          <tr><td>Gate 4 buffered output</td><td class="pin">pin 11 through 4.7kΩ to ESP32 GPIO14</td></tr>
-          <tr><td>100µF electrolytic</td><td class="pin">positive to 3.3V, negative to GND</td></tr>
+          <tr><td>GPIO18 drive</td><td class="pin">Through required 1MΩ resistor to the sense node</td></tr>
+          <tr><td>GPIO4 sense</td><td class="pin">Directly to the same sense node</td></tr>
+          <tr><td>Telescopic antenna</td><td class="pin">To the sense node through optional 10kΩ resistor</td></tr>
+          <tr><td>100µF electrolytic, optional</td><td class="pin">Positive to 3.3V, negative to GND</td></tr>
           <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build</td></tr>
         </tbody>
       </table>
-      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range 74HC00 antenna oscillator (GPIO14 fixed)</strong>. The separate Antenna GPIO selector applies only to basic touch mode. Theremin response controls the continuous light and pitch behavior.</div>
+      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)</strong>. The portal shows live charge time, ambient baseline, and wiring status. The separate Antenna GPIO selector applies only to basic touch mode.</div>
     </div>
     <!-- CODE -->
     <div class="bn-sec" id="leds">
@@ -378,7 +372,7 @@
         <div class="fl-tag">Fastest way &middot; no Arduino IDE needed</div>
         <h3>Flash your node straight from this page</h3>
         <p>Once your board is wired up, you can install the SPECTER Node firmware right here over USB &ndash; no Arduino IDE, no libraries, no partition settings to worry about. Plug the ESP32 into your computer with a USB cable, click below, and pick the serial port. It comes preconfigured for RGBW (SK6812) rings, and you can tune everything from the on-device Settings page afterward.</p>
-        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.16">
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.17">
           <button class="fl-btn" slot="activate">Install firmware over USB</button>
           <span slot="unsupported" class="fl-nosup">Your browser can&rsquo;t flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.</span>
           <span slot="not-allowed" class="fl-nosup">Serial access was blocked. Reload the page and allow the port when prompted.</span>

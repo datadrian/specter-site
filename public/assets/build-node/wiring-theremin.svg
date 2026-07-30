@@ -1,118 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1120" role="img" aria-label="DIY top-view wiring diagram for the complete SPECTER Node. It shows a physical DIP-14 74HC00 with notch orientation and pins 1 through 14, all oscillator jumpers, a 1 megaohm feedback resistor, a 4.7 kiloohm GPIO resistor, ESP32 GPIO14, QMC5883L on GPIO21 and GPIO22, LED ring on GPIO13, buzzer on GPIO12, and a polarized 100 microfarad capacitor across 3.3 volts and ground.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1120" role="img" aria-label="Complete SPECTER Node resistor sensor wiring diagram. GPIO18 drives through a 1 megaohm resistor to the GPIO4 antenna sense node. The antenna connects through an optional 10 kiloohm protection resistor. The diagram also shows the QMC5883L on GPIO21 and GPIO22, LED ring on GPIO13, buzzer on GPIO12, and optional power capacitor.">
 <defs><style>
-.bg{fill:#070a0f}.panel{fill:#0c1219;stroke:#263945;stroke-width:2}.chip{fill:#171d24;stroke:#dce8ee;stroke-width:3}.notch{fill:#070a0f;stroke:#dce8ee;stroke-width:2}.pinleg{fill:#c5d1d8;stroke:#ecf5f8;stroke-width:1}.title{fill:#00e5ff;font:700 22px monospace;letter-spacing:2px}.subtitle{fill:#91a2ad;font:14px monospace}.head{fill:#edf5f8;font:700 17px monospace}.txt{fill:#ced9df;font:14px monospace}.small{fill:#91a2ad;font:12px monospace}.pintext{fill:#edf5f8;font:700 13px monospace}.chipname{fill:#edf5f8;font:700 26px monospace}.chipnote{fill:#91a2ad;font:13px monospace}.wireA{fill:none;stroke:#f4c95d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireB{fill:none;stroke:#48c9ff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireC{fill:none;stroke:#b98cff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireD{fill:none;stroke:#5ee0a0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.pwr{fill:none;stroke:#ff6868;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.gnd{fill:none;stroke:#9aa7b2;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.magwire{fill:none;stroke:#52d9cf;stroke-width:4;stroke-linecap:round}.ledwire{fill:none;stroke:#ff9d4d;stroke-width:4;stroke-linecap:round}.buzzwire{fill:none;stroke:#f26da7;stroke-width:4;stroke-linecap:round}.junction{stroke:#070a0f;stroke-width:2}.ja{fill:#f4c95d}.jb{fill:#48c9ff}.jc{fill:#b98cff}.jd{fill:#5ee0a0}.res{fill:#e8d8aa;stroke:#604f29;stroke-width:2}.resband{stroke-width:4}.warn{fill:#ffd166;font:700 13px monospace}.num{fill:#070a0f;stroke:#00e5ff;stroke-width:2}.numtxt{fill:#00e5ff;font:700 14px monospace}.boxlabel{fill:#00e5ff;font:700 14px monospace}.legend{fill:#0a1016;stroke:#324653;stroke-width:1.5}
+.bg{fill:#070a0f}.panel{fill:#0c1219;stroke:#263945;stroke-width:2}.board{fill:#111a22;stroke:#b9d8e6;stroke-width:3}.part{fill:#141e27;stroke:#5f7f8e;stroke-width:2}.rail{stroke:#718896;stroke-width:5;fill:none}.sig{stroke:#00e5ff;stroke-width:6;fill:none}.pwr{stroke:#ffca5c;stroke-width:5;fill:none}.gnd{stroke:#8aa0aa;stroke-width:5;fill:none}.led{stroke:#ff5c9a;stroke-width:5;fill:none}.mag{stroke:#78e08f;stroke-width:5;fill:none}.txt{fill:#dce8ee;font:22px Arial,sans-serif}.small{fill:#9fb4be;font:18px Arial,sans-serif}.tiny{fill:#8399a3;font:16px Arial,sans-serif}.head{fill:#00e5ff;font:bold 25px Arial,sans-serif}.title{fill:#eaf7fb;font:bold 34px Arial,sans-serif}.sub{fill:#9fb4be;font:20px Arial,sans-serif}.pin{fill:#00e5ff;font:bold 19px monospace}.label{fill:#eaf7fb;font:bold 20px Arial,sans-serif}.res{fill:#d6b36b;stroke:#f4d58d;stroke-width:2}.node{fill:#00e5ff}.warn{fill:#ffca5c;font:bold 17px Arial,sans-serif}.ok{fill:#78e08f;font:bold 18px Arial,sans-serif}
 </style></defs>
 <rect class="bg" width="1600" height="1120"/>
-<path d="M18 18h34M18 18v34M1582 18h-34M1582 18v34M18 1102h34M18 1102v-34M1582 1102h-34M1582 1102v-34" fill="none" stroke="#29424f"/>
-<text class="title" x="40" y="48">SPECTER NODE // DIY 74HC00 OSCILLATOR + COMPLETE NODE WIRING</text>
-<text class="subtitle" x="40" y="73">TOP VIEW OF THE CHIP. Put the notch at the top exactly as shown, then count pins down the left side and back up the right side.</text>
+<text class="title" x="40" y="52">SPECTER NODE // TWO-PIN RESISTOR SENSOR + COMPLETE NODE WIRING</text>
+<text class="sub" x="40" y="84">No logic chip required. GPIO18 charges the antenna node through 1MΩ while GPIO4 measures charge time.</text>
 
-<!-- power rails -->
-<path class="pwr" d="M70 115H1530"/><text x="75" y="106" fill="#ff6868" font-family="monospace" font-weight="bold">3.3V POWER RAIL</text>
-<path class="gnd" d="M70 820H1530"/><text x="75" y="846" fill="#9aa7b2" font-family="monospace" font-weight="bold">COMMON GROUND RAIL</text>
-
-<!-- oscillator panel -->
-<rect class="panel" x="40" y="140" width="980" height="635" rx="10"/>
-<text class="head" x="65" y="172">A. 74HC00 OSCILLATOR, PHYSICAL DIP-14 CHIP</text>
-<text class="small" x="65" y="194">All four gates are inside this one chip. Both inputs of each gate are tied together.</text>
+<!-- RC sensor panel -->
+<rect class="panel" x="35" y="115" width="625" height="515" rx="12"/>
+<text class="head" x="65" y="158">A. EXTENDED-RANGE RESISTOR SENSOR</text>
+<text class="small" x="65" y="190">Fixed firmware mode: GPIO18 drive, GPIO4 sense</text>
 
 <!-- antenna -->
-<path class="wireA" d="M105 270v70M82 270h46M90 255h30M98 240h14"/>
-<circle class="ja junction" cx="105" cy="340" r="7"/>
-<text class="head" x="65" y="375">TELESCOPIC</text><text class="head" x="65" y="396">ANTENNA</text>
-<text class="small" x="65" y="418">No capacitor here.</text><text class="small" x="65" y="435">The antenna is C.</text>
+<line class="rail" x1="120" y1="245" x2="120" y2="430"/>
+<line class="rail" x1="102" y1="245" x2="138" y2="245"/>
+<line class="rail" x1="108" y1="220" x2="132" y2="220"/>
+<line class="rail" x1="114" y1="195" x2="126" y2="195"/>
+<text class="label" x="62" y="470">TELESCOPIC</text><text class="label" x="83" y="496">ANTENNA</text>
 
-<!-- physical chip -->
-<rect class="chip" x="410" y="220" width="300" height="510" rx="18"/>
-<path class="notch" d="M515 220a45 32 0 0 0 90 0"/>
-<circle cx="445" cy="252" r="9" fill="#dce8ee"/>
-<text class="chipname" x="560" y="445" text-anchor="middle" transform="rotate(-90 560 445)">74HC00</text>
-<text class="chipnote" x="592" y="445" text-anchor="middle" transform="rotate(-90 592 445)">TOP VIEW, NOTCH UP</text>
+<!-- optional 10k -->
+<path class="sig" d="M120 430 H180"/>
+<rect class="res" x="180" y="412" width="150" height="36" rx="7"/>
+<text class="label" x="255" y="437" text-anchor="middle">10kΩ OPTIONAL</text>
+<path class="sig" d="M330 430 H470"/>
+<circle class="node" cx="470" cy="430" r="10"/>
+<text class="pin" x="470" y="468" text-anchor="middle">SENSE NODE</text>
 
-<!-- left pins 1-7 -->
-<g>
-<rect class="pinleg" x="380" y="255" width="30" height="18"/><text class="pintext" x="368" y="250" text-anchor="end">1  1A</text>
-<rect class="pinleg" x="380" y="322" width="30" height="18"/><text class="pintext" x="368" y="317" text-anchor="end">2  1B</text>
-<rect class="pinleg" x="380" y="389" width="30" height="18"/><text class="pintext" x="368" y="384" text-anchor="end">3  1Y</text>
-<rect class="pinleg" x="380" y="456" width="30" height="18"/><text class="pintext" x="368" y="451" text-anchor="end">4  2A</text>
-<rect class="pinleg" x="380" y="523" width="30" height="18"/><text class="pintext" x="368" y="518" text-anchor="end">5  2B</text>
-<rect class="pinleg" x="380" y="590" width="30" height="18"/><text class="pintext" x="368" y="585" text-anchor="end">6  2Y</text>
-<rect class="pinleg" x="380" y="657" width="30" height="18"/><text class="pintext" x="368" y="652" text-anchor="end">7  GND</text>
-</g>
-<!-- right pins 14-8 -->
-<g>
-<rect class="pinleg" x="710" y="255" width="30" height="18"/><text class="pintext" x="752" y="250">14 VCC</text>
-<rect class="pinleg" x="710" y="322" width="30" height="18"/><text class="pintext" x="752" y="317">13 4B</text>
-<rect class="pinleg" x="710" y="389" width="30" height="18"/><text class="pintext" x="752" y="384">12 4A</text>
-<rect class="pinleg" x="710" y="456" width="30" height="18"/><text class="pintext" x="752" y="451">11 4Y</text>
-<rect class="pinleg" x="710" y="523" width="30" height="18"/><text class="pintext" x="752" y="518">10 3B</text>
-<rect class="pinleg" x="710" y="590" width="30" height="18"/><text class="pintext" x="752" y="585">9  3A</text>
-<rect class="pinleg" x="710" y="657" width="30" height="18"/><text class="pintext" x="752" y="652">8  3Y</text>
-</g>
+<!-- 1M drive -->
+<path class="sig" d="M625 280 H555"/>
+<rect class="res" x="405" y="262" width="150" height="36" rx="7"/>
+<text class="label" x="480" y="287" text-anchor="middle">1MΩ REQUIRED</text>
+<path class="sig" d="M405 280 H370 V430 H470"/>
+<text class="small" x="392" y="244">charge path</text>
 
-<!-- antenna node to pins 1 and 2 -->
-<path class="wireA" d="M105 340H230V264H380M230 264V331H380"/>
-<circle class="ja junction" cx="230" cy="264" r="7"/>
-<text x="205" y="235" fill="#f4c95d" font-family="monospace" font-weight="bold">ANTENNA NODE A</text>
+<!-- sense path -->
+<path class="sig" d="M470 430 H575 V360 H625"/>
+<text class="small" x="482" y="402">measure</text>
 
-<!-- pin3 to pins4/5 -->
-<path class="wireB" d="M380 398H320V465H380M320 465V532H380"/>
-<circle class="jb junction" cx="320" cy="465" r="7"/>
-<text x="205" y="488" fill="#48c9ff" font-family="monospace" font-weight="bold">PIN 3 TO PINS 4 + 5</text>
+<rect class="part" x="70" y="535" width="550" height="62" rx="8"/>
+<text class="ok" x="90" y="562">WIRING</text>
+<text class="small" x="190" y="562">GPIO18 → 1MΩ → sense node → GPIO4</text>
+<text class="small" x="190" y="586">Antenna → optional 10kΩ → same sense node</text>
 
-<!-- pin6 to pins9/10, route below -->
-<path class="wireC" d="M380 599H285V748H850V599H740M850 599V532H740"/>
-<circle class="jc junction" cx="850" cy="599" r="7"/>
-<text x="410" y="768" fill="#b98cff" font-family="monospace" font-weight="bold">PIN 6 TO PINS 9 + 10</text>
+<!-- ESP32 -->
+<rect class="board" x="625" y="115" width="500" height="690" rx="18"/>
+<text class="head" x="875" y="160" text-anchor="middle">ESP32 DEV BOARD</text>
+<rect x="790" y="190" width="170" height="305" rx="16" fill="#1b2933" stroke="#5f7f8e" stroke-width="2"/>
+<rect x="820" y="220" width="110" height="155" rx="7" fill="#203847" stroke="#87a7b5"/>
+<path d="M800 400 H950 M800 425 H950 M800 450 H950" stroke="#45616f" stroke-width="3"/>
+<text class="small" x="875" y="525" text-anchor="middle">USB POWER / DATA</text>
 
-<!-- pin8 to pins12/13 -->
-<path class="wireD" d="M740 666H915V398H740M915 398V331H740"/>
-<circle class="jd junction" cx="915" cy="398" r="7"/>
-<text x="795" y="305" fill="#5ee0a0" font-family="monospace" font-weight="bold">PIN 8 TO PINS 12 + 13</text>
+<!-- left board pins -->
+<circle class="node" cx="625" cy="280" r="7"/><text class="pin" x="645" y="286">GPIO18 DRIVE</text>
+<circle class="node" cx="625" cy="360" r="7"/><text class="pin" x="645" y="366">GPIO4 SENSE</text>
+<circle cx="625" cy="535" r="7" fill="#78e08f"/><text class="pin" x="645" y="541">GPIO21 SDA</text>
+<circle cx="625" cy="590" r="7" fill="#78e08f"/><text class="pin" x="645" y="596">GPIO22 SCL</text>
+<circle cx="625" cy="680" r="7" fill="#ffca5c"/><text class="pin" x="645" y="686">3.3V</text>
+<circle cx="625" cy="735" r="7" fill="#8aa0aa"/><text class="pin" x="645" y="741">GND</text>
 
-<!-- feedback pin8 to antenna node through resistor -->
-<path class="wireA" d="M915 666V718H730"/>
-<rect class="res" x="580" y="700" width="150" height="36" rx="8"/>
-<line class="resband" x1="610" y1="702" x2="610" y2="734" stroke="#8b5a2b"/><line class="resband" x1="635" y1="702" x2="635" y2="734" stroke="#111"/><line class="resband" x1="660" y1="702" x2="660" y2="734" stroke="#3a8f3a"/><line class="resband" x1="700" y1="702" x2="700" y2="734" stroke="#d9b44a"/>
-<path class="wireA" d="M580 718H230V340"/>
-<text class="head" x="655" y="682" text-anchor="middle">R1, 1MΩ FEEDBACK</text>
+<!-- right board pins -->
+<circle cx="1125" cy="300" r="7" fill="#ff5c9a"/><text class="pin" x="1105" y="306" text-anchor="end">GPIO13 LED DATA</text>
+<circle cx="1125" cy="500" r="7" fill="#00e5ff"/><text class="pin" x="1105" y="506" text-anchor="end">GPIO12 BUZZER</text>
+<circle cx="1125" cy="680" r="7" fill="#ffca5c"/><text class="pin" x="1105" y="686" text-anchor="end">3.3V</text>
+<circle cx="1125" cy="735" r="7" fill="#8aa0aa"/><text class="pin" x="1105" y="741" text-anchor="end">GND</text>
 
-<!-- chip power -->
-<path class="pwr" d="M740 264H840V115"/>
-<path class="gnd" d="M380 666H260V820"/>
-<text class="small" x="850" y="132">pin 14 to 3.3V</text><text class="small" x="270" y="810">pin 7 to GND</text>
+<!-- QMC panel -->
+<rect class="panel" x="35" y="665" width="540" height="405" rx="12"/>
+<text class="head" x="65" y="708">B. QMC5883L MAGNETOMETER</text>
+<rect class="part" x="90" y="765" width="270" height="210" rx="12"/>
+<text class="label" x="225" y="805" text-anchor="middle">QMC5883L / GY-271</text>
+<circle cx="125" cy="850" r="7" fill="#ffca5c"/><text class="pin" x="145" y="856">VCC</text>
+<circle cx="125" cy="900" r="7" fill="#8aa0aa"/><text class="pin" x="145" y="906">GND</text>
+<circle cx="325" cy="850" r="7" fill="#78e08f"/><text class="pin" x="305" y="856" text-anchor="end">SDA</text>
+<circle cx="325" cy="900" r="7" fill="#78e08f"/><text class="pin" x="305" y="906" text-anchor="end">SCL</text>
+<path class="mag" d="M325 850 H500 V535 H625"/>
+<path class="mag" d="M325 900 H530 V590 H625"/>
+<path class="pwr" d="M125 850 H65 V680 H625"/>
+<path class="gnd" d="M125 900 H55 V735 H625"/>
+<text class="small" x="90" y="1020">Use the module labels, not assumed pin order.</text>
+<text class="small" x="90" y="1047">Supported addresses: 0x0D and 0x2C.</text>
 
-<!-- ESP32 panel -->
-<rect class="panel" x="1050" y="140" width="510" height="635" rx="10"/>
-<text class="head" x="1075" y="172">B. ESP32 CONNECTIONS</text>
-<rect class="chip" x="1210" y="210" width="230" height="450" rx="14"/>
-<text class="chipname" x="1325" y="255" text-anchor="middle">ESP32</text><text class="chipnote" x="1325" y="279" text-anchor="middle">WROOM DEVKIT</text>
-<text class="pintext" x="1230" y="335">3V3</text><circle cx="1210" cy="330" r="6" fill="#ff6868"/>
-<text class="pintext" x="1230" y="390">GPIO14 OSC IN</text><circle cx="1210" cy="385" r="6" fill="#00e5ff"/>
-<text class="pintext" x="1230" y="445">GPIO21 SDA</text><circle cx="1210" cy="440" r="6" fill="#52d9cf"/>
-<text class="pintext" x="1230" y="500">GPIO22 SCL</text><circle cx="1210" cy="495" r="6" fill="#52d9cf"/>
-<text class="pintext" x="1230" y="555">GPIO13 LED DATA</text><circle cx="1210" cy="550" r="6" fill="#ff9d4d"/>
-<text class="pintext" x="1230" y="610">GPIO12 BUZZER +</text><circle cx="1210" cy="605" r="6" fill="#f26da7"/>
-<text class="pintext" x="1230" y="642">GND</text><circle cx="1210" cy="637" r="6" fill="#9aa7b2"/>
-<path class="pwr" d="M1210 330H1145V115"/><path class="gnd" d="M1210 637H1115V820"/>
+<!-- LED ring -->
+<rect class="panel" x="1160" y="115" width="405" height="330" rx="12"/>
+<text class="head" x="1190" y="158">C. LED RING</text>
+<circle cx="1360" cy="275" r="92" fill="none" stroke="#334955" stroke-width="22"/>
+<circle cx="1360" cy="183" r="8" fill="#ff5c9a"/><circle cx="1425" cy="210" r="8" fill="#ff5c9a"/><circle cx="1452" cy="275" r="8" fill="#ff5c9a"/><circle cx="1425" cy="340" r="8" fill="#ff5c9a"/><circle cx="1360" cy="367" r="8" fill="#ff5c9a"/><circle cx="1295" cy="340" r="8" fill="#ff5c9a"/><circle cx="1268" cy="275" r="8" fill="#ff5c9a"/><circle cx="1295" cy="210" r="8" fill="#ff5c9a"/>
+<path class="led" d="M1125 300 H1215"/><text class="small" x="1230" y="306">DIN</text>
+<text class="small" x="1190" y="408">DIN GPIO13 · VCC 3.3V or 5V · GND common</text>
 
-<!-- output resistor from pin11 -->
-<path class="wireB" d="M740 465H935"/>
-<rect class="res" x="935" y="447" width="115" height="36" rx="8"/>
-<line class="resband" x1="960" y1="449" x2="960" y2="481" stroke="#d9b44a"/><line class="resband" x1="982" y1="449" x2="982" y2="481" stroke="#7b3f98"/><line class="resband" x1="1004" y1="449" x2="1004" y2="481" stroke="#c0392b"/><line class="resband" x1="1030" y1="449" x2="1030" y2="481" stroke="#d9b44a"/>
-<path class="wireB" d="M1050 465H1080V385H1210"/>
-<text class="head" x="992" y="437" text-anchor="middle">R2, 4.7kΩ</text>
+<!-- buzzer -->
+<rect class="panel" x="1160" y="475" width="405" height="205" rx="12"/>
+<text class="head" x="1190" y="518">D. PASSIVE BUZZER</text>
+<circle cx="1370" cy="590" r="55" fill="#18242d" stroke="#00e5ff" stroke-width="3"/>
+<path class="sig" d="M1125 500 H1240 V575 H1315"/>
+<text class="label" x="1370" y="598" text-anchor="middle">+</text>
+<text class="small" x="1190" y="653">Positive GPIO12 · Negative GND</text>
 
+<!-- power filter -->
+<rect class="panel" x="1160" y="715" width="405" height="355" rx="12"/>
+<text class="head" x="1190" y="758">E. POWER + OPTIONAL CAPACITOR</text>
+<path class="pwr" d="M1125 680 H1515 V815"/>
+<path class="gnd" d="M1125 735 H1480 V955"/>
+<line x1="1380" y1="845" x2="1450" y2="845" stroke="#ffca5c" stroke-width="8"/>
+<line x1="1380" y1="875" x2="1450" y2="875" stroke="#8aa0aa" stroke-width="4"/>
+<path class="pwr" d="M1415 815 V845"/><path class="gnd" d="M1415 875 V955"/>
+<text class="label" x="1260" y="850">100µF / 35V</text>
+<text class="small" x="1190" y="905">Positive to 3.3V</text><text class="small" x="1190" y="933">Negative stripe to GND</text>
+<text class="warn" x="1190" y="1005">Power off before moving any wire.</text>
 
-<!-- capacitor -->
-<line class="pwr" x1="1500" y1="115" x2="1500" y2="185"/><line x1="1475" y1="185" x2="1525" y2="185" stroke="#edf5f8" stroke-width="5"/><path d="M1475 205q25 -12 50 0" fill="none" stroke="#edf5f8" stroke-width="5"/><line class="gnd" x1="1500" y1="205" x2="1500" y2="820"/>
-<text class="head" x="1500" y="235" text-anchor="middle">100µF</text><text class="warn" x="1500" y="257" text-anchor="middle">+ TOP</text><text class="warn" x="1500" y="276" text-anchor="middle">- BOTTOM</text><text class="small" x="1500" y="295" text-anchor="middle">35V is OK</text>
-
-<!-- peripherals -->
-<rect class="panel" x="40" y="870" width="1520" height="205" rx="10"/>
-<text class="head" x="65" y="902">C. THE REST OF THE SAME SPECTER NODE, DO NOT OMIT THESE</text>
-<rect class="legend" x="70" y="930" width="400" height="110" rx="7"/><text class="boxlabel" x="90" y="958">QMC5883L MAGNETOMETER</text><text class="txt" x="90" y="985">VCC → 3.3V   GND → GND</text><text class="txt" x="90" y="1012">SDA → GPIO21   SCL → GPIO22</text>
-<rect class="legend" x="505" y="930" width="310" height="110" rx="7"/><text class="boxlabel" x="525" y="958">ADDRESSABLE LED RING</text><text class="txt" x="525" y="985">VCC → supply   GND → GND</text><text class="txt" x="525" y="1012">DIN → GPIO13</text>
-<rect class="legend" x="850" y="930" width="300" height="110" rx="7"/><text class="boxlabel" x="870" y="958">PASSIVE BUZZER</text><text class="txt" x="870" y="985">+ → GPIO12</text><text class="txt" x="870" y="1012">- → GND</text>
-<rect class="legend" x="1185" y="930" width="345" height="110" rx="7"/><text class="boxlabel" x="1205" y="958">FIRMWARE SETTING</text><text class="txt" x="1205" y="985">Sense source:</text><text class="txt" x="1205" y="1012">74HC00 oscillator, GPIO14</text>
+<!-- legend -->
+<rect class="part" x="625" y="845" width="500" height="225" rx="12"/>
+<text class="head" x="655" y="888">FIRMWARE SETTING</text>
+<text class="txt" x="655" y="928">Settings → Sense source:</text>
+<text class="label" x="655" y="963">Extended-range resistor sensor</text>
+<text class="small" x="655" y="997">GPIO18 drive through 1MΩ to GPIO4 sense</text>
+<text class="tiny" x="655" y="1030">Portal shows live charge time, baseline, and wiring status.</text>
 </svg>
