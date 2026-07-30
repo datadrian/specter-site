@@ -295,7 +295,7 @@
           <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build</td></tr>
         </tbody>
       </table>
-      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)</strong>. The portal shows live charge time, ambient baseline, and wiring status. The separate Antenna GPIO selector applies only to basic touch mode.</div>
+      <div class="callout"><strong>Firmware setting:</strong> install firmware 2.12.18-maker or newer, open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)</strong>. The portal shows live charge time, ambient baseline, and wiring status. If the reading cannot complete, it now identifies a GPIO4 discharge failure or a GPIO18-to-1M-to-GPIO4 charge failure. The separate Antenna GPIO selector applies only to basic touch mode.</div>
     </div>
     <!-- CODE -->
     <div class="bn-sec" id="leds">
@@ -372,7 +372,7 @@
         <div class="fl-tag">Fastest way &middot; no Arduino IDE needed</div>
         <h3>Flash your node straight from this page</h3>
         <p>Once your board is wired up, you can install the SPECTER Node firmware right here over USB &ndash; no Arduino IDE, no libraries, no partition settings to worry about. Plug the ESP32 into your computer with a USB cable, click below, and pick the serial port. It comes preconfigured for RGBW (SK6812) rings, and you can tune everything from the on-device Settings page afterward.</p>
-        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.17">
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.18">
           <button class="fl-btn" slot="activate">Install firmware over USB</button>
           <span slot="unsupported" class="fl-nosup">Your browser can&rsquo;t flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.</span>
           <span slot="not-allowed" class="fl-nosup">Serial access was blocked. Reload the page and allow the port when prompted.</span>
