@@ -94,7 +94,17 @@
     .bn-table th,.bn-table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
     .bn-table th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;}
     .bn-table td.pin{font-family:var(--mono);color:var(--cyan);white-space:nowrap;}
-    .bn-diagram{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:6px;margin-top:8px;background:#070a0f;padding:8px;box-sizing:border-box;}
+    .bn-diagram{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:6px;margin-top:8px;background:#070a0f;padding:8px;box-sizing:border-box;cursor:zoom-in;transition:border-color .15s;}
+    .bn-diagram:hover{border-color:var(--cyan);}
+    .bn-diagram-wrap{position:relative;}
+    .bn-diagram-hint{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--text-dim);border:1px solid var(--border);border-radius:4px;padding:4px 8px;background:rgba(7,10,15,.7);pointer-events:none;opacity:0;transition:opacity .15s;}
+    .bn-diagram-wrap:hover .bn-diagram-hint{opacity:1;}
+    .bn-lightbox{position:fixed;inset:0;z-index:999;background:rgba(3,5,7,.92);display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out;}
+    .bn-lightbox.open{display:flex;}
+    .bn-lightbox img{max-width:96vw;max-height:92vh;width:auto;height:auto;border:1px solid var(--cyan);border-radius:6px;background:#070a0f;box-shadow:0 0 60px rgba(0,229,255,.15);cursor:zoom-out;}
+    .bn-lightbox-close{position:absolute;top:22px;right:28px;font-family:var(--mono);font-size:13px;color:var(--text-1,#889aa3);border:1px solid var(--border);border-radius:4px;padding:6px 12px;background:rgba(7,10,15,.8);cursor:pointer;}
+    .bn-lightbox-close:hover{color:var(--cyan);border-color:var(--cyan);}
+    .bn-lightbox-hint{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-dim,#3b4750);}
     /* code block */
     .code-head{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.12em;}
     .copy-btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:3px;cursor:pointer;}
@@ -247,7 +257,10 @@
     <div class="bn-sec" id="wiring">
       <h2>Wiring, basic build</h2>
       <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin. This is the build most people should start with - no extra chip, ~15cm proximity range.</p>
-      <img src="/assets/build-node/wiring-basic.svg" width="960" height="680" class="bn-diagram" alt="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND.">
+      <div class="bn-diagram-wrap">
+        <img src="/assets/build-node/wiring-basic.svg" width="960" height="680" class="bn-diagram" data-zoomable="1" alt="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND.">
+        <span class="bn-diagram-hint">CLICK TO ZOOM</span>
+      </div>
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 pin</th></tr></thead>
         <tbody>
@@ -268,7 +281,10 @@
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, theremin build (Road B)</h2>
       <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna into part of an LC oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
-      <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
+      <div class="bn-diagram-wrap">
+        <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
+        <span class="bn-diagram-hint">CLICK TO ZOOM</span>
+      </div>
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
         <tbody>
@@ -2891,6 +2907,39 @@ function setSimMode(m){
 
   setTimeout(function(){resize();pushLog('',ts()+' - NODE LINKED \u00b7 SPECTER Node A');tick();},60);
   window.addEventListener('resize',resize);
+})();
+</script>
+<div class="bn-lightbox" id="bnLightbox" role="dialog" aria-modal="true" aria-label="Zoomed wiring diagram">
+  <button class="bn-lightbox-close" id="bnLightboxClose" type="button">CLOSE &#215;</button>
+  <img id="bnLightboxImg" src="" alt="">
+  <div class="bn-lightbox-hint">CLICK ANYWHERE OR PRESS ESC TO CLOSE</div>
+</div>
+<script>
+(function(){
+  var lb = document.getElementById('bnLightbox');
+  var lbImg = document.getElementById('bnLightboxImg');
+  var lbClose = document.getElementById('bnLightboxClose');
+  var lastFocus = null;
+  function openLightbox(img){
+    lbImg.src = img.src;
+    lbImg.alt = img.alt || '';
+    lb.classList.add('open');
+    lastFocus = document.activeElement;
+    lbClose.focus();
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lb.classList.remove('open');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('img[data-zoomable]').forEach(function(img){
+    img.addEventListener('click', function(){ openLightbox(img); });
+  });
+  lb.addEventListener('click', function(e){ if (e.target === lb || e.target === lbImg) closeLightbox(); });
+  lbClose.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && lb.classList.contains('open')) closeLightbox(); });
 })();
 </script>
 </body>
