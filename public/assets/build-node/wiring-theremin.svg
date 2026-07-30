@@ -68,7 +68,7 @@
 <!-- pin8 to pins12/13 -->
 <path class="wireD" d="M740 666H915V398H740M915 398V331H740"/>
 <circle class="jd junction" cx="915" cy="398" r="7"/>
-<text x="790" y="688" fill="#5ee0a0" font-family="monospace" font-weight="bold">PIN 8 TO PINS 12 + 13</text>
+<text x="795" y="305" fill="#5ee0a0" font-family="monospace" font-weight="bold">PIN 8 TO PINS 12 + 13</text>
 
 <!-- feedback pin8 to antenna node through resistor -->
 <path class="wireA" d="M915 666V718H730"/>
@@ -106,7 +106,7 @@
 
 <!-- capacitor -->
 <line class="pwr" x1="1500" y1="115" x2="1500" y2="185"/><line x1="1475" y1="185" x2="1525" y2="185" stroke="#edf5f8" stroke-width="5"/><path d="M1475 205q25 -12 50 0" fill="none" stroke="#edf5f8" stroke-width="5"/><line class="gnd" x1="1500" y1="205" x2="1500" y2="820"/>
-<text class="head" x="1470" y="235" text-anchor="end">100µF / 35V</text><text class="warn" x="1470" y="257" text-anchor="end">+ TOP, - BOTTOM</text><text class="small" x="1470" y="277" text-anchor="end">power rails only</text>
+<text class="head" x="1500" y="235" text-anchor="middle">100µF</text><text class="warn" x="1500" y="257" text-anchor="middle">+ TOP</text><text class="warn" x="1500" y="276" text-anchor="middle">- BOTTOM</text><text class="small" x="1500" y="295" text-anchor="middle">35V is OK</text>
 
 <!-- peripherals -->
 <rect class="panel" x="40" y="870" width="1520" height="205" rx="10"/>
