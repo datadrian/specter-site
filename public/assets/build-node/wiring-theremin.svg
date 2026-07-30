@@ -1,80 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 800" role="img" aria-label="SPECTER Node extended-range antenna oscillator wiring diagram using only a 74HC00 NAND chip, resistors, antenna capacitance, and a 100 microfarad supply capacitor. Three NAND gates form the oscillator and the fourth buffers its output to ESP32 GPIO14.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1120" role="img" aria-label="DIY top-view wiring diagram for the complete SPECTER Node. It shows a physical DIP-14 74HC00 with notch orientation and pins 1 through 14, all oscillator jumpers, a 1 megaohm feedback resistor, a 4.7 kiloohm GPIO resistor, ESP32 GPIO14, QMC5883L on GPIO21 and GPIO22, LED ring on GPIO13, buzzer on GPIO12, and a polarized 100 microfarad capacitor across 3.3 volts and ground.">
 <defs><style>
-.bg{fill:#070a0f}.box{fill:#0d1520;stroke:#263744;stroke-width:2}.ic{fill:#111a22;stroke:#b98cff;stroke-width:2}.title{fill:#00e5ff;font:700 18px monospace;letter-spacing:2px}.sub{fill:#8596a3;font:13px monospace}.head{fill:#e9f1f5;font:700 16px monospace}.txt{fill:#c7d2da;font:13px monospace}.dim{fill:#80909c;font:12px monospace}.pin{fill:#00e5ff;font:700 13px monospace}.sig{fill:none;stroke:#00e5ff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.osc{fill:none;stroke:#b98cff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.pwr{fill:none;stroke:#ff5d5d;stroke-width:3;stroke-linecap:round}.gnd{fill:none;stroke:#8a97a3;stroke-width:3;stroke-linecap:round}.dot{fill:#b98cff}.warn{fill:#ffd166;font:700 12px monospace}.gate{fill:#121d26;stroke:#b98cff;stroke-width:1.5}.n{fill:#b98cff;font:700 12px monospace}.note{fill:#0b1118;stroke:#00e5ff;stroke-opacity:.5;stroke-width:1.5}.r{fill:none;stroke:#e9f1f5;stroke-width:2}.rail{stroke-width:4}
+.bg{fill:#070a0f}.panel{fill:#0c1219;stroke:#263945;stroke-width:2}.chip{fill:#171d24;stroke:#dce8ee;stroke-width:3}.notch{fill:#070a0f;stroke:#dce8ee;stroke-width:2}.pinleg{fill:#c5d1d8;stroke:#ecf5f8;stroke-width:1}.title{fill:#00e5ff;font:700 22px monospace;letter-spacing:2px}.subtitle{fill:#91a2ad;font:14px monospace}.head{fill:#edf5f8;font:700 17px monospace}.txt{fill:#ced9df;font:14px monospace}.small{fill:#91a2ad;font:12px monospace}.pintext{fill:#edf5f8;font:700 13px monospace}.chipname{fill:#edf5f8;font:700 26px monospace}.chipnote{fill:#91a2ad;font:13px monospace}.wireA{fill:none;stroke:#f4c95d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireB{fill:none;stroke:#48c9ff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireC{fill:none;stroke:#b98cff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.wireD{fill:none;stroke:#5ee0a0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.pwr{fill:none;stroke:#ff6868;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.gnd{fill:none;stroke:#9aa7b2;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.magwire{fill:none;stroke:#52d9cf;stroke-width:4;stroke-linecap:round}.ledwire{fill:none;stroke:#ff9d4d;stroke-width:4;stroke-linecap:round}.buzzwire{fill:none;stroke:#f26da7;stroke-width:4;stroke-linecap:round}.junction{stroke:#070a0f;stroke-width:2}.ja{fill:#f4c95d}.jb{fill:#48c9ff}.jc{fill:#b98cff}.jd{fill:#5ee0a0}.res{fill:#e8d8aa;stroke:#604f29;stroke-width:2}.resband{stroke-width:4}.warn{fill:#ffd166;font:700 13px monospace}.num{fill:#070a0f;stroke:#00e5ff;stroke-width:2}.numtxt{fill:#00e5ff;font:700 14px monospace}.boxlabel{fill:#00e5ff;font:700 14px monospace}.legend{fill:#0a1016;stroke:#324653;stroke-width:1.5}
 </style></defs>
-<rect class="bg" width="1230" height="800"/>
-<path d="M18 18h30M18 18v30M1212 18h-30M1212 18v30M18 782h30M18 782v-30M1212 782h-30M1212 782v-30" fill="none" stroke="#26404c"/>
-<text class="title" x="38" y="48">SPECTER NODE // 74HC00 ANTENNA OSCILLATOR</text>
-<text class="sub" x="38" y="72">No transistor. No inductors. Three NAND gates oscillate; gate 4 buffers the signal into fixed ESP32 GPIO14.</text>
+<rect class="bg" width="1600" height="1120"/>
+<path d="M18 18h34M18 18v34M1582 18h-34M1582 18v34M18 1102h34M18 1102v-34M1582 1102h-34M1582 1102v-34" fill="none" stroke="#29424f"/>
+<text class="title" x="40" y="48">SPECTER NODE // DIY 74HC00 OSCILLATOR + COMPLETE NODE WIRING</text>
+<text class="subtitle" x="40" y="73">TOP VIEW OF THE CHIP. Put the notch at the top exactly as shown, then count pins down the left side and back up the right side.</text>
 
-<rect class="box" x="35" y="100" width="720" height="555" rx="8"/>
-<text class="head" x="58" y="132">74HC00 DIP-14, POWERED AT 3.3V</text>
-<text class="dim" x="58" y="153">Tie both inputs of each NAND gate together so each gate behaves as an inverter.</text>
+<!-- power rails -->
+<path class="pwr" d="M70 115H1530"/><text x="75" y="106" fill="#ff6868" font-family="monospace" font-weight="bold">3.3V POWER RAIL</text>
+<path class="gnd" d="M70 820H1530"/><text x="75" y="846" fill="#9aa7b2" font-family="monospace" font-weight="bold">COMMON GROUND RAIL</text>
 
-<!-- antenna node -->
-<line class="osc" x1="90" y1="195" x2="90" y2="260"/>
-<path class="osc" d="M72 195h36M78 185h24M84 175h12"/>
-<circle class="dot" cx="90" cy="260" r="5"/>
-<text class="pin" x="58" y="284">ANTENNA NODE A</text>
-<text class="dim" x="58" y="303">Telescopic rod directly to pins 1 + 2</text>
-<text class="dim" x="58" y="320">Its natural capacitance is the timing C</text>
+<!-- oscillator panel -->
+<rect class="panel" x="40" y="140" width="980" height="635" rx="10"/>
+<text class="head" x="65" y="172">A. 74HC00 OSCILLATOR, PHYSICAL DIP-14 CHIP</text>
+<text class="small" x="65" y="194">All four gates are inside this one chip. Both inputs of each gate are tied together.</text>
 
-<!-- gates -->
-<rect class="gate" x="185" y="215" width="125" height="92" rx="7"/>
-<text class="head" x="247" y="243" text-anchor="middle">GATE 1</text><text class="pin" x="198" y="268">1 + 2 IN</text><text class="pin" x="245" y="293">3 OUT</text>
-<rect class="gate" x="365" y="215" width="125" height="92" rx="7"/>
-<text class="head" x="427" y="243" text-anchor="middle">GATE 2</text><text class="pin" x="378" y="268">4 + 5 IN</text><text class="pin" x="425" y="293">6 OUT</text>
-<rect class="gate" x="545" y="215" width="125" height="92" rx="7"/>
-<text class="head" x="607" y="243" text-anchor="middle">GATE 3</text><text class="pin" x="558" y="268">9 + 10 IN</text><text class="pin" x="598" y="293">8 OUT</text>
-<path class="osc" d="M90 260H185M310 260H365M490 260H545"/>
+<!-- antenna -->
+<path class="wireA" d="M105 270v70M82 270h46M90 255h30M98 240h14"/>
+<circle class="ja junction" cx="105" cy="340" r="7"/>
+<text class="head" x="65" y="375">TELESCOPIC</text><text class="head" x="65" y="396">ANTENNA</text>
+<text class="small" x="65" y="418">No capacitor here.</text><text class="small" x="65" y="435">The antenna is C.</text>
 
-<!-- feedback resistor -->
-<path class="osc" d="M670 260H705V365H635"/>
-<path class="r" d="M635 365l-10 -9 -16 18 -16 -18 -16 18 -16 -18 -16 18 -10 -9"/>
-<path class="osc" d="M565 365H90V260"/>
-<text class="head" x="600" y="345" text-anchor="middle">R1 = 1MΩ</text>
-<text class="dim" x="600" y="394" text-anchor="middle">Gate 3 output back to antenna node A</text>
+<!-- physical chip -->
+<rect class="chip" x="410" y="220" width="300" height="510" rx="18"/>
+<path class="notch" d="M515 220a45 32 0 0 0 90 0"/>
+<circle cx="445" cy="252" r="9" fill="#dce8ee"/>
+<text class="chipname" x="560" y="445" text-anchor="middle" transform="rotate(-90 560 445)">74HC00</text>
+<text class="chipnote" x="592" y="445" text-anchor="middle" transform="rotate(-90 592 445)">TOP VIEW, NOTCH UP</text>
 
-<!-- gate4 buffer -->
-<rect class="gate" x="365" y="430" width="190" height="100" rx="7"/>
-<text class="head" x="460" y="458" text-anchor="middle">GATE 4, OUTPUT BUFFER</text>
-<text class="pin" x="385" y="485">pins 12 + 13 IN</text><text class="pin" x="438" y="514">pin 11 OUT</text>
-<path class="osc" d="M705 260V480H555"/>
-<text class="dim" x="570" y="468">from pin 8</text>
+<!-- left pins 1-7 -->
+<g>
+<rect class="pinleg" x="380" y="255" width="30" height="18"/><text class="pintext" x="368" y="270" text-anchor="end">1  1A</text>
+<rect class="pinleg" x="380" y="322" width="30" height="18"/><text class="pintext" x="368" y="337" text-anchor="end">2  1B</text>
+<rect class="pinleg" x="380" y="389" width="30" height="18"/><text class="pintext" x="368" y="404" text-anchor="end">3  1Y</text>
+<rect class="pinleg" x="380" y="456" width="30" height="18"/><text class="pintext" x="368" y="471" text-anchor="end">4  2A</text>
+<rect class="pinleg" x="380" y="523" width="30" height="18"/><text class="pintext" x="368" y="538" text-anchor="end">5  2B</text>
+<rect class="pinleg" x="380" y="590" width="30" height="18"/><text class="pintext" x="368" y="605" text-anchor="end">6  2Y</text>
+<rect class="pinleg" x="380" y="657" width="30" height="18"/><text class="pintext" x="368" y="672" text-anchor="end">7  GND</text>
+</g>
+<!-- right pins 14-8 -->
+<g>
+<rect class="pinleg" x="710" y="255" width="30" height="18"/><text class="pintext" x="752" y="270">14 VCC</text>
+<rect class="pinleg" x="710" y="322" width="30" height="18"/><text class="pintext" x="752" y="337">13 4B</text>
+<rect class="pinleg" x="710" y="389" width="30" height="18"/><text class="pintext" x="752" y="404">12 4A</text>
+<rect class="pinleg" x="710" y="456" width="30" height="18"/><text class="pintext" x="752" y="471">11 4Y</text>
+<rect class="pinleg" x="710" y="523" width="30" height="18"/><text class="pintext" x="752" y="538">10 3B</text>
+<rect class="pinleg" x="710" y="590" width="30" height="18"/><text class="pintext" x="752" y="605">9  3A</text>
+<rect class="pinleg" x="710" y="657" width="30" height="18"/><text class="pintext" x="752" y="672">8  3Y</text>
+</g>
 
-<!-- power and cap -->
-<path class="pwr rail" d="M70 590H705"/><text x="70" y="580" fill="#ff5d5d" font-family="monospace" font-weight="bold">3.3V RAIL</text>
-<path class="gnd rail" d="M70 625H705"/><text x="70" y="648" fill="#8a97a3" font-family="monospace" font-weight="bold">GND RAIL</text>
-<path class="pwr" d="M280 590V555"/><text class="pin" x="246" y="548">pin 14 VCC</text>
-<path class="gnd" d="M345 625V555"/><text class="pin" x="320" y="548">pin 7 GND</text>
-<line class="pwr" x1="600" y1="590" x2="600" y2="602"/><line class="gnd" x1="600" y1="613" x2="600" y2="625"/>
-<line x1="580" y1="602" x2="620" y2="602" stroke="#e9f1f5" stroke-width="3"/><path d="M580 613q20 -8 40 0" fill="none" stroke="#e9f1f5" stroke-width="3"/>
-<text class="txt" x="630" y="606">100µF / 35V electrolytic</text><text class="warn" x="630" y="624">+ to 3.3V, - to GND</text>
+<!-- antenna node to pins 1 and 2 -->
+<path class="wireA" d="M105 340H230V264H380M230 264V331H380"/>
+<circle class="ja junction" cx="230" cy="264" r="7"/>
+<text x="242" y="245" fill="#f4c95d" font-family="monospace" font-weight="bold">ANTENNA NODE A</text>
 
-<!-- ESP32 -->
-<rect class="box" x="800" y="115" width="390" height="390" rx="8"/>
-<text class="head" x="825" y="148">ESP32 WROOM DEVKIT</text>
-<rect class="ic" x="880" y="180" width="220" height="260" rx="10"/>
-<text class="head" x="990" y="215" text-anchor="middle">ESP32</text>
-<text class="pin" x="900" y="272">GPIO14, OSC IN</text>
-<text class="pin" x="900" y="337">3V3</text><text class="pin" x="900" y="382">GND</text>
+<!-- pin3 to pins4/5 -->
+<path class="wireB" d="M380 398H320V465H380M320 465V532H380"/>
+<circle class="jb junction" cx="320" cy="465" r="7"/>
+<text x="205" y="488" fill="#48c9ff" font-family="monospace" font-weight="bold">PIN 3 TO PINS 4 + 5</text>
 
-<!-- output resistor and connection -->
-<path class="sig" d="M460 530V555H780V270H880"/>
-<path class="r" d="M690 555l10 -9 16 18 16 -18 16 18 16 -18 10 9"/>
-<text class="head" x="732" y="535" text-anchor="middle">R2 4.7kΩ</text>
-<text class="dim" x="732" y="586" text-anchor="middle">pin 11 to GPIO14</text>
-<path class="pwr" d="M990 337V590H705"/><path class="gnd" d="M1020 382V625H705"/>
+<!-- pin6 to pins9/10, route below -->
+<path class="wireC" d="M380 599H285V748H850V599H740M850 599V532H740"/>
+<circle class="jc junction" cx="850" cy="599" r="7"/>
+<text x="410" y="768" fill="#b98cff" font-family="monospace" font-weight="bold">PIN 6 TO PINS 9 + 10</text>
 
-<!-- standard peripherals -->
-<rect class="note" x="800" y="535" width="390" height="120" rx="7"/>
-<text class="head" x="820" y="565">OTHER NODE CONNECTIONS STAY THE SAME</text>
-<text class="txt" x="820" y="590">QMC5883L: SDA GPIO21, SCL GPIO22</text>
-<text class="txt" x="820" y="615">LED ring DIN: GPIO13</text>
-<text class="txt" x="820" y="640">Passive buzzer +: GPIO12</text>
+<!-- pin8 to pins12/13 -->
+<path class="wireD" d="M740 666H915V398H740M915 398V331H740"/>
+<circle class="jd junction" cx="915" cy="398" r="7"/>
+<text x="790" y="688" fill="#5ee0a0" font-family="monospace" font-weight="bold">PIN 8 TO PINS 12 + 13</text>
 
-<rect class="note" x="35" y="680" width="1155" height="82" rx="7"/>
-<text class="head" x="58" y="710">IMPORTANT</text>
-<text class="txt" x="58" y="734">Do not connect the 100µF capacitor to the antenna node. If you have a small ceramic marked 104, add it across pins 14 and 7 for cleaner power.</text>
-<text class="txt" x="58" y="752">Firmware: Settings &gt; Sense source &gt; Extended-range 74HC00 antenna oscillator. GPIO14 is fixed in oscillator mode.</text>
+<!-- feedback pin8 to antenna node through resistor -->
+<path class="wireA" d="M915 666V718H730"/>
+<rect class="res" x="580" y="700" width="150" height="36" rx="8"/>
+<line class="resband" x1="610" y1="702" x2="610" y2="734" stroke="#8b5a2b"/><line class="resband" x1="635" y1="702" x2="635" y2="734" stroke="#111"/><line class="resband" x1="660" y1="702" x2="660" y2="734" stroke="#3a8f3a"/><line class="resband" x1="700" y1="702" x2="700" y2="734" stroke="#d9b44a"/>
+<path class="wireA" d="M580 718H230V340"/>
+<text class="head" x="655" y="692" text-anchor="middle">R1, 1MΩ FEEDBACK</text>
+
+<!-- chip power -->
+<path class="pwr" d="M740 264H840V115"/>
+<path class="gnd" d="M380 666H260V820"/>
+<text class="small" x="850" y="132">pin 14 to 3.3V</text><text class="small" x="270" y="810">pin 7 to GND</text>
+
+<!-- ESP32 panel -->
+<rect class="panel" x="1050" y="140" width="510" height="635" rx="10"/>
+<text class="head" x="1075" y="172">B. ESP32 CONNECTIONS</text>
+<rect class="chip" x="1210" y="210" width="230" height="450" rx="14"/>
+<text class="chipname" x="1325" y="255" text-anchor="middle">ESP32</text><text class="chipnote" x="1325" y="279" text-anchor="middle">WROOM DEVKIT</text>
+<text class="pintext" x="1230" y="335">3V3</text><circle cx="1210" cy="330" r="6" fill="#ff6868"/>
+<text class="pintext" x="1230" y="390">GPIO14 OSC IN</text><circle cx="1210" cy="385" r="6" fill="#00e5ff"/>
+<text class="pintext" x="1230" y="445">GPIO21 SDA</text><circle cx="1210" cy="440" r="6" fill="#52d9cf"/>
+<text class="pintext" x="1230" y="500">GPIO22 SCL</text><circle cx="1210" cy="495" r="6" fill="#52d9cf"/>
+<text class="pintext" x="1230" y="555">GPIO13 LED DATA</text><circle cx="1210" cy="550" r="6" fill="#ff9d4d"/>
+<text class="pintext" x="1230" y="610">GPIO12 BUZZER +</text><circle cx="1210" cy="605" r="6" fill="#f26da7"/>
+<text class="pintext" x="1230" y="642">GND</text><circle cx="1210" cy="637" r="6" fill="#9aa7b2"/>
+<path class="pwr" d="M1210 330H1145V115"/><path class="gnd" d="M1210 637H1115V820"/>
+
+<!-- output resistor from pin11 -->
+<path class="wireB" d="M740 465H935"/>
+<rect class="res" x="935" y="447" width="115" height="36" rx="8"/>
+<line class="resband" x1="960" y1="449" x2="960" y2="481" stroke="#d9b44a"/><line class="resband" x1="982" y1="449" x2="982" y2="481" stroke="#7b3f98"/><line class="resband" x1="1004" y1="449" x2="1004" y2="481" stroke="#c0392b"/><line class="resband" x1="1030" y1="449" x2="1030" y2="481" stroke="#d9b44a"/>
+<path class="wireB" d="M1050 465H1080V385H1210"/>
+<text class="head" x="992" y="437" text-anchor="middle">R2, 4.7kΩ</text>
+<text class="small" x="1065" y="448">pin 11 to GPIO14</text>
+
+<!-- capacitor -->
+<line class="pwr" x1="1500" y1="115" x2="1500" y2="185"/><line x1="1475" y1="185" x2="1525" y2="185" stroke="#edf5f8" stroke-width="5"/><path d="M1475 205q25 -12 50 0" fill="none" stroke="#edf5f8" stroke-width="5"/><line class="gnd" x1="1500" y1="205" x2="1500" y2="820"/>
+<text class="head" x="1470" y="235" text-anchor="end">100µF / 35V</text><text class="warn" x="1470" y="257" text-anchor="end">+ TOP, - BOTTOM</text><text class="small" x="1470" y="277" text-anchor="end">power rails only</text>
+
+<!-- peripherals -->
+<rect class="panel" x="40" y="870" width="1520" height="205" rx="10"/>
+<text class="head" x="65" y="902">C. THE REST OF THE SAME SPECTER NODE, DO NOT OMIT THESE</text>
+<rect class="legend" x="70" y="930" width="400" height="110" rx="7"/><text class="boxlabel" x="90" y="958">QMC5883L MAGNETOMETER</text><text class="txt" x="90" y="985">VCC → 3.3V   GND → GND</text><text class="txt" x="90" y="1012">SDA → GPIO21   SCL → GPIO22</text>
+<rect class="legend" x="505" y="930" width="310" height="110" rx="7"/><text class="boxlabel" x="525" y="958">ADDRESSABLE LED RING</text><text class="txt" x="525" y="985">VCC → supply   GND → GND</text><text class="txt" x="525" y="1012">DIN → GPIO13</text>
+<rect class="legend" x="850" y="930" width="300" height="110" rx="7"/><text class="boxlabel" x="870" y="958">PASSIVE BUZZER</text><text class="txt" x="870" y="985">+ → GPIO12</text><text class="txt" x="870" y="1012">- → GND</text>
+<rect class="legend" x="1185" y="930" width="345" height="110" rx="7"/><text class="boxlabel" x="1205" y="958">FIRMWARE SETTING</text><text class="txt" x="1205" y="985">Sense source:</text><text class="txt" x="1205" y="1012">74HC00 oscillator, GPIO14</text>
 </svg>
