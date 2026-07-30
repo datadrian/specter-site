@@ -969,7 +969,7 @@
     const returningPct = totalNewRet > 0 ? Math.round((t.returningVisitors / totalNewRet) * 100) : 0;
     $('analytics-stats-grid').innerHTML = `
       <div class="stat"><div class="stat-n">${t.pageviews || 0}</div><div class="stat-l">PAGEVIEWS</div></div>
-      <div class="stat"><div class="stat-n">${t.uniqueSessions || 0}</div><div class="stat-l">UNIQUE VISITORS</div></div>
+      <div class="stat"><div class="stat-n">${t.uniqueVisitors || 0}</div><div class="stat-l">UNIQUE VISITORS</div></div>
       <div class="stat"><div class="stat-n">${t.downloads || 0}</div><div class="stat-l">DOWNLOADS</div></div>
       <div class="stat"><div class="stat-n">${fmtSeconds(t.avgSessionDurationSec)}</div><div class="stat-l">AVG TIME ON SITE</div></div>
       <div class="stat"><div class="stat-n">${t.avgPagesPerSession || 0}</div><div class="stat-l">PAGES / SESSION</div></div>

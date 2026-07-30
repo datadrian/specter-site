@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     configureStore(event);
     
     const body = readJson(event);
-    const { type, path, referrer, sessionId, durationMs, timestamp, isReturningVisitor, utmSource, utmMedium, utmCampaign } = body;
+    const { type, path, referrer, sessionId, visitorId, durationMs, timestamp, isReturningVisitor, utmSource, utmMedium, utmCampaign } = body;
     
     // Basic validation. If invalid, we respond with 200 ok: true but do not store.
     const allowedTypes = ['pageview', 'download', 'session_heartbeat'];
@@ -62,7 +62,8 @@ exports.handler = async (event) => {
       type,
       path: path.trim(),
       referrer: typeof referrer === 'string' ? referrer.trim() : '',
-      sessionId: typeof sessionId === 'string' ? sessionId.trim() : '',
+      sessionId: typeof sessionId === 'string' ? sessionId.trim().slice(0, 100) : '',
+      visitorId: typeof visitorId === 'string' ? visitorId.trim().slice(0, 100) : '',
       ts,
       userAgent,
       country: geo.country,

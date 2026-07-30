@@ -94,6 +94,7 @@ exports.handler = async (event) => {
     let totalDurationMs = 0;
     let durationCount = 0;
     const uniqueSessionsSet = new Set();
+    const uniqueVisitorsSet = new Set();
     
     const dailyMap = {};
     for (const d of dates) {
@@ -101,6 +102,7 @@ exports.handler = async (event) => {
         date: d,
         pageviews: 0,
         uniqueSessionsSet: new Set(),
+        uniqueVisitorsSet: new Set(),
         downloads: 0
       };
     }
@@ -114,22 +116,25 @@ exports.handler = async (event) => {
     const utmSourceMap = {};
     const utmCampaignMap = {};
     const outreachReferralMap = {};
-    // First pageview per session determines new vs. returning for that session.
-    const sessionFirstSeen = {}; // sessionId -> isReturningVisitor (bool)
+    // First pageview per anonymous visitor in the selected range determines
+    // whether that visitor was new or returning at the start of the range.
+    const visitorFirstSeen = {}; // visitorId (legacy fallback: sessionId) -> state
     const pageviewsBySession = {}; // sessionId -> count, for pages-per-session
     
     for (const evt of events) {
       const ts = evt.ts || evt.timestamp || new Date().toISOString();
       const dateStr = ts.slice(0, 10);
       
-      if (evt.sessionId) {
-        uniqueSessionsSet.add(evt.sessionId);
-        if (dailyMap[dateStr]) {
-          dailyMap[dateStr].uniqueSessionsSet.add(evt.sessionId);
-        }
-      }
-      
       if (evt.type === 'pageview') {
+        const visitorKey = evt.visitorId || evt.sessionId;
+        if (visitorKey) {
+          uniqueVisitorsSet.add(visitorKey);
+          if (dailyMap[dateStr]) dailyMap[dateStr].uniqueVisitorsSet.add(visitorKey);
+        }
+        if (evt.sessionId) {
+          uniqueSessionsSet.add(evt.sessionId);
+          if (dailyMap[dateStr]) dailyMap[dateStr].uniqueSessionsSet.add(evt.sessionId);
+        }
         pageviews++;
         if (dailyMap[dateStr]) {
           dailyMap[dateStr].pageviews++;
@@ -154,9 +159,9 @@ exports.handler = async (event) => {
         
         if (evt.sessionId) {
           pageviewsBySession[evt.sessionId] = (pageviewsBySession[evt.sessionId] || 0) + 1;
-          if (!(evt.sessionId in sessionFirstSeen) || ts < (sessionFirstSeen[evt.sessionId].ts || ts)) {
-            sessionFirstSeen[evt.sessionId] = { isReturning: Boolean(evt.isReturningVisitor), ts };
-          }
+        }
+        if (visitorKey && (!(visitorKey in visitorFirstSeen) || ts < (visitorFirstSeen[visitorKey].ts || ts))) {
+          visitorFirstSeen[visitorKey] = { isReturning: Boolean(evt.isReturningVisitor), ts };
         }
         
       } else if (evt.type === 'download') {
@@ -182,8 +187,8 @@ exports.handler = async (event) => {
     
     let newVisitors = 0;
     let returningVisitors = 0;
-    for (const sid of Object.keys(sessionFirstSeen)) {
-      if (sessionFirstSeen[sid].isReturning) returningVisitors++;
+    for (const visitorId of Object.keys(visitorFirstSeen)) {
+      if (visitorFirstSeen[visitorId].isReturning) returningVisitors++;
       else newVisitors++;
     }
     
@@ -194,6 +199,7 @@ exports.handler = async (event) => {
     
     const totals = {
       pageviews,
+      uniqueVisitors: uniqueVisitorsSet.size,
       uniqueSessions: uniqueSessionsSet.size,
       downloads,
       avgSessionDurationSec: Number(avgSessionDurationSec.toFixed(1)),
@@ -207,6 +213,7 @@ exports.handler = async (event) => {
       return {
         date: entry.date,
         pageviews: entry.pageviews,
+        uniqueVisitors: entry.uniqueVisitorsSet.size,
         uniqueSessions: entry.uniqueSessionsSet.size,
         downloads: entry.downloads,
       };
