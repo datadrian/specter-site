@@ -229,13 +229,25 @@
         </tbody>
       </table>
       <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
+      <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Theremin build (Road B) extra parts</h3>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds an LC oscillator front-end for extended range (~30-80cm vs ~15cm). Everything from the basic build above stays the same - this just adds one chip and three passive parts ahead of the antenna.</p>
+      <table class="bn-table">
+        <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
+        <tbody>
+          <tr><td>74HC14 hex Schmitt-trigger inverter (DIP-14)</td><td>Oscillator gain stage</td><td>$0.50–1</td></tr>
+          <tr><td>Inductor, 1–10mH (start ~4.7mH)</td><td>LC tank, sets base oscillator frequency</td><td>$0.50</td></tr>
+          <tr><td>Capacitor, 100–330pF (start ~220pF)</td><td>LC tank</td><td>$0.10</td></tr>
+          <tr><td>Resistor, ~1MΩ</td><td>Schmitt-trigger feedback</td><td>$0.10</td></tr>
+        </tbody>
+      </table>
+      <p class="sim-note">These values are starting points, not fixed specs - tune the capacitor or antenna length to get a clean, stable oscillation with your specific antenna before relying on the range.</p>
     </div>
 
-    <!-- WIRING -->
+    <!-- WIRING: BASIC -->
     <div class="bn-sec" id="wiring">
-      <h2>Wiring</h2>
-      <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin.</p>
-      <object type="image/svg+xml" data="/assets/build-node/wiring.svg" class="bn-diagram" aria-label="SPECTER Node wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND." style="background:#070a0f;padding:8px;"></object>
+      <h2>Wiring, basic build</h2>
+      <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin. This is the build most people should start with - no extra chip, ~15cm proximity range.</p>
+      <object type="image/svg+xml" data="/assets/build-node/wiring-basic.svg" class="bn-diagram" aria-label="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND." style="background:#070a0f;padding:8px;"></object>
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 pin</th></tr></thead>
         <tbody>
@@ -250,6 +262,25 @@
         </tbody>
       </table>
       <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches - no extra components needed.</div>
+    </div>
+
+    <!-- WIRING: THEREMIN / ROAD B -->
+    <div class="bn-sec" id="wiring-theremin">
+      <h2>Wiring, theremin build (Road B)</h2>
+      <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna into part of an LC oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
+      <object type="image/svg+xml" data="/assets/build-node/wiring-theremin.svg" class="bn-diagram" aria-label="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build." style="background:#070a0f;padding:8px;"></object>
+      <table class="bn-table">
+        <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
+        <tbody>
+          <tr><td>74HC14 · pin 14 (VCC) / pin 7 (GND)</td><td class="pin">3.3V / GND</td></tr>
+          <tr><td>74HC14 · pin 1 (1A, input)</td><td class="pin">LC tank node: antenna + inductor + capacitor, all to GND</td></tr>
+          <tr><td>74HC14 · pin 2 (1Y, output)</td><td class="pin">GPIO14 (oscillator square wave in)</td></tr>
+          <tr><td>74HC14 · unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND (standard practice for unused CMOS gate inputs)</td></tr>
+          <tr><td>Feedback resistor (~1MΩ)</td><td class="pin">74HC14 pin 2 (output) back to pin 1 (input)</td></tr>
+          <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build (see above)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">This is an optional upgrade, not a replacement - build the basic version first, confirm it works, then add this front-end if you want more range. The node firmware picks the sense source with a <code>proxMode</code> setting (0 = basic touch, 1 = oscillator) - if you wire this in, set <code>proxMode</code> to <code>1</code> before flashing.</div>
     </div>
 
     <!-- CODE -->

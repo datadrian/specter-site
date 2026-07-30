@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 860" font-family="'Share Tech Mono',monospace" role="img" aria-label="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14 for extended-range proximity sensing, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build, all sharing common 3.3V and ground rails.">
+  <defs>
+    <linearGradient id="board2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1520"/><stop offset="1" stop-color="#0a0f16"/>
+    </linearGradient>
+    <style>
+      .pin{fill:#0a0f16;stroke:#2a3a44;stroke-width:1.2}
+      .pin.used{stroke:#00e5ff}
+      .pinlbl{fill:#5a6b78;font-size:10.5px}
+      .pinlbl.used{fill:#00e5ff;font-weight:bold}
+      .pinlbl.osc{fill:#c9a4ff;font-weight:bold}
+      .comp{fill:#0d1520;stroke:#00e5ff;stroke-opacity:.55;stroke-width:1.4}
+      .complbl{fill:#e4ecf2;font-size:13px;font-weight:bold}
+      .compsub{fill:#7a8a96;font-size:10px}
+      .wire{fill:none;stroke-width:2.6;stroke-linecap:round}
+      .stub{fill:none;stroke-width:2.2;stroke-linecap:round}
+      .w-sig{stroke:#00e5ff}
+      .w-3v3{stroke:#ff5d5d}
+      .w-gnd{stroke:#8a97a3}
+      .w-osc{stroke:#c9a4ff}
+      .wlbl{font-size:10.5px;fill:#b8c6d0}
+      .title{fill:#00e5ff;font-size:15px;letter-spacing:.16em}
+      .subtitle{fill:#7a8a96;font-size:11px;letter-spacing:.08em}
+      .term{fill:#00e5ff}
+      .term3{fill:#ff5d5d}
+      .termg{fill:#8a97a3}
+      .termo{fill:#c9a4ff}
+      .brk{stroke:#00e5ff;stroke-opacity:.4;stroke-width:1;fill:none}
+      .legend text{font-size:10.5px;fill:#b8c6d0}
+      .ic{fill:#111a22;stroke:#c9a4ff;stroke-width:1.4}
+      .icpin{fill:#0a0f16;stroke:#3a3050;stroke-width:1}
+      .icpinlbl{fill:#8a7ba8;font-size:9.5px}
+      .icpinlbl.used{fill:#c9a4ff;font-weight:bold}
+      .capsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
+      .coilsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
+      .rail{stroke-width:3}
+      .rail3v3{stroke:#ff5d5d}
+      .railgnd{stroke:#8a97a3}
+      .raillbl{font-size:11px;font-weight:bold}
+      .hop{fill:none;stroke-width:2.2}
+    </style>
+  </defs>
+
+  <path class="brk" d="M14 14 h28 M14 14 v28"/>
+  <path class="brk" d="M1026 14 h-28 M1026 14 v28"/>
+  <path class="brk" d="M14 846 h28 M14 846 v-28"/>
+  <path class="brk" d="M1026 846 h-28 M1026 846 v-28"/>
+  <text class="title" x="34" y="42">SPECTER NODE // WIRING &#8212; THEREMIN BUILD (ROAD B)</text>
+  <text class="subtitle" x="34" y="60">LC oscillator via 74HC14 &#183; ~30&#8211;80cm range &#183; adds one chip + antenna tank on top of the basic build</text>
+
+  <!-- ============ ANTENNA + LC TANK (far left) ============ -->
+  <rect class="comp" x="40" y="100" width="210" height="170" rx="6"/>
+  <text class="complbl" x="56" y="124">ANTENNA (sense plate)</text>
+  <text class="compsub" x="56" y="140">telescopic rod, ~15&#8211;20cm</text>
+  <text class="compsub" x="56" y="154">hand nearby raises C, lowers Hz</text>
+  <line x1="150" y1="162" x2="150" y2="180" class="wire w-osc"/>
+  <circle class="termo" cx="150" cy="188" r="4.5"/>
+  <path class="coilsym" d="M150 188 q-10 8 0 16 q10 8 0 16 q-10 8 0 16"/>
+  <text class="compsub" x="118" y="200">L</text>
+  <text class="compsub" x="104" y="212" fill="#7a8a96" font-size="9">1&#8211;10mH</text>
+  <line x1="182" y1="188" x2="182" y2="204" class="wire w-osc"/>
+  <line x1="172" y1="208" x2="192" y2="208" class="capsym"/>
+  <line x1="174" y1="216" x2="190" y2="216" class="capsym"/>
+  <line x1="182" y1="216" x2="182" y2="236" class="wire w-osc"/>
+  <text class="compsub" x="194" y="214">C</text>
+  <text class="compsub" x="194" y="226" fill="#7a8a96" font-size="9">100&#8211;330pF</text>
+  <path class="wire w-osc" d="M150 236 L150 250 L182 250"/>
+  <path class="wire w-osc" d="M182 236 L182 250"/>
+  <path class="wire w-osc" d="M150 250 L150 258"/>
+  <text class="wlbl" x="78" y="264">&#8594; 74HC14 pin 1 (1A)</text>
+  <path class="wire w-osc" d="M150 258 L291 258"/>
+
+  <!-- ============ 74HC14 IC ============ -->
+  <g transform="translate(300,150)">
+    <rect class="ic" x="0" y="0" width="130" height="220" rx="4"/>
+    <path d="M55 0 a10 10 0 0 0 20 0" fill="#111a22" stroke="#c9a4ff" stroke-width="1.4"/>
+    <text x="65" y="115" text-anchor="middle" fill="#e4ecf2" font-size="13" font-weight="bold">74HC14</text>
+    <text x="65" y="132" text-anchor="middle" fill="#7a8a96" font-size="8">HEX SCHMITT INV.</text>
+    <rect class="icpin" x="-9" y="14" width="9" height="8"/><text class="icpinlbl used" x="-13" y="21" text-anchor="end">1 1A</text>
+    <rect class="icpin" x="-9" y="42" width="9" height="8"/><text class="icpinlbl used" x="-13" y="49" text-anchor="end">2 1Y</text>
+    <rect class="icpin" x="-9" y="70" width="9" height="8"/><text class="icpinlbl" x="-13" y="77" text-anchor="end">3 2A</text>
+    <rect class="icpin" x="-9" y="98" width="9" height="8"/><text class="icpinlbl" x="-13" y="105" text-anchor="end">4 2Y</text>
+    <rect class="icpin" x="-9" y="126" width="9" height="8"/><text class="icpinlbl" x="-13" y="133" text-anchor="end">5 3A</text>
+    <rect class="icpin" x="-9" y="154" width="9" height="8"/><text class="icpinlbl" x="-13" y="161" text-anchor="end">6 3Y</text>
+    <rect class="icpin" x="-9" y="182" width="9" height="8"/><text class="icpinlbl used" x="-13" y="189" text-anchor="end">7 GND</text>
+    <rect class="icpin" x="130" y="14" width="9" height="8"/><text class="icpinlbl used" x="143" y="21">14 VCC</text>
+    <rect class="icpin" x="130" y="42" width="9" height="8"/><text class="icpinlbl" x="143" y="49">13 6A</text>
+    <rect class="icpin" x="130" y="70" width="9" height="8"/><text class="icpinlbl" x="143" y="77">12 6Y</text>
+    <rect class="icpin" x="130" y="98" width="9" height="8"/><text class="icpinlbl" x="143" y="105">11 5A</text>
+    <rect class="icpin" x="130" y="126" width="9" height="8"/><text class="icpinlbl" x="143" y="133">10 5Y</text>
+    <rect class="icpin" x="130" y="154" width="9" height="8"/><text class="icpinlbl" x="143" y="161">9 4A</text>
+    <rect class="icpin" x="130" y="182" width="9" height="8"/><text class="icpinlbl" x="143" y="189">8 4Y</text>
+  </g>
+
+  <!-- feedback resistor Rf: pin2 (1Y, abs y=196) back to pin1 (1A, abs y=168) -->
+  <path class="wire w-osc" d="M291 196 L262 196 L262 168 L291 168" fill="none"/>
+  <path d="M262 168 l5 4 l-5 4 l5 4 l-5 4 l5 4 l-5 4" fill="none" class="capsym" transform="translate(0,-4)"/>
+  <text class="wlbl" x="196" y="184" fill="#c9a4ff" font-size="9.5">Rf &#8776; 1M&#937;</text>
+
+  <!-- unused gate inputs -> short local ground bus under the IC, one drop to main GND rail -->
+  <path class="stub w-gnd" d="M291 220 L291 390"/>
+  <path class="stub w-gnd" d="M291 276 L291 390"/>
+  <path class="stub w-gnd" d="M291 332 L291 390"/>
+  <path class="stub w-gnd" d="M439 192 L439 390"/>
+  <path class="stub w-gnd" d="M439 248 L439 390"/>
+  <path class="stub w-gnd" d="M439 304 L439 390"/>
+  <line x1="280" y1="390" x2="450" y2="390" class="stub w-gnd"/>
+  <path class="stub w-gnd" d="M360 390 L360 792"/>
+  <text class="wlbl" x="291" y="410" fill="#7a8a96" font-size="9">unused inputs + IC GND tied to GND rail</text>
+
+  <!-- 74HC14 VCC to main 3V3 rail (offset right so it never overlaps the GND ties at x=439) -->
+  <path class="stub w-3v3" d="M439 164 L470 164 L470 760"/>
+
+  <!-- oscillator output: 74HC14 pin2 (1Y) -> up and over -> ESP32 GPIO14 (left side pin) -->
+  <path class="wire w-osc" d="M291 196 L260 196 L260 132 L592 132 L592 220"/>
+  <text class="wlbl" x="330" y="128" fill="#c9a4ff">1Y OUT (square wave) &#8594; GPIO14</text>
+
+  <!-- ============ ESP32 ============ -->
+  <rect x="600" y="140" width="150" height="340" rx="10" fill="url(#board2)" stroke="#00e5ff" stroke-opacity=".65"/>
+  <rect x="638" y="108" width="76" height="30" rx="3" fill="#12202b" stroke="#2a3a44"/>
+  <text x="676" y="128" text-anchor="middle" fill="#7a8a96" font-size="9">USB-C</text>
+  <text x="676" y="196" text-anchor="middle" fill="#e4ecf2" font-size="15" font-weight="bold">ESP32</text>
+  <text x="676" y="212" text-anchor="middle" fill="#7a8a96" font-size="9">WROOM DEVKIT</text>
+  <rect x="646" y="228" width="60" height="170" rx="3" fill="#060a0e" stroke="#1c2a33"/>
+
+  <!-- ESP32 LEFT pins: 3V3, GND, GPIO4(unused), GPIO14(OSC IN) -->
+  <rect class="pin used" x="592" y="220" width="12" height="12"/><text class="pinlbl used" x="586" y="230" text-anchor="end">GPIO14 (OSC IN)</text>
+  <rect class="pin used" x="592" y="252" width="12" height="12"/><text class="pinlbl used" x="586" y="262" text-anchor="end">3V3</text>
+  <rect class="pin used" x="592" y="284" width="12" height="12"/><text class="pinlbl used" x="586" y="294" text-anchor="end">GND</text>
+  <rect class="pin" x="592" y="316" width="12" height="12"/><text class="pinlbl" x="586" y="326" text-anchor="end">GPIO4 (unused)</text>
+
+  <!-- ESP32 RIGHT pins: GPIO12, GPIO13, GPIO21(SDA), GPIO22(SCL) -->
+  <rect class="pin used" x="744" y="220" width="12" height="12"/><text class="pinlbl used" x="762" y="230">GPIO12</text>
+  <rect class="pin used" x="744" y="252" width="12" height="12"/><text class="pinlbl used" x="762" y="262">GPIO13</text>
+  <rect class="pin used" x="744" y="284" width="12" height="12"/><text class="pinlbl used" x="762" y="294">GPIO21 (SDA)</text>
+  <rect class="pin used" x="744" y="316" width="12" height="12"/><text class="pinlbl used" x="762" y="326">GPIO22 (SCL)</text>
+
+  <!-- ESP32 power stubs (left side pins at y=252 3V3, y=284 GND) -->
+  <path class="stub w-3v3" d="M598 258 L598 760"/>
+  <path class="stub w-gnd" d="M598 290 L598 792"/>
+
+  <!-- ============ QMC5883L ============ -->
+  <rect class="comp" x="800" y="60" width="210" height="112" rx="6"/>
+  <text class="complbl" x="816" y="84">QMC5883L MAGNETOMETER</text>
+  <text class="compsub" x="816" y="100">3-axis, I2C addr 0x0D</text>
+  <circle class="term3" cx="816" cy="120" r="4.5"/><text class="compsub" x="828" y="124">VCC</text>
+  <circle class="termg" cx="816" cy="136" r="4.5"/><text class="compsub" x="828" y="140">GND</text>
+  <circle class="term" cx="816" cy="152" r="4.5"/><text class="compsub" x="828" y="156">SCL</text>
+  <circle class="term" cx="960" cy="152" r="4.5"/><text class="compsub" x="948" y="156" text-anchor="end">SDA</text>
+  <path class="stub w-3v3" d="M816 120 L890 120 L890 760"/>
+  <path class="stub w-gnd" d="M816 136 L910 136 L910 792"/>
+  <path class="wire w-sig" d="M816 152 L780 152 L780 322 L744 322"/>
+  <path class="wire w-sig" d="M960 152 L980 152 L980 290 L744 290"/>
+  
+  
+
+  <!-- ============ BUZZER ============ -->
+  <rect class="comp" x="800" y="196" width="210" height="86" rx="6"/>
+  <text class="complbl" x="816" y="220">PASSIVE PIEZO BUZZER</text>
+  <text class="compsub" x="816" y="236">local audible alert</text>
+  <circle class="term" cx="816" cy="256" r="4.5"/><text class="compsub" x="828" y="260">+</text>
+  <circle class="termg" cx="816" cy="272" r="4.5"/><text class="compsub" x="828" y="276">&#8722;</text>
+  <path class="wire w-sig" d="M816 256 L788 256 L788 226 L756 226"/>
+  <path class="stub w-gnd" d="M816 272 L930 272 L930 792"/>
+  
+
+  <!-- ============ LED RING ============ -->
+  <rect class="comp" x="800" y="308" width="210" height="100" rx="6"/>
+  <text class="complbl" x="816" y="332">WS2812B LED RING (12px)</text>
+  <text class="compsub" x="816" y="348">local visual alert</text>
+  <circle class="term" cx="816" cy="368" r="4.5"/><text class="compsub" x="828" y="372">DIN</text>
+  <circle class="term3" cx="816" cy="384" r="4.5"/><text class="compsub" x="828" y="388">VCC (3.3&#8211;5V)</text>
+  <circle class="termg" cx="960" cy="384" r="4.5"/><text class="compsub" x="948" y="388" text-anchor="end">GND</text>
+  <path class="wire w-sig" d="M816 368 L764 368 L764 258 L756 258"/>
+  <path class="stub w-3v3" d="M816 384 L950 384 L950 760"/>
+  <path class="stub w-gnd" d="M960 384 L1000 384 L1000 792"/>
+  
+
+  <!-- ============ POWER RAILS ============ -->
+  <line x1="40" y1="760" x2="1010" y2="760" class="rail rail3v3"/>
+  <text class="raillbl" x="40" y="752" fill="#ff5d5d">3V3 RAIL</text>
+  <line x1="40" y1="792" x2="1010" y2="792" class="rail railgnd"/>
+  <text class="raillbl" x="40" y="808" fill="#8a97a3">GND RAIL</text>
+
+  <!-- Legend -->
+  <g class="legend" transform="translate(300,832)">
+    <line x1="0" y1="0" x2="24" y2="0" class="wire w-sig"/><text x="30" y="4">Signal</text>
+    <line x1="86" y1="0" x2="110" y2="0" class="wire w-3v3"/><text x="116" y="4">3.3V</text>
+    <line x1="166" y1="0" x2="190" y2="0" class="wire w-gnd"/><text x="196" y="4">GND</text>
+    <line x1="250" y1="0" x2="274" y2="0" class="wire w-osc"/><text x="280" y="4">Oscillator / tank</text>
+    <text x="420" y="4" fill="#5a6b78" font-size="9.5">Crossing lines with no dot are not connected</text>
+  </g>
+</svg>
