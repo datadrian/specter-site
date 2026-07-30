@@ -54,8 +54,8 @@
   <text class="compsub" x="56" y="154">hand nearby raises C, lowers Hz</text>
   <line x1="150" y1="162" x2="150" y2="180" class="wire w-osc"/>
   <circle class="termo" cx="150" cy="188" r="4.5"/>
-  <path class="wire w-osc" d="M150 188 L150 145 L291 145 L291 168"/>
-  <text class="wlbl" x="152" y="139">&#8594; 74HC14 pin 1 (1A)</text>
+  <path class="wire w-osc" d="M150 188 L150 168 L291 168"/>
+  <text class="wlbl" x="158" y="180" font-size="9">&#8594; 74HC14 pin 1 (1A)</text>
   <line x1="150" y1="204" x2="150" y2="220" class="wire w-osc"/>
   <line x1="140" y1="224" x2="160" y2="224" class="capsym"/>
   <line x1="142" y1="232" x2="158" y2="232" class="capsym"/>
