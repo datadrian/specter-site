@@ -405,7 +405,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.16-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.17-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -438,14 +438,13 @@
 #include &lt;ArduinoJson.h&gt;        // v6 or v7
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
-#include &quot;driver/pcnt.h&quot;   // hardware pulse counter for antenna-oscillator prox
 #include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) -- FastLED does NOT support RGBW
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
 #include &lt;math.h&gt;
 // ---- embedded portal pages (index + settings) ----
-// portal_pages.h -- SPECTER maker-node portal, embedded so there is NO separate
+// portal_pages.h - SPECTER maker-node portal, embedded so there is NO separate
 // LittleFS/data upload. One .ino, one Upload button. Served from PROGMEM.
 //   PAGE_INDEX    -&gt; &quot;/&quot;          live telemetry + 3D field-vector graph
 //   PAGE_SETTINGS -&gt; &quot;/settings&quot;  Wi-Fi, calibrate, thresholds, firmware info
@@ -467,19 +466,19 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
 &lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;middot; standalone&lt;/div&gt;&lt;/div&gt;&lt;div class=conn id=conn&gt;&lt;span class=dot&gt;&lt;/span&gt;&lt;span id=conn-t&gt;CONNECTING&amp;hellip;&lt;/span&gt;&lt;/div&gt;&lt;/header&gt;
-&lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=viz-wrap&gt;&lt;canvas id=viz&gt;&lt;/canvas&gt;&lt;div class=viz-tag&gt;FIELD VECTOR&lt;/div&gt;&lt;div class=viz-amp id=viz-amp&gt;-&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grid&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;div class=xyz id=proxdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;delta &amp;mdash; / thr &amp;mdash;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x &amp;mdash; y &amp;mdash; z &amp;mdash;&lt;/div&gt;&lt;div class=xyz id=magdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;sensor &amp;mdash; &amp;middot; delta &amp;mdash; / thr &amp;mdash;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;&amp;mdash;&lt;/div&gt;&lt;div class=u id=ssid&gt;&amp;mdash;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;-&lt;/div&gt;&lt;div class=u&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;div class=xyz id=proxdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;delta - / thr -&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;-&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x - y - z -&lt;/div&gt;&lt;div class=xyz id=magdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;sensor - &amp;middot; delta - / thr -&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;-&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;-&lt;/div&gt;&lt;div class=u id=ssid&gt;-&lt;/div&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;nav&gt;&lt;a class=on href=/&gt;TELEMETRY&lt;/a&gt;&lt;a href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;\u2014&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.oscFreq,m.oscBase);if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;\u2014&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;\u2014&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;\u2014&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;\u2014&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk);if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)&amp;&amp;m.proxDelta!=null){$(&#x27;proxdbg&#x27;).textContent=&#x27;delta &#x27;+m.proxDelta+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);$(&#x27;proxdbg&#x27;).style.color=(m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;));var dd=(m.magDelta!=null?m.magDelta:&#x27;-&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;-&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;-&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -507,10 +506,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[t
 .status{font-size:11px;color:var(--text-1);margin:8px 0;min-height:14px}.ok{color:var(--accent)}.warn{color:var(--warn)}.err{color:var(--alert)}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
-&lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub&gt;SETTINGS&lt;/div&gt;&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw &amp;mdash;&lt;/div&gt;&lt;/header&gt;
+&lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub&gt;SETTINGS&lt;/div&gt;&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw -&lt;/div&gt;&lt;/header&gt;
 &lt;div class=grp&gt;Connection&lt;/div&gt;
 &lt;h4&gt;Wi-Fi&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=status id=wifi-cur&gt;Current: &amp;mdash;&lt;/div&gt;
+&lt;div class=status id=wifi-cur&gt;Current: -&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=wifi-scan&gt;SCAN NETWORKS&lt;/button&gt;&lt;/div&gt;&lt;div class=wifi-list id=wifi-list&gt;&lt;/div&gt;
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
@@ -523,15 +522,15 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label&gt;Mag sensitivity &lt;span class=val id=thr-mag-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=0 max=100 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Higher = reacts to smaller/farther field changes. Baseline auto-zeros to ambient, so any NEW field for a direction triggers.&lt;/div&gt;
-&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
+&lt;label&gt;Mag sensitivity &lt;span class=val id=thr-mag-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=0 max=100 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Higher = reacts to smaller/farther field changes. Baseline auto-zeros to ambient, so any NEW field for a direction triggers.&lt;/div&gt;
+&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
 &lt;h4&gt;Antenna / proximity&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;&amp;mdash;&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;&amp;mdash;&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;&amp;mdash;&lt;/b&gt;&lt;/div&gt;
-&lt;label&gt;Sense source &lt;span class=val id=prox-mode-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;-&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;-&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;-&lt;/b&gt;&lt;/div&gt;
+&lt;label&gt;Sense source &lt;span class=val id=prox-mode-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;select id=prox-mode style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range 74HC00 antenna oscillator (GPIO14 fixed)&lt;/option&gt;&lt;/select&gt;
+&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
-&lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
+&lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE TOUCH PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
@@ -540,12 +539,12 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous glow and pitch behavior, not the hardware sense source above. Alerts and snapshots still fire.&lt;/div&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone checked&gt; Play pitch on buzzer&lt;/label&gt;
-&lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;&amp;mdash;&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;&amp;mdash;&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;-&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;-&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
 &lt;div class=bar style=&quot;margin-top:4px&quot;&gt;&lt;i id=therm-bar style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
-&lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=therm-refit class=mini&gt;REFIT RANGE&lt;/button&gt;&lt;button id=therm-save class=mini&gt;SAVE THEREMIN&lt;/button&gt;&lt;/div&gt;
 &lt;div class=xyz id=therm-save-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Loading saved node settings...&lt;/div&gt;
-&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna. It sizes the field to THAT motion &amp;mdash; so your hand pass = full field.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna. It sizes the field to THAT motion - so your hand pass = full field.&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;LED Ring&lt;/div&gt;
 &lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
@@ -553,9 +552,9 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
 &lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;option&gt;GRBW&lt;/option&gt;&lt;option&gt;RGBW&lt;/option&gt;&lt;option&gt;BGRW&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Data pin&lt;/label&gt;&lt;input type=text id=led-data&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Count&lt;/label&gt;&lt;input type=text id=led-count&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;label&gt;Brightness &lt;span class=val id=led-bright-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=led-bright min=0 max=255 step=1&gt;
+&lt;label&gt;Brightness &lt;span class=val id=led-bright-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=led-bright min=0 max=255 step=1&gt;
 &lt;label&gt;Magnetic direction alignment&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;A steady lobe lights the &quot;front&quot; of the ring. Tap ROTATE to spin it 45&amp;deg; at a time until the lit side points the way your antenna faces &amp;mdash; then mag hits glow toward the source.&lt;/div&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;A steady lobe lights the &quot;front&quot; of the ring. Tap ROTATE to spin it 45&amp;deg; at a time until the lit side points the way your antenna faces - then mag hits glow toward the source.&lt;/div&gt;
 &lt;div class=row style=&quot;align-items:center&quot;&gt;&lt;button id=led-rot class=mini style=&quot;flex:1&quot;&gt;ROTATE 45&amp;deg;&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;angle &lt;b id=led-rot-v&gt;0&amp;deg;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row style=&quot;align-items:center;margin-top:6px&quot;&gt;&lt;button id=led-flip class=mini style=&quot;flex:1&quot;&gt;FLIP DIRECTION&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;spin &lt;b id=led-flip-v&gt;CW&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front pixel (ring start)&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;/div&gt;
@@ -584,8 +583,8 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;System&lt;/div&gt;
 &lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
-&lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;&amp;mdash;&lt;/span&gt;&lt;/div&gt;
+&lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;-&lt;/span&gt;&lt;/div&gt;
+&lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;-&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status id=upd-line&gt;Tap below to check specter-imaging.com for a newer build.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=upd-check&gt;CHECK FOR UPDATES&lt;/button&gt;&lt;button id=upd-install disabled&gt;INSTALL UPDATE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=status style=&quot;font-size:10px;margin-top:6px&quot;&gt;Update will not install? Flash over USB at &lt;b&gt;specter-imaging.com/help/flash-node&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
@@ -594,7 +593,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=8;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
-function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;\u2014&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;\u2014&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;\u2014&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.oscFreq,m.oscBase);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
+function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
 function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;$(&#x27;thr-prox&#x27;).value=thrProx;$(&#x27;thr-prox-v&#x27;).textContent=thrProx}
 $(&#x27;baseline&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;rebaseline&#x27;})};$(&#x27;identify&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
 var mt,pt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
@@ -606,7 +605,7 @@ if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;
 if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
 rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
-function updateProxModeUi(mode,touch,hz,base){var osc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=osc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=osc?&#x27;OSC / GPIO14&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=osc?&#x27;GPIO14 (fixed)&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=osc;if(save)save.disabled=osc;if(msg)msg.textContent=osc?&#x27;74HC00 oscillator input is fixed on GPIO14. Live &#x27;+(hz||0)+&#x27; Hz, baseline &#x27;+(base||0)+&#x27; Hz. The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}
+function updateProxModeUi(mode,touch,charge,base,ok){var rc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=rc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=rc?&#x27;RC / GPIO18 TO GPIO4&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=rc?&#x27;GPIO18 drive / GPIO4 sense&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=rc;if(save)save.disabled=rc;if(msg){var live=((charge||0)/10).toFixed(1),zero=((base||0)/10).toFixed(1),state=(ok===false?&#x27; Check wiring.&#x27;:&#x27; Wiring active.&#x27;);msg.textContent=rc?&#x27;GPIO18 drives the antenna node through 1M ohm and GPIO4 measures charge time. Live &#x27;+live+&#x27; us, baseline &#x27;+zero+&#x27; us.&#x27;+state+&#x27; The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}}
 if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,proxMode:pm});var sm=$(&#x27;therm-save-msg&#x27;);if(sm){sm.textContent=&#x27;Sense source saved. Waiting for node confirmation...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}}}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
@@ -618,9 +617,9 @@ if($(&#x27;therm-save&#x27;)){$(&#x27;therm-save&#x27;).onclick=saveTherm}
 if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
 if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._userset=false;$(&#x27;therm-noise&#x27;).oninput=function(e){$(&#x27;therm-noise&#x27;)._userset=true;$(&#x27;therm-noise-v&#x27;).textContent=e.target.value;clearTimeout(window._tn);window._tn=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,noise:+e.target.value});setTimeout(function(){$(&#x27;therm-noise&#x27;)._userset=false},500)},250)}}
 
-function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;)&#x27;:&#x27;not connected \u2014 hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
+function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;-&#x27;)+&#x27;)&#x27;:&#x27;not connected - hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
-$(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;\u2014&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+$(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;-&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
 function relayStatus(){fetch(&#x27;/relay/get&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=d.url||&#x27;&#x27;;$(&#x27;relay-cur&#x27;).textContent=&#x27;Mode: &#x27;+(d.active?&#x27;INTERNET RELAY · &#x27;+d.url:&#x27;LAN discovery&#x27;)}).catch(function(){})}
 $(&#x27;relay-save&#x27;).onclick=function(){var u=$(&#x27;relay-url&#x27;).value.trim();$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Saving…&#x27;;$(&#x27;relay-save&#x27;).disabled=true;var body=new URLSearchParams({url:u});fetch(&#x27;/relay/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Saved.&#x27;)+&#x27; Reboot to apply.&#x27;;$(&#x27;relay-save&#x27;).disabled=false;relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Save failed&#x27;;$(&#x27;relay-save&#x27;).disabled=false})};
 $(&#x27;relay-clear&#x27;).onclick=function(){$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clearing…&#x27;;fetch(&#x27;/relay/clear&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=&#x27;&#x27;;$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Cleared.&#x27;);relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clear failed&#x27;})};
@@ -684,11 +683,11 @@ function updDiag(d){
  return bits.length?(&#x27; · &#x27;+bits.join(&#x27; · &#x27;)):&#x27;&#x27;}
 function updRender(d){var a=d&amp;&amp;d.available;$(&#x27;upd-install&#x27;).disabled=!a;var diag=updDiag(d||{});
  if(d&amp;&amp;d.error){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Check failed: &#x27;+d.error+diag;return}
- if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; -- &#x27;+d.notes:&#x27;&#x27;)+diag}
- else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;--&#x27;)+&#x27;).&#x27;+diag}
+ if(a){$(&#x27;upd-line&#x27;).className=&#x27;status ok&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Update available: &#x27;+d.latest+(d.notes?&#x27; - &#x27;+d.notes:&#x27;&#x27;)+diag}
+ else if(d&amp;&amp;d.checked!==false){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Up to date (&#x27;+(d.current||&#x27;-&#x27;)+&#x27;).&#x27;+diag}
  else if(d&amp;&amp;d.lastOtaErr){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Previous update failed&#x27;+diag}}
 $(&#x27;upd-check&#x27;).onclick=function(){$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Checking…&#x27;;$(&#x27;upd-check&#x27;).disabled=true;fetch(&#x27;/update/check&#x27;).then(function(r){return r.json()}).then(function(d){updRender(d)}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Could not reach update server&#x27;}).then(function(){$(&#x27;upd-check&#x27;).disabled=false})};
-$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing -- do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; -- node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
+$(&#x27;upd-install&#x27;).onclick=function(){if(!confirm(&#x27;Install the update? The node will flash and reboot.&#x27;))return;$(&#x27;upd-line&#x27;).className=&#x27;status&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Installing - do not power off…&#x27;;$(&#x27;upd-install&#x27;).disabled=true;fetch(&#x27;/update/install&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;upd-line&#x27;).textContent=&#x27;Flashing &#x27;+(d.installing||&#x27;&#x27;)+&#x27; - node will reboot.&#x27;}else{$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install failed: &#x27;+(d.error||&#x27;unknown&#x27;);$(&#x27;upd-install&#x27;).disabled=false}}).catch(function(){$(&#x27;upd-line&#x27;).className=&#x27;status err&#x27;;$(&#x27;upd-line&#x27;).textContent=&#x27;Install request failed&#x27;;$(&#x27;upd-install&#x27;).disabled=false})};
 ledLoad();
 syncThr();wifiStatus();connect();
 fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(function(d){if(d)updRender(d)}).catch(function(){});
@@ -696,7 +695,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.16-maker&quot;
+#define FW_VERSION   &quot;2.12.17-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -709,13 +708,14 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- 74HC00 antenna oscillator (extended-range prox, optional Road B hardware) ----
-// Three NAND gates form an RC ring oscillator. A 1M feedback resistor and the
-// antenna&#x27;s own capacitance set its frequency; the fourth NAND gate buffers the
-// square wave into this FIXED GPIO14 input. No transistor or inductor is required.
-// A nearby hand raises antenna capacitance -&gt; LOWERS frequency, which becomes the
-// same rising proximity convention used throughout the firmware.
-#define OSC_PIN        14      // GPIO14 - fixed 74HC00 buffered oscillator input
+// ---- Two-pin RC antenna sensor (extended-range prox, optional Road B hardware) ----
+// GPIO18 drives the antenna node through 1M ohm; GPIO4 measures how long that node
+// takes to charge. A nearby hand raises antenna capacitance and lengthens the charge
+// time. No oscillator IC, transistor, inductor, or external library is required.
+// Wiring: GPIO18 -&gt; 1M -&gt; sense node -&gt; GPIO4; antenna -&gt; optional 10k -&gt; sense node.
+#define RC_DRIVE_PIN    18
+#define RC_SENSE_PIN     4
+#define RC_TIMEOUT_US  2000
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -972,11 +972,12 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 
 // ---- prox sense source ----
 //  proxMode 0 = touchRead (default, ~15cm, no extra hardware)
-//  proxMode 1 = 74HC00 antenna oscillator via PCNT on fixed OSC_PIN/GPIO14
-volatile int      proxMode   = 0;
-volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
-volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
-volatile bool     oscReady   = false; // PCNT unit configured + baseline captured
+//  proxMode 1 = two-pin RC charge-time sensor, GPIO18 drive + GPIO4 sense
+volatile int      proxMode    = 0;
+volatile int      rcCharge10  = 0;     // live charge time in 0.1 microsecond units
+volatile int      rcBase10    = 0;     // ambient no-hand baseline in same units
+volatile bool     rcReady     = false; // pins configured and baseline initialized
+volatile bool     rcValid     = false; // sense node discharged and charged before timeout
 volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
@@ -1300,40 +1301,57 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 }
 
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
-// ============ 74HC00 ANTENNA OSCILLATOR PROX (PCNT) ============
-// Configure PCNT unit 0 to count rising edges on OSC_PIN. We gate the count over a
-// fixed window and convert to Hz. Called once when prox mode switches to oscillator.
-void oscBegin() {
-    pcnt_config_t cfg = {};
-    cfg.pulse_gpio_num = OSC_PIN;
-    cfg.ctrl_gpio_num  = PCNT_PIN_NOT_USED;
-    cfg.channel        = PCNT_CHANNEL_0;
-    cfg.unit           = PCNT_UNIT_0;
-    cfg.pos_mode       = PCNT_COUNT_INC;   // count rising edges
-    cfg.neg_mode       = PCNT_COUNT_DIS;
-    cfg.lctrl_mode     = PCNT_MODE_KEEP;
-    cfg.hctrl_mode     = PCNT_MODE_KEEP;
-    cfg.counter_h_lim  = 32767;
-    cfg.counter_l_lim  = 0;
-    pcnt_unit_config(&amp;cfg);
-    pcnt_set_filter_value(PCNT_UNIT_0, 10);    // ~125ns filter: rejects tiny glitches while passing the NAND oscillator
-    pcnt_filter_enable(PCNT_UNIT_0);
-    pcnt_counter_pause(PCNT_UNIT_0);
-    pcnt_counter_clear(PCNT_UNIT_0);
-    oscReady = true;
-    oscBaseHz = 0;   // force a fresh baseline capture on first read
+// ============ TWO-PIN RC ANTENNA PROX ============
+// Measure antenna capacitance as charge time. GPIO18 alternately discharges and
+// charges GPIO4 through the external 1M resistor. Seven readings are median-filtered
+// so Wi-Fi and LED switching spikes do not move the proximity channel.
+void rcBegin() {
+    pinMode(RC_DRIVE_PIN, OUTPUT);
+    digitalWrite(RC_DRIVE_PIN, LOW);
+    pinMode(RC_SENSE_PIN, INPUT);
+    delayMicroseconds(200);
+    rcReady = true;
+    rcValid = false;
+    rcBase10 = 0;
 }
 
-// Count pulses over WINDOW_MS and scale to Hz. Kept short so it fits the 100Hz loop.
-long oscReadHz() {
-    const int WINDOW_MS = 8;   // 8ms gate -&gt; ~125Hz resolution, cheap
-    int16_t count = 0;
-    pcnt_counter_clear(PCNT_UNIT_0);
-    pcnt_counter_resume(PCNT_UNIT_0);
-    delay(WINDOW_MS);
-    pcnt_counter_pause(PCNT_UNIT_0);
-    pcnt_get_counter_value(PCNT_UNIT_0, &amp;count);
-    return (long)count * (1000L / WINDOW_MS);
+int rcMeasureOnce10() {
+    const uint32_t mhz = (uint32_t)ESP.getCpuFreqMHz();
+    const uint32_t maxCycles = mhz * RC_TIMEOUT_US;
+
+    // Discharge through the same 1M path before every measurement.
+    digitalWrite(RC_DRIVE_PIN, LOW);
+    uint32_t start = ESP.getCycleCount();
+    while (digitalRead(RC_SENSE_PIN) == HIGH &amp;&amp; (uint32_t)(ESP.getCycleCount() - start) &lt; maxCycles) {}
+    if (digitalRead(RC_SENSE_PIN) == HIGH) return -1; // node cannot discharge
+
+    // Charge and time the crossing of the ESP32 digital HIGH threshold.
+    start = ESP.getCycleCount();
+    digitalWrite(RC_DRIVE_PIN, HIGH);
+    while (digitalRead(RC_SENSE_PIN) == LOW &amp;&amp; (uint32_t)(ESP.getCycleCount() - start) &lt; maxCycles) {}
+    uint32_t cycles = (uint32_t)(ESP.getCycleCount() - start);
+    bool charged = (digitalRead(RC_SENSE_PIN) == HIGH);
+    digitalWrite(RC_DRIVE_PIN, LOW);
+    if (!charged || cycles &gt;= maxCycles) return -1; // open/short/missing resistor
+
+    // Tenths of a microsecond preserve useful resolution with small antenna capacitance.
+    return (int)((cycles * 10UL + mhz / 2UL) / mhz);
+}
+
+int rcRead10() {
+    int samples[7];
+    int n = 0;
+    for (int i = 0; i &lt; 7; ++i) {
+        int v = rcMeasureOnce10();
+        if (v &gt;= 0) samples[n++] = v;
+        delayMicroseconds(20);
+    }
+    if (n &lt; 5) { rcValid = false; return 0; }
+    for (int a = 0; a &lt; n; ++a) for (int b = a + 1; b &lt; n; ++b) {
+        if (samples[b] &lt; samples[a]) { int t = samples[a]; samples[a] = samples[b]; samples[b] = t; }
+    }
+    rcValid = true;
+    return samples[n / 2];
 }
 
 void hardwareTask(void* pv) {
@@ -1481,7 +1499,7 @@ void hardwareTask(void* pv) {
             const uint32_t RELEASE_MS = 700;   // fade out after the last trigger
             while (millis() - d0 &lt; hold) {
                 // Re-read the commanded bearing + level EVERY frame so dragging the
-                // producer&#x27;s mag dial steers the lit lobe LIVE (point-and-drag) without
+                // operator&#x27;s magnetic control steers the lit lobe LIVE (point-and-drag) without
                 // needing a full pulse restart per move. The app streams fresh frames
                 // as the finger moves; each just updates diagPulseBrg/Int here.
                 float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
@@ -1556,25 +1574,26 @@ void hardwareTask(void* pv) {
             ledIdle(); ledShow();
             diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
-        // Proximity source: 74HC00 antenna oscillator on fixed GPIO14 if enabled + wired, else
-        // the built-in touchRead. Either way we end up with a single `proxVal` in the
-        // same units the rest of the pipeline already understands, so baseline,
-        // deadband, span, field, alerts and the theremin overlay are unchanged.
+        // Proximity source: two-pin RC charge time on GPIO18/GPIO4 if enabled,
+        // otherwise the ESP32&#x27;s built-in touchRead path. Both feed the same rising
+        // proxVal convention used by baseline, threshold, field, alert, and Theremin logic.
         if (proxMode == 1) {
-            if (!oscReady) oscBegin();
-            oscFreq = oscReadHz();
-            // Capture / re-capture ambient baseline (highest stable freq = no hand).
-            if (oscBaseHz == 0 &amp;&amp; oscFreq &gt; 500) oscBaseHz = oscFreq;
-            // A hand LOWERS the frequency. Convert the Hz DROP into the same rising
-            // &quot;proxVal&quot; convention the touch path uses (higher proxVal = closer), so
-            // the existing abs(baseProx - proxVal) delta math still holds. We scale the
-            // raw Hz drop down by 4 so it lands in a touch-like numeric range.
-            long drop = (oscBaseHz &gt; 0) ? (oscBaseHz - oscFreq) : 0;
-            if (drop &lt; 0) drop = 0;                     // hand removed -&gt; transient rise
-            // slow-track the ambient baseline back up when no hand (freq recovers)
-            if (drop &lt; 3 &amp;&amp; oscFreq &gt; oscBaseHz) oscBaseHz = oscFreq;
-            proxVal = (int)(drop / 4);
-            // In oscillator mode baseProx is 0 (rest) and proxVal rises with approach.
+            if (!rcReady) rcBegin();
+            rcCharge10 = rcRead10();
+            if (rcValid) {
+                // No hand is the lowest stable charge time. A nearby hand adds
+                // capacitance, increasing charge time and therefore proximity.
+                if (rcBase10 == 0 || rcCharge10 &lt; rcBase10) rcBase10 = rcCharge10;
+                int rise = rcCharge10 - rcBase10;
+                if (rise &lt; 0) rise = 0;
+                // Follow tiny ambient drift inside the rest band. Larger rises stay
+                // untouched so an approaching hand cannot drag the baseline upward.
+                if (rise &gt; 0 &amp;&amp; rise &lt;= 3) { rcBase10 = rcCharge10; rise = 0; }
+                proxVal = rise;
+            } else {
+                proxVal = 0; // missing/shorted RC wiring must never create a false alert
+            }
+            // In RC mode baseProx is zero and proxVal rises with added capacitance.
             if (!proxInit) { baseProx = 0; proxAvg = 0; proxInit = true; }
         } else {
             // Median-of-9 read: touchRead() is noisy (jitters tens of counts). A median
@@ -1608,7 +1627,7 @@ void hardwareTask(void* pv) {
                     baseMagX = (int)(blMagXsum / blSamples);
                     baseMagY = (int)(blMagYsum / blSamples);
                     baseMagZ = (int)(blMagZsum / blSamples);
-                    baseProx = (int)(blProxSum / blSamples);
+                    baseProx = (proxMode == 1) ? 0 : (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
                     // Guard band: the real trigger sits at least (noiseFloor + 60%)
                     // above rest, and never below the operator&#x27;s slider value. This
@@ -1625,13 +1644,25 @@ void hardwareTask(void* pv) {
 
         if (recalibrate) {
             baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
-            baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
+            if (proxMode == 1) {
+                if (rcValid) rcBase10 = rcCharge10;
+                baseProx = 0; proxAvg = 0;
+            } else {
+                baseProx = proxVal; proxAvg = proxVal;
+            }
+            proxInit = true; proxSettleStart = millis();
             recalibrate = false;
         }
         // PROX-ONLY re-zero (after a prox cooldown): snap prox baseline to current
         // ambient without disturbing the magnetometer baseline, so mag stays live.
         if (proxRecalibrate) {
-            baseProx = proxVal; proxAvg = proxVal; proxInit = true; proxSettleStart = millis();
+            if (proxMode == 1) {
+                if (rcValid) rcBase10 = rcCharge10;
+                baseProx = 0; proxAvg = 0;
+            } else {
+                baseProx = proxVal; proxAvg = proxVal;
+            }
+            proxInit = true; proxSettleStart = millis();
             proxRecalibrate = false;
         }
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
@@ -1769,7 +1800,12 @@ void hardwareTask(void* pv) {
             if (proxAlert) {
                 if (proxHitStart == 0) proxHitStart = millis();
                 if (millis() - proxHitStart &gt; PROX_HOLD_MS) {
-                    proxAvg = (float)proxVal;         // hard re-zero to current
+                    if (proxMode == 1) {
+                        if (rcValid) rcBase10 = rcCharge10; // absorb held capacitance in RC units
+                        proxAvg = 0;
+                    } else {
+                        proxAvg = (float)proxVal;      // touch mode hard re-zero
+                    }
                     proxHitStart = 0;
                     proxSettleStart = millis();       // fast-settle after
                 }
@@ -1777,11 +1813,17 @@ void hardwareTask(void* pv) {
                 proxHitStart = 0;
             }
         }
-        if (proxInit &amp;&amp; !proxAlert) {
-            float a = (millis() - proxSettleStart &lt; 2000) ? 0.05f : 0.001f;
-            proxAvg = proxAvg * (1.0f - a) + (float)proxVal * a;
+        if (proxMode == 1) {
+            // rcBase10 already tracks ambient capacitance; a second rolling baseline
+            // here would double-subtract and create an alert when a held hand leaves.
+            proxAvg = 0; baseProx = 0;
+        } else {
+            if (proxInit &amp;&amp; !proxAlert) {
+                float a = (millis() - proxSettleStart &lt; 2000) ? 0.05f : 0.001f;
+                proxAvg = proxAvg * (1.0f - a) + (float)proxVal * a;
+            }
+            baseProx = (int)proxAvg;
         }
-        baseProx = (int)proxAvg;
 
         // ── ALERT STATE MACHINE: fire (max 5s) -&gt; cooldown (10s, quiet + rebaseline) ──
         // Raw trigger this cycle (may be gated below). Held off until the boot
@@ -1800,7 +1842,7 @@ void hardwareTask(void* pv) {
         // PROX alert paints; otherwise theremin/idle below.
         // ============================================================
         uint32_t nowMs = millis();
-        // A commanded diag pulse (producer drive) actuates the node; while
+        // A commanded diag pulse (operator command) actuates the node; while
         // diagQuietUntil is in the future we must NOT treat the resulting sensor
         // wobble as a real detection, or the node sputters alerts on/off.
         bool diagQuiet = (nowMs &lt; diagQuietUntil);
@@ -2004,10 +2046,15 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
-        // Prox sense source: 0 = touchRead on selected touchPin, 1 = 74HC00 oscillator on fixed GPIO14.
+        // Prox sense source: 0 = touchRead on selected pin, 1 = GPIO18/1M/GPIO4 RC charge-time sensor.
         if (doc[&quot;proxMode&quot;].is&lt;int&gt;()) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
-            if (pm != proxMode) { proxMode = pm; oscReady = false; oscBaseHz = 0; proxInit = false; recalibrate = true; }
+            if (pm != proxMode) {
+                // Basic touch mode needs GPIO18 high-impedance; leaving it LOW would
+                // bias GPIO4 through the external 1M resistor on a wired Road B node.
+                if (pm == 0) { digitalWrite(RC_DRIVE_PIN, LOW); pinMode(RC_DRIVE_PIN, INPUT); }
+                proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
+            }
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxMode&quot;, proxMode); prefs.end();
         }
         prefs.begin(&quot;specter&quot;, false);
@@ -2040,7 +2087,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         else { diagPulseMs = constrain((uint32_t)(doc[&quot;ms&quot;] | 600), (uint32_t)50, (uint32_t)8000); diagStopReq = 0; diagPulseReq = 1; }
         sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;trigger&quot;)) {
-        // Remote fire from the producer (PROTOCOL: hold=true energizes until a
+        // Remote fire from the operator (PROTOCOL: hold=true energizes until a
         // matching hold=false releases it). We implement hold as a long pulse that
         // a hold=false frame stops early, so the &quot;hold button&quot; and momentary blips
         // both work. intensity maps to drive level: prox ring for a strong hit,
@@ -2526,7 +2573,7 @@ void loop() {
         lastTelemetry = now; seqNum++;
         JsonDocument doc;
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;oscFreq&quot;] = oscFreq; doc[&quot;oscBase&quot;] = oscBaseHz;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcDrivePin&quot;] = RC_DRIVE_PIN; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
