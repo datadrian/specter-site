@@ -87,6 +87,10 @@
       <div class="note">
         <b>Board will not enter flashing mode?</b> Hold the <b>BOOT</b> button on the ESP32 while you click Install, and release it once flashing starts. Some boards need this to accept a new image.
       </div>
+
+      <div class="note">
+        <b>"Failed to write compressed data" during flashing?</b> This is a USB transfer interruption, not a firmware setting error. Close the SPECTER app and any serial monitor, disconnect the LED ring VCC temporarily to reduce USB power draw, use a short data cable directly into the computer, then reconnect and retry. Hold <b>BOOT</b>, tap <b>EN / RESET</b>, keep holding BOOT until the installer begins writing, then release it. After the flash completes, reconnect the LED ring power.
+      </div>
     </section>
 
   </div>
