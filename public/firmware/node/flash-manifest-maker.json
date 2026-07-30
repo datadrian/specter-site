@@ -7,8 +7,20 @@
       "chipFamily": "ESP32",
       "parts": [
         {
-          "path": "SPECTER-Node-maker-2.12.18-factory.bin",
-          "offset": 0
+          "path": "SPECTER-Node-maker-2.12.18-bootloader.bin",
+          "offset": 4096
+        },
+        {
+          "path": "SPECTER-Node-maker-2.12.18-partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "SPECTER-Node-maker-2.12.18-boot-app0.bin",
+          "offset": 57344
+        },
+        {
+          "path": "SPECTER-Node-maker-2.12.18-maker.bin",
+          "offset": 65536
         }
       ]
     }

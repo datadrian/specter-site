@@ -59,7 +59,7 @@
     <section class="fn-sec">
       <div class="flash-card">
         <div class="ver">Latest firmware &middot; <b id="fw-ver">loading...</b></div>
-        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.18">
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.18.1">
           <button class="fake-btn" slot="activate">Install / Recover Firmware</button>
           <span slot="unsupported" class="nosup">
             Your browser cannot flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.
@@ -86,6 +86,9 @@
 
       <div class="note">
         <b>Board will not enter flashing mode?</b> Hold the <b>BOOT</b> button on the ESP32 while you click Install, and release it once flashing starts. Some boards need this to accept a new image.
+      </div>
+      <div class="note">
+        <b>Error status 193,0?</b> This is a bad USB transfer checksum reported by the ESP32 before the SPECTER firmware starts. Unplug the board, temporarily disconnect all sensor, LED, buzzer, antenna, 3.3V, and 5V wiring so only the bare ESP32 remains, then reconnect it with a short data USB cable directly to the computer. Close any serial monitor, hold BOOT while starting Install, and release BOOT when writing begins. Avoid USB hubs.
       </div>
 
       <div class="note">
