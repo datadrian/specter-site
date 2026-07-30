@@ -289,7 +289,8 @@
         <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
         <tbody>
           <tr><td>74HC14 · pin 14 (VCC) / pin 7 (GND)</td><td class="pin">3.3V / GND</td></tr>
-          <tr><td>74HC14 · pin 1 (1A, input)</td><td class="pin">LC tank node: antenna + inductor + capacitor, all to GND</td></tr>
+          <tr><td>Antenna wire + L + C, joined at one node</td><td class="pin">74HC14 pin 1 (1A, input), this shared node IS the oscillator input</td></tr>
+          <tr><td>L and C, other leg (antenna is NOT wired here)</td><td class="pin">GND</td></tr>
           <tr><td>74HC14 · pin 2 (1Y, output)</td><td class="pin">GPIO14 (oscillator square wave in)</td></tr>
           <tr><td>74HC14 · unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND (standard practice for unused CMOS gate inputs)</td></tr>
           <tr><td>Feedback resistor (~1MΩ)</td><td class="pin">74HC14 pin 2 (output) back to pin 1 (input)</td></tr>

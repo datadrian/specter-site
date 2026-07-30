@@ -55,6 +55,7 @@
   <text class="compsub" x="56" y="154">hand nearby raises C, lowers Hz</text>
   <line x1="150" y1="162" x2="150" y2="180" class="wire w-osc"/>
   <circle class="termo" cx="150" cy="188" r="4.5"/>
+  <path class="wire w-osc" d="M150 188 L182 188"/>
   <path class="coilsym" d="M150 188 q-10 8 0 16 q10 8 0 16 q-10 8 0 16"/>
   <text class="compsub" x="118" y="200">L</text>
   <text class="compsub" x="104" y="212" fill="#7a8a96" font-size="9">1&#8211;10mH</text>
@@ -64,11 +65,12 @@
   <line x1="182" y1="216" x2="182" y2="236" class="wire w-osc"/>
   <text class="compsub" x="194" y="214">C</text>
   <text class="compsub" x="194" y="226" fill="#7a8a96" font-size="9">100&#8211;330pF</text>
-  <path class="wire w-osc" d="M150 236 L150 250 L182 250"/>
-  <path class="wire w-osc" d="M182 236 L182 250"/>
-  <path class="wire w-osc" d="M150 250 L150 258"/>
-  <text class="wlbl" x="78" y="264">&#8594; 74HC14 pin 1 (1A)</text>
-  <path class="wire w-osc" d="M150 258 L291 258"/>
+  <path class="wire w-osc" d="M182 188 L182 145 L291 145 L291 168"/>
+  <text class="wlbl" x="184" y="139">&#8594; 74HC14 pin 1 (1A)</text>
+  <path class="stub w-gnd" d="M150 236 L182 236"/>
+  <circle class="termg" cx="166" cy="236" r="4.5"/>
+  <path class="stub w-gnd" d="M166 236 L166 792"/>
+  <text class="wlbl" x="98" y="252" fill="#7a8a96" font-size="9">L + C other leg &#8594; GND (antenna itself is NOT grounded)</text>
 
   <!-- ============ 74HC14 IC ============ -->
   <g transform="translate(300,150)">
