@@ -1,229 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 860" font-family="'Share Tech Mono',monospace" role="img" aria-label="SPECTER Node theremin build wiring diagram: a single-transistor common-emitter Colpitts LC oscillator (Q1, tank L2/Ctop/Cbot, RF choke L1) forms the antenna sense circuit, with a 74HC14 Schmitt-trigger inverter used purely as a self-biased squaring buffer to turn its sine output into a clean square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build, all sharing common 3.3V and ground rails.">
-  <defs>
-    <linearGradient id="board2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0d1520"/><stop offset="1" stop-color="#0a0f16"/>
-    </linearGradient>
-    <style>
-      .pin{fill:#0a0f16;stroke:#2a3a44;stroke-width:1.2}
-      .pin.used{stroke:#00e5ff}
-      .pinlbl{fill:#5a6b78;font-size:10.5px}
-      .pinlbl.used{fill:#00e5ff;font-weight:bold}
-      .pinlbl.osc{fill:#c9a4ff;font-weight:bold}
-      .comp{fill:#0d1520;stroke:#00e5ff;stroke-opacity:.55;stroke-width:1.4}
-      .complbl{fill:#e4ecf2;font-size:13px;font-weight:bold}
-      .compsub{fill:#7a8a96;font-size:10px}
-      .wire{fill:none;stroke-width:2.6;stroke-linecap:round}
-      .stub{fill:none;stroke-width:2.2;stroke-linecap:round}
-      .w-sig{stroke:#00e5ff}
-      .w-3v3{stroke:#ff5d5d}
-      .w-gnd{stroke:#8a97a3}
-      .w-osc{stroke:#c9a4ff}
-      .wlbl{font-size:10.5px;fill:#b8c6d0}
-      .title{fill:#00e5ff;font-size:15px;letter-spacing:.16em}
-      .subtitle{fill:#7a8a96;font-size:11px;letter-spacing:.08em}
-      .term{fill:#00e5ff}
-      .term3{fill:#ff5d5d}
-      .termg{fill:#8a97a3}
-      .termo{fill:#c9a4ff}
-      .brk{stroke:#00e5ff;stroke-opacity:.4;stroke-width:1;fill:none}
-      .legend text{font-size:10.5px;fill:#b8c6d0}
-      .ic{fill:#111a22;stroke:#c9a4ff;stroke-width:1.4}
-      .icpin{fill:#0a0f16;stroke:#3a3050;stroke-width:1}
-      .icpinlbl{fill:#8a7ba8;font-size:9.5px}
-      .icpinlbl.used{fill:#c9a4ff;font-weight:bold}
-      .capsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
-      .rsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
-      .qbox{fill:#0d1520;stroke:#c9a4ff;stroke-width:1.4}
-      .qlbl{fill:#e4ecf2;font-size:12px;font-weight:bold}
-      .qsub{fill:#7a8a96;font-size:9px}
-      .qpin{fill:#c9a4ff;font-size:10px;font-weight:bold}
-      .rail{stroke-width:3}
-      .rail3v3{stroke:#ff5d5d}
-      .railgnd{stroke:#8a97a3}
-      .raillbl{font-size:11px;font-weight:bold}
-      .hop{fill:none;stroke-width:2.2}
-    </style>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 800" role="img" aria-label="SPECTER Node extended-range antenna oscillator wiring diagram using only a 74HC00 NAND chip, resistors, antenna capacitance, and a 100 microfarad supply capacitor. Three NAND gates form the oscillator and the fourth buffers its output to ESP32 GPIO14.">
+<defs><style>
+.bg{fill:#070a0f}.box{fill:#0d1520;stroke:#263744;stroke-width:2}.ic{fill:#111a22;stroke:#b98cff;stroke-width:2}.title{fill:#00e5ff;font:700 18px monospace;letter-spacing:2px}.sub{fill:#8596a3;font:13px monospace}.head{fill:#e9f1f5;font:700 16px monospace}.txt{fill:#c7d2da;font:13px monospace}.dim{fill:#80909c;font:12px monospace}.pin{fill:#00e5ff;font:700 13px monospace}.sig{fill:none;stroke:#00e5ff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.osc{fill:none;stroke:#b98cff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.pwr{fill:none;stroke:#ff5d5d;stroke-width:3;stroke-linecap:round}.gnd{fill:none;stroke:#8a97a3;stroke-width:3;stroke-linecap:round}.dot{fill:#b98cff}.warn{fill:#ffd166;font:700 12px monospace}.gate{fill:#121d26;stroke:#b98cff;stroke-width:1.5}.n{fill:#b98cff;font:700 12px monospace}.note{fill:#0b1118;stroke:#00e5ff;stroke-opacity:.5;stroke-width:1.5}.r{fill:none;stroke:#e9f1f5;stroke-width:2}.rail{stroke-width:4}
+</style></defs>
+<rect class="bg" width="1230" height="800"/>
+<path d="M18 18h30M18 18v30M1212 18h-30M1212 18v30M18 782h30M18 782v-30M1212 782h-30M1212 782v-30" fill="none" stroke="#26404c"/>
+<text class="title" x="38" y="48">SPECTER NODE // 74HC00 ANTENNA OSCILLATOR</text>
+<text class="sub" x="38" y="72">No transistor. No inductors. Three NAND gates oscillate; gate 4 buffers the signal into fixed ESP32 GPIO14.</text>
 
-  <path class="brk" d="M14 14 h28 M14 14 v28"/>
-  <path class="brk" d="M1216 14 h-28 M1216 14 v28"/>
-  <path class="brk" d="M14 846 h28 M14 846 v-28"/>
-  <path class="brk" d="M1216 846 h-28 M1216 846 v-28"/>
-  <text class="title" x="34" y="42">SPECTER NODE // WIRING, THEREMIN BUILD (ROAD B)</text>
-  <text class="subtitle" x="34" y="60">Common-emitter Colpitts LC oscillator (Q1) for real extended range &#183; 74HC14 used only as a squaring buffer &#183; adds one transistor, two inductors, and a handful of passives</text>
+<rect class="box" x="35" y="100" width="720" height="555" rx="8"/>
+<text class="head" x="58" y="132">74HC00 DIP-14, POWERED AT 3.3V</text>
+<text class="dim" x="58" y="153">Tie both inputs of each NAND gate together so each gate behaves as an inverter.</text>
 
-  <!-- ============ ANTENNA + COLPITTS LC OSCILLATOR (Q1) ============ -->
-  <rect class="comp" x="40" y="68" width="420" height="430" rx="6"/>
-  <text class="complbl" x="56" y="92">ANTENNA + COLPITTS LC OSCILLATOR</text>
-  <text class="compsub" x="56" y="108">telescopic rod, ~15&#8211;20cm, couples via Cant into the collector/tank node</text>
-  <text class="compsub" x="56" y="122">hand nearby raises effective C there, which LOWERS the oscillator's Hz</text>
-  <line x1="150" y1="132" x2="150" y2="156" class="wire w-osc"/>
-  <circle class="termo" cx="150" cy="156" r="4.5"/>
-  <text class="wlbl" x="96" y="149" font-size="9">ANT</text>
-  <line x1="140" y1="166" x2="160" y2="166" class="capsym"/>
-  <line x1="142" y1="174" x2="158" y2="174" class="capsym"/>
-  <text class="wlbl" x="204" y="163" font-size="9">Cant &#8776;15pF (tune)</text>
-  <line x1="150" y1="182" x2="150" y2="222" class="wire w-osc"/>
-  <line x1="110" y1="222" x2="300" y2="222" class="wire w-osc"/>
-  <circle class="termo" cx="150" cy="222" r="4.5"/>
-  <text class="wlbl" x="112" y="215" font-size="9">COLL (tank top)</text>
-  <line x1="110" y1="222" x2="110" y2="248" class="wire w-osc"/>
-  <line x1="98" y1="254" x2="122" y2="254" class="capsym"/>
-  <line x1="100" y1="262" x2="120" y2="262" class="capsym"/>
-  <path class="stub w-gnd" d="M110 262 L110 792"/>
-  <text class="wlbl" x="56" y="282" font-size="9">Ctop 1000pF (to GND)</text>
-  <line x1="195" y1="222" x2="195" y2="196" class="wire w-osc"/>
-  <path d="M195 196 q-9 -6 0 -12 q9 -6 0 -12 q-9 -6 0 -12" fill="none" class="rsym"/>
-  <path class="stub w-3v3" d="M195 160 L195 760"/>
-  <text class="wlbl" x="204" y="212" font-size="9">L1 1mH (RFC, VCC feed)</text>
-  <!-- ============ Q1: common-emitter Colpitts oscillator ============ -->
-  <line x1="310" y1="222" x2="310" y2="260" class="wire w-osc"/>
-  <rect class="qbox" x="270" y="260" width="120" height="140" rx="5"/>
-  <text class="qlbl" x="330" y="330" text-anchor="middle">Q1</text>
-  <text class="qsub" x="330" y="344" text-anchor="middle">2N3904 / BC547</text>
-  <text class="qsub" x="330" y="356" text-anchor="middle">(common-emitter)</text>
-  <text class="qpin" x="316" y="278">C</text>
-  <text class="qpin" x="276" y="304">B</text>
-  <text class="qpin" x="316" y="396">E</text>
-  <!-- L2: tank inductor, bridges COLL (y222) to the base-feed node (y300) -->
-  <line x1="240" y1="222" x2="240" y2="230" class="wire w-osc"/>
-  <path d="M240 230 q9 6 0 12 q-9 6 0 12 q9 6 0 12 q-9 6 0 12" fill="none" class="rsym"/>
-  <line x1="240" y1="278" x2="240" y2="300" class="wire w-osc"/>
-  <text class="wlbl" x="200" y="258" font-size="9">L2 100&#956;H (tank)</text>
-  <!-- base-feed node bus (y=300): Cbot tap x=190, L2 arrives x=240, Cc + base-node junction 250-270 -->
-  <line x1="190" y1="300" x2="260" y2="300" class="wire w-osc"/>
-  <circle class="termo" cx="240" cy="300" r="4.5"/>
-  <text class="wlbl" x="150" y="315" font-size="9">TANK BOTTOM NODE</text>
-  <line x1="190" y1="300" x2="190" y2="326" class="wire w-osc"/>
-  <line x1="178" y1="332" x2="202" y2="332" class="capsym"/>
-  <line x1="180" y1="340" x2="200" y2="340" class="capsym"/>
-  <path class="stub w-gnd" d="M190 340 L190 792"/>
-  <text class="wlbl" x="60" y="360" font-size="9">Cbot 3300pF (to GND)</text>
-  <line x1="244" y1="330" x2="268" y2="330" class="capsym" transform="rotate(90 256 330)"/>
-  <line x1="250" y1="292" x2="250" y2="308" class="capsym"/>
-  <line x1="258" y1="292" x2="258" y2="308" class="capsym"/>
-  <text class="wlbl" x="238" y="284" font-size="9">Cc 10nF</text>
-  <circle class="termo" cx="260" cy="300" r="4.5"/>
-  <line x1="260" y1="300" x2="270" y2="300" class="wire w-osc"/>
-  <line x1="260" y1="300" x2="260" y2="266" class="wire w-osc"/>
-  <path d="M260 266 l7 -4 l-14 -4 l14 -4 l-14 -4 l7 -4" fill="none" class="rsym"/>
-  <line x1="260" y1="246" x2="222" y2="246" class="wire w-osc"/>
-  <path class="stub w-3v3" d="M222 246 L222 760"/>
-  <text class="wlbl" x="150" y="240" font-size="9">R1 22k&#937; (to 3.3V)</text>
-  <line x1="260" y1="300" x2="260" y2="334" class="wire w-osc"/>
-  <path d="M260 334 l7 4 l-14 4 l14 4 l-14 4 l7 4" fill="none" class="rsym"/>
-  <path class="stub w-gnd" d="M260 358 L260 792"/>
-  <text class="wlbl" x="170" y="330" font-size="9">R2 10k&#937; (to GND)</text>
-  <line x1="310" y1="400" x2="310" y2="426" class="wire w-osc"/>
-  <path d="M310 426 l7 4 l-14 4 l14 4 l-14 4 l7 4" fill="none" class="rsym"/>
-  <path class="stub w-gnd" d="M310 450 L310 792"/>
-  <text class="wlbl" x="322" y="440" font-size="9">RE 470&#937;</text>
-  <text class="wlbl" x="322" y="452" font-size="9">(~0.7mA bias)</text>
-  <text class="wlbl" x="56" y="472" font-size="9">No emitter bypass cap: if oscillation is weak/unreliable on the bench, add a 100nF cap across RE for more loop gain.</text>
-  <!-- output tap from COLL (biggest swing) out to the 74HC14 squaring buffer -->
-  <line x1="280" y1="222" x2="280" y2="200" class="wire w-osc"/>
-  <line x1="392" y1="196" x2="392" y2="204" class="capsym"/>
-  <line x1="400" y1="196" x2="400" y2="204" class="capsym"/>
-  <line x1="280" y1="200" x2="392" y2="200" class="wire w-osc"/>
-  <path class="wire w-osc" d="M400 200 L481 200 L481 168"/>
-  <text class="wlbl" x="340" y="190" font-size="9">Cout 10nF</text>
-  <!-- ============ 74HC14: ONE gate used as a self-biased squaring buffer (not an oscillator here) ============ -->
-  <g transform="translate(490,150)">
-    <rect class="ic" x="0" y="0" width="130" height="220" rx="4"/>
-    <path d="M55 0 a10 10 0 0 0 20 0" fill="#111a22" stroke="#c9a4ff" stroke-width="1.4"/>
-    <text x="65" y="115" text-anchor="middle" fill="#e4ecf2" font-size="13" font-weight="bold">74HC14</text>
-    <text x="65" y="132" text-anchor="middle" fill="#7a8a96" font-size="8">HEX SCHMITT INV.</text>
-    <rect class="icpin" x="-9" y="14" width="9" height="8"/><text class="icpinlbl used" x="-13" y="21" text-anchor="end">1 1A</text>
-    <rect class="icpin" x="-9" y="42" width="9" height="8"/><text class="icpinlbl used" x="-13" y="49" text-anchor="end">2 1Y</text>
-    <rect class="icpin" x="-9" y="70" width="9" height="8"/><text class="icpinlbl" x="-13" y="77" text-anchor="end">3 2A</text>
-    <rect class="icpin" x="-9" y="98" width="9" height="8"/><text class="icpinlbl" x="-13" y="105" text-anchor="end">4 2Y</text>
-    <rect class="icpin" x="-9" y="126" width="9" height="8"/><text class="icpinlbl" x="-13" y="133" text-anchor="end">5 3A</text>
-    <rect class="icpin" x="-9" y="154" width="9" height="8"/><text class="icpinlbl" x="-13" y="161" text-anchor="end">6 3Y</text>
-    <rect class="icpin" x="-9" y="182" width="9" height="8"/><text class="icpinlbl used" x="-13" y="189" text-anchor="end">7 GND</text>
-    <rect class="icpin" x="130" y="14" width="9" height="8"/><text class="icpinlbl used" x="143" y="21">14 VCC</text>
-    <rect class="icpin" x="130" y="42" width="9" height="8"/><text class="icpinlbl" x="143" y="49">13 6A</text>
-    <rect class="icpin" x="130" y="70" width="9" height="8"/><text class="icpinlbl" x="143" y="77">12 6Y</text>
-    <rect class="icpin" x="130" y="98" width="9" height="8"/><text class="icpinlbl" x="143" y="105">11 5A</text>
-    <rect class="icpin" x="130" y="126" width="9" height="8"/><text class="icpinlbl" x="143" y="133">10 5Y</text>
-    <rect class="icpin" x="130" y="154" width="9" height="8"/><text class="icpinlbl" x="143" y="161">9 4A</text>
-    <rect class="icpin" x="130" y="182" width="9" height="8"/><text class="icpinlbl" x="143" y="189">8 4Y</text>
-  </g>
-  <!-- Rf self-bias resistor: pin2 (1Y, abs y=196) back to pin1 (1A, abs y=168) - biases the gate into its linear region so it can amplify/square the incoming sine -->
-  <path class="wire w-osc" d="M481 196 L452 196 L452 168 L481 168" fill="none"/>
-  <path d="M452 168 l5 4 l-5 4 l5 4 l-5 4 l5 4 l-5 4" fill="none" class="capsym" transform="translate(0,-4)"/>
-  <text class="wlbl" x="392" y="222" fill="#c9a4ff" font-size="9.5">Rf &#8776;1M&#937; (self-bias)</text>
-  <!-- unused gate inputs -> local ground bus -> main GND rail -->
-  <path class="stub w-gnd" d="M481 220 L481 390"/>
-  <path class="stub w-gnd" d="M481 276 L481 390"/>
-  <path class="stub w-gnd" d="M481 332 L481 390"/>
-  <path class="stub w-gnd" d="M629 192 L629 390"/>
-  <path class="stub w-gnd" d="M629 248 L629 390"/>
-  <path class="stub w-gnd" d="M629 304 L629 390"/>
-  <line x1="470" y1="390" x2="640" y2="390" class="stub w-gnd"/>
-  <path class="stub w-gnd" d="M550 390 L550 792"/>
-  <text class="wlbl" x="481" y="410" fill="#7a8a96" font-size="9">unused inputs + IC GND tied to GND rail</text>
-  <!-- 74HC14 VCC to main 3V3 rail -->
-  <path class="stub w-3v3" d="M629 164 L660 164 L660 760"/>
-  <!-- squared output: 74HC14 pin2 (1Y) -> ESP32 GPIO14 -->
-  <path class="wire w-osc" d="M481 196 L450 196 L450 132 L782 132 L782 220"/>
-  <text class="wlbl" x="520" y="128" fill="#c9a4ff">1Y OUT (squared wave) &#8594; GPIO14</text>
-  <!-- ============ ESP32 ============ -->
-  <rect x="790" y="140" width="150" height="340" rx="10" fill="url(#board2)" stroke="#00e5ff" stroke-opacity=".65"/>
-  <rect x="828" y="108" width="76" height="30" rx="3" fill="#12202b" stroke="#2a3a44"/>
-  <text x="866" y="128" text-anchor="middle" fill="#7a8a96" font-size="9">USB-C</text>
-  <text x="866" y="196" text-anchor="middle" fill="#e4ecf2" font-size="15" font-weight="bold">ESP32</text>
-  <text x="866" y="212" text-anchor="middle" fill="#7a8a96" font-size="9">WROOM DEVKIT</text>
-  <rect x="836" y="228" width="60" height="170" rx="3" fill="#060a0e" stroke="#1c2a33"/>
-  <rect class="pin used" x="782" y="220" width="12" height="12"/><text class="pinlbl used" x="776" y="230" text-anchor="end">GPIO14 (OSC IN)</text>
-  <rect class="pin used" x="782" y="252" width="12" height="12"/><text class="pinlbl used" x="776" y="262" text-anchor="end">3V3</text>
-  <rect class="pin used" x="782" y="284" width="12" height="12"/><text class="pinlbl used" x="776" y="294" text-anchor="end">GND</text>
-  <rect class="pin" x="782" y="316" width="12" height="12"/><text class="pinlbl" x="776" y="326" text-anchor="end">GPIO4 (unused)</text>
-  <rect class="pin used" x="934" y="220" width="12" height="12"/><text class="pinlbl used" x="952" y="230">GPIO12</text>
-  <rect class="pin used" x="934" y="252" width="12" height="12"/><text class="pinlbl used" x="952" y="262">GPIO13</text>
-  <rect class="pin used" x="934" y="284" width="12" height="12"/><text class="pinlbl used" x="952" y="294">GPIO21 (SDA)</text>
-  <rect class="pin used" x="934" y="316" width="12" height="12"/><text class="pinlbl used" x="952" y="326">GPIO22 (SCL)</text>
-  <path class="stub w-3v3" d="M788 258 L788 760"/>
-  <path class="stub w-gnd" d="M788 290 L788 792"/>
-  <!-- ============ QMC5883L ============ -->
-  <rect class="comp" x="990" y="60" width="210" height="112" rx="6"/>
-  <text class="complbl" x="1006" y="84">QMC5883L MAGNETOMETER</text>
-  <text class="compsub" x="1006" y="100">3-axis, I2C addr 0x0D</text>
-  <circle class="term3" cx="1006" cy="120" r="4.5"/><text class="compsub" x="1018" y="124">VCC</text>
-  <circle class="termg" cx="1006" cy="136" r="4.5"/><text class="compsub" x="1018" y="140">GND</text>
-  <circle class="term" cx="1006" cy="152" r="4.5"/><text class="compsub" x="1018" y="156">SCL</text>
-  <circle class="term" cx="1150" cy="152" r="4.5"/><text class="compsub" x="1138" y="156" text-anchor="end">SDA</text>
-  <path class="stub w-3v3" d="M1006 120 L1080 120 L1080 760"/>
-  <path class="stub w-gnd" d="M1006 136 L1100 136 L1100 792"/>
-  <path class="wire w-sig" d="M1006 152 L970 152 L970 322 L934 322"/>
-  <path class="wire w-sig" d="M1150 152 L1170 152 L1170 290 L934 290"/>
-  <!-- ============ BUZZER ============ -->
-  <rect class="comp" x="990" y="196" width="210" height="86" rx="6"/>
-  <text class="complbl" x="1006" y="220">PASSIVE PIEZO BUZZER</text>
-  <text class="compsub" x="1006" y="236">local audible alert</text>
-  <circle class="term" cx="1006" cy="256" r="4.5"/><text class="compsub" x="1018" y="260">+</text>
-  <circle class="termg" cx="1006" cy="272" r="4.5"/><text class="compsub" x="1018" y="276">&#8722;</text>
-  <path class="wire w-sig" d="M1006 256 L978 256 L978 226 L946 226"/>
-  <path class="stub w-gnd" d="M1006 272 L1120 272 L1120 792"/>
-  <!-- ============ LED RING ============ -->
-  <rect class="comp" x="990" y="308" width="210" height="100" rx="6"/>
-  <text class="complbl" x="1006" y="332">WS2812B LED RING (12px)</text>
-  <text class="compsub" x="1006" y="348">local visual alert</text>
-  <circle class="term" cx="1006" cy="368" r="4.5"/><text class="compsub" x="1018" y="372">DIN</text>
-  <circle class="term3" cx="1006" cy="384" r="4.5"/><text class="compsub" x="1018" y="388">VCC (3.3&#8211;5V)</text>
-  <circle class="termg" cx="1150" cy="384" r="4.5"/><text class="compsub" x="1138" y="388" text-anchor="end">GND</text>
-  <path class="wire w-sig" d="M1006 368 L954 368 L954 258 L946 258"/>
-  <path class="stub w-3v3" d="M1006 384 L1140 384 L1140 760"/>
-  <path class="stub w-gnd" d="M1150 384 L1190 384 L1190 792"/>
-  <!-- ============ POWER RAILS ============ -->
-  <line x1="40" y1="760" x2="1200" y2="760" class="rail rail3v3"/>
-  <text class="raillbl" x="40" y="752" fill="#ff5d5d">3V3 RAIL</text>
-  <line x1="40" y1="792" x2="1200" y2="792" class="rail railgnd"/>
-  <text class="raillbl" x="40" y="808" fill="#8a97a3">GND RAIL</text>
-  <g class="legend" transform="translate(420,832)">
-    <line x1="0" y1="0" x2="24" y2="0" class="wire w-sig"/><text x="30" y="4">Signal</text>
-    <line x1="86" y1="0" x2="110" y2="0" class="wire w-3v3"/><text x="116" y="4">3.3V</text>
-    <line x1="166" y1="0" x2="190" y2="0" class="wire w-gnd"/><text x="196" y="4">GND</text>
-    <line x1="250" y1="0" x2="274" y2="0" class="wire w-osc"/><text x="280" y="4">Oscillator / tank</text>
-    <text x="420" y="4" fill="#5a6b78" font-size="9.5">Crossing lines with no dot are not connected</text>
-  </g>
+<!-- antenna node -->
+<line class="osc" x1="90" y1="195" x2="90" y2="260"/>
+<path class="osc" d="M72 195h36M78 185h24M84 175h12"/>
+<circle class="dot" cx="90" cy="260" r="5"/>
+<text class="pin" x="58" y="284">ANTENNA NODE A</text>
+<text class="dim" x="58" y="303">Telescopic rod directly to pins 1 + 2</text>
+<text class="dim" x="58" y="320">Its natural capacitance is the timing C</text>
+
+<!-- gates -->
+<rect class="gate" x="185" y="215" width="125" height="92" rx="7"/>
+<text class="head" x="247" y="243" text-anchor="middle">GATE 1</text><text class="pin" x="198" y="268">1 + 2 IN</text><text class="pin" x="245" y="293">3 OUT</text>
+<rect class="gate" x="365" y="215" width="125" height="92" rx="7"/>
+<text class="head" x="427" y="243" text-anchor="middle">GATE 2</text><text class="pin" x="378" y="268">4 + 5 IN</text><text class="pin" x="425" y="293">6 OUT</text>
+<rect class="gate" x="545" y="215" width="125" height="92" rx="7"/>
+<text class="head" x="607" y="243" text-anchor="middle">GATE 3</text><text class="pin" x="558" y="268">9 + 10 IN</text><text class="pin" x="598" y="293">8 OUT</text>
+<path class="osc" d="M90 260H185M310 260H365M490 260H545"/>
+
+<!-- feedback resistor -->
+<path class="osc" d="M670 260H705V365H635"/>
+<path class="r" d="M635 365l-10 -9 -16 18 -16 -18 -16 18 -16 -18 -16 18 -10 -9"/>
+<path class="osc" d="M565 365H90V260"/>
+<text class="head" x="600" y="345" text-anchor="middle">R1 = 1MΩ</text>
+<text class="dim" x="600" y="394" text-anchor="middle">Gate 3 output back to antenna node A</text>
+
+<!-- gate4 buffer -->
+<rect class="gate" x="365" y="430" width="190" height="100" rx="7"/>
+<text class="head" x="460" y="458" text-anchor="middle">GATE 4, OUTPUT BUFFER</text>
+<text class="pin" x="385" y="485">pins 12 + 13 IN</text><text class="pin" x="438" y="514">pin 11 OUT</text>
+<path class="osc" d="M705 260V480H555"/>
+<text class="dim" x="570" y="468">from pin 8</text>
+
+<!-- power and cap -->
+<path class="pwr rail" d="M70 590H705"/><text x="70" y="580" fill="#ff5d5d" font-family="monospace" font-weight="bold">3.3V RAIL</text>
+<path class="gnd rail" d="M70 625H705"/><text x="70" y="648" fill="#8a97a3" font-family="monospace" font-weight="bold">GND RAIL</text>
+<path class="pwr" d="M280 590V555"/><text class="pin" x="246" y="548">pin 14 VCC</text>
+<path class="gnd" d="M345 625V555"/><text class="pin" x="320" y="548">pin 7 GND</text>
+<line class="pwr" x1="600" y1="590" x2="600" y2="602"/><line class="gnd" x1="600" y1="613" x2="600" y2="625"/>
+<line x1="580" y1="602" x2="620" y2="602" stroke="#e9f1f5" stroke-width="3"/><path d="M580 613q20 -8 40 0" fill="none" stroke="#e9f1f5" stroke-width="3"/>
+<text class="txt" x="630" y="606">100µF / 35V electrolytic</text><text class="warn" x="630" y="624">+ to 3.3V, - to GND</text>
+
+<!-- ESP32 -->
+<rect class="box" x="800" y="115" width="390" height="390" rx="8"/>
+<text class="head" x="825" y="148">ESP32 WROOM DEVKIT</text>
+<rect class="ic" x="880" y="180" width="220" height="260" rx="10"/>
+<text class="head" x="990" y="215" text-anchor="middle">ESP32</text>
+<text class="pin" x="900" y="272">GPIO14, OSC IN</text>
+<text class="pin" x="900" y="337">3V3</text><text class="pin" x="900" y="382">GND</text>
+
+<!-- output resistor and connection -->
+<path class="sig" d="M460 530V555H780V270H880"/>
+<path class="r" d="M690 555l10 -9 16 18 16 -18 16 18 16 -18 10 9"/>
+<text class="head" x="732" y="535" text-anchor="middle">R2 4.7kΩ</text>
+<text class="dim" x="732" y="586" text-anchor="middle">pin 11 to GPIO14</text>
+<path class="pwr" d="M990 337V590H705"/><path class="gnd" d="M1020 382V625H705"/>
+
+<!-- standard peripherals -->
+<rect class="note" x="800" y="535" width="390" height="120" rx="7"/>
+<text class="head" x="820" y="565">OTHER NODE CONNECTIONS STAY THE SAME</text>
+<text class="txt" x="820" y="590">QMC5883L: SDA GPIO21, SCL GPIO22</text>
+<text class="txt" x="820" y="615">LED ring DIN: GPIO13</text>
+<text class="txt" x="820" y="640">Passive buzzer +: GPIO12</text>
+
+<rect class="note" x="35" y="680" width="1155" height="82" rx="7"/>
+<text class="head" x="58" y="710">IMPORTANT</text>
+<text class="txt" x="58" y="734">Do not connect the 100µF capacitor to the antenna node. If you have a small ceramic marked 104, add it across pins 14 and 7 for cleaner power.</text>
+<text class="txt" x="58" y="752">Firmware: Settings &gt; Sense source &gt; Extended-range 74HC00 antenna oscillator. GPIO14 is fixed in oscillator mode.</text>
 </svg>

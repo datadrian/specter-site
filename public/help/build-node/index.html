@@ -240,19 +240,18 @@
       </table>
       <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
       <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Theremin build (Road B) extra parts</h3>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds a real Colpitts LC oscillator front-end for extended range. The transistor and LC tank generate a frequency that shifts as a hand changes the antenna capacitance. The 74HC14 only cleans that waveform into a square wave for the ESP32 hardware pulse counter on fixed GPIO14.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Uses a 74HC00 quad NAND chip as the complete antenna oscillator. Three gates form a ring oscillator, and the fourth buffers the square wave into fixed ESP32 GPIO14. A 1MΩ feedback resistor and the antenna's own capacitance set the frequency. No transistor and no inductors are required.</p>
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
-          <tr><td>74HC14 hex Schmitt-trigger inverter (DIP-14)</td><td>Squares the LC oscillator waveform for GPIO14</td><td>$0.50–1</td></tr>
-          <tr><td>2N3904 or BC547 NPN transistor</td><td>Active Colpitts oscillator stage</td><td>$0.10–0.50</td></tr>
-          <tr><td>L1 1mH inductor / RF choke</td><td>Feeds the oscillator while isolating the tank from the supply</td><td>$0.20–1</td></tr>
-          <tr><td>L2 100uH inductor</td><td>LC tank inductor</td><td>$0.20–1</td></tr>
-          <tr><td>Capacitors: 15pF, 1000pF, 3300pF, 10nF, optional 100nF</td><td>Antenna coupling, tank, output coupling, optional emitter bypass</td><td>$0.50–1</td></tr>
-          <tr><td>Resistors: 1MΩ, 22kΩ, 10kΩ, 470Ω</td><td>74HC14 self-bias and transistor bias</td><td>$0.50</td></tr>
+          <tr><td>74HC00 quad 2-input NAND chip (DIP-14)</td><td>Three-gate oscillator plus one output buffer</td><td>$0.50–1</td></tr>
+          <tr><td>1MΩ resistor</td><td>Feedback and timing resistor</td><td>$0.10</td></tr>
+          <tr><td>4.7kΩ resistor</td><td>Series protection between pin 11 and GPIO14</td><td>$0.10</td></tr>
+          <tr><td>100µF / 35V electrolytic capacitor</td><td>Bulk power smoothing, positive to 3.3V and negative to GND</td><td>on hand</td></tr>
+          <tr><td>Optional 100nF ceramic capacitor, marked 104</td><td>High-frequency bypass directly across 74HC00 pins 14 and 7</td><td>$0.10</td></tr>
         </tbody>
       </table>
-      <p class="sim-note">The calculated starting frequency is about 575kHz with L2 100uH, Ctop 1000pF, and Cbot 3300pF. Tune Cant or antenna length on the bench for a clean, stable frequency shift before relying on it in the field.</p>
+      <p class="sim-note">Do not place the 100µF capacitor on the antenna node. The antenna itself supplies the tiny timing capacitance. If the oscillator is too fast or unstable, add only a small 10pF to 100pF ceramic capacitor from the antenna node to GND.</p>
     </div>
 
     <!-- WIRING: BASIC -->
@@ -282,27 +281,28 @@
     <!-- WIRING: THEREMIN / ROAD B -->
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, theremin build (Road B)</h2>
-      <p>An optional upgrade path for more range. A transistor Colpitts oscillator converts antenna capacitance into a frequency shift. The 74HC14 squares that waveform, and the ESP32 counts it in hardware on fixed GPIO14. The QMC5883L, LED ring, and buzzer remain wired exactly like the basic build.</p>
-      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.14" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE THEREMIN WIRING DIAGRAM</a></p>
+      <p>This version is built from the parts already on hand. Three gates inside a 74HC00 form the antenna oscillator. The fourth gate buffers the output into fixed ESP32 GPIO14. A nearby hand increases antenna capacitance and lowers the oscillator frequency, exactly matching the firmware's proximity logic.</p>
+      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.15" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE 74HC00 WIRING DIAGRAM</a></p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.14" width="1230" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node extended-range theremin wiring diagram showing a transistor Colpitts LC oscillator, a 74HC14 squaring buffer, and the fixed GPIO14 oscillator input on the ESP32.">
+        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.15" width="1230" height="800" class="bn-diagram" data-zoomable="1" alt="SPECTER Node extended-range antenna oscillator wiring diagram using a 74HC00 NAND chip, a 1M feedback resistor, a 4.7k output resistor, and the antenna's own capacitance, with output on fixed ESP32 GPIO14.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
       <table class="bn-table">
-        <thead><tr><th>Connection</th><th>Destination / value</th></tr></thead>
+        <thead><tr><th>Connection</th><th>Destination</th></tr></thead>
         <tbody>
-          <tr><td>74HC14 pin 14 / pin 7</td><td class="pin">3.3V / GND</td></tr>
-          <tr><td>74HC14 pin 2 (squared output)</td><td class="pin">ESP32 GPIO14, fixed oscillator input</td></tr>
-          <tr><td>74HC14 unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND</td></tr>
-          <tr><td>Q1 collector / emitter / base</td><td class="pin">Wire exactly as shown in the full diagram</td></tr>
-          <tr><td>L2 / Ctop / Cbot</td><td class="pin">100uH / 1000pF / 3300pF tank</td></tr>
-          <tr><td>L1</td><td class="pin">1mH RF choke from 3.3V to collector/tank node</td></tr>
+          <tr><td>74HC00 pin 14 / pin 7</td><td class="pin">3.3V / GND</td></tr>
+          <tr><td>Antenna node</td><td class="pin">74HC00 pins 1 + 2 tied together</td></tr>
+          <tr><td>Gate 1 output</td><td class="pin">pin 3 to pins 4 + 5</td></tr>
+          <tr><td>Gate 2 output</td><td class="pin">pin 6 to pins 9 + 10</td></tr>
+          <tr><td>Gate 3 feedback</td><td class="pin">pin 8 through 1MΩ to antenna node, pins 1 + 2</td></tr>
+          <tr><td>Gate 4 buffer input</td><td class="pin">pin 8 to pins 12 + 13</td></tr>
+          <tr><td>Gate 4 buffered output</td><td class="pin">pin 11 through 4.7kΩ to ESP32 GPIO14</td></tr>
+          <tr><td>100µF electrolytic</td><td class="pin">positive to 3.3V, negative to GND</td></tr>
           <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build</td></tr>
         </tbody>
       </table>
-      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range LC oscillator (GPIO14 fixed)</strong>. The separate Antenna GPIO selector applies only to basic capacitive-touch mode. Theremin response controls the continuous light and pitch behavior, not the hardware input pin.</div>
+      <div class="callout"><strong>Firmware setting:</strong> open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range 74HC00 antenna oscillator (GPIO14 fixed)</strong>. The separate Antenna GPIO selector applies only to basic touch mode. Theremin response controls the continuous light and pitch behavior.</div>
     </div>
-
     <!-- CODE -->
     <div class="bn-sec" id="leds">
       <h2>Configure your LEDs</h2>
@@ -405,7 +405,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.14-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.15-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -438,7 +438,7 @@
 #include &lt;ArduinoJson.h&gt;        // v6 or v7
 #include &lt;Wire.h&gt;
 #include &lt;FastLED.h&gt;
-#include &quot;driver/pcnt.h&quot;   // hardware pulse counter for LC-oscillator prox
+#include &quot;driver/pcnt.h&quot;   // hardware pulse counter for antenna-oscillator prox
 #include &lt;Adafruit_NeoPixel.h&gt;   // RGBW strips (SK6812) -- FastLED does NOT support RGBW
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
@@ -529,7 +529,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;&amp;mdash;&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;&amp;mdash;&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;&amp;mdash;&lt;/b&gt;&lt;/div&gt;
 &lt;label&gt;Sense source &lt;span class=val id=prox-mode-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
 &lt;select id=prox-mode style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range LC oscillator (GPIO14 fixed)&lt;/option&gt;&lt;/select&gt;
+&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range 74HC00 antenna oscillator (GPIO14 fixed)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
 &lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;&amp;mdash;&lt;/span&gt;&lt;/label&gt;
 &lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
@@ -605,7 +605,7 @@ if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;
 if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
 rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
-function updateProxModeUi(mode,touch,hz,base){var osc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=osc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=osc?&#x27;LC / GPIO14&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=osc?&#x27;GPIO14 (fixed)&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=osc;if(save)save.disabled=osc;if(msg)msg.textContent=osc?&#x27;LC oscillator input is fixed on GPIO14. Live &#x27;+(hz||0)+&#x27; Hz, baseline &#x27;+(base||0)+&#x27; Hz. The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}
+function updateProxModeUi(mode,touch,hz,base){var osc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=osc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=osc?&#x27;OSC / GPIO14&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=osc?&#x27;GPIO14 (fixed)&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=osc;if(save)save.disabled=osc;if(msg)msg.textContent=osc?&#x27;74HC00 oscillator input is fixed on GPIO14. Live &#x27;+(hz||0)+&#x27; Hz, baseline &#x27;+(base||0)+&#x27; Hz. The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}
 if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,proxMode:pm});}}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
@@ -693,7 +693,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.14-maker&quot;
+#define FW_VERSION   &quot;2.12.15-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -706,13 +706,13 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- LC oscillator (extended-range prox, optional Road B hardware) ----
-// A transistor Colpitts LC oscillator turns antenna capacitance into a frequency
-// shift. A 74HC14 squares that waveform, then feeds this FIXED GPIO14 input. The
-// portal&#x27;s selectable touch pin applies only to proxMode 0, never oscillator mode.
-// A hand near the antenna raises capacitance -&gt; LOWERS frequency; that Hz drop is
-// converted into the same rising proximity convention used throughout the firmware.
-#define OSC_PIN        14      // GPIO14 - fixed 74HC14 squared oscillator input
+// ---- 74HC00 antenna oscillator (extended-range prox, optional Road B hardware) ----
+// Three NAND gates form an RC ring oscillator. A 1M feedback resistor and the
+// antenna&#x27;s own capacitance set its frequency; the fourth NAND gate buffers the
+// square wave into this FIXED GPIO14 input. No transistor or inductor is required.
+// A nearby hand raises antenna capacitance -&gt; LOWERS frequency, which becomes the
+// same rising proximity convention used throughout the firmware.
+#define OSC_PIN        14      // GPIO14 - fixed 74HC00 buffered oscillator input
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -969,7 +969,7 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 
 // ---- prox sense source ----
 //  proxMode 0 = touchRead (default, ~15cm, no extra hardware)
-//  proxMode 1 = Colpitts LC oscillator via PCNT on fixed OSC_PIN/GPIO14
+//  proxMode 1 = 74HC00 antenna oscillator via PCNT on fixed OSC_PIN/GPIO14
 volatile int      proxMode   = 0;
 volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
@@ -1297,7 +1297,7 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 }
 
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
-// ============ COLPITTS LC OSCILLATOR PROX (PCNT) ============
+// ============ 74HC00 ANTENNA OSCILLATOR PROX (PCNT) ============
 // Configure PCNT unit 0 to count rising edges on OSC_PIN. We gate the count over a
 // fixed window and convert to Hz. Called once when prox mode switches to oscillator.
 void oscBegin() {
@@ -1313,7 +1313,7 @@ void oscBegin() {
     cfg.counter_h_lim  = 32767;
     cfg.counter_l_lim  = 0;
     pcnt_unit_config(&amp;cfg);
-    pcnt_set_filter_value(PCNT_UNIT_0, 10);    // ~125ns filter: rejects tiny glitches but passes ~575kHz LC pulses
+    pcnt_set_filter_value(PCNT_UNIT_0, 10);    // ~125ns filter: rejects tiny glitches while passing the NAND oscillator
     pcnt_filter_enable(PCNT_UNIT_0);
     pcnt_counter_pause(PCNT_UNIT_0);
     pcnt_counter_clear(PCNT_UNIT_0);
@@ -1553,7 +1553,7 @@ void hardwareTask(void* pv) {
             ledIdle(); ledShow();
             diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
-        // Proximity source: Colpitts LC oscillator on fixed GPIO14 if enabled + wired, else
+        // Proximity source: 74HC00 antenna oscillator on fixed GPIO14 if enabled + wired, else
         // the built-in touchRead. Either way we end up with a single `proxVal` in the
         // same units the rest of the pipeline already understands, so baseline,
         // deadband, span, field, alerts and the theremin overlay are unchanged.
@@ -1998,7 +1998,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
-        // Prox sense source: 0 = touchRead on selected touchPin, 1 = LC oscillator on fixed GPIO14.
+        // Prox sense source: 0 = touchRead on selected touchPin, 1 = 74HC00 oscillator on fixed GPIO14.
         if (doc[&quot;proxMode&quot;].is&lt;int&gt;()) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
             if (pm != proxMode) { proxMode = pm; oscReady = false; oscBaseHz = 0; proxInit = false; recalibrate = true; }
