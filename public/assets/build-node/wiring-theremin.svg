@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 860" font-family="'Share Tech Mono',monospace" role="img" aria-label="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14 for extended-range proximity sensing, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build, all sharing common 3.3V and ground rails.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 860" font-family="'Share Tech Mono',monospace" role="img" aria-label="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an RC relaxation oscillator with a capacitor and antenna as the sense plate, feeding a square wave into ESP32 GPIO14 for extended-range proximity sensing, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build, all sharing common 3.3V and ground rails.">
   <defs>
     <linearGradient id="board2" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0d1520"/><stop offset="1" stop-color="#0a0f16"/>
@@ -32,7 +32,6 @@
       .icpinlbl{fill:#8a7ba8;font-size:9.5px}
       .icpinlbl.used{fill:#c9a4ff;font-weight:bold}
       .capsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
-      .coilsym{stroke:#e4ecf2;stroke-width:1.8;fill:none}
       .rail{stroke-width:3}
       .rail3v3{stroke:#ff5d5d}
       .railgnd{stroke:#8a97a3}
@@ -46,31 +45,26 @@
   <path class="brk" d="M14 846 h28 M14 846 v-28"/>
   <path class="brk" d="M1026 846 h-28 M1026 846 v-28"/>
   <text class="title" x="34" y="42">SPECTER NODE // WIRING, THEREMIN BUILD (ROAD B)</text>
-  <text class="subtitle" x="34" y="60">LC oscillator via 74HC14 &#183; ~30&#8211;80cm range &#183; adds one chip + antenna tank on top of the basic build</text>
+  <text class="subtitle" x="34" y="60">RC oscillator via 74HC14 &#183; extended range vs touchRead alone &#183; adds one chip + antenna + cap on top of the basic build</text>
 
-  <!-- ============ ANTENNA + LC TANK (far left) ============ -->
+  <!-- ============ ANTENNA + RC OSCILLATOR CAP (far left) ============ -->
   <rect class="comp" x="40" y="100" width="210" height="170" rx="6"/>
   <text class="complbl" x="56" y="124">ANTENNA (sense plate)</text>
   <text class="compsub" x="56" y="140">telescopic rod, ~15&#8211;20cm</text>
   <text class="compsub" x="56" y="154">hand nearby raises C, lowers Hz</text>
   <line x1="150" y1="162" x2="150" y2="180" class="wire w-osc"/>
   <circle class="termo" cx="150" cy="188" r="4.5"/>
-  <path class="wire w-osc" d="M150 188 L182 188"/>
-  <path class="coilsym" d="M150 188 q-10 8 0 16 q10 8 0 16 q-10 8 0 16"/>
-  <text class="compsub" x="118" y="200">L</text>
-  <text class="compsub" x="104" y="212" fill="#7a8a96" font-size="9">1&#8211;10mH</text>
-  <line x1="182" y1="188" x2="182" y2="204" class="wire w-osc"/>
-  <line x1="172" y1="208" x2="192" y2="208" class="capsym"/>
-  <line x1="174" y1="216" x2="190" y2="216" class="capsym"/>
-  <line x1="182" y1="216" x2="182" y2="236" class="wire w-osc"/>
-  <text class="compsub" x="194" y="214">C</text>
-  <text class="compsub" x="194" y="226" fill="#7a8a96" font-size="9">100&#8211;330pF</text>
-  <path class="wire w-osc" d="M182 188 L182 145 L291 145 L291 168"/>
-  <text class="wlbl" x="184" y="139">&#8594; 74HC14 pin 1 (1A)</text>
-  <path class="stub w-gnd" d="M150 236 L182 236"/>
-  <circle class="termg" cx="166" cy="236" r="4.5"/>
-  <path class="stub w-gnd" d="M166 236 L166 792"/>
-  <text class="wlbl" x="98" y="252" fill="#7a8a96" font-size="9">L + C other leg &#8594; GND (antenna itself is NOT grounded)</text>
+  <path class="wire w-osc" d="M150 188 L150 145 L291 145 L291 168"/>
+  <text class="wlbl" x="152" y="139">&#8594; 74HC14 pin 1 (1A)</text>
+  <line x1="150" y1="204" x2="150" y2="220" class="wire w-osc"/>
+  <line x1="140" y1="224" x2="160" y2="224" class="capsym"/>
+  <line x1="142" y1="232" x2="158" y2="232" class="capsym"/>
+  <line x1="150" y1="232" x2="150" y2="248" class="wire w-osc"/>
+  <text class="compsub" x="162" y="230">C</text>
+  <text class="compsub" x="162" y="242" fill="#7a8a96" font-size="9">100&#8211;330pF</text>
+  <circle class="termg" cx="150" cy="248" r="4.5"/>
+  <path class="stub w-gnd" d="M150 248 L150 792"/>
+  <text class="wlbl" x="60" y="262" fill="#7a8a96" font-size="9">C's other leg &#8594; GND (antenna itself is NOT grounded)</text>
 
   <!-- ============ 74HC14 IC ============ -->
   <g transform="translate(300,150)">

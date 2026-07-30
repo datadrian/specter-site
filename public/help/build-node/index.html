@@ -240,17 +240,16 @@
       </table>
       <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
       <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Theremin build (Road B) extra parts</h3>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds an LC oscillator front-end for extended range (~30-80cm vs ~15cm). Everything from the basic build above stays the same - this just adds one chip and three passive parts ahead of the antenna.</p>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Adds an RC oscillator front-end for extended range vs touchRead alone. Everything from the basic build above stays the same - this just adds one chip and two passive parts ahead of the antenna. (An earlier version of this doc called out an inductor here - it was a mistake, dropped below, the circuit is a plain Rf+C relaxation oscillator.)</p>
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
           <tr><td>74HC14 hex Schmitt-trigger inverter (DIP-14)</td><td>Oscillator gain stage</td><td>$0.50–1</td></tr>
-          <tr><td>Inductor, 1–10mH (start ~4.7mH)</td><td>LC tank, sets base oscillator frequency</td><td>$0.50</td></tr>
-          <tr><td>Capacitor, 100–330pF (start ~220pF)</td><td>LC tank</td><td>$0.10</td></tr>
+          <tr><td>Capacitor, 100–330pF (start ~220pF)</td><td>Sets oscillator timing, with Rf</td><td>$0.10</td></tr>
           <tr><td>Resistor, ~1MΩ</td><td>Schmitt-trigger feedback</td><td>$0.10</td></tr>
         </tbody>
       </table>
-      <p class="sim-note">These values are starting points, not fixed specs - tune the capacitor or antenna length to get a clean, stable oscillation with your specific antenna before relying on the range.</p>
+      <p class="sim-note">These values are starting points, not fixed specs - tune the capacitor or antenna length to get a clean, stable oscillation with your specific antenna, and confirm actual range on your own bench before relying on it.</p>
     </div>
 
     <!-- WIRING: BASIC -->
@@ -280,17 +279,17 @@
     <!-- WIRING: THEREMIN / ROAD B -->
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, theremin build (Road B)</h2>
-      <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna into part of an LC oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
+      <p>An optional upgrade path for more range. Instead of reading the antenna's capacitance directly, a 74HC14 Schmitt-trigger inverter turns the antenna and a capacitor into an RC relaxation oscillator - a hand nearby shifts the oscillator's frequency, and the ESP32 counts that frequency in hardware. Same QMC5883L, LED ring, and buzzer wiring as the basic build; this just adds the oscillator front-end ahead of GPIO14.</p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an LC oscillator with an inductor, capacitor, and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
+        <img src="/assets/build-node/wiring-theremin.svg" width="1040" height="860" class="bn-diagram" data-zoomable="1" alt="SPECTER Node theremin build wiring diagram: a 74HC14 hex Schmitt-trigger inverter forms an RC relaxation oscillator with a capacitor and antenna as the sense plate, feeding a square wave into ESP32 GPIO14, alongside the same QMC5883L magnetometer, LED ring, and buzzer wiring as the basic build.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
       <table class="bn-table">
         <thead><tr><th>Component pin</th><th>ESP32 / 74HC14 pin</th></tr></thead>
         <tbody>
           <tr><td>74HC14 · pin 14 (VCC) / pin 7 (GND)</td><td class="pin">3.3V / GND</td></tr>
-          <tr><td>Antenna wire + L + C, joined at one node</td><td class="pin">74HC14 pin 1 (1A, input), this shared node IS the oscillator input</td></tr>
-          <tr><td>L and C, other leg (antenna is NOT wired here)</td><td class="pin">GND</td></tr>
+          <tr><td>Antenna wire + C, joined at one node</td><td class="pin">74HC14 pin 1 (1A, input), this shared node IS the oscillator input</td></tr>
+          <tr><td>C, other leg (antenna is NOT wired here)</td><td class="pin">GND</td></tr>
           <tr><td>74HC14 · pin 2 (1Y, output)</td><td class="pin">GPIO14 (oscillator square wave in)</td></tr>
           <tr><td>74HC14 · unused inputs (pins 3, 5, 9, 11, 13)</td><td class="pin">Tie to GND (standard practice for unused CMOS gate inputs)</td></tr>
           <tr><td>Feedback resistor (~1MΩ)</td><td class="pin">74HC14 pin 2 (output) back to pin 1 (input)</td></tr>
@@ -697,11 +696,13 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- LC oscillator (theremin-range prox, optional Road B hardware) ----
-// A 74HC14 Schmitt-trigger oscillator (inductor + cap + antenna as the sense plate)
-// feeds a square wave into OSC_PIN. We count its frequency with the ESP32 hardware
-// pulse counter (PCNT). A hand near the antenna raises capacitance -&gt; LOWERS the
-// frequency; that Hz drop is the field. Range ~30-80cm vs ~15cm for touchRead.
+// ---- RC oscillator (extended-range prox, optional Road B hardware) ----
+// A 74HC14 Schmitt-trigger relaxation oscillator (cap + antenna as the sense plate,
+// no inductor - an earlier inductor spec here was wrong for these R/C values and
+// would have loaded the input to near-0V instead of resonating) feeds a square wave
+// into OSC_PIN. We count its frequency with the ESP32 hardware pulse counter (PCNT).
+// A hand near the antenna raises capacitance -&gt; LOWERS the frequency; that Hz drop
+// is the field. Extended range vs touchRead alone - verify actual range on your bench.
 #define OSC_PIN        14      // GPIO14 -- 74HC14 oscillator output in
 
 // ===== LED CONFIG =====
@@ -959,7 +960,7 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 
 // ---- prox sense source ----
 //  proxMode 0 = touchRead (default, ~15cm, no extra hardware)
-//  proxMode 1 = LC oscillator via PCNT on OSC_PIN (theremin range, needs 74HC14 board)
+//  proxMode 1 = RC oscillator via PCNT on OSC_PIN (extended range, needs 74HC14 board)
 volatile int      proxMode   = 0;
 volatile long     oscFreq    = 0;     // last measured oscillator frequency (Hz)
 volatile long     oscBaseHz  = 0;     // ambient baseline frequency (no hand)
@@ -1287,7 +1288,7 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 }
 
 // ---- Core 1: sensor read + threshold logic + LED/buzzer ----
-// ============ LC OSCILLATOR PROX (PCNT) ============
+// ============ RC OSCILLATOR PROX (PCNT) ============
 // Configure PCNT unit 0 to count rising edges on OSC_PIN. We gate the count over a
 // fixed window and convert to Hz. Called once when prox mode switches to oscillator.
 void oscBegin() {
@@ -1543,7 +1544,7 @@ void hardwareTask(void* pv) {
             ledIdle(); ledShow();
             diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
-        // Proximity source: LC oscillator (theremin range) if enabled + wired, else
+        // Proximity source: RC oscillator (extended range) if enabled + wired, else
         // the built-in touchRead. Either way we end up with a single `proxVal` in the
         // same units the rest of the pipeline already understands, so baseline,
         // deadband, span, field, alerts and the theremin overlay are unchanged.
@@ -1988,7 +1989,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
-        // Prox sense source: 0 = touchRead, 1 = LC oscillator (theremin range).
+        // Prox sense source: 0 = touchRead, 1 = RC oscillator (extended range).
         if (doc[&quot;proxMode&quot;].is&lt;int&gt;()) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
             if (pm != proxMode) { proxMode = pm; oscReady = false; oscBaseHz = 0; proxInit = false; recalibrate = true; }
