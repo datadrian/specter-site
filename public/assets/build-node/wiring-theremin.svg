@@ -31,23 +31,23 @@
 
 <!-- left pins 1-7 -->
 <g>
-<rect class="pinleg" x="380" y="255" width="30" height="18"/><text class="pintext" x="368" y="270" text-anchor="end">1  1A</text>
-<rect class="pinleg" x="380" y="322" width="30" height="18"/><text class="pintext" x="368" y="337" text-anchor="end">2  1B</text>
-<rect class="pinleg" x="380" y="389" width="30" height="18"/><text class="pintext" x="368" y="404" text-anchor="end">3  1Y</text>
-<rect class="pinleg" x="380" y="456" width="30" height="18"/><text class="pintext" x="368" y="471" text-anchor="end">4  2A</text>
-<rect class="pinleg" x="380" y="523" width="30" height="18"/><text class="pintext" x="368" y="538" text-anchor="end">5  2B</text>
-<rect class="pinleg" x="380" y="590" width="30" height="18"/><text class="pintext" x="368" y="605" text-anchor="end">6  2Y</text>
-<rect class="pinleg" x="380" y="657" width="30" height="18"/><text class="pintext" x="368" y="672" text-anchor="end">7  GND</text>
+<rect class="pinleg" x="380" y="255" width="30" height="18"/><text class="pintext" x="368" y="250" text-anchor="end">1  1A</text>
+<rect class="pinleg" x="380" y="322" width="30" height="18"/><text class="pintext" x="368" y="317" text-anchor="end">2  1B</text>
+<rect class="pinleg" x="380" y="389" width="30" height="18"/><text class="pintext" x="368" y="384" text-anchor="end">3  1Y</text>
+<rect class="pinleg" x="380" y="456" width="30" height="18"/><text class="pintext" x="368" y="451" text-anchor="end">4  2A</text>
+<rect class="pinleg" x="380" y="523" width="30" height="18"/><text class="pintext" x="368" y="518" text-anchor="end">5  2B</text>
+<rect class="pinleg" x="380" y="590" width="30" height="18"/><text class="pintext" x="368" y="585" text-anchor="end">6  2Y</text>
+<rect class="pinleg" x="380" y="657" width="30" height="18"/><text class="pintext" x="368" y="652" text-anchor="end">7  GND</text>
 </g>
 <!-- right pins 14-8 -->
 <g>
-<rect class="pinleg" x="710" y="255" width="30" height="18"/><text class="pintext" x="752" y="270">14 VCC</text>
-<rect class="pinleg" x="710" y="322" width="30" height="18"/><text class="pintext" x="752" y="337">13 4B</text>
-<rect class="pinleg" x="710" y="389" width="30" height="18"/><text class="pintext" x="752" y="404">12 4A</text>
-<rect class="pinleg" x="710" y="456" width="30" height="18"/><text class="pintext" x="752" y="471">11 4Y</text>
-<rect class="pinleg" x="710" y="523" width="30" height="18"/><text class="pintext" x="752" y="538">10 3B</text>
-<rect class="pinleg" x="710" y="590" width="30" height="18"/><text class="pintext" x="752" y="605">9  3A</text>
-<rect class="pinleg" x="710" y="657" width="30" height="18"/><text class="pintext" x="752" y="672">8  3Y</text>
+<rect class="pinleg" x="710" y="255" width="30" height="18"/><text class="pintext" x="752" y="250">14 VCC</text>
+<rect class="pinleg" x="710" y="322" width="30" height="18"/><text class="pintext" x="752" y="317">13 4B</text>
+<rect class="pinleg" x="710" y="389" width="30" height="18"/><text class="pintext" x="752" y="384">12 4A</text>
+<rect class="pinleg" x="710" y="456" width="30" height="18"/><text class="pintext" x="752" y="451">11 4Y</text>
+<rect class="pinleg" x="710" y="523" width="30" height="18"/><text class="pintext" x="752" y="518">10 3B</text>
+<rect class="pinleg" x="710" y="590" width="30" height="18"/><text class="pintext" x="752" y="585">9  3A</text>
+<rect class="pinleg" x="710" y="657" width="30" height="18"/><text class="pintext" x="752" y="652">8  3Y</text>
 </g>
 
 <!-- antenna node to pins 1 and 2 -->
@@ -75,7 +75,7 @@
 <rect class="res" x="580" y="700" width="150" height="36" rx="8"/>
 <line class="resband" x1="610" y1="702" x2="610" y2="734" stroke="#8b5a2b"/><line class="resband" x1="635" y1="702" x2="635" y2="734" stroke="#111"/><line class="resband" x1="660" y1="702" x2="660" y2="734" stroke="#3a8f3a"/><line class="resband" x1="700" y1="702" x2="700" y2="734" stroke="#d9b44a"/>
 <path class="wireA" d="M580 718H230V340"/>
-<text class="head" x="655" y="692" text-anchor="middle">R1, 1MΩ FEEDBACK</text>
+<text class="head" x="655" y="682" text-anchor="middle">R1, 1MΩ FEEDBACK</text>
 
 <!-- chip power -->
 <path class="pwr" d="M740 264H840V115"/>
@@ -102,7 +102,7 @@
 <line class="resband" x1="960" y1="449" x2="960" y2="481" stroke="#d9b44a"/><line class="resband" x1="982" y1="449" x2="982" y2="481" stroke="#7b3f98"/><line class="resband" x1="1004" y1="449" x2="1004" y2="481" stroke="#c0392b"/><line class="resband" x1="1030" y1="449" x2="1030" y2="481" stroke="#d9b44a"/>
 <path class="wireB" d="M1050 465H1080V385H1210"/>
 <text class="head" x="992" y="437" text-anchor="middle">R2, 4.7kΩ</text>
-<text class="small" x="1065" y="448">pin 11 to GPIO14</text>
+
 
 <!-- capacitor -->
 <line class="pwr" x1="1500" y1="115" x2="1500" y2="185"/><line x1="1475" y1="185" x2="1525" y2="185" stroke="#edf5f8" stroke-width="5"/><path d="M1475 205q25 -12 50 0" fill="none" stroke="#edf5f8" stroke-width="5"/><line class="gnd" x1="1500" y1="205" x2="1500" y2="820"/>
