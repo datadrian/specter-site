@@ -45,7 +45,7 @@
   <path class="brk" d="M1026 14 h-28 M1026 14 v28"/>
   <path class="brk" d="M14 846 h28 M14 846 v-28"/>
   <path class="brk" d="M1026 846 h-28 M1026 846 v-28"/>
-  <text class="title" x="34" y="42">SPECTER NODE // WIRING &#8212; THEREMIN BUILD (ROAD B)</text>
+  <text class="title" x="34" y="42">SPECTER NODE // WIRING, THEREMIN BUILD (ROAD B)</text>
   <text class="subtitle" x="34" y="60">LC oscillator via 74HC14 &#183; ~30&#8211;80cm range &#183; adds one chip + antenna tank on top of the basic build</text>
 
   <!-- ============ ANTENNA + LC TANK (far left) ============ -->

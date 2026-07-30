@@ -30,7 +30,7 @@
   <path class="brk" d="M946 14 h-28 M946 14 v28"/>
   <path class="brk" d="M14 666 h28 M14 666 v-28"/>
   <path class="brk" d="M946 666 h-28 M946 666 v-28"/>
-  <text class="title" x="34" y="42">SPECTER NODE // WIRING &#8212; BASIC BUILD</text>
+  <text class="title" x="34" y="42">SPECTER NODE // WIRING, BASIC BUILD</text>
   <text class="subtitle" x="34" y="60">touchRead antenna &#183; ~15cm range &#183; no extra chip</text>
 
   <!-- ESP32 board -->
