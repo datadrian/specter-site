@@ -399,7 +399,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.20-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.21-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -507,7 +507,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=row&gt;&lt;button id=wifi-scan&gt;SCAN NETWORKS&lt;/button&gt;&lt;/div&gt;&lt;div class=wifi-list id=wifi-list&gt;&lt;/div&gt;
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
-&lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;button id=wifi-forget class=mini&gt;FORGET SAVED WI-FI&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Internet Relay&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status id=relay-cur&gt;Mode: LAN discovery&lt;/div&gt;
 &lt;label&gt;SPECTER Relay URL&lt;/label&gt;&lt;input type=text id=relay-url placeholder=&quot;Paste the relay address SPECTER shows (leave blank for LAN)&quot;&gt;
@@ -614,6 +614,7 @@ if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._userset=false;$(&#x27
 function wifiStatus(){fetch(&#x27;/wifi/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-cur&#x27;).textContent=&#x27;Current: &#x27;+(d.ssid?d.ssid+&#x27;  (&#x27;+(d.rssi||&#x27;?&#x27;)+&#x27; dBm, &#x27;+(d.ip||&#x27;-&#x27;)+&#x27;)&#x27;:&#x27;not connected - hosting &#x27;+(d.ap||&#x27;SPECTER-NODE&#x27;))}).catch(function(){})}
 $(&#x27;wifi-scan&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scanning\u2026&#x27;;$(&#x27;wifi-scan&#x27;).disabled=true;fetch(&#x27;/wifi/scan&#x27;).then(function(r){return r.json()}).then(function(nets){var l=$(&#x27;wifi-list&#x27;);l.innerHTML=&#x27;&#x27;;(nets||[]).forEach(function(n){var el=document.createElement(&#x27;div&#x27;);el.className=&#x27;wifi&#x27;;el.innerHTML=&#x27;&lt;span&gt;&#x27;+n.ssid+&#x27;&lt;/span&gt;&lt;span class=rssi&gt;&#x27;+n.rssi+&#x27; dBm&lt;span class=lock&gt;&#x27;+(n.enc?&#x27;\uD83D\uDD12&#x27;:&#x27;open&#x27;)+&#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;el.onclick=function(){document.querySelectorAll(&#x27;.wifi&#x27;).forEach(function(x){x.classList.remove(&#x27;sel&#x27;)});el.classList.add(&#x27;sel&#x27;);$(&#x27;wifi-ssid&#x27;).value=n.ssid;$(&#x27;wifi-pass&#x27;).focus()};l.appendChild(el)});$(&#x27;wifi-status&#x27;).textContent=(nets&amp;&amp;nets.length?nets.length+&#x27; networks found&#x27;:&#x27;no networks found&#x27;);$(&#x27;wifi-scan&#x27;).disabled=false}).catch(function(){$(&#x27;wifi-status&#x27;).textContent=&#x27;Scan failed&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-scan&#x27;).disabled=false})};
 $(&#x27;wifi-join&#x27;).onclick=function(){var ssid=$(&#x27;wifi-ssid&#x27;).value.trim();if(!ssid){$(&#x27;wifi-status&#x27;).textContent=&#x27;Enter a network name&#x27;;return}$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connecting to &#x27;+ssid+&#x27;\u2026&#x27;;$(&#x27;wifi-join&#x27;).disabled=true;var body=new URLSearchParams({ssid:ssid,pass:$(&#x27;wifi-pass&#x27;).value});fetch(&#x27;/wifi/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Connected \u00b7 IP &#x27;+(d.ip||&#x27;-&#x27;)+&#x27;. Reachable at that IP on your network.&#x27;}else{$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not connect: &#x27;+(d.error||&#x27;check password&#x27;)}$(&#x27;wifi-join&#x27;).disabled=false;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Join request failed&#x27;;$(&#x27;wifi-join&#x27;).disabled=false})};
+$(&#x27;wifi-forget&#x27;).onclick=function(){$(&#x27;wifi-status&#x27;).className=&#x27;status&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Clearing saved Wi-Fi...&#x27;;fetch(&#x27;/wifi/forget&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){$(&#x27;wifi-ssid&#x27;).value=&#x27;&#x27;;$(&#x27;wifi-pass&#x27;).value=&#x27;&#x27;;$(&#x27;wifi-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;wifi-status&#x27;).textContent=d.note||&#x27;Saved Wi-Fi cleared.&#x27;;wifiStatus()}).catch(function(){$(&#x27;wifi-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;wifi-status&#x27;).textContent=&#x27;Could not clear saved Wi-Fi&#x27;})};
 function relayStatus(){fetch(&#x27;/relay/get&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=d.url||&#x27;&#x27;;$(&#x27;relay-cur&#x27;).textContent=&#x27;Mode: &#x27;+(d.active?&#x27;INTERNET RELAY · &#x27;+d.url:&#x27;LAN discovery&#x27;)}).catch(function(){})}
 $(&#x27;relay-save&#x27;).onclick=function(){var u=$(&#x27;relay-url&#x27;).value.trim();$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Saving…&#x27;;$(&#x27;relay-save&#x27;).disabled=true;var body=new URLSearchParams({url:u});fetch(&#x27;/relay/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Saved.&#x27;)+&#x27; Reboot to apply.&#x27;;$(&#x27;relay-save&#x27;).disabled=false;relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Save failed&#x27;;$(&#x27;relay-save&#x27;).disabled=false})};
 $(&#x27;relay-clear&#x27;).onclick=function(){$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clearing…&#x27;;fetch(&#x27;/relay/clear&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=&#x27;&#x27;;$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Cleared.&#x27;);relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clear failed&#x27;})};
@@ -689,7 +690,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.20-maker&quot;
+#define FW_VERSION   &quot;2.12.21-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -2288,9 +2289,13 @@ void setupNetwork() {
     prefs.end();
 
     WiFi.mode(WIFI_AP_STA);
+    WiFi.setSleep(false);            // keep portal WebSocket/HTTP responsive during idle periods
     WiFi.softAP(&quot;SPECTER-NODE-01&quot;);
-    WiFi.persistent(true);          // keep station config across reboots/brownouts
-    WiFi.setAutoReconnect(true);    // SDK auto-rejoins if the AP drops or comes back
+    WiFi.persistent(true);           // keep station config across reboots/brownouts
+    // Manual reconnect policy below protects hotspot clients from AP+STA channel
+    // changes. ESP32 auto-reconnect can silently move the AP channel and strand
+    // a laptop attached to 192.168.4.1 while the hotspot remains visible.
+    WiFi.setAutoReconnect(false);
     if (targetSSID != &quot;&quot;) {
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
         int t = 0; while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 20) { delay(500); t++; }
@@ -2365,7 +2370,8 @@ void setupNetwork() {
 
         WiFi.mode(WIFI_AP_STA);                 // keep AP up so the portal stays reachable
         WiFi.persistent(true);                  // let the SDK keep the config across resets
-        WiFi.setAutoReconnect(true);            // auto-retry if the link drops
+        WiFi.setSleep(false);
+        WiFi.setAutoReconnect(false);           // portal-safe manual retry policy
         WiFi.begin(ssid.c_str(), pass.c_str());
         int t = 0;
         while (WiFi.status() != WL_CONNECTED &amp;&amp; t &lt; 24) { delay(500); t++; }
@@ -2377,6 +2383,17 @@ void setupNetwork() {
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
             d[&quot;error&quot;] = &quot;saved, but not connected yet (weak signal / wrong password?) -- it will keep retrying&quot;;
         }
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/wifi/forget&quot;, HTTP_POST, []() {
+        targetSSID = &quot;&quot;; targetPASS = &quot;&quot;; targetAppIP = &quot;&quot;;
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.remove(&quot;ssid&quot;); prefs.remove(&quot;pass&quot;); prefs.remove(&quot;appip&quot;);
+        prefs.end();
+        WiFi.setAutoReconnect(false);
+        WiFi.disconnect(false, true);            // stop STA retries, keep SoftAP running
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;ap&quot;] = WiFi.softAPSSID();
+        d[&quot;note&quot;] = &quot;Saved Wi-Fi cleared. Standalone hotspot will remain active.&quot;;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
 
@@ -2669,8 +2686,13 @@ void loop() {
     // (e.g. rebooted while the router was still coming up after a power blip),
     // re-issue begin() every ~15s so the node rejoins on its own -- no manual reboot.
     static uint32_t lastWifiTry = 0;
+    // AP+STA radios share one channel. A station join/retry can move the SoftAP
+    // channel and drop a laptop using the local portal. Never attempt a station
+    // reconnect while a hotspot client is attached. When unattended, retry once
+    // per minute so field-network recovery remains automatic without thrashing.
+    uint8_t apClientsNow = WiFi.softAPgetStationNum();
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
-        &amp;&amp; now - lastWifiTry &gt;= 15000) {
+        &amp;&amp; apClientsNow == 0 &amp;&amp; now - lastWifiTry &gt;= 60000) {
         lastWifiTry = now;
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
     }
@@ -2713,8 +2735,8 @@ void loop() {
         JsonDocument n;
         n[&quot;t&quot;] = &quot;net&quot;; n[&quot;ts&quot;] = now; n[&quot;rssi&quot;] = WiFi.RSSI();
         n[&quot;ip&quot;] = WiFi.localIP().toString(); n[&quot;uptime&quot;] = (now - bootMs) / 1000;
-        n[&quot;ssid&quot;] = WiFi.SSID(); n[&quot;clients&quot;] = WiFi.softAPgetStationNum();
-        n[&quot;magOk&quot;] = magPresent;
+        n[&quot;ssid&quot;] = WiFi.SSID(); n[&quot;clients&quot;] = apClientsNow;
+        n[&quot;heap&quot;] = ESP.getFreeHeap(); n[&quot;magOk&quot;] = magPresent;
         String no; serializeJson(n, no);
         if (isAppConnected) appWS.sendTXT(no);
         localWS.broadcastTXT(no);
