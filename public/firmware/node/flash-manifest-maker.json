@@ -1,25 +1,25 @@
 {
   "name": "SPECTER Node (Maker)",
-  "version": "2.12.23-maker",
+  "version": "2.12.25-maker",
   "new_install_prompt_erase": true,
   "builds": [
     {
       "chipFamily": "ESP32",
       "parts": [
         {
-          "path": "SPECTER-Node-maker-2.12.23-bootloader.bin",
+          "path": "SPECTER-Node-maker-2.12.25-bootloader.bin",
           "offset": 4096
         },
         {
-          "path": "SPECTER-Node-maker-2.12.23-partitions.bin",
+          "path": "SPECTER-Node-maker-2.12.25-partitions.bin",
           "offset": 32768
         },
         {
-          "path": "SPECTER-Node-maker-2.12.23-boot-app0.bin",
+          "path": "SPECTER-Node-maker-2.12.25-boot-app0.bin",
           "offset": 57344
         },
         {
-          "path": "SPECTER-Node-maker-2.12.23-maker.bin",
+          "path": "SPECTER-Node-maker-2.12.25-maker.bin",
           "offset": 65536
         }
       ]
