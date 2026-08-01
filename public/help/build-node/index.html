@@ -309,23 +309,23 @@
     <!-- WIRING: STANDARD TYPE-C D1 MINI32 -->
     <div class="bn-sec" id="wiring-theremin">
       <h2>Wiring, Type-C D1 Mini32 standard build</h2>
-      <p>This diagram is for the <strong>Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32</strong>. It shows the component side facing you with the USB-C connector at the bottom, all four header columns, every unused pin, and every SPECTER connection. GPIO18 is the controlled drive pin and GPIO4 is the antenna sense pin. The required 1MΩ resistor creates the measurable charge time.</p>
-      <p><a href="/assets/build-node/wiring-d1-mini32.svg?v=1" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE TYPE-C D1 MINI32 PIN DIAGRAM</a></p>
+      <p>This diagram is for the <strong>Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32</strong>. It matches the <strong>back pin-label side</strong> in the supplied board photo, with USB-C at the bottom. It shows all four header columns, every unused pin, and every SPECTER connection. GPIO18 is the controlled drive pin and GPIO4 is the antenna sense pin. The required 1MΩ resistor creates the measurable charge time.</p>
+      <p><a href="/assets/build-node/wiring-d1-mini32.svg?v=2" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE TYPE-C D1 MINI32 PIN DIAGRAM</a></p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-d1-mini32.svg?v=1" width="1800" height="1460" class="bn-diagram" data-zoomable="1" alt="Complete Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32 pin diagram for SPECTER Node. Component side faces the viewer with USB-C at the bottom. All four header columns and unused pins are shown around the highlighted GPIO18, GPIO4, GPIO21, GPIO22, GPIO13, GPIO12, 3V3, and GND connections.">
+        <img src="/assets/build-node/wiring-d1-mini32.svg?v=2" width="1800" height="1460" class="bn-diagram" data-zoomable="1" alt="Complete Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32 back pin-label diagram for SPECTER Node. The view matches the supplied board photo with USB-C at the bottom. All four header columns and unused pins are shown around the highlighted GPIO18, GPIO4, GPIO21, GPIO22, GPIO13, GPIO12, 3V3, and GND connections.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
-      <div class="callout"><strong>Orientation matters:</strong> the diagram shows the component side, with the ESP32 module visible and USB-C at the bottom. The underside photo is mirrored left-to-right. Count rows from the antenna end toward USB-C. Some clones print TXD and RXD inconsistently, but SPECTER does not use those serial pins.</div>
+      <div class="callout"><strong>Orientation matters:</strong> this diagram deliberately matches the <strong>back pin-label side</strong> shown in the board photo, with USB-C at the bottom. Do not mirror it when following the printed labels. If you turn the board over to the front component side, left and right reverse. Count rows from the antenna end toward USB-C. This clone prints TXD at GPIO3 and RXD at GPIO1, but SPECTER does not use those serial pins.</div>
       <table class="bn-table">
         <thead><tr><th>Connection</th><th>Exact physical destination</th></tr></thead>
         <tbody>
-          <tr><td>GPIO18 drive</td><td class="pin">Left inner header, row 4 from the antenna end, then through required 1MΩ to sense junction</td></tr>
-          <tr><td>GPIO4 sense</td><td class="pin">Right outer header, row 6, directly to the same sense junction</td></tr>
-          <tr><td>QMC5883L SCL / SDA</td><td class="pin">GPIO22 right inner row 3 / GPIO21 right inner row 4</td></tr>
-          <tr><td>LED ring DIN</td><td class="pin">GPIO13 / TCK, left inner row 9</td></tr>
-          <tr><td>Passive buzzer +</td><td class="pin">GPIO12 / TDI, right outer row 5</td></tr>
-          <tr><td>3.3V shared power</td><td class="pin">3V3, left inner row 8</td></tr>
-          <tr><td>Shared ground</td><td class="pin">GND, right inner row 7</td></tr>
+          <tr><td>GPIO18 drive</td><td class="pin">Right inner header, row 4 from the antenna end, then through required 1MΩ to sense junction</td></tr>
+          <tr><td>GPIO4 sense</td><td class="pin">Left outer header, row 6, directly to the same sense junction</td></tr>
+          <tr><td>QMC5883L SCL / SDA</td><td class="pin">GPIO22 left inner row 3 / GPIO21 left inner row 4</td></tr>
+          <tr><td>LED ring DIN</td><td class="pin">GPIO13 / TCK, right inner row 9</td></tr>
+          <tr><td>Passive buzzer +</td><td class="pin">GPIO12 / TDI, left outer row 5</td></tr>
+          <tr><td>3.3V shared power</td><td class="pin">3V3, right inner row 8</td></tr>
+          <tr><td>Shared ground</td><td class="pin">GND, left inner row 7</td></tr>
           <tr><td>Telescopic antenna</td><td class="pin">To sense junction through optional 10kΩ resistor</td></tr>
           <tr><td>100µF electrolytic, optional</td><td class="pin">Positive to 3V3, negative to GND</td></tr>
         </tbody>
