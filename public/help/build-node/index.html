@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.24-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.25-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -753,7 +753,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.24-maker&quot;
+#define FW_VERSION   &quot;2.12.25-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -773,7 +773,9 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 // Wiring: GPIO18 -&gt; 1M -&gt; sense node -&gt; GPIO4; antenna -&gt; optional 10k -&gt; sense node.
 #define RC_DRIVE_PIN    18
 #define RC_SENSE_PIN     4
-#define RC_TIMEOUT_US 10000
+#define RC_TIMEOUT_MIN_US 10000
+#define RC_TIMEOUT_CAL_US 60000
+#define RC_TIMEOUT_MAX_US 60000
 
 // ===== LED CONFIG =====
 // Generate this block with the configurator at
@@ -1064,6 +1066,9 @@ volatile int      rcBase10    = 0;     // ambient no-hand baseline in same units
 volatile bool     rcReady     = false; // pins configured and baseline initialized
 volatile bool     rcValid     = false; // sense node discharged and charged before timeout
 volatile int      rcFault     = 0;     // 0 ok, 1 discharge failed, 2 charge timeout, 3 too few valid samples
+volatile uint32_t rcTimeoutUs = RC_TIMEOUT_CAL_US; // learned at boot from this antenna
+volatile bool     rcSmartCalibrated = false;       // true after a valid boot learning window
+volatile bool     rcSmartCalReq = false;           // portal/app rebaseline reruns RC learning
 volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
@@ -1110,6 +1115,11 @@ volatile uint32_t bootBaselineAt   = 0;     // millis() target for the boot base
 // false-triggering right after power-on.
 volatile double   blMagXsum = 0, blMagYsum = 0, blMagZsum = 0, blProxSum = 0;
 volatile uint32_t blSamples = 0;
+// RC boot learning uses valid raw charge-time samples, not the already-scaled
+// proximity value. It learns each board/antenna combination independently.
+volatile uint64_t blRcSum10 = 0;
+volatile uint32_t blRcSamples = 0;
+volatile int      blRcMin10 = 0, blRcMax10 = 0;
 float            rfTolerance = 0.35f;  // +/- 35% band
 volatile bool    rfCapturing = false;  // true while HOLD-capturing a signature
 volatile int     rfCapMag = 0, rfCapProx = 0;  // running peak during capture
@@ -1468,11 +1478,15 @@ void rcBegin() {
     rcValid = false;
     rcFault = 0;
     rcBase10 = 0;
+    // Start wide enough to characterize a large loop or a high-capacitance build.
+    // The boot learning window tightens this automatically after settling.
+    rcTimeoutUs = RC_TIMEOUT_CAL_US;
+    rcSmartCalibrated = false;
 }
 
 int rcMeasureOnce10() {
     const uint32_t mhz = (uint32_t)ESP.getCpuFreqMHz();
-    const uint32_t maxCycles = mhz * RC_TIMEOUT_US;
+    const uint32_t maxCycles = mhz * rcTimeoutUs;
 
     // Discharge the sense node directly through GPIO4. Discharging only through
     // the 1M resistor can leave long antennas above the digital LOW threshold.
@@ -1593,6 +1607,10 @@ void hardwareTask(void* pv) {
     bootBaselineAt   = millis() + BASELINE_SETTLE_MS;
     bootBaselineDone = false;
     blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
+    blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0;
+    // The averaged boot window is the calibration. Do not let the legacy
+    // one-shot flag overwrite its learned mean on the closing sample.
+    recalibrate = false;
     alertPhase = 0; alertPhaseStart = 0;
 
     for (;;) {
@@ -1739,6 +1757,18 @@ void hardwareTask(void* pv) {
             ledIdle(); ledShow();
             diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
+        // A requested rebaseline reruns the complete RC learning window on the
+        // hardware core. This safely adapts after an antenna or resistor change.
+        if (rcSmartCalReq) {
+            rcSmartCalReq = false;
+            rcReady = false; rcBase10 = 0; rcValid = false; rcFault = 0;
+            rcTimeoutUs = RC_TIMEOUT_CAL_US; rcSmartCalibrated = false;
+            bootBaselineAt = millis() + BASELINE_SETTLE_MS; bootBaselineDone = false;
+            blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
+            blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0;
+            proxNoiseFloor = 0; proxInit = false; recalibrate = false; alertPhase = 0;
+        }
+
         // Proximity source: two-pin RC charge time on GPIO18/GPIO4 if enabled,
         // otherwise the ESP32&#x27;s built-in touchRead path. Both feed the same rising
         // proxVal convention used by baseline, threshold, field, alert, and Theremin logic.
@@ -1778,6 +1808,11 @@ void hardwareTask(void* pv) {
             // Accumulate settle-window samples for a robust mean baseline.
             blMagXsum += magX; blMagYsum += magY; blMagZsum += magZ;
             blProxSum += proxVal; blSamples++;
+            if (proxMode == 1 &amp;&amp; rcValid &amp;&amp; rcCharge10 &gt; 0) {
+                blRcSum10 += (uint32_t)rcCharge10; blRcSamples++;
+                if (blRcMin10 == 0 || rcCharge10 &lt; blRcMin10) blRcMin10 = rcCharge10;
+                if (rcCharge10 &gt; blRcMax10) blRcMax10 = rcCharge10;
+            }
             // Track the noise floor: how far the resting prox reading swings around
             // its running mean while nobody is near it. This becomes the minimum
             // trigger threshold so idle jitter can never fire a false proximity alert.
@@ -1794,6 +1829,28 @@ void hardwareTask(void* pv) {
                     baseMagZ = (int)(blMagZsum / blSamples);
                     baseProx = (proxMode == 1) ? 0 : (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
+                    if (proxMode == 1) {
+                        if (blRcSamples &gt;= 3) {
+                            int ambient10 = (int)(blRcSum10 / blRcSamples);
+                            int spread10 = max(0, blRcMax10 - blRcMin10);
+                            rcBase10 = ambient10;
+                            // Eight ambient time constants plus at least 2 ms of
+                            // jitter headroom. Clamp to keep faults bounded while
+                            // allowing large loops that cannot fit the old 10 ms window.
+                            uint64_t target10 = (uint64_t)ambient10 * 8ULL + (uint64_t)max(20000, spread10 * 8);
+                            uint64_t min10 = (uint64_t)RC_TIMEOUT_MIN_US * 10ULL;
+                            uint64_t max10 = (uint64_t)RC_TIMEOUT_MAX_US * 10ULL;
+                            if (target10 &lt; min10) target10 = min10;
+                            if (target10 &gt; max10) target10 = max10;
+                            rcTimeoutUs = (uint32_t)((target10 + 9ULL) / 10ULL);
+                            rcSmartCalibrated = true;
+                        } else {
+                            // No trustworthy antenna sample: return to the short
+                            // diagnostic timeout so a real open wire fails quickly.
+                            rcTimeoutUs = RC_TIMEOUT_MIN_US;
+                            rcSmartCalibrated = false;
+                        }
+                    }
                     // Guard band: the real trigger sits at least (noiseFloor + 60%)
                     // above rest, and never below the operator&#x27;s slider value. This
                     // is what stops the constant low-level proximity chatter.
@@ -2637,6 +2694,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
                 // bias GPIO4 through the external 1M resistor on a wired Road B node.
                 if (pm == 0) { digitalWrite(RC_DRIVE_PIN, LOW); pinMode(RC_DRIVE_PIN, INPUT); }
                 proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
+                if (pm == 1) rcSmartCalReq = true;
             }
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxMode&quot;, proxMode); prefs.end();
         }
@@ -2651,6 +2709,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;hz&quot;, telemetryHz); prefs.end();
     } else if (!strcmp(cmd, &quot;rebaseline&quot;)) {
         recalibrate = true;
+        if (proxMode == 1) rcSmartCalReq = true;
         sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;identify&quot;)) {
         for (int k = 0; k &lt; 3; k++) {
@@ -3160,6 +3219,7 @@ void setupNetwork() {
     });
     server.on(&quot;/prox/recal&quot;, HTTP_POST, []() {
         recalibrate = true;
+        if (proxMode == 1) rcSmartCalReq = true;
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
