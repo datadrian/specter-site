@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1460" role="img" aria-label="Complete Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32 pin wiring diagram for SPECTER Node, component side facing up with USB-C at the bottom. All four header columns and every pin are shown.">
+<defs><style>
+.bg{fill:#070a0f}.board{fill:#0d1820;stroke:#77a0b3;stroke-width:3}.module{fill:#14232e;stroke:#38515f;stroke-width:2}.card{fill:#0c141b;stroke:#29404c;stroke-width:2}.cardTitle{font:bold 22px Arial,sans-serif;fill:#e7f4f8}.title{font:bold 34px Arial,sans-serif;fill:#edfaff}.sub{font:18px Arial,sans-serif;fill:#9db4bf}.tiny{font:14px Arial,sans-serif;fill:#8fa5af}.pin{font:bold 15px Consolas,monospace;fill:#b9ccd4}.rownum{font:13px Consolas,monospace;fill:#5d7580}.col{font:bold 13px Consolas,monospace;fill:#829ba6;letter-spacing:.08em}.body{font:17px Arial,sans-serif;fill:#c6d7dd}.mono{font:bold 16px Consolas,monospace}.note{font:bold 16px Arial,sans-serif;fill:#ffc857}.wireDrive{stroke:#00e5ff}.wireI2c{stroke:#73e6a1}.wireLed{stroke:#ff6fae}.wireBuzz{stroke:#ffc857}.wirePower{stroke:#ff9f43}.wireGround{stroke:#9fc1d1}.wire{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.junction{fill:#00e5ff;stroke:#dffcff;stroke-width:2}.res{fill:#c79d55;stroke:#ffe0a1;stroke-width:2}.usb{fill:#9cb2bc;stroke:#dcebf0;stroke-width:3}.usedRing{fill:none;stroke:#edfaff;stroke-width:2}.legend{font:15px Arial,sans-serif;fill:#abc0c9}
+</style></defs>
+<rect class="bg" width="1800" height="1460"/>
+<text x="40" y="48" class="title" text-anchor="start">SPECTER NODE // EXACT D1 MINI32 PIN WIRING</text>
+<text x="40" y="80" class="sub" text-anchor="start" fill="#00e5ff">TYPE-C D1 MINI NODEMCU ESP32 ESP-WROOM-32</text>
+<text x="40" y="108" class="sub" text-anchor="start">Component side facing you. USB-C connector at the bottom. If you view the solder side, left and right are mirrored.</text>
+<rect x="610" y="155" width="580" height="1030" rx="28" class="board"/>
+<rect x="815" y="205" width="170" height="300" rx="8" class="module"/>
+<text x="900" y="245" class="cardTitle" text-anchor="middle">ESP32</text>
+<text x="900" y="275" class="mono" text-anchor="middle" fill="#9fc1d1">WROOM-32</text>
+<path d="M842 315 h116 M842 332 h116 M842 349 h116 M842 366 h116 M842 383 h116 M842 400 h116" stroke="#38515f" stroke-width="5"/>
+<text x="900" y="454" class="tiny" text-anchor="middle">ANTENNA END</text>
+<rect x="825" y="1180" width="150" height="48" rx="9" class="usb"/>
+<rect x="855" y="1180" width="90" height="24" rx="5" fill="#263740"/>
+<text x="900" y="1260" class="cardTitle" text-anchor="middle" fill="#00e5ff">USB-C END</text>
+<text x="670" y="178" class="col" text-anchor="middle">LEFT OUTER</text>
+<text x="770" y="178" class="col" text-anchor="middle">LEFT INNER</text>
+<text x="1030" y="178" class="col" text-anchor="middle">RIGHT INNER</text>
+<text x="1130" y="178" class="col" text-anchor="middle">RIGHT OUTER</text>
+<text x="600" y="285" class="rownum" text-anchor="end">1</text>
+<circle cx="670" cy="280" r="15" fill="#17232c" stroke="#95afbc" stroke-width="2"/>
+<text x="645" y="285" class="pin" text-anchor="end" fill="#95afbc">GND</text>
+<circle cx="770" cy="280" r="15" fill="#17232c" stroke="#95afbc" stroke-width="2"/>
+<text x="795" y="285" class="pin" text-anchor="start" fill="#95afbc">RST</text>
+<circle cx="1030" cy="280" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1005" y="285" class="pin" text-anchor="end" fill="#5f7885">RXD / GPIO3</text>
+<circle cx="1130" cy="280" r="15" fill="#17232c" stroke="#95afbc" stroke-width="2"/>
+<text x="1155" y="285" class="pin" text-anchor="start" fill="#95afbc">GND</text>
+<text x="600" y="375" class="rownum" text-anchor="end">2</text>
+<circle cx="670" cy="370" r="15" fill="#10161c" stroke="#53636d" stroke-width="2"/>
+<text x="645" y="375" class="pin" text-anchor="end" fill="#53636d">NC</text>
+<circle cx="770" cy="370" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="795" y="375" class="pin" text-anchor="start" fill="#5f7885">SVP / GPIO36</text>
+<circle cx="1030" cy="370" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1005" y="375" class="pin" text-anchor="end" fill="#5f7885">TXD / GPIO1</text>
+<circle cx="1130" cy="370" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1155" y="375" class="pin" text-anchor="start" fill="#5f7885">GPIO27</text>
+<text x="600" y="465" class="rownum" text-anchor="end">3</text>
+<circle cx="670" cy="460" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="645" y="465" class="pin" text-anchor="end" fill="#5f7885">SVN / GPIO39</text>
+<circle cx="770" cy="460" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="795" y="465" class="pin" text-anchor="start" fill="#5f7885">GPIO26</text>
+<circle cx="1030" cy="460" r="15" fill="#73e6a1" stroke="#eafaff" stroke-width="4"/>
+<circle cx="1030" cy="460" r="21" class="usedRing"/>
+<text x="1005" y="465" class="pin" text-anchor="end" fill="#eafaff">SCL / GPIO22</text>
+<circle cx="1130" cy="460" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1155" y="465" class="pin" text-anchor="start" fill="#5f7885">GPIO25</text>
+<text x="600" y="555" class="rownum" text-anchor="end">4</text>
+<circle cx="670" cy="550" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="645" y="555" class="pin" text-anchor="end" fill="#5f7885">GPIO35</text>
+<circle cx="770" cy="550" r="15" fill="#00e5ff" stroke="#eafaff" stroke-width="4"/>
+<circle cx="770" cy="550" r="21" class="usedRing"/>
+<text x="795" y="555" class="pin" text-anchor="start" fill="#eafaff">GPIO18</text>
+<circle cx="1030" cy="550" r="15" fill="#73e6a1" stroke="#eafaff" stroke-width="4"/>
+<circle cx="1030" cy="550" r="21" class="usedRing"/>
+<text x="1005" y="555" class="pin" text-anchor="end" fill="#eafaff">SDA / GPIO21</text>
+<circle cx="1130" cy="550" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1155" y="555" class="pin" text-anchor="start" fill="#5f7885">GPIO32</text>
+<text x="600" y="645" class="rownum" text-anchor="end">5</text>
+<circle cx="670" cy="640" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="645" y="645" class="pin" text-anchor="end" fill="#5f7885">GPIO33</text>
+<circle cx="770" cy="640" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="795" y="645" class="pin" text-anchor="start" fill="#5f7885">MISO / GPIO19</text>
+<circle cx="1030" cy="640" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1005" y="645" class="pin" text-anchor="end" fill="#5f7885">TX2 / GPIO17</text>
+<circle cx="1130" cy="640" r="15" fill="#ffc857" stroke="#eafaff" stroke-width="4"/>
+<circle cx="1130" cy="640" r="21" class="usedRing"/>
+<text x="1155" y="645" class="pin" text-anchor="start" fill="#eafaff">TDI / GPIO12</text>
+<text x="600" y="735" class="rownum" text-anchor="end">6</text>
+<circle cx="670" cy="730" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="645" y="735" class="pin" text-anchor="end" fill="#5f7885">GPIO34</text>
+<circle cx="770" cy="730" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="795" y="735" class="pin" text-anchor="start" fill="#5f7885">MOSI / GPIO23</text>
+<circle cx="1030" cy="730" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1005" y="735" class="pin" text-anchor="end" fill="#5f7885">RX2 / GPIO16</text>
+<circle cx="1130" cy="730" r="15" fill="#00e5ff" stroke="#eafaff" stroke-width="4"/>
+<circle cx="1130" cy="730" r="21" class="usedRing"/>
+<text x="1155" y="735" class="pin" text-anchor="start" fill="#eafaff">GPIO4</text>
+<text x="600" y="825" class="rownum" text-anchor="end">7</text>
+<circle cx="670" cy="820" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="645" y="825" class="pin" text-anchor="end" fill="#5f7885">TMS / GPIO14</text>
+<circle cx="770" cy="820" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="795" y="825" class="pin" text-anchor="start" fill="#5f7885">SS / GPIO5</text>
+<circle cx="1030" cy="820" r="15" fill="#9fc1d1" stroke="#eafaff" stroke-width="4"/>
+<circle cx="1030" cy="820" r="21" class="usedRing"/>
+<text x="1005" y="825" class="pin" text-anchor="end" fill="#eafaff">GND</text>
+<circle cx="1130" cy="820" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1155" y="825" class="pin" text-anchor="start" fill="#5f7885">GPIO0</text>
+<text x="600" y="915" class="rownum" text-anchor="end">8</text>
+<circle cx="670" cy="910" r="15" fill="#10161c" stroke="#53636d" stroke-width="2"/>
+<text x="645" y="915" class="pin" text-anchor="end" fill="#53636d">NC</text>
+<circle cx="770" cy="910" r="15" fill="#ff9f43" stroke="#eafaff" stroke-width="4"/>
+<circle cx="770" cy="910" r="21" class="usedRing"/>
+<text x="795" y="915" class="pin" text-anchor="start" fill="#eafaff">3V3</text>
+<circle cx="1030" cy="910" r="15" fill="#17232c" stroke="#95afbc" stroke-width="2"/>
+<text x="1005" y="915" class="pin" text-anchor="end" fill="#95afbc">5V</text>
+<circle cx="1130" cy="910" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1155" y="915" class="pin" text-anchor="start" fill="#5f7885">GPIO2</text>
+<text x="600" y="1005" class="rownum" text-anchor="end">9</text>
+<circle cx="670" cy="1000" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="645" y="1005" class="pin" text-anchor="end" fill="#ff6b6b">SD2 / GPIO9</text>
+<circle cx="770" cy="1000" r="15" fill="#ff6fae" stroke="#eafaff" stroke-width="4"/>
+<circle cx="770" cy="1000" r="21" class="usedRing"/>
+<text x="795" y="1005" class="pin" text-anchor="start" fill="#eafaff">TCK / GPIO13</text>
+<circle cx="1030" cy="1000" r="15" fill="#15212a" stroke="#5f7885" stroke-width="2"/>
+<text x="1005" y="1005" class="pin" text-anchor="end" fill="#5f7885">TDO / GPIO15</text>
+<circle cx="1130" cy="1000" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="1155" y="1005" class="pin" text-anchor="start" fill="#ff6b6b">SD1 / GPIO8</text>
+<text x="600" y="1095" class="rownum" text-anchor="end">10</text>
+<circle cx="670" cy="1090" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="645" y="1095" class="pin" text-anchor="end" fill="#ff6b6b">CMD / GPIO11</text>
+<circle cx="770" cy="1090" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="795" y="1095" class="pin" text-anchor="start" fill="#ff6b6b">SD3 / GPIO10</text>
+<circle cx="1030" cy="1090" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="1005" y="1095" class="pin" text-anchor="end" fill="#ff6b6b">SD0 / GPIO7</text>
+<circle cx="1130" cy="1090" r="15" fill="#27161a" stroke="#ff6b6b" stroke-width="2"/>
+<text x="1155" y="1095" class="pin" text-anchor="start" fill="#ff6b6b">CLK / GPIO6</text>
+<rect x="30" y="180" width="510" height="350" rx="12" class="card"/>
+<text x="55" y="218" class="cardTitle" text-anchor="start">PROXIMITY SENSOR</text>
+<text x="55" y="248" class="tiny" text-anchor="start">Exact header locations</text>
+<text x="55" y="292" class="mono" text-anchor="start" fill="#00e5ff">GPIO18  - left inner, row 4</text>
+<text x="55" y="326" class="mono" text-anchor="start" fill="#00e5ff">GPIO4   - right outer, row 6</text>
+<text x="55" y="375" class="body" text-anchor="start">GPIO18</text>
+<rect x="150" y="354" width="105" height="34" rx="7" class="res"/>
+<text x="203" y="377" class="mono" text-anchor="middle" fill="#070a0f">1M ohm</text>
+<line x1="255" y1="371" x2="333" y2="371" class="wire wireDrive"/>
+<circle cx="333" cy="371" r="9" class="junction"/>
+<text x="348" y="377" class="mono" text-anchor="start" fill="#00e5ff">SENSE JUNCTION</text>
+<text x="55" y="420" class="body" text-anchor="start">GPIO4 connects directly to this junction.</text>
+<text x="55" y="455" class="body" text-anchor="start">Antenna connects through optional 10k ohm.</text>
+<text x="55" y="495" class="note" text-anchor="start">Do not connect the sense junction to GND.</text>
+<path d="M770 550 H570 V292 H540" class="wire wireDrive"/>
+<path d="M1130 730 H1220 V135 H570 V326 H540" class="wire wireDrive"/>
+<rect x="1270" y="250" width="500" height="300" rx="12" class="card"/>
+<text x="1295" y="288" class="cardTitle" text-anchor="start">QMC5883L MAGNETOMETER</text>
+<text x="1295" y="330" class="mono" text-anchor="start" fill="#73e6a1">SCL  -&gt; GPIO22, right inner, row 3</text>
+<text x="1295" y="366" class="mono" text-anchor="start" fill="#73e6a1">SDA  -&gt; GPIO21, right inner, row 4</text>
+<text x="1295" y="415" class="body" text-anchor="start">VCC  -&gt; 3V3 shared power rail</text>
+<text x="1295" y="448" class="body" text-anchor="start">GND  -&gt; shared GND rail</text>
+<text x="1295" y="496" class="note" text-anchor="start">I2C address must be 0x0D.</text>
+<path d="M1030 460 H1235 V330 H1270" class="wire wireI2c"/>
+<path d="M1030 550 H1250 V366 H1270" class="wire wireI2c"/>
+<rect x="1270" y="650" width="500" height="175" rx="12" class="card"/>
+<text x="1295" y="690" class="cardTitle" text-anchor="start">PASSIVE BUZZER</text>
+<text x="1295" y="735" class="mono" text-anchor="start" fill="#ffc857">+  -&gt; GPIO12 / TDI, right outer, row 5</text>
+<text x="1295" y="775" class="body" text-anchor="start">-  -&gt; shared GND rail</text>
+<path d="M1130 640 H1235 V735 H1270" class="wire wireBuzz"/>
+<rect x="30" y="690" width="510" height="220" rx="12" class="card"/>
+<text x="55" y="730" class="cardTitle" text-anchor="start">ADDRESSABLE LED RING</text>
+<text x="55" y="772" class="mono" text-anchor="start" fill="#ff6fae">DIN -&gt; GPIO13 / TCK, left inner, row 9</text>
+<text x="55" y="812" class="body" text-anchor="start">VCC -&gt; 3V3 shared power rail</text>
+<text x="55" y="846" class="body" text-anchor="start">GND -&gt; shared GND rail</text>
+<text x="55" y="884" class="tiny" text-anchor="start">Ring type and count are set in the Node portal.</text>
+<path d="M770 1000 H575 V772 H540" class="wire wireLed"/>
+<rect x="180" y="1285" width="1440" height="130" rx="12" class="card"/>
+<text x="210" y="1323" class="cardTitle" text-anchor="start">SHARED POWER</text>
+<text x="210" y="1360" class="body" text-anchor="start">3V3: left inner, row 8 -&gt; QMC5883L VCC + LED ring VCC + optional capacitor positive</text>
+<text x="210" y="1394" class="body" text-anchor="start">GND: right inner, row 7 -&gt; QMC5883L GND + LED ring GND + buzzer negative + optional capacitor negative</text>
+<path d="M770 910 V1245 H430 V1285" class="wire wirePower"/>
+<path d="M1030 820 V1245 H1370 V1285" class="wire wireGround"/>
+<rect x="1270" y="900" width="500" height="285" rx="12" class="card"/>
+<text x="1295" y="938" class="cardTitle" text-anchor="start">PIN MAP LEGEND</text>
+<circle cx="1308" cy="969" r="8" fill="#00e5ff"/>
+<text x="1328" y="974" class="legend" text-anchor="start">RC drive / sense</text>
+<circle cx="1308" cy="999" r="8" fill="#73e6a1"/>
+<text x="1328" y="1004" class="legend" text-anchor="start">Magnetometer I2C</text>
+<circle cx="1308" cy="1029" r="8" fill="#ff6fae"/>
+<text x="1328" y="1034" class="legend" text-anchor="start">LED data</text>
+<circle cx="1308" cy="1059" r="8" fill="#ffc857"/>
+<text x="1328" y="1064" class="legend" text-anchor="start">Buzzer signal</text>
+<circle cx="1308" cy="1089" r="8" fill="#ff9f43"/>
+<text x="1328" y="1094" class="legend" text-anchor="start">3.3V power</text>
+<circle cx="1308" cy="1119" r="8" fill="#9fc1d1"/>
+<text x="1328" y="1124" class="legend" text-anchor="start">Ground</text>
+<text x="1295" y="1168" class="tiny" text-anchor="start" fill="#ff8a8a">Red-outlined SD/CLK/CMD pins are flash lines. Leave them unused.</text>
+<text x="40" y="1445" class="tiny" text-anchor="start">Clone note: some boards print TXD/RXD names inconsistently. SPECTER does not use those pins. Trust the GPIO numbers shown here.</text>
+</svg>

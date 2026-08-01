@@ -259,7 +259,7 @@
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
-          <tr><td>ESP32 dev board (e.g. ESP32-WROOM DevKit)</td><td>Wi-Fi microcontroller, the brain</td><td>$5–8</td></tr>
+          <tr><td>Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32</td><td>Supported compact Wi-Fi microcontroller board</td><td>$5–8</td></tr>
           <tr><td>QMC5883L magnetometer breakout</td><td>3-axis magnetic field sensor (I2C)</td><td>$2–4</td></tr>
           <tr><td>WS2812B addressable LED ring (12 px)</td><td>Local visual alert</td><td>$3–5</td></tr>
           <tr><td>Passive piezo buzzer</td><td>Local audible alert</td><td>$1</td></tr>
@@ -268,9 +268,9 @@
           <tr><td>USB cable / 18650 power (optional)</td><td>Power</td><td>-</td></tr>
         </tbody>
       </table>
-      <p class="sim-note">Any ESP32 dev board with the standard pinout works. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it's the QMC5883L variant (I2C address 0x0D).</p>
-      <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Optional: Extended-range resistor build (Road B) extra parts</h3>
-      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">Uses two ESP32 pins and one high-value resistor instead of an oscillator chip. GPIO18 charges the antenna node through 1MΩ while GPIO4 measures how long that node takes to rise. A nearby hand adds capacitance and increases the measured charge time.</p>
+      <p class="sim-note">This guide and the exact pin-position diagram use the <strong>Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32</strong>. Other classic ESP32 boards can run the firmware, but their header positions differ. The QMC5883L is the common blue "GY-273 / HMC5883L-style" module - confirm it is the QMC5883L variant at I2C address 0x0D.</p>
+      <h3 style="font-size:14px;color:var(--cyan);margin:22px 0 10px;">Standard D1 Mini32 resistor-sensor parts</h3>
+      <p style="color:var(--text-dim);max-width:720px;margin-bottom:14px;">The standard Type-C D1 Mini32 build uses two ESP32 pins and one high-value resistor. GPIO18 charges the antenna node through 1MΩ while GPIO4 measures how long that node takes to rise. A nearby hand adds capacitance and increases the measured charge time.</p>
       <table class="bn-table">
         <thead><tr><th>Component</th><th>What it does</th><th>Approx.</th></tr></thead>
         <tbody>
@@ -282,10 +282,10 @@
       <p class="sim-note">The 1MΩ resistor belongs between GPIO18 and the sense node. Do not connect it from the antenna node to GND. The optional 10kΩ resistor sits between the antenna and sense node and provides limited input protection without changing the measurement method.</p>
     </div>
 
-    <!-- WIRING: BASIC -->
+    <!-- WIRING: ALTERNATE BASIC TOUCH MODE -->
     <div class="bn-sec" id="wiring">
-      <h2>Wiring, basic build</h2>
-      <p>Connect each component to the ESP32 as below. All sensors run on 3.3V. The QMC5883L uses the I2C bus (SDA/SCL); the LED ring, buzzer, and antenna each take one GPIO pin. This is the build most people should start with - no extra chip, ~15cm proximity range.</p>
+      <h2>Wiring, alternate basic touch mode</h2>
+      <p>This alternate firmware mode reads the antenna directly on GPIO4 without the 1MΩ timing resistor. It remains available for existing builds, but the Type-C D1 Mini32 resistor diagram below is the standard supported wiring. All sensors run on 3.3V.</p>
       <div class="bn-diagram-wrap">
         <img src="/assets/build-node/wiring-basic.svg" width="960" height="680" class="bn-diagram" data-zoomable="1" alt="SPECTER Node basic build wiring diagram: ESP32 with the telescopic antenna on GPIO4, buzzer on GPIO12, WS2812B LED ring DIN on GPIO13, and QMC5883L magnetometer SDA on GPIO21 and SCL on GPIO22, all sensors powered from 3V3 and GND.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
@@ -306,23 +306,28 @@
       <div class="callout">The antenna is just a length of wire or a telescopic rod connected to <strong>GPIO4</strong>. The ESP32's built-in capacitive touch sensing on that pin reads the change in capacitance as something approaches - no extra components needed.</div>
     </div>
 
-    <!-- WIRING: THEREMIN / ROAD B -->
+    <!-- WIRING: STANDARD TYPE-C D1 MINI32 -->
     <div class="bn-sec" id="wiring-theremin">
-      <h2>Wiring, extended-range resistor build (Road B)</h2>
-      <p>This version uses GPIO18 as a controlled drive pin and GPIO4 as the antenna sense pin. The required 1MΩ resistor creates a measurable charge time. A nearby hand increases antenna capacitance, so the measured charge time and proximity value rise together.</p>
-      <p><a href="/assets/build-node/wiring-theremin.svg?v=2.12.17-rc1" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE RESISTOR SENSOR WIRING DIAGRAM</a></p>
+      <h2>Wiring, Type-C D1 Mini32 standard build</h2>
+      <p>This diagram is for the <strong>Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32</strong>. It shows the component side facing you with the USB-C connector at the bottom, all four header columns, every unused pin, and every SPECTER connection. GPIO18 is the controlled drive pin and GPIO4 is the antenna sense pin. The required 1MΩ resistor creates the measurable charge time.</p>
+      <p><a href="/assets/build-node/wiring-d1-mini32.svg?v=1" target="_blank" rel="noopener" style="color:var(--cyan);font-family:var(--mono);font-weight:700;">OPEN THE FULL-SIZE TYPE-C D1 MINI32 PIN DIAGRAM</a></p>
       <div class="bn-diagram-wrap">
-        <img src="/assets/build-node/wiring-theremin.svg?v=2.12.17-rc1" width="1600" height="1120" class="bn-diagram" data-zoomable="1" alt="Complete SPECTER Node resistor sensor wiring diagram showing GPIO18 through a 1 megaohm resistor to the GPIO4 antenna sense node, an optional 10 kiloohm antenna protection resistor, QMC5883L magnetometer, LED ring, buzzer, and polarized power capacitor.">
+        <img src="/assets/build-node/wiring-d1-mini32.svg?v=1" width="1800" height="1460" class="bn-diagram" data-zoomable="1" alt="Complete Type-C D1 Mini NodeMCU ESP32 ESP-WROOM-32 pin diagram for SPECTER Node. Component side faces the viewer with USB-C at the bottom. All four header columns and unused pins are shown around the highlighted GPIO18, GPIO4, GPIO21, GPIO22, GPIO13, GPIO12, 3V3, and GND connections.">
         <span class="bn-diagram-hint">CLICK TO ZOOM</span>
       </div>
+      <div class="callout"><strong>Orientation matters:</strong> the diagram shows the component side, with the ESP32 module visible and USB-C at the bottom. The underside photo is mirrored left-to-right. Count rows from the antenna end toward USB-C. Some clones print TXD and RXD inconsistently, but SPECTER does not use those serial pins.</div>
       <table class="bn-table">
-        <thead><tr><th>Connection</th><th>Destination</th></tr></thead>
+        <thead><tr><th>Connection</th><th>Exact physical destination</th></tr></thead>
         <tbody>
-          <tr><td>GPIO18 drive</td><td class="pin">Through required 1MΩ resistor to the sense node</td></tr>
-          <tr><td>GPIO4 sense</td><td class="pin">Directly to the same sense node</td></tr>
-          <tr><td>Telescopic antenna</td><td class="pin">To the sense node through optional 10kΩ resistor</td></tr>
-          <tr><td>100µF electrolytic, optional</td><td class="pin">Positive to 3.3V, negative to GND</td></tr>
-          <tr><td>QMC5883L, LED ring, buzzer</td><td class="pin">Same pins as the basic build</td></tr>
+          <tr><td>GPIO18 drive</td><td class="pin">Left inner header, row 4 from the antenna end, then through required 1MΩ to sense junction</td></tr>
+          <tr><td>GPIO4 sense</td><td class="pin">Right outer header, row 6, directly to the same sense junction</td></tr>
+          <tr><td>QMC5883L SCL / SDA</td><td class="pin">GPIO22 right inner row 3 / GPIO21 right inner row 4</td></tr>
+          <tr><td>LED ring DIN</td><td class="pin">GPIO13 / TCK, left inner row 9</td></tr>
+          <tr><td>Passive buzzer +</td><td class="pin">GPIO12 / TDI, right outer row 5</td></tr>
+          <tr><td>3.3V shared power</td><td class="pin">3V3, left inner row 8</td></tr>
+          <tr><td>Shared ground</td><td class="pin">GND, right inner row 7</td></tr>
+          <tr><td>Telescopic antenna</td><td class="pin">To sense junction through optional 10kΩ resistor</td></tr>
+          <tr><td>100µF electrolytic, optional</td><td class="pin">Positive to 3V3, negative to GND</td></tr>
         </tbody>
       </table>
       <div class="callout"><strong>Firmware setting:</strong> install firmware 2.12.21-maker or newer, open the node portal, go to Settings, then set <strong>Sense source</strong> to <strong>Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)</strong>. The portal shows live charge time, ambient baseline, and wiring status. If the reading cannot complete, it now identifies a GPIO4 discharge failure or a GPIO18-to-1M-to-GPIO4 charge failure. The separate Antenna GPIO selector applies only to basic touch mode.</div>
@@ -761,7 +766,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- Two-pin RC antenna sensor (extended-range prox, optional Road B hardware) ----
+// ---- Standard two-pin RC antenna sensor for the Type-C D1 Mini32 ----
 // GPIO18 drives the antenna node through 1M ohm; GPIO4 measures how long that node
 // takes to charge. A nearby hand raises antenna capacitance and lengthens the charge
 // time. No oscillator IC, transistor, inductor, or external library is required.
@@ -2598,7 +2603,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
             if (pm != proxMode) {
                 // Basic touch mode needs GPIO18 high-impedance; leaving it LOW would
-                // bias GPIO4 through the external 1M resistor on a wired Road B node.
+                // bias GPIO4 through the external 1M resistor on the standard D1 Mini32 node.
                 if (pm == 0) { digitalWrite(RC_DRIVE_PIN, LOW); pinMode(RC_DRIVE_PIN, INPUT); }
                 proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
             }
