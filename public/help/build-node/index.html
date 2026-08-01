@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build Your Own SPECTER Node | DIY Wireless EMF Sensor for Ghost Hunting</title>
-  <meta name="description" content="Build your own SPECTER Node: a free, DIY wireless ESP32 EMF and proximity sensor, a REM pod and K2 meter alternative, that streams live telemetry into SPECTER paranormal investigation software. Full parts list, wiring diagram, and copy-paste Arduino firmware, no purchase required." />
-  <meta name="keywords" content="build your own EMF sensor, DIY EMF meter, REM pod alternative, K2 meter alternative, K-II EMF meter, ESP32 ghost hunting sensor, wireless paranormal sensor, free ghost hunting firmware" />
+  <title>Build Your Own SPECTER Node | DIY Wireless Field Sensor</title>
+  <meta name="description" content="Build a SPECTER Node: a DIY wireless ESP32 magnetic-field and proximity sensor with authenticated three-Node relay mesh support, live telemetry, wiring diagrams, and copy-paste firmware." />
+  <meta name="keywords" content="build ESP32 field sensor, DIY magnetic field sensor, wireless proximity sensor, ESP-NOW relay mesh, SPECTER Node, authenticated sensor network, free ESP32 firmware" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://specter-imaging.com/help/build-node/" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="Build Your Own SPECTER Node - DIY Wireless EMF Sensor" />
+  <meta property="og:title" content="Build Your Own SPECTER Node - DIY Wireless Field Sensor" />
   <meta property="og:description" content="Parts, wiring, and Arduino code to build a wireless ESP32 field sensor that streams live telemetry into SPECTER." />
   <meta property="og:url" content="https://specter-imaging.com/help/build-node/" />
   <link rel="stylesheet" href="/style.css" />
@@ -171,7 +171,7 @@
   <div class="bn-hero">
     <div class="section-tag">// FIELD HARDWARE · DIY GUIDE</div>
     <h1>Build Your Own SPECTER Node</h1>
-    <p class="lead">A wireless field sensor you can build yourself. The SPECTER Node pairs a capacitive proximity antenna with a 3-axis magnetometer on an ESP32, then streams live EMF and proximity telemetry straight into SPECTER over Wi-Fi - appearing in the instrument rail and the 3D field mesh alongside your depth and thermal sensors. Total build cost is roughly $15–25 in parts.</p>
+    <p class="lead">A wireless field sensor you can build yourself. Each SPECTER Node pairs a capacitive proximity antenna with a 3-axis magnetometer on an ESP32, then streams synchronized telemetry into SPECTER. Deploy up to three Nodes with direct-first Wi-Fi and an authenticated two-hop Relay Assist mesh for locations where one Node cannot reach the field computer directly. Total build cost is roughly $15–25 per Node in parts.</p>
   </div>
 
   <div class="bn-wrap">
@@ -218,9 +218,39 @@
     <!-- OVERVIEW -->
     <div class="bn-sec" id="how">
       <h2>How it works</h2>
-      <p>The node is a small battery- or USB-powered pod. An ESP32 microcontroller reads two sensors a hundred times a second: a <strong style="color:var(--cyan)">capacitive telescopic antenna</strong> (its reading drops as a person or object approaches - a proximity/field-disturbance channel) and a <strong style="color:var(--cyan)">QMC5883L magnetometer</strong> (a 3-axis reading of the local magnetic field). An onboard LED ring and buzzer give you a standalone alert, while the ESP32 joins your Wi-Fi and connects to the SPECTER desktop app.</p>
-      <p>SPECTER runs a small server that the node discovers automatically - the app broadcasts its address, the node finds it and connects, and telemetry starts flowing at 10 Hz. From there the node behaves like any other SPECTER sensor: its readings feed the Anomaly Index, threshold crossings fire timestamped detection events into your evidence archive, and the live field mesh renders in the instrument rail.</p>
+      <p>The node is a small battery- or USB-powered pod. An ESP32 microcontroller reads two sensors a hundred times a second: a <strong style="color:var(--cyan)">capacitive telescopic antenna</strong> (its reading rises as a person or object approaches - a proximity and field-change channel) and a <strong style="color:var(--cyan)">QMC5883L magnetometer</strong> (a 3-axis reading of the local magnetic field). An onboard LED ring and buzzer give you a standalone alert, while the ESP32 joins your Wi-Fi and connects to the SPECTER desktop app.</p>
+      <p>SPECTER runs a small server that the Node discovers automatically. The app broadcasts its address, the Node finds it, and telemetry starts flowing at 10 Hz. From there the Node behaves like any other SPECTER sensor: its readings feed the Anomaly Index, threshold crossings create timestamped detection events in the evidence archive, and the live field display renders in the instrument rail.</p>
       <div class="callout"><strong>No soldering required for a basic build.</strong> Using breakout boards and jumper wires you can assemble a working node on a breadboard. Soldering only comes in when you want a permanent, rugged pod.</div>
+    </div>
+
+    <!-- RELAY MESH -->
+    <div class="bn-sec" id="relay-mesh">
+      <h2>Three-Node Relay Mesh</h2>
+      <p>Relay Assist lets up to three SPECTER Nodes maintain one synchronized sensor network across a larger location. Each Node still tries its normal direct Wi-Fi connection first. If a Node cannot reach the SPECTER computer, it can forward authenticated telemetry and event frames through a nearby Node that does have a working app connection.</p>
+      <div class="callout"><strong>Direct-first by design.</strong> A healthy direct WebSocket is always preferred. Relay Assist activates only as a fallback, and a Node returns to its direct path automatically when that connection becomes available again.</div>
+
+      <h3>How the route forms</h3>
+      <table class="bn-table">
+        <thead><tr><th>Position</th><th>Network role</th><th>Maximum route</th></tr></thead>
+        <tbody>
+          <tr><td>Node nearest the field computer or hotspot</td><td>Direct Node and available gateway</td><td>Node to SPECTER</td></tr>
+          <tr><td>Node beyond direct app range</td><td>One-hop relayed Node</td><td>Node to gateway to SPECTER</td></tr>
+          <tr><td>Node deeper in the location</td><td>Two-hop relayed Node</td><td>Node to intermediate Node to gateway to SPECTER</td></tr>
+        </tbody>
+      </table>
+      <p>Gateway availability is advertised over ESP-NOW on the active 2.4 GHz channel. Relayed Nodes select a route using stable hardware identities, not the operator-assigned Node 1, 2, or 3 labels. If a gateway disappears, routes expire quickly and the remaining Nodes look for another valid path.</p>
+
+      <h3>Configure Relay Assist</h3>
+      <div class="bn-step"><span class="num">1</span><div>Set up every Node on the field Wi-Fi first and confirm that each one can connect directly to SPECTER.</div></div>
+      <div class="bn-step"><span class="num">2</span><div>Open each Node portal at <strong>192.168.4.1</strong>, assign a unique slot from <strong>Node 1</strong> through <strong>Node 3</strong>, and open <strong>Settings &gt; Relay Assist</strong>.</div></div>
+      <div class="bn-step"><span class="num">3</span><div>Enable Relay Assist and enter the same 12 to 64 character group key on all participating Nodes. The key authenticates every peer frame and is never shown in status responses.</div></div>
+      <div class="bn-step"><span class="num">4</span><div>Place one Node where it has a reliable direct connection, then place the other Nodes outward through the location. Keep adjacent Nodes close enough to maintain a stable 2.4 GHz peer link.</div></div>
+      <p>You can also generate and apply the shared key from <strong>SPECTER Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node &gt; Relay Assist</strong> while the Nodes are directly connected. Route diagnostics show <strong>DIRECT</strong>, <strong>RELAYED VIA</strong>, or <strong>2 HOPS VIA</strong>, along with channel, quality, command round-trip time, and dropped-frame estimates.</p>
+
+      <h3>Node and camera coordination</h3>
+      <p>Assign each Node to the Lorex or IP camera watching the same area. When that Node reports a genuine event, its mapped camera highlights immediately while the Node remains the true trigger in evidence metadata. A separate 0 to 2500 ms capture offset can compensate for RTSP delay so the saved frame can show the Node LEDs. If two or three Nodes report together, all mapped cameras remain highlighted. Organic detections from multiple cameras also remain visible together.</p>
+
+      <div class="callout"><strong>Field limits:</strong> Relay Assist supports three Nodes and a maximum of two peer hops. All participating radios must share a usable 2.4 GHz channel. Walls, metalwork, crowded Wi-Fi, and Node placement affect range. Firmware installation and OTA updates require direct infrastructure Wi-Fi and are never forwarded through the relay mesh.</div>
     </div>
 
     <!-- PARTS -->
@@ -372,7 +402,7 @@
         <div class="fl-tag">Fastest way &middot; no Arduino IDE needed</div>
         <h3>Flash your node straight from this page</h3>
         <p>Once your board is wired up, you can install the SPECTER Node firmware right here over USB &ndash; no Arduino IDE, no libraries, no partition settings to worry about. Plug the ESP32 into your computer with a USB cable, click below, and pick the serial port. It comes preconfigured for RGBW (SK6812) rings, and you can tune everything from the on-device Settings page afterward.</p>
-        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.21.1">
+        <esp-web-install-button manifest="/firmware/node/flash-manifest-maker.json?v=2.12.23.1">
           <button class="fl-btn" slot="activate">Install firmware over USB</button>
           <span slot="unsupported" class="fl-nosup">Your browser can&rsquo;t flash over USB. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.</span>
           <span slot="not-allowed" class="fl-nosup">Serial access was blocked. Reload the page and allow the port when prompted.</span>
@@ -3256,10 +3286,11 @@ void loop() {
 }
 </code></pre>
       <h3>3 · Connect it to Wi-Fi</h3>
-      <div class="bn-step"><span class="num">1</span><div>On first boot the node creates its own Wi-Fi network, <strong>SPECTER-NODE-01</strong>. Join it from your phone or laptop.</div></div>
-      <div class="bn-step"><span class="num">2</span><div>Open <strong>http://192.168.4.1/</strong> in a browser and enter your field Wi-Fi name and password. Save - the node reboots and joins your network.</div></div>
-      <div class="bn-step"><span class="num">3</span><div>Open SPECTER on the same network. Enable the SPECTER Node feature in settings. The node discovers the app automatically and appears in the instrument rail within a couple of seconds.</div></div>
-      <div class="callout"><strong>That's it.</strong> Wave your hand near the antenna or move a magnet nearby - you'll see the field mesh react and the buzzer chirp. Tune the alert thresholds from inside SPECTER; the node remembers them across reboots.</div>
+      <div class="bn-step"><span class="num">1</span><div>On first boot the Node creates its own Wi-Fi network, <strong>SPECTER-NODE-01</strong>. Join it from your phone or laptop.</div></div>
+      <div class="bn-step"><span class="num">2</span><div>Open <strong>http://192.168.4.1/</strong> in a browser, enter your field Wi-Fi name and password, and assign a unique Node slot. Save the settings and let the Node join your network.</div></div>
+      <div class="bn-step"><span class="num">3</span><div>Open SPECTER on the same network and enable the SPECTER Node feature. The Node discovers the app automatically and appears in the instrument rail within a few seconds.</div></div>
+      <div class="bn-step"><span class="num">4</span><div>For a multi-Node deployment, repeat this direct setup for all Nodes, then configure the shared Relay Assist key as described in the mesh section above.</div></div>
+      <div class="callout"><strong>That's it.</strong> Move a hand near the antenna or introduce a controlled magnetic change and the field display responds while the Node records synchronized telemetry. Tune alert and evidence thresholds from SPECTER; the Node remembers its configuration across reboots.</div>
       <a href="/index.html#pricing" class="btn-primary bn-cta">GET SPECTER</a>
     </div>
 
@@ -3284,6 +3315,7 @@ void loop() {
       <h2>Frequently asked questions</h2>
       <div class="callout"><strong>Is this free?</strong> Yes. The build guide, wiring diagram, and Arduino firmware are free, no purchase or account required. You only pay for the roughly $15 to $25 in electronic parts. Streaming the node's telemetry live into the desktop app needs the SPECTER software, which includes a free 10-minute demo.</div>
       <div class="callout"><strong>Do I need to know how to solder?</strong> No. A basic breadboard build with jumper wires works fine. Soldering is only needed if you want a permanent, rugged pod.</div>
+      <div class="callout"><strong>Does Relay Assist replace Wi-Fi?</strong> No. Direct Wi-Fi remains the primary connection and at least one Node must reach the SPECTER computer. Relay Assist extends that working connection through one or two nearby Nodes.</div>
       <div class="callout"><strong>Does this replace a REM pod or K2 meter?</strong> It covers similar ground, proximity and ambient field sensing, but wireless, timestamped, and logged automatically instead of a standalone light and tone.</div>
     </div>
 

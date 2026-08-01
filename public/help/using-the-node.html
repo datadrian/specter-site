@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: Using the SPECTER Node in the App</title>
-  <meta name="description" content="Pair the wireless SPECTER Node with the app, read magnetometer and proximity telemetry, set operator alert thresholds, and arm the snapshot trigger.">
+  <meta name="description" content="Connect up to three SPECTER Nodes, use direct or relayed routes, read magnetic and proximity telemetry, link Nodes to cameras, and capture synchronized evidence.">
   <link rel="stylesheet" href="/site.css">
   <script src="/analytics-track.js" defer></script>
 </head>
@@ -20,7 +20,7 @@
   <main class="page page-wide help-body">
     <p class="fine"><a href="/help/">← Help center</a></p>
     <h1>USING THE SPECTER NODE IN THE APP</h1>
-    <p class="tagline">Pair the wireless field sensor, read its telemetry, and let it trigger evidence captures</p>
+    <p class="tagline">Connect up to three wireless field sensors, monitor their routes, and capture synchronized evidence</p>
 
     <p>The SPECTER Node is a small wireless field sensor with a magnetometer and a proximity antenna. Once it is on your network it appears inside SPECTER on its own rail widget, streams live telemetry, and can fire an evidence capture on its own. This page covers using a node you already have. To build one, see <a href="/help/build-node/">Build Your Own SPECTER Node</a>.</p>
 
@@ -36,6 +36,19 @@
         <img class="help-shot narrow" src="/help/img/node-widget.png" alt="SPECTER node rail widget">
         <figcaption>The node rail widget with live magnetometer and proximity readouts.</figcaption>
       </figure>
+    </section>
+
+    <section id="relay-mesh">
+      <h2>THREE-NODE RELAY MESH</h2>
+      <p>SPECTER supports up to three Nodes. Direct Wi-Fi remains the preferred path. With Relay Assist enabled, a Node that cannot reach the app can forward through one nearby Node or through one intermediate Node for a maximum of two peer hops.</p>
+      <ol>
+        <li>Connect every Node directly first and assign a unique slot: Node 1, Node 2, or Node 3.</li>
+        <li>Open <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node &gt; Relay Assist</strong>.</li>
+        <li>Generate one group key and apply it to the directly connected Nodes, or enter the same key in each Node's local portal.</li>
+        <li>Place at least one Node where it retains a reliable direct app connection, then place the remaining Nodes outward through the location.</li>
+      </ol>
+      <p>The Settings route list identifies direct and relayed Nodes, reports one-hop or two-hop paths, and shows channel, quality, command round-trip time, and dropped-frame estimates. Routes fail over automatically when another direct gateway is available.</p>
+      <div class="callout ok">Relay Assist carries telemetry, event frames, and targeted Node commands. Firmware installation and OTA updates still require direct Wi-Fi.</div>
     </section>
 
     <section id="readouts">
@@ -57,6 +70,13 @@
       <h2>OPERATOR ALERT THRESHOLDS</h2>
       <p>SPECTER has its own software thresholds, set in <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>. These are separate from the thresholds baked into the node's own onboard buzzer and LEDs. The app thresholds decide when SPECTER reacts on screen; the node's own thresholds decide when the device beeps and flashes in the field.</p>
       <p>Live delta readouts next to each slider let you watch the current signal, so you can set a level just above the room's noise floor.</p>
+    </section>
+
+    <section id="camera-links">
+      <h2>LINK NODES TO CAMERAS</h2>
+      <p>Use <strong>Node to Camera Links</strong> to assign each Node slot to the Lorex or IP camera covering the same position. An unlinked Node remains global and is marked <strong>UNASSIGNED</strong>.</p>
+      <p>When a genuine Node event arrives, the mapped camera highlights immediately and becomes the primary observation view. Evidence metadata continues to identify the Node as the true trigger. The linked-camera capture offset can delay only the saved camera frame from 0 to 2500 ms to compensate for RTSP latency and show the Node LEDs.</p>
+      <div class="callout ok">Concurrent events remain concurrent. If two or three Nodes report together, every mapped camera stays highlighted. Simultaneous organic detections from multiple cameras also remain visible instead of replacing one another.</div>
     </section>
 
     <section id="snapshot">
