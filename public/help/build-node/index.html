@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.23-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.24-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -753,7 +753,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.23-maker&quot;
+#define FW_VERSION   &quot;2.12.24-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -766,7 +766,7 @@ volatile int touchPin = TOUCH_PIN_DEFAULT;
 #define I2C_SCL        22
 #define BUZZER_PIN     12
 
-// ---- Standard two-pin RC antenna sensor for the Type-C D1 Mini32 ----
+// ---- Two-pin RC antenna sensor (extended-range prox, optional Road B hardware) ----
 // GPIO18 drives the antenna node through 1M ohm; GPIO4 measures how long that node
 // takes to charge. A nearby hand raises antenna capacitance and lengthens the charge
 // time. No oscillator IC, transistor, inductor, or external library is required.
@@ -2145,6 +2145,10 @@ uint32_t appLinkOkAt = 0;       // millis() of last CONNECTED / inbound frame
 #define  APP_LINK_RELINK_MS  30000   // connected-then-down-this-long -&gt; reopen discovery (app moved / IP changed)
 String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;, relayUrl = &quot;&quot;;
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
+// A portal session owns the radio channel while it is active. This protects both
+// SoftAP users and browsers that opened the portal through the station IP.
+uint32_t portalLastActiveAt = 0;
+#define PORTAL_RADIO_LEASE_MS 120000
 
 // ---- RELAY ASSIST (ESP-NOW, opt-in, direct Wi-Fi remains primary) ---------
 // ESP-NOW v1 payloads are limited to 250 bytes. The packed frame below is 244
@@ -2246,8 +2250,10 @@ static char relayGroupKey[65] = {0};
 static uint32_t relayGroupId = 0, relayTxSeq = 1;
 static uint64_t relayLocalId = 0;
 static uint32_t relayLastGateway = 0, relayLastRoute = 0, relayLastHello = 0;
-static uint32_t relayLastScanStep = 0;
-static uint8_t relayScanChannel = 1;
+static uint32_t relayLastScanStep = 0, relayScanRestUntil = 0;
+static uint8_t relayScanChannel = 1, relayScanHomeChannel = 1;
+#define RA_SCAN_STEP_MS 180
+#define RA_SCAN_REST_MS 30000
 static uint32_t relayAuthDrops = 0, relayDuplicateDrops = 0, relayMetricWindowAt = 0;
 static volatile uint32_t relayRetryCount = 0;
 static const uint8_t RA_BROADCAST_MAC[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
@@ -2500,6 +2506,11 @@ static bool raGatewaySendCommand(JsonDocument&amp; envelope) {
     String command; serializeJson(envelope[&quot;payload&quot;],command); if (!command.length() || command.length()&gt;RA_PAYLOAD_MAX) return false;
     RelayPacket p=raPacket(RA_COMMAND,target,0,true); p.payloadLen=command.length(); memcpy(p.payload,command.c_str(),p.payloadLen); return raTransmit(p,true);
 }
+static bool portalRadioProtected(uint32_t now) {
+    if (WiFi.softAPgetStationNum() &gt; 0) return true;
+    if (localWS.connectedClients(false) &gt; 0) return true;
+    return portalLastActiveAt != 0 &amp;&amp; now - portalLastActiveAt &lt; PORTAL_RADIO_LEASE_MS;
+}
 static void relayAssistLoop() {
     if (!relayAssistStarted) return;
     uint32_t now=millis(); RelayPacket packet; int budget=8; while (budget-- &amp;&amp; raPop(packet)) raProcessPacket(packet);
@@ -2514,11 +2525,31 @@ static void relayAssistLoop() {
         if (raRoute.valid &amp;&amp; now-raRoute.lastAt&gt;RA_ROUTE_STALE_MS) { raRoute={}; relayLastHello=0; }
         if (raRoute.valid &amp;&amp; raRoute.depth&lt;RA_MAX_HOPS &amp;&amp; now-relayLastRoute&gt;=RA_ROUTE_BEACON_MS) { relayLastRoute=now; raSendRouteAdvert(RA_ROUTE,raRoute.gatewayId,raRoute.depth,raRoute.channel); }
         if (raRoute.valid &amp;&amp; now-relayLastHello&gt;=RA_HELLO_MS) raSendHello();
-        // Nodes that cannot associate with the hotspot scan all 2.4 GHz channels
-        // only when nobody is using the local portal. Direct Wi-Fi gets the first
-        // 20 seconds after boot and periodic retry windows; a found route locks the channel.
-        if (!raRoute.valid &amp;&amp; WiFi.status()!=WL_CONNECTED &amp;&amp; WiFi.softAPgetStationNum()==0 &amp;&amp; now-bootMs&gt;20000 &amp;&amp; now-relayLastScanStep&gt;=180) {
-            relayLastScanStep=now; esp_wifi_set_channel(relayScanChannel,WIFI_SECOND_CHAN_NONE); relayScanChannel=relayScanChannel&gt;=13?1:relayScanChannel+1;
+        // Nodes that cannot associate with infrastructure Wi-Fi scan for a relay
+        // only while the local portal is genuinely idle. A browser on either the
+        // SoftAP or station IP owns a two-minute channel lease. Each unattended
+        // 1..13 scan is followed by a 30-second return to the portal home channel;
+        // never hop forever, which leaves clients associated but unable to reach HTTP.
+        bool portalProtected = portalRadioProtected(now);
+        if (portalProtected &amp;&amp; WiFi.status()!=WL_CONNECTED &amp;&amp; WiFi.channel()!=relayScanHomeChannel) {
+            esp_wifi_set_channel(relayScanHomeChannel, WIFI_SECOND_CHAN_NONE);
+            relayScanChannel=1; relayScanRestUntil=now+RA_SCAN_REST_MS;
+        }
+        if (!raRoute.valid &amp;&amp; WiFi.status()!=WL_CONNECTED &amp;&amp; !portalProtected
+            &amp;&amp; now-bootMs&gt;20000 &amp;&amp; (int32_t)(now-relayScanRestUntil)&gt;=0
+            &amp;&amp; now-relayLastScanStep&gt;=RA_SCAN_STEP_MS) {
+            relayLastScanStep=now;
+            if (relayScanChannel &gt; 13) {
+                esp_wifi_set_channel(relayScanHomeChannel, WIFI_SECOND_CHAN_NONE);
+                relayScanChannel=1; relayScanRestUntil=now+RA_SCAN_REST_MS;
+            } else {
+                if (relayScanChannel==1) {
+                    uint8_t home=WiFi.channel();
+                    if (home&gt;=1 &amp;&amp; home&lt;=13) relayScanHomeChannel=home;
+                }
+                esp_wifi_set_channel(relayScanChannel, WIFI_SECOND_CHAN_NONE);
+                relayScanChannel++;
+            }
         }
     }
 }
@@ -2603,7 +2634,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             int pm = constrain((int)doc[&quot;proxMode&quot;], 0, 1);
             if (pm != proxMode) {
                 // Basic touch mode needs GPIO18 high-impedance; leaving it LOW would
-                // bias GPIO4 through the external 1M resistor on the standard D1 Mini32 node.
+                // bias GPIO4 through the external 1M resistor on a wired Road B node.
                 if (pm == 0) { digitalWrite(RC_DRIVE_PIN, LOW); pinMode(RC_DRIVE_PIN, INPUT); }
                 proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
             }
@@ -2719,8 +2750,9 @@ void sendHelloTo(uint8_t num) {
 }
 
 void localWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-    if (type == WStype_CONNECTED) { sendHelloTo(num); }
-    else if (type == WStype_TEXT) { JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 1, num); }
+    if (type == WStype_CONNECTED) { portalLastActiveAt=millis(); sendHelloTo(num); }
+    else if (type == WStype_DISCONNECTED) { portalLastActiveAt=millis(); }
+    else if (type == WStype_TEXT) { portalLastActiveAt=millis(); JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 1, num); }
 }
 
 void connectToApp(const String&amp; ip, int port) {
@@ -2786,6 +2818,8 @@ void setupNetwork() {
     WiFi.mode(WIFI_AP_STA);
     WiFi.setSleep(false);            // keep portal WebSocket/HTTP responsive during idle periods
     WiFi.softAP(&quot;SPECTER-NODE-01&quot;);
+    relayScanHomeChannel = WiFi.channel();
+    if (relayScanHomeChannel &lt; 1 || relayScanHomeChannel &gt; 13) relayScanHomeChannel = 1;
     relayAssistStart();
     WiFi.persistent(true);           // keep station config across reboots/brownouts
     // Manual reconnect policy below protects hotspot clients from AP+STA channel
@@ -3175,6 +3209,9 @@ void setupNetwork() {
 
     server.begin();
     localWS.begin(); localWS.onEvent(localWsEvent);
+    // Remove vanished browser sockets quickly so they cannot consume all five
+    // WebSocket slots or stall broadcast writes indefinitely.
+    localWS.enableHeartbeat(15000, 3000, 2);
 }
 
 void setup() {
