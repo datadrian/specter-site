@@ -399,7 +399,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.22-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.23-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -436,6 +436,10 @@
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
+#include &lt;esp_now.h&gt;
+#include &lt;esp_wifi.h&gt;
+#include &lt;mbedtls/md.h&gt;
+#include &lt;stddef.h&gt;
 #include &lt;math.h&gt;
 // ---- embedded portal pages (index + settings) ----
 // portal_pages.h - SPECTER maker-node portal, embedded so there is NO separate
@@ -517,6 +521,12 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;SPECTER Relay URL&lt;/label&gt;&lt;input type=text id=relay-url placeholder=&quot;Paste the relay address SPECTER shows (leave blank for LAN)&quot;&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Set this to connect to ONE SPECTER over the internet through a secure tunnel. Leave blank to use local-network discovery. Reboot after saving.&lt;/div&gt;
 &lt;div class=status id=relay-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=relay-save&gt;SAVE RELAY&lt;/button&gt;&lt;button id=relay-clear class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Relay Assist&lt;/h4&gt;&lt;div class=card&gt;
+&lt;label style=&quot;margin-top:2px&quot;&gt;&lt;input type=checkbox id=ra-on&gt; Enable peer routing&lt;/label&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin:4px 0 10px&quot;&gt;Direct Wi-Fi remains primary. If this Node cannot reach SPECTER, it can forward through one or two nearby Nodes using the same group key. Firmware updates still require direct Wi-Fi.&lt;/div&gt;
+&lt;label&gt;Relay group key&lt;/label&gt;&lt;input type=password id=ra-key minlength=12 maxlength=64 placeholder=&quot;12 to 64 characters; use the same key on all Nodes&quot;&gt;
+&lt;div class=status id=ra-route&gt;Route: -&lt;/div&gt;&lt;div class=status id=ra-status&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=ra-generate class=mini&gt;GENERATE KEY&lt;/button&gt;&lt;button id=ra-save&gt;SAVE RELAY ASSIST&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
 &lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
@@ -633,6 +643,10 @@ function relayStatus(){fetch(&#x27;/relay/get&#x27;).then(function(r){return r.j
 $(&#x27;relay-save&#x27;).onclick=function(){var u=$(&#x27;relay-url&#x27;).value.trim();$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Saving…&#x27;;$(&#x27;relay-save&#x27;).disabled=true;var body=new URLSearchParams({url:u});fetch(&#x27;/relay/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Saved.&#x27;)+&#x27; Reboot to apply.&#x27;;$(&#x27;relay-save&#x27;).disabled=false;relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Save failed&#x27;;$(&#x27;relay-save&#x27;).disabled=false})};
 $(&#x27;relay-clear&#x27;).onclick=function(){$(&#x27;relay-status&#x27;).className=&#x27;status&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clearing…&#x27;;fetch(&#x27;/relay/clear&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){$(&#x27;relay-url&#x27;).value=&#x27;&#x27;;$(&#x27;relay-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;relay-status&#x27;).textContent=(d.note||&#x27;Cleared.&#x27;);relayStatus()}).catch(function(){$(&#x27;relay-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;relay-status&#x27;).textContent=&#x27;Clear failed&#x27;})};
 relayStatus();
+function raStatus(){fetch(&#x27;/relay-assist/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;ra-on&#x27;).checked=!!d.enabled;var role=(d.role||&#x27;idle&#x27;).toUpperCase();var route=&#x27;Route: &#x27;+role+&#x27; · channel &#x27;+(d.channel||&#x27;-&#x27;)+&#x27; · quality &#x27;+(d.quality!=null?d.quality:&#x27;-&#x27;);if(d.parentNodeId)route+=&#x27; · via &#x27;+d.parentNodeId;if(d.depth)route+=&#x27; · &#x27;+d.depth+&#x27; hop&#x27;+(d.depth===1?&#x27;&#x27;:&#x27;s&#x27;);$(&#x27;ra-route&#x27;).textContent=route;$(&#x27;ra-status&#x27;).className=&#x27;status &#x27;+(d.started?&#x27;ok&#x27;:&#x27;&#x27;);$(&#x27;ra-status&#x27;).textContent=d.enabled?(d.configured?(d.started?&#x27;Relay Assist ready.&#x27;:&#x27;Saved; radio initialization pending.&#x27;):&#x27;Group key required.&#x27;):&#x27;Disabled.&#x27;}).catch(function(){$(&#x27;ra-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Could not read Relay Assist status&#x27;})}
+$(&#x27;ra-generate&#x27;).onclick=function(){var a=new Uint8Array(18);crypto.getRandomValues(a);$(&#x27;ra-key&#x27;).value=Array.from(a,function(b){return b.toString(16).padStart(2,&#x27;0&#x27;)}).join(&#x27;&#x27;);$(&#x27;ra-on&#x27;).checked=true};
+$(&#x27;ra-save&#x27;).onclick=function(){var enabled=$(&#x27;ra-on&#x27;).checked,key=$(&#x27;ra-key&#x27;).value.trim();if(enabled&amp;&amp;(key.length&lt;12||key.length&gt;64)){$(&#x27;ra-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Group key must be 12 to 64 characters.&#x27;;return}$(&#x27;ra-save&#x27;).disabled=true;$(&#x27;ra-status&#x27;).className=&#x27;status&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Saving...&#x27;;fetch(&#x27;/relay-assist/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({enabled:enabled?&#x27;1&#x27;:&#x27;0&#x27;,key:key})}).then(function(r){if(!r.ok)throw new Error(&#x27;save&#x27;);return r.json()}).then(function(){$(&#x27;ra-key&#x27;).value=&#x27;&#x27;;$(&#x27;ra-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Saved. Direct Wi-Fi remains primary.&#x27;;raStatus()}).catch(function(){$(&#x27;ra-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Save failed. Check the group key length.&#x27;}).then(function(){$(&#x27;ra-save&#x27;).disabled=false})};
+raStatus();setInterval(raStatus,3000);
 
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
@@ -704,7 +718,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.22-maker&quot;
+#define FW_VERSION   &quot;2.12.23-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -851,12 +865,15 @@ WebSocketsServer localWS(81);   // LOCAL_WS_PORT
 WebSocketsClient appWS;
 Preferences prefs;   // moved above performUpdate: it persists OTA-failure reason to NVS
 
+static void relayAssistStop();
+
 void performUpdate(const String&amp; url) {
   if (WiFi.status() != WL_CONNECTED) { updError = &quot;offline&quot;; return; }
   // Park the hardware task FIRST so no FastLED.show() runs during the TLS download
   // (its IRQ-disable windows corrupt the WiFi RX and fail the flash mid-stream).
   // Give it two task ticks to reach the guard and go quiet before we proceed.
   otaActive = true;
+  relayAssistStop();
   delay(120);
   // FREE HEAP FOR TLS: the firmware OTA is an HTTPS download, and its handshake
   // needs a big contiguous heap block. On a node that has been running a while,
@@ -2094,13 +2111,393 @@ uint32_t appLinkOkAt = 0;       // millis() of last CONNECTED / inbound frame
 String   targetSSID = &quot;&quot;, targetPASS = &quot;&quot;, targetAppIP = &quot;&quot;, relayUrl = &quot;&quot;;
 uint32_t bootMs = 0, seqNum = 0, lastTelemetry = 0, lastNet = 0;
 
+// ---- RELAY ASSIST (ESP-NOW, opt-in, direct Wi-Fi remains primary) ---------
+// ESP-NOW v1 payloads are limited to 250 bytes. The packed frame below is 244
+// bytes and carries compact sensor payloads or a minified command. Receive and
+// send callbacks only copy/update bounded state; all routing, JSON, WebSocket,
+// NVS, and command work runs from loop().
+#define RA_MAGIC 0x5352
+#define RA_VERSION 1
+#define RA_PAYLOAD_MAX 180
+#define RA_MAX_HOPS 2
+#define RA_ROUTE_STALE_MS 2800
+#define RA_GATEWAY_BEACON_MS 500
+#define RA_ROUTE_BEACON_MS 700
+#define RA_HELLO_MS 10000
+#define RA_RETRY_MS 140
+#define RA_MAX_RETRIES 3
+#define RA_FLAG_ACK_REQ 0x01
+
+enum RelayType : uint8_t {
+    RA_GATEWAY = 1, RA_ROUTE = 2, RA_HELLO = 3, RA_TELEMETRY = 4,
+    RA_NET = 5, RA_EVENT = 6, RA_COMMAND = 7, RA_APP_ACK = 8,
+    RA_LINK_ACK = 9, RA_PONG = 10
+};
+
+struct __attribute__((packed)) RelayPacket {
+    uint16_t magic;
+    uint8_t version, type, flags, ttl, hops;
+    uint32_t groupId, seq;
+    uint64_t originId, finalId, senderId, nextHopId, viaId;
+    uint8_t payloadLen;
+    uint8_t payload[RA_PAYLOAD_MAX];
+    uint8_t auth[8];
+};
+static_assert(sizeof(RelayPacket) &lt;= 250, &quot;Relay Assist frame exceeds ESP-NOW v1 limit&quot;);
+
+struct __attribute__((packed)) RaRoutePayload { uint64_t gatewayId; uint8_t depth, channel; };
+struct __attribute__((packed)) RaHelloPayload {
+    char fw[20], name[32]; uint8_t slot, hz;
+    int16_t magSens, magThreshold, proxThreshold;
+};
+struct __attribute__((packed)) RaTelemetryPayload {
+    uint32_t ts, sampleSeq;
+    int32_t prox, proxBase, proxDelta, proxThreshold, proxThresholdSet;
+    int32_t proxNoiseFloor, proxField, proxSpan, proxNoise;
+    int32_t rcCharge, rcBase, magDelta, magThreshold;
+    int16_t magX, magY, magZ, magSens, touchPin;
+    uint8_t slot, heartbeatOn, theremin, tone, proxMode, rcOk, rcFault;
+    uint8_t magOk, magDataOk, magType, hz;
+};
+struct __attribute__((packed)) RaNetPayload {
+    uint32_t ts, uptime, heap; int16_t rssi;
+    uint8_t clients, channel, routeDepth, quality;
+};
+struct __attribute__((packed)) RaEventPayload {
+    uint32_t ts; int32_t value, threshold; uint8_t channel, severity;
+};
+struct __attribute__((packed)) RaAppAckPayload { int32_t id; uint8_t ok; };
+struct __attribute__((packed)) RaPongPayload { uint32_t ts; };
+struct __attribute__((packed)) RaLinkAckPayload { uint64_t originId; uint32_t seq; };
+static_assert(sizeof(RaHelloPayload) &lt;= RA_PAYLOAD_MAX, &quot;Relay hello payload too large&quot;);
+static_assert(sizeof(RaTelemetryPayload) &lt;= RA_PAYLOAD_MAX, &quot;Relay telemetry payload too large&quot;);
+static_assert(sizeof(RaNetPayload) &lt;= RA_PAYLOAD_MAX, &quot;Relay net payload too large&quot;);
+static_assert(sizeof(RaEventPayload) &lt;= RA_PAYLOAD_MAX, &quot;Relay event payload too large&quot;);
+
+// Explicit declarations prevent the Arduino .ino preprocessor from emitting
+// invalid prototypes before the packed RelayPacket types above.
+static void raSign(RelayPacket&amp; p);
+static bool raVerify(const RelayPacket&amp; p);
+static RelayPacket raPacket(uint8_t type, uint64_t finalId, uint64_t nextHopId, bool critical);
+static void raTrackCritical(const RelayPacket&amp; packet);
+static bool raTransmit(RelayPacket packet, bool track);
+static void raAckLink(const RelayPacket&amp; packet);
+static bool raPop(RelayPacket&amp; packet);
+static void raEnvelopeBase(JsonDocument&amp; doc, const RelayPacket&amp; packet);
+static void raForwardToApp(const RelayPacket&amp; packet);
+static void raAcceptRoute(const RelayPacket&amp; packet, const RaRoutePayload&amp; candidate);
+static void raHandleCommandPacket(const RelayPacket&amp; packet);
+static void raProcessPacket(RelayPacket packet);
+
+struct RaInboxItem { RelayPacket packet; };
+static RaInboxItem raInbox[8];
+static volatile uint8_t raInboxHead = 0, raInboxTail = 0;
+static portMUX_TYPE raInboxMux = portMUX_INITIALIZER_UNLOCKED;
+
+struct RaSeen { uint64_t originId; uint32_t seq, at; };
+static RaSeen raSeen[24] = {};
+static uint8_t raSeenPos = 0;
+
+struct RaPending { bool active; RelayPacket packet; uint32_t nextAt; uint8_t attempts; };
+static RaPending raPending[4] = {};
+
+struct RaRouteState {
+    bool valid; uint64_t parentId, gatewayId; uint8_t depth, channel; uint32_t lastAt;
+};
+static RaRouteState raRoute = {};
+
+static bool relayAssistEnabled = false, relayAssistStarted = false;
+static char relayGroupKey[65] = {0};
+static uint32_t relayGroupId = 0, relayTxSeq = 1;
+static uint64_t relayLocalId = 0;
+static uint32_t relayLastGateway = 0, relayLastRoute = 0, relayLastHello = 0;
+static uint32_t relayLastScanStep = 0;
+static uint8_t relayScanChannel = 1;
+static uint32_t relayAuthDrops = 0, relayDuplicateDrops = 0, relayMetricWindowAt = 0;
+static volatile uint32_t relayRetryCount = 0;
+static const uint8_t RA_BROADCAST_MAC[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
+
+void handleCommand(JsonDocument&amp; doc, int src, uint8_t localNum);
+
+static void raIdToString(uint64_t id, char* out, size_t n) {
+    snprintf(out, n, &quot;SN-%04X%08X&quot;, (uint16_t)(id &gt;&gt; 32), (uint32_t)id);
+}
+static uint64_t raStringToId(const char* value) {
+    if (!value) return 0;
+    unsigned int hi = 0, lo = 0;
+    if (sscanf(value, &quot;SN-%4X%8X&quot;, &amp;hi, &amp;lo) != 2) return 0;
+    return ((uint64_t)(hi &amp; 0xffff) &lt;&lt; 32) | (uint32_t)lo;
+}
+static uint8_t raQuality() {
+    uint32_t now = millis();
+    if (!relayMetricWindowAt) relayMetricWindowAt = now;
+    if (now - relayMetricWindowAt &gt;= 30000) { relayMetricWindowAt = now; relayAuthDrops = 0; relayRetryCount = 0; }
+    uint32_t penalty = min((uint32_t)90, relayAuthDrops * 2 + relayRetryCount * 3);
+    return (uint8_t)(100 - penalty);
+}
+static void raDigest(const uint8_t* data, size_t len, uint8_t out[32]) {
+    const mbedtls_md_info_t* info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+    mbedtls_md_hmac(info, (const unsigned char*)relayGroupKey, strlen(relayGroupKey), data, len, out);
+}
+static uint32_t raGroupFromKey(const char* key) {
+    if (!key || strlen(key) &lt; 12) return 0;
+    uint8_t out[32];
+    const mbedtls_md_info_t* info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+    mbedtls_md(info, (const unsigned char*)key, strlen(key), out);
+    uint32_t id = 0; memcpy(&amp;id, out, sizeof(id)); return id;
+}
+static void raSign(RelayPacket&amp; p) {
+    memset(p.auth, 0, sizeof(p.auth));
+    uint8_t digest[32]; raDigest((const uint8_t*)&amp;p, offsetof(RelayPacket, auth), digest);
+    memcpy(p.auth, digest, sizeof(p.auth));
+}
+static bool raVerify(const RelayPacket&amp; p) {
+    if (p.magic != RA_MAGIC || p.version != RA_VERSION || p.groupId != relayGroupId || p.payloadLen &gt; RA_PAYLOAD_MAX) return false;
+    RelayPacket copy = p; uint8_t wanted[8]; memcpy(wanted, p.auth, 8);
+    memset(copy.auth, 0, 8); uint8_t digest[32];
+    raDigest((const uint8_t*)&amp;copy, offsetof(RelayPacket, auth), digest);
+    uint8_t diff = 0; for (int i=0;i&lt;8;i++) diff |= wanted[i] ^ digest[i];
+    return diff == 0;
+}
+static bool raWasSeen(uint64_t originId, uint32_t seq) {
+    uint32_t now = millis();
+    for (const RaSeen&amp; item : raSeen) if (item.originId == originId &amp;&amp; item.seq == seq &amp;&amp; now - item.at &lt; 8000) return true;
+    raSeen[raSeenPos] = { originId, seq, now }; raSeenPos = (raSeenPos + 1) % 24; return false;
+}
+static RelayPacket raPacket(uint8_t type, uint64_t finalId, uint64_t nextHopId, bool critical) {
+    RelayPacket p = {};
+    p.magic = RA_MAGIC; p.version = RA_VERSION; p.type = type;
+    p.flags = critical ? RA_FLAG_ACK_REQ : 0; p.ttl = RA_MAX_HOPS; p.hops = 1;
+    p.groupId = relayGroupId; p.seq = relayTxSeq++;
+    p.originId = relayLocalId; p.finalId = finalId; p.senderId = relayLocalId; p.nextHopId = nextHopId;
+    return p;
+}
+static void raTrackCritical(const RelayPacket&amp; packet) {
+    if (!(packet.flags &amp; RA_FLAG_ACK_REQ)) return;
+    for (RaPending&amp; pending : raPending) {
+        if (!pending.active) { pending.active = true; pending.packet = packet; pending.attempts = 1; pending.nextAt = millis() + RA_RETRY_MS; return; }
+    }
+}
+static bool raTransmit(RelayPacket packet, bool track = false) {
+    if (!relayAssistStarted || relayGroupId == 0) return false;
+    packet.senderId = relayLocalId; packet.groupId = relayGroupId; raSign(packet);
+    esp_err_t result = esp_now_send(RA_BROADCAST_MAC, (const uint8_t*)&amp;packet, sizeof(packet));
+    if (result == ESP_OK &amp;&amp; track) raTrackCritical(packet);
+    return result == ESP_OK;
+}
+static void raAckLink(const RelayPacket&amp; packet) {
+    RelayPacket ack = raPacket(RA_LINK_ACK, packet.originId, 0, false);
+    RaLinkAckPayload payload = { packet.originId, packet.seq };
+    ack.payloadLen = sizeof(payload); memcpy(ack.payload, &amp;payload, sizeof(payload)); raTransmit(ack);
+}
+static void raClearPending(uint64_t originId, uint32_t seq) {
+    for (RaPending&amp; pending : raPending)
+        if (pending.active &amp;&amp; pending.packet.originId == originId &amp;&amp; pending.packet.seq == seq) pending.active = false;
+}
+static void raQueueCallback(const uint8_t*, const uint8_t* data, int len) {
+    if (len != (int)sizeof(RelayPacket)) return;
+    portENTER_CRITICAL(&amp;raInboxMux);
+    uint8_t next = (raInboxHead + 1) % 8;
+    if (next != raInboxTail) { memcpy(&amp;raInbox[raInboxHead].packet, data, sizeof(RelayPacket)); raInboxHead = next; }
+    portEXIT_CRITICAL(&amp;raInboxMux);
+}
+static void raSendCallback(const uint8_t*, esp_now_send_status_t status) {
+    if (status != ESP_NOW_SEND_SUCCESS) relayRetryCount++;
+}
+static bool raPop(RelayPacket&amp; packet) {
+    bool ok = false;
+    portENTER_CRITICAL(&amp;raInboxMux);
+    if (raInboxTail != raInboxHead) { packet = raInbox[raInboxTail].packet; raInboxTail = (raInboxTail + 1) % 8; ok = true; }
+    portEXIT_CRITICAL(&amp;raInboxMux); return ok;
+}
+static void relayAssistStop() {
+    if (relayAssistStarted) { esp_now_unregister_recv_cb(); esp_now_unregister_send_cb(); esp_now_deinit(); }
+    relayAssistStarted = false; raRoute = {}; for (RaPending&amp; p : raPending) p.active = false;
+}
+static void relayAssistStart() {
+    relayAssistStop();
+    if (!relayAssistEnabled || strlen(relayGroupKey) &lt; 12) return;
+    relayGroupId = raGroupFromKey(relayGroupKey); if (!relayGroupId) return;
+    if (esp_now_init() != ESP_OK) return;
+    esp_now_register_recv_cb(raQueueCallback); esp_now_register_send_cb(raSendCallback);
+    esp_now_peer_info_t peer = {}; memcpy(peer.peer_addr, RA_BROADCAST_MAC, 6);
+    peer.channel = 0; peer.encrypt = false; peer.ifidx = WIFI_IF_STA;
+    if (esp_now_add_peer(&amp;peer) != ESP_OK) { esp_now_deinit(); return; }
+    relayAssistStarted = true;
+}
+static void relayAssistLoad() {
+    Preferences rp; rp.begin(&quot;relayassist&quot;, true);
+    relayAssistEnabled = rp.getBool(&quot;enabled&quot;, false);
+    String key = rp.getString(&quot;key&quot;, &quot;&quot;); rp.end();
+    key.toCharArray(relayGroupKey, sizeof(relayGroupKey)); relayGroupId = raGroupFromKey(relayGroupKey);
+}
+static bool relayAssistSave(bool enabled, const String&amp; key) {
+    if (enabled &amp;&amp; (key.length() &lt; 12 || key.length() &gt; 64)) return false;
+    Preferences rp; if (!rp.begin(&quot;relayassist&quot;, false)) return false;
+    rp.putBool(&quot;enabled&quot;, enabled); rp.putString(&quot;key&quot;, enabled ? key : String(&quot;&quot;)); rp.end();
+    relayAssistEnabled = enabled;
+    (enabled ? key : String(&quot;&quot;)).toCharArray(relayGroupKey, sizeof(relayGroupKey));
+    relayGroupId = raGroupFromKey(relayGroupKey); relayAssistStart(); return true;
+}
+static void raSendRouteAdvert(uint8_t type, uint64_t gatewayId, uint8_t depth, uint8_t channel) {
+    RelayPacket p = raPacket(type, 0, 0, false); RaRoutePayload payload = { gatewayId, depth, channel };
+    p.payloadLen = sizeof(payload); memcpy(p.payload, &amp;payload, sizeof(payload)); raTransmit(p);
+}
+static void raSendHello() {
+    if (!raRoute.valid || isAppConnected) return;
+    RelayPacket p = raPacket(RA_HELLO, 0, raRoute.parentId, true); RaHelloPayload h = {};
+    strncpy(h.fw, FW_VERSION, sizeof(h.fw)-1); strncpy(h.name, nodeName, sizeof(h.name)-1);
+    h.slot = nodeSlot; h.hz = telemetryHz; h.magSens = magSens; h.magThreshold = threshMag; h.proxThreshold = threshProx;
+    p.payloadLen = sizeof(h); memcpy(p.payload, &amp;h, sizeof(h)); raTransmit(p, true); relayLastHello = millis();
+}
+static void raSendTelemetry(uint32_t now) {
+    if (!raRoute.valid || isAppConnected) return;
+    RelayPacket p = raPacket(RA_TELEMETRY, 0, raRoute.parentId, false); RaTelemetryPayload t = {};
+    t.ts=now; t.sampleSeq=seqNum; t.prox=proxVal; t.proxBase=baseProx; t.proxDelta=abs(baseProx-proxVal);
+    t.proxThreshold=effThreshProx; t.proxThresholdSet=threshProx; t.proxNoiseFloor=proxNoiseFloor; t.proxField=proxField;
+    t.proxSpan=proxSpan; t.proxNoise=proxNoise; t.rcCharge=rcCharge10; t.rcBase=rcBase10; t.magDelta=magDelta; t.magThreshold=threshMag;
+    t.magX=magX; t.magY=magY; t.magZ=magZ; t.magSens=magSens; t.touchPin=touchPin; t.slot=nodeSlot;
+    t.heartbeatOn=heartbeatEnabled; t.theremin=proxTheremin; t.tone=proxToneOn; t.proxMode=proxMode; t.rcOk=rcValid; t.rcFault=rcFault;
+    t.magOk=magPresent; t.magDataOk=magDataValid; t.magType=magType; t.hz=telemetryHz;
+    p.payloadLen=sizeof(t); memcpy(p.payload,&amp;t,sizeof(t)); raTransmit(p);
+}
+static void raSendNet(uint32_t now, uint8_t clients) {
+    if (!raRoute.valid || isAppConnected) return;
+    RelayPacket p=raPacket(RA_NET,0,raRoute.parentId,false); RaNetPayload n={};
+    n.ts=now; n.uptime=(now-bootMs)/1000; n.heap=ESP.getFreeHeap(); n.rssi=WiFi.status()==WL_CONNECTED?WiFi.RSSI():0;
+    n.clients=clients; n.channel=WiFi.channel(); n.routeDepth=raRoute.depth; n.quality=raQuality();
+    p.payloadLen=sizeof(n); memcpy(p.payload,&amp;n,sizeof(n)); raTransmit(p);
+}
+static uint8_t raSeverityCode(const char* value) { return !strcmp(value,&quot;high&quot;)?2:!strcmp(value,&quot;med&quot;)?1:0; }
+static const char* raSeverityName(uint8_t value) { return value&gt;=2?&quot;high&quot;:value==1?&quot;med&quot;:&quot;low&quot;; }
+static void raSendEvent(uint32_t now) {
+    if (!raRoute.valid || isAppConnected) return;
+    RelayPacket p=raPacket(RA_EVENT,0,raRoute.parentId,true); RaEventPayload e={};
+    e.ts=now; e.value=evtValue; e.threshold=evtThreshold; e.channel=!strcmp(evtChannel,&quot;mag&quot;)?1:0; e.severity=raSeverityCode(evtSeverity);
+    p.payloadLen=sizeof(e); memcpy(p.payload,&amp;e,sizeof(e)); raTransmit(p,true);
+}
+static void raSendAppAck(long id, bool ok) {
+    if (!raRoute.valid) return;
+    RelayPacket p=raPacket(RA_APP_ACK,0,raRoute.parentId,true); RaAppAckPayload a={(int32_t)id,(uint8_t)(ok?1:0)};
+    p.payloadLen=sizeof(a); memcpy(p.payload,&amp;a,sizeof(a)); raTransmit(p,true);
+}
+static void raSendPong() {
+    if (!raRoute.valid) return;
+    RelayPacket p=raPacket(RA_PONG,0,raRoute.parentId,false); RaPongPayload a={millis()};
+    p.payloadLen=sizeof(a); memcpy(p.payload,&amp;a,sizeof(a)); raTransmit(p);
+}
+static void raEnvelopeBase(JsonDocument&amp; doc, const RelayPacket&amp; packet) {
+    char origin[24], gateway[24], via[24]; raIdToString(packet.originId,origin,sizeof(origin)); raIdToString(relayLocalId,gateway,sizeof(gateway));
+    doc[&quot;t&quot;]=&quot;relay&quot;; doc[&quot;v&quot;]=1; doc[&quot;originNodeId&quot;]=origin; doc[&quot;relaySeq&quot;]=packet.seq; doc[&quot;hopCount&quot;]=packet.hops;
+    JsonArray path=doc[&quot;routePath&quot;].to&lt;JsonArray&gt;(); path.add(origin);
+    if (packet.hops&gt;1 &amp;&amp; packet.viaId &amp;&amp; packet.viaId!=packet.originId) { raIdToString(packet.viaId,via,sizeof(via)); path.add(via); }
+    path.add(gateway);
+    JsonObject link=doc[&quot;link&quot;].to&lt;JsonObject&gt;(); link[&quot;channel&quot;]=WiFi.channel(); link[&quot;quality&quot;]=raQuality();
+}
+static void raForwardToApp(const RelayPacket&amp; packet) {
+    if (!isAppConnected) return;
+    JsonDocument doc; raEnvelopeBase(doc,packet); JsonObject payload=doc[&quot;payload&quot;].to&lt;JsonObject&gt;();
+    char origin[24]; raIdToString(packet.originId,origin,sizeof(origin));
+    if (packet.type==RA_HELLO &amp;&amp; packet.payloadLen==sizeof(RaHelloPayload)) {
+        RaHelloPayload h; memcpy(&amp;h,packet.payload,sizeof(h)); payload[&quot;t&quot;]=&quot;hello&quot;; payload[&quot;device&quot;]=&quot;specter-node&quot;;
+        payload[&quot;deviceId&quot;]=origin; payload[&quot;nodeId&quot;]=origin; payload[&quot;slot&quot;]=h.slot; payload[&quot;fw&quot;]=h.fw; payload[&quot;name&quot;]=h.name; payload[&quot;hz&quot;]=h.hz; payload[&quot;mode&quot;]=&quot;relayed&quot;;
+        JsonArray caps=payload[&quot;caps&quot;].to&lt;JsonArray&gt;(); caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
+        JsonObject th=payload[&quot;thresholds&quot;].to&lt;JsonObject&gt;(); th[&quot;magSens&quot;]=h.magSens; th[&quot;mag&quot;]=h.magThreshold; th[&quot;prox&quot;]=h.proxThreshold;
+    } else if (packet.type==RA_TELEMETRY &amp;&amp; packet.payloadLen==sizeof(RaTelemetryPayload)) {
+        RaTelemetryPayload t; memcpy(&amp;t,packet.payload,sizeof(t)); payload[&quot;t&quot;]=&quot;telemetry&quot;; payload[&quot;ts&quot;]=t.ts; payload[&quot;seq&quot;]=t.sampleSeq; payload[&quot;nodeId&quot;]=origin; payload[&quot;slot&quot;]=t.slot;
+        payload[&quot;heartbeatOn&quot;]=(bool)t.heartbeatOn; payload[&quot;prox&quot;]=t.prox; payload[&quot;proxBase&quot;]=t.proxBase; payload[&quot;proxDelta&quot;]=t.proxDelta; payload[&quot;proxThr&quot;]=t.proxThreshold; payload[&quot;proxThrSet&quot;]=t.proxThresholdSet; payload[&quot;proxNoiseFloor&quot;]=t.proxNoiseFloor; payload[&quot;proxField&quot;]=t.proxField; payload[&quot;theremin&quot;]=(bool)t.theremin; payload[&quot;thermTone&quot;]=(bool)t.tone; payload[&quot;proxSpan&quot;]=t.proxSpan; payload[&quot;proxNoise&quot;]=t.proxNoise; payload[&quot;proxMode&quot;]=t.proxMode; payload[&quot;rcCharge&quot;]=t.rcCharge; payload[&quot;rcBase&quot;]=t.rcBase; payload[&quot;rcOk&quot;]=(bool)t.rcOk; payload[&quot;rcFault&quot;]=t.rcFault; payload[&quot;rcDrivePin&quot;]=RC_DRIVE_PIN; payload[&quot;rcSensePin&quot;]=RC_SENSE_PIN;
+        JsonObject mag=payload[&quot;mag&quot;].to&lt;JsonObject&gt;(); mag[&quot;x&quot;]=t.magX; mag[&quot;y&quot;]=t.magY; mag[&quot;z&quot;]=t.magZ; payload[&quot;magDelta&quot;]=t.magDelta; payload[&quot;magThr&quot;]=t.magThreshold; payload[&quot;magSens&quot;]=t.magSens; payload[&quot;magOk&quot;]=(bool)t.magOk; payload[&quot;magDataOk&quot;]=(bool)t.magDataOk; payload[&quot;magChip&quot;]=t.magType==3?&quot;HMC5883L&quot;:t.magType==2?&quot;QMC5883P&quot;:t.magType==1?&quot;QMC5883L&quot;:&quot;none&quot;; payload[&quot;hz&quot;]=t.hz;
+    } else if (packet.type==RA_NET &amp;&amp; packet.payloadLen==sizeof(RaNetPayload)) {
+        RaNetPayload n; memcpy(&amp;n,packet.payload,sizeof(n)); payload[&quot;t&quot;]=&quot;net&quot;; payload[&quot;ts&quot;]=n.ts; payload[&quot;rssi&quot;]=n.rssi; payload[&quot;uptime&quot;]=n.uptime; payload[&quot;clients&quot;]=n.clients; payload[&quot;heap&quot;]=n.heap; payload[&quot;ssid&quot;]=&quot;RELAY ASSIST&quot;; payload[&quot;magOk&quot;]=true;
+    } else if (packet.type==RA_EVENT &amp;&amp; packet.payloadLen==sizeof(RaEventPayload)) {
+        RaEventPayload e; memcpy(&amp;e,packet.payload,sizeof(e)); payload[&quot;t&quot;]=&quot;event&quot;; payload[&quot;ts&quot;]=e.ts; payload[&quot;kind&quot;]=e.channel?&quot;mag_anomaly&quot;:&quot;proximity&quot;; payload[&quot;channel&quot;]=e.channel?&quot;mag&quot;:&quot;prox&quot;; payload[&quot;value&quot;]=e.value; payload[&quot;threshold&quot;]=e.threshold; payload[&quot;severity&quot;]=raSeverityName(e.severity);
+    } else if (packet.type==RA_APP_ACK &amp;&amp; packet.payloadLen==sizeof(RaAppAckPayload)) {
+        RaAppAckPayload a; memcpy(&amp;a,packet.payload,sizeof(a)); payload[&quot;t&quot;]=&quot;ack&quot;; payload[&quot;id&quot;]=a.id; payload[&quot;ok&quot;]=(bool)a.ok;
+    } else if (packet.type==RA_PONG &amp;&amp; packet.payloadLen==sizeof(RaPongPayload)) {
+        RaPongPayload a; memcpy(&amp;a,packet.payload,sizeof(a)); payload[&quot;t&quot;]=&quot;pong&quot;; payload[&quot;ts&quot;]=a.ts;
+    } else return;
+    String out; serializeJson(doc,out); appWS.sendTXT(out);
+}
+static void raAcceptRoute(const RelayPacket&amp; packet, const RaRoutePayload&amp; candidate) {
+    if (isAppConnected || candidate.depth &gt;= RA_MAX_HOPS || packet.senderId == relayLocalId) return;
+    uint8_t depth = candidate.depth + 1; uint32_t now=millis();
+    bool expired=!raRoute.valid || now-raRoute.lastAt&gt;RA_ROUTE_STALE_MS;
+    bool better=expired || depth&lt;raRoute.depth || (depth==raRoute.depth &amp;&amp; candidate.gatewayId&lt;raRoute.gatewayId);
+    bool same=raRoute.valid &amp;&amp; raRoute.parentId==packet.senderId &amp;&amp; raRoute.gatewayId==candidate.gatewayId;
+    if (better || same) {
+        bool changed=!raRoute.valid || raRoute.parentId!=packet.senderId || raRoute.gatewayId!=candidate.gatewayId || raRoute.depth!=depth;
+        raRoute={true,packet.senderId,candidate.gatewayId,depth,candidate.channel,now};
+        if (changed) { relayLastHello=0; raSendHello(); }
+    }
+}
+static void raHandleCommandPacket(const RelayPacket&amp; packet) {
+    if (packet.finalId != relayLocalId || packet.payloadLen==0 || packet.payloadLen&gt;RA_PAYLOAD_MAX) return;
+    JsonDocument doc; if (deserializeJson(doc,packet.payload,packet.payloadLen)) return;
+    handleCommand(doc,2,0);
+}
+static void raProcessPacket(RelayPacket packet) {
+    if (!raVerify(packet) || packet.originId==relayLocalId) { if (packet.originId!=relayLocalId) relayAuthDrops++; return; }
+    if (packet.type==RA_LINK_ACK &amp;&amp; packet.payloadLen==sizeof(RaLinkAckPayload)) {
+        RaLinkAckPayload ack; memcpy(&amp;ack,packet.payload,sizeof(ack)); raClearPending(ack.originId,ack.seq); return;
+    }
+    bool addressed=(packet.nextHopId==0 || packet.nextHopId==relayLocalId || packet.finalId==relayLocalId);
+    if (!addressed) return;
+    if (packet.flags&amp;RA_FLAG_ACK_REQ) raAckLink(packet); // ack retries even if duplicate
+    if (raWasSeen(packet.originId,packet.seq)) { relayDuplicateDrops++; return; }
+    if ((packet.type==RA_GATEWAY || packet.type==RA_ROUTE) &amp;&amp; packet.payloadLen==sizeof(RaRoutePayload)) {
+        RaRoutePayload route; memcpy(&amp;route,packet.payload,sizeof(route)); raAcceptRoute(packet,route); return;
+    }
+    if (packet.type==RA_COMMAND) {
+        if (packet.finalId==relayLocalId) { raHandleCommandPacket(packet); return; }
+        if (packet.ttl&gt;0) { packet.ttl--; packet.hops++; packet.senderId=relayLocalId; packet.nextHopId=0; if (!packet.viaId) packet.viaId=relayLocalId; raTransmit(packet,true); }
+        return;
+    }
+    if (packet.finalId==0 &amp;&amp; packet.nextHopId==relayLocalId) {
+        if (isAppConnected) raForwardToApp(packet);
+        else if (raRoute.valid &amp;&amp; packet.ttl&gt;0) {
+            packet.ttl--; packet.hops++; packet.senderId=relayLocalId; packet.nextHopId=raRoute.parentId; packet.viaId=relayLocalId; raTransmit(packet,(packet.flags&amp;RA_FLAG_ACK_REQ)!=0);
+        }
+    }
+}
+static bool raGatewaySendCommand(JsonDocument&amp; envelope) {
+    if (!relayAssistStarted || !isAppConnected) return false;
+    uint64_t target=raStringToId(envelope[&quot;targetNodeId&quot;] | &quot;&quot;); if (!target) return false;
+    String command; serializeJson(envelope[&quot;payload&quot;],command); if (!command.length() || command.length()&gt;RA_PAYLOAD_MAX) return false;
+    RelayPacket p=raPacket(RA_COMMAND,target,0,true); p.payloadLen=command.length(); memcpy(p.payload,command.c_str(),p.payloadLen); return raTransmit(p,true);
+}
+static void relayAssistLoop() {
+    if (!relayAssistStarted) return;
+    uint32_t now=millis(); RelayPacket packet; int budget=8; while (budget-- &amp;&amp; raPop(packet)) raProcessPacket(packet);
+    for (RaPending&amp; pending : raPending) if (pending.active &amp;&amp; (int32_t)(now-pending.nextAt)&gt;=0) {
+        if (pending.attempts&gt;=RA_MAX_RETRIES) { pending.active=false; relayRetryCount++; }
+        else { pending.attempts++; pending.nextAt=now+RA_RETRY_MS*pending.attempts; RelayPacket retry=pending.packet; raTransmit(retry,false); }
+    }
+    if (isAppConnected) {
+        raRoute={};
+        if (now-relayLastGateway&gt;=RA_GATEWAY_BEACON_MS) { relayLastGateway=now; raSendRouteAdvert(RA_GATEWAY,relayLocalId,0,WiFi.channel()); }
+    } else {
+        if (raRoute.valid &amp;&amp; now-raRoute.lastAt&gt;RA_ROUTE_STALE_MS) { raRoute={}; relayLastHello=0; }
+        if (raRoute.valid &amp;&amp; raRoute.depth&lt;RA_MAX_HOPS &amp;&amp; now-relayLastRoute&gt;=RA_ROUTE_BEACON_MS) { relayLastRoute=now; raSendRouteAdvert(RA_ROUTE,raRoute.gatewayId,raRoute.depth,raRoute.channel); }
+        if (raRoute.valid &amp;&amp; now-relayLastHello&gt;=RA_HELLO_MS) raSendHello();
+        // Nodes that cannot associate with the hotspot scan all 2.4 GHz channels
+        // only when nobody is using the local portal. Direct Wi-Fi gets the first
+        // 20 seconds after boot and periodic retry windows; a found route locks the channel.
+        if (!raRoute.valid &amp;&amp; WiFi.status()!=WL_CONNECTED &amp;&amp; WiFi.softAPgetStationNum()==0 &amp;&amp; now-bootMs&gt;20000 &amp;&amp; now-relayLastScanStep&gt;=180) {
+            relayLastScanStep=now; esp_wifi_set_channel(relayScanChannel,WIFI_SECOND_CHAN_NONE); relayScanChannel=relayScanChannel&gt;=13?1:relayScanChannel+1;
+        }
+    }
+}
+
 void sendHello() {
     JsonDocument doc;
     doc[&quot;t&quot;] = &quot;hello&quot;; doc[&quot;device&quot;] = DEVICE_TYPE; doc[&quot;deviceId&quot;] = stableNodeId; doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot; doc[&quot;fw&quot;] = FW_VERSION;
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
-    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;);
+    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
     doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;;
+    JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;();
+    relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId;
+    relay[&quot;role&quot;] = isAppConnected ? &quot;gateway&quot; : (raRoute.valid ? &quot;relayed&quot; : &quot;idle&quot;); relay[&quot;depth&quot;] = raRoute.depth;
     JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
     th[&quot;magSens&quot;] = magSens; th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
     String out; serializeJson(doc, out); appWS.sendTXT(out);
@@ -2119,7 +2516,8 @@ void sendAck(int src, long id, bool ok, uint8_t localNum) {
     JsonDocument a; a[&quot;t&quot;] = &quot;ack&quot;; a[&quot;id&quot;] = id; a[&quot;ok&quot;] = ok;
     String out; serializeJson(a, out);
     if (src == 0) { if (isAppConnected) appWS.sendTXT(out); }
-    else          { localWS.sendTXT(localNum, out); }
+    else if (src == 1) { localWS.sendTXT(localNum, out); }
+    else if (src == 2) { raSendAppAck(id, ok); }
 }
 
 void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
@@ -2130,8 +2528,15 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     // app assumes the hardware didn&#x27;t fire and drops to the synthetic fallback.
     long ackId = doc[&quot;id&quot;] | -1;
     if (!strcmp(cmd, &quot;ping&quot;)) {
-        JsonDocument p; p[&quot;t&quot;] = &quot;pong&quot;; p[&quot;ts&quot;] = millis();
-        String out; serializeJson(p, out); if (isAppConnected) appWS.sendTXT(out);
+        if (src == 2) raSendPong();
+        else { JsonDocument p; p[&quot;t&quot;] = &quot;pong&quot;; p[&quot;ts&quot;] = millis(); String out; serializeJson(p, out); if (isAppConnected) appWS.sendTXT(out); }
+    } else if (!strcmp(cmd, &quot;setRelayAssist&quot;)) {
+        bool enabled = doc[&quot;enabled&quot;] | false; String key = doc[&quot;key&quot;] | &quot;&quot;;
+        // A direct app command can safely change the key. A relayed command is
+        // refused before any NVS/radio mutation because changing the active key
+        // mid-route would cut off its own acknowledgement and strand the Node.
+        bool ok = (src != 2) ? relayAssistSave(enabled, key) : false;
+        sendAck(src, ackId, ok, localNum);
     } else if (!strcmp(cmd, &quot;setThreshold&quot;)) {
         const char* ch = doc[&quot;channel&quot;] | &quot;&quot;; int val = doc[&quot;value&quot;] | 0;
         if (!strcmp(ch, &quot;mag&quot;))  magSens = constrain(val, 0, 100);   // mag slider is 0..100 sensitivity
@@ -2257,7 +2662,11 @@ void appWsEvent(WStype_t type, uint8_t* payload, size_t length) {
     }
     else if (type == WStype_TEXT) {
         appLinkOkAt = millis();
-        JsonDocument doc; if (!deserializeJson(doc, payload, length)) handleCommand(doc, 0, 0);
+        JsonDocument doc;
+        if (!deserializeJson(doc, payload, length)) {
+            if (doc[&quot;t&quot;] == &quot;relayCmd&quot;) raGatewaySendCommand(doc);
+            else handleCommand(doc, 0, 0);
+        }
     }
 }
 void sendHelloTo(uint8_t num) {
@@ -2266,8 +2675,9 @@ void sendHelloTo(uint8_t num) {
     doc[&quot;t&quot;] = &quot;hello&quot;; doc[&quot;device&quot;] = DEVICE_TYPE; doc[&quot;deviceId&quot;] = stableNodeId; doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot; doc[&quot;fw&quot;] = FW_VERSION;
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
-    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;);
+    caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
     doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;;
+    JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;(); relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId; relay[&quot;depth&quot;] = raRoute.depth;
     JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
     th[&quot;magSens&quot;] = magSens; th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
     String out; serializeJson(doc, out); localWS.sendTXT(num, out);
@@ -2337,9 +2747,11 @@ void setupNetwork() {
     if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;SPECTER Node A&quot;, sizeof(nodeName));
     prefs.end();
 
+    relayLocalId = ESP.getEfuseMac(); relayAssistLoad();
     WiFi.mode(WIFI_AP_STA);
     WiFi.setSleep(false);            // keep portal WebSocket/HTTP responsive during idle periods
     WiFi.softAP(&quot;SPECTER-NODE-01&quot;);
+    relayAssistStart();
     WiFi.persistent(true);           // keep station config across reboots/brownouts
     // Manual reconnect policy below protects hotspot clients from AP+STA channel
     // changes. ESP32 auto-reconnect can silently move the AP channel and strand
@@ -2473,6 +2885,21 @@ void setupNetwork() {
         JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;enabled&quot;] = heartbeatEnabled;
         char hx[8]; snprintf(hx, sizeof(hx), &quot;%06X&quot;, heartbeatColor); d[&quot;color&quot;] = hx;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+
+    // ---- RELAY ASSIST (ESP-NOW peer routing) --------------------------------
+    server.on(&quot;/relay-assist/status&quot;, []() {
+        JsonDocument d; d[&quot;enabled&quot;] = relayAssistEnabled; d[&quot;configured&quot;] = strlen(relayGroupKey) &gt;= 12; d[&quot;groupId&quot;] = relayGroupId;
+        d[&quot;started&quot;] = relayAssistStarted; d[&quot;channel&quot;] = WiFi.channel(); d[&quot;quality&quot;] = raQuality();
+        d[&quot;role&quot;] = isAppConnected ? &quot;gateway&quot; : (raRoute.valid ? &quot;relayed&quot; : &quot;idle&quot;); d[&quot;depth&quot;] = raRoute.depth;
+        if (raRoute.valid) { char parent[24], gateway[24]; raIdToString(raRoute.parentId,parent,sizeof(parent)); raIdToString(raRoute.gatewayId,gateway,sizeof(gateway)); d[&quot;parentNodeId&quot;] = parent; d[&quot;gatewayNodeId&quot;] = gateway; }
+        String out; serializeJson(d,out); server.send(200,&quot;application/json&quot;,out);
+    });
+    server.on(&quot;/relay-assist/save&quot;, HTTP_POST, []() {
+        bool enabled = server.hasArg(&quot;enabled&quot;) &amp;&amp; (server.arg(&quot;enabled&quot;) == &quot;1&quot; || server.arg(&quot;enabled&quot;) == &quot;true&quot;);
+        String key = server.hasArg(&quot;key&quot;) ? server.arg(&quot;key&quot;) : &quot;&quot;; key.trim();
+        if (enabled &amp;&amp; (key.length() &lt; 12 || key.length() &gt; 64)) { server.send(400,&quot;application/json&quot;,&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;key-length\&quot;}&quot;); return; }
+        bool ok = relayAssistSave(enabled,key); server.send(ok?200:500,&quot;application/json&quot;,ok?&quot;{\&quot;ok\&quot;:true}&quot;:&quot;{\&quot;ok\&quot;:false}&quot;);
     });
 
     // ---- INTERNET RELAY URL (Cloudflare tunnel to one SPECTER instance) -----
@@ -2724,7 +3151,7 @@ void setup() {
 }
 
 void loop() {
-    server.handleClient(); localWS.loop(); appWS.loop();
+    server.handleClient(); localWS.loop(); appWS.loop(); relayAssistLoop();
     uint32_t now = millis();
     uint32_t period = 1000 / (telemetryHz &gt; 0 ? telemetryHz : TELEMETRY_HZ_DEFAULT);
 
@@ -2751,6 +3178,7 @@ void loop() {
         doc[&quot;hz&quot;] = telemetryHz;
         String out; serializeJson(doc, out);
         if (isAppConnected) appWS.sendTXT(out);
+        else raSendTelemetry(now);
         localWS.broadcastTXT(out);
 
         if (eventPending) {
@@ -2759,6 +3187,7 @@ void loop() {
             e[&quot;value&quot;] = evtValue; e[&quot;threshold&quot;] = evtThreshold; e[&quot;severity&quot;] = evtSeverity;
             String eo; serializeJson(e, eo);
             if (isAppConnected) appWS.sendTXT(eo);
+            else raSendEvent(now);
             localWS.broadcastTXT(eo);
             eventPending = false;
         }
@@ -2772,8 +3201,9 @@ void loop() {
     // reconnect while a hotspot client is attached. When unattended, retry once
     // per minute so field-network recovery remains automatic without thrashing.
     uint8_t apClientsNow = WiFi.softAPgetStationNum();
+    const uint32_t wifiRetryMs = raRoute.valid ? 300000 : 60000;
     if (targetSSID.length() &gt; 0 &amp;&amp; WiFi.status() != WL_CONNECTED
-        &amp;&amp; apClientsNow == 0 &amp;&amp; now - lastWifiTry &gt;= 60000) {
+        &amp;&amp; apClientsNow == 0 &amp;&amp; now - lastWifiTry &gt;= wifiRetryMs) {
         lastWifiTry = now;
         WiFi.begin(targetSSID.c_str(), targetPASS.c_str());
     }
@@ -2820,6 +3250,7 @@ void loop() {
         n[&quot;heap&quot;] = ESP.getFreeHeap(); n[&quot;magOk&quot;] = magPresent;
         String no; serializeJson(n, no);
         if (isAppConnected) appWS.sendTXT(no);
+        else raSendNet(now, apClientsNow);
         localWS.broadcastTXT(no);
     }
 }
