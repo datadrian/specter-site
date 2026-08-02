@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.35-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.36-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -784,7 +784,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.35-maker&quot;
+#define FW_VERSION   &quot;2.12.36-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1068,6 +1068,11 @@ volatile int      diagPulseBrg  = 0;      // bearing deg for the mag-lobe test
 volatile bool     diagPulseMaxBrightness = false; // explicit all-node proximity override
 volatile int      diagStopReq   = 0;      // set by a diag &quot;stop&quot; frame to end a pulse early
 volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert detection until this millis()
+volatile bool     diagAnimActive = false;
+volatile bool     diagAnimReleasing = false;
+volatile uint32_t diagAnimStart = 0;
+volatile uint32_t diagAnimUntil = 0;
+volatile uint32_t diagAnimReleaseStart = 0;
                                           // (a commanded diag pulse actuates LEDs/buzzer and physically
                                           //  perturbs the sensors; without this the node re-fires off its
                                           //  own drive, sputtering on/off at low level).
@@ -1162,7 +1167,7 @@ volatile bool     rcSaturated = false;              // majority charge timeouts 
 volatile uint32_t rcSaturatedAt = 0;                // sustained saturation eventually becomes a real fault
 #define RC_SATURATION_MAX_MS 5000
 #define PROX_MIN_ALERT_MS_DEFAULT 350
-#define RC_SATURATION_ARM_READS 2
+#define RC_SATURATION_ARM_READS 4
 #define RC_SATURATION_CLEAR_READS 10
 #define RC_QUICK_REBASE_SAMPLES 9
 volatile bool     rcQuickRebaseArmed = false;
@@ -1838,43 +1843,58 @@ void hardwareTask(void* pv) {
             }
         }
         // ---- Diagnostic actuator pulse (commanded self-test) ----------------
-        // Drives the ring + buzzer for the requested window using the same
-        // render/tone path as a live reading, then returns to idle. This is the
-        // hook the field diagnostics sweep uses to confirm the actuators work.
+        // Nonblocking actuator animation. The old implementation held this
+        // hardware task inside a while/delay loop for up to 30 seconds, which
+        // stopped RC/magnetometer reads and made the app sensor panel freeze.
+        // Advance one animation frame per normal hardwareTask iteration instead.
+        uint32_t animNow = millis();
         if (diagPulseReq) {
             diagPulseReq = 0;
-            diagStopReq  = 0;   // fresh pulse: clear any stale stop request
-            uint32_t d0 = millis();
-            // Suppress the node&#x27;s OWN alert detection during the pulse: the LED
-            // ring + buzzer we are about to drive physically nudge the mag/prox
-            // sensors, and we must not let the node fire an &quot;alert&quot; off its own
-            // commanded actuation (that caused the low-level on/off sputter).
-            diagQuietUntil = d0 + diagPulseMs + 400;
-            uint32_t hold = diagPulseMs; if (hold &lt; 50) hold = 50;
-            // ENVELOPE: a synthetic hit should feel ALIVE, not a flat on/off block.
-            // We shape the drive level with an attack ramp, a gentle oscillation
-            // (&quot;breathing&quot; + subtle flicker) while it&#x27;s held/re-triggered, and a
-            // smooth decay once it stops being triggered. env 0..1 multiplies the
-            // commanded level so both mag and prox channels ebb and flow naturally.
-            uint32_t pulseStart = d0;          // when this hit began (across re-triggers)
-            const uint32_t ATTACK_MS = 350;    // ramp up to full
-            const uint32_t RELEASE_MS = 700;   // fade out after the last trigger
-            while (millis() - d0 &lt; hold) {
-                // Re-read the commanded bearing + level EVERY frame so dragging the
-                // operator&#x27;s magnetic control steers the lit lobe LIVE (point-and-drag) without
-                // needing a full pulse restart per move. The app streams fresh frames
-                // as the finger moves; each just updates diagPulseBrg/Int here.
-                float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
-                // --- attack ramp: ease in over ATTACK_MS from the pulse start ---
-                uint32_t age = millis() - pulseStart;
-                float env = (age &lt; ATTACK_MS) ? (float)age / (float)ATTACK_MS : 1.0f;
-                // --- living oscillation: a slow breath (~1.4 Hz) + a faster, smaller
-                //     shimmer (~5 Hz) so a sustained hit wavers like a real reading. ---
+            diagStopReq = 0;
+            if (!diagAnimActive) diagAnimStart = animNow;
+            // A fresh streamed drive frame preempts a release fade and keeps
+            // the current hit alive without restarting its attack envelope.
+            diagAnimReleasing = false;
+            diagAnimActive = true;
+            diagAnimUntil = animNow + max((uint32_t)50, (uint32_t)diagPulseMs);
+            diagQuietUntil = diagAnimUntil + 400;
+        }
+        if (diagStopReq &amp;&amp; diagAnimActive) {
+            diagStopReq = 0;
+            diagAnimReleasing = true;
+            diagAnimReleaseStart = animNow;
+            diagQuietUntil = animNow + 1100;
+        }
+        if (diagAnimActive) {
+            const uint32_t ATTACK_MS = 350;
+            const uint32_t RELEASE_MS = 700;
+            float env = 0.0f;
+            if (!diagAnimReleasing &amp;&amp; (int32_t)(animNow - diagAnimUntil) &gt;= 0) {
+                diagAnimReleasing = true;
+                diagAnimReleaseStart = animNow;
+                diagQuietUntil = animNow + RELEASE_MS + 400;
+            }
+            if (diagAnimReleasing) {
+                uint32_t re = animNow - diagAnimReleaseStart;
+                if (re &gt;= RELEASE_MS) {
+                    diagAnimActive = false;
+                    noTone(BUZZER_PIN);
+                    ledIdle(); ledShow();
+                } else {
+                    float k = 1.0f - (float)re / (float)RELEASE_MS;
+                    env = k * k;
+                }
+            } else {
+                uint32_t age = animNow - diagAnimStart;
+                env = age &lt; ATTACK_MS ? (float)age / (float)ATTACK_MS : 1.0f;
                 float t = age * 0.001f;
-                float breath = 0.82f + 0.18f * sinf(t * 8.8f);      // ~1.4 Hz, 0.64..1.0
-                float shimmer = 1.0f + 0.06f * sinf(t * 31.4f);     // ~5 Hz fine flicker
-                env *= breath * shimmer;
+                env *= 0.82f + 0.18f * sinf(t * 8.8f);
+                env *= 1.0f + 0.06f * sinf(t * 31.4f);
+            }
+            if (diagAnimActive) {
+                if (env &lt; 0.0f) env = 0.0f;
                 if (env &gt; 1.0f) env = 1.0f;
+                float lvl = diagPulseInt; if (lvl &lt; 0.05f) lvl = 0.05f;
                 float drive = lvl * env;
                 float rad = (diagPulseBrg - 90) * 0.01745329f;
                 int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
@@ -1883,58 +1903,10 @@ void hardwareTask(void* pv) {
                     tone(BUZZER_PIN, 1500 + (int)(drive * 400), 30);
                 } else {
                     renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
-                    int hz = 500 + (int)(drive * drive * 1500.0f);
-                    tone(BUZZER_PIN, hz, 30);
+                    tone(BUZZER_PIN, 500 + (int)(drive * drive * 1500.0f), 30);
                 }
                 FastLED.setBrightness(diagPulseMaxBrightness ? 255 : ledCfg.bright); ledShow();
-                delay(20);
-                // A newer frame that only moves the dial (same channel) extends the
-                // hold + updates bearing WITHOUT a visible restart; a stop ends it.
-                if (diagStopReq) { diagStopReq = 0; break; }
-                if (diagPulseReq) {
-                    // consume the queued frame in-place: keep sweeping, refresh the
-                    // hold window so a continuous drag never times out mid-gesture.
-                    // NOTE: we do NOT reset pulseStart, so the attack/oscillation
-                    // phase continues smoothly across a held/re-triggered hit.
-                    diagPulseReq = 0;
-                    d0 = millis();
-                    hold = diagPulseMs; if (hold &lt; 50) hold = 50;
-                    diagQuietUntil = d0 + hold + 400;
-                }
             }
-            // ---- RELEASE: ramp DOWN smoothly instead of a hard cut, so the hit
-            //      fades out naturally once it&#x27;s no longer being triggered. We keep
-            //      the last bearing and let both channels decay to black. A fresh
-            //      pulse request during the fade aborts it (the new hit takes over). ----
-            {
-                uint32_t rStart = millis();
-                diagQuietUntil = rStart + RELEASE_MS + 400;   // keep self-detect suppressed through the fade
-                float rad = (diagPulseBrg - 90) * 0.01745329f;
-                int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
-                float startLvl = diagPulseInt; if (startLvl &lt; 0.05f) startLvl = 0.05f;
-                while (true) {
-                    uint32_t re = millis() - rStart;
-                    if (re &gt;= RELEASE_MS) break;
-                    if (diagPulseReq || diagStopReq) break;   // a new hit / stop preempts the fade
-                    float k = 1.0f - (float)re / (float)RELEASE_MS;   // 1 -&gt; 0
-                    k = k * k;                                        // ease-out (quadratic)
-                    float t = (rStart + re) * 0.001f;
-                    float breath = 0.82f + 0.18f * sinf(t * 8.8f);
-                    float drive = startLvl * k * breath;
-                    if (diagPulseChan == 1) {
-                        renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f * k + drive * 0.65f);
-                    } else {
-                        renderProxFade(ledCfg.proxColor, drive * 1.05f);
-                    }
-                    FastLED.setBrightness(diagPulseMaxBrightness ? 255 : ledCfg.bright); ledShow();
-                    // taper the tone down with the light for a cohesive fade
-                    if ((re / 60) % 2 == 0) tone(BUZZER_PIN, 500 + (int)(drive * 1200), 40);
-                    delay(24);
-                }
-            }
-            noTone(BUZZER_PIN);
-            ledIdle(); ledShow();
-            diagQuietUntil = millis() + 400;   // brief settle after the pulse ends
         }
         // A requested rebaseline reruns the complete RC learning window on the
         // hardware core. This safely adapts after an antenna or resistor change.
