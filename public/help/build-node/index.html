@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.31-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.32-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -592,8 +592,10 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;input type=range id=cadence-alert min=0.5 max=30 step=0.5 style=&quot;width:100%&quot;&gt;
 &lt;label&gt;Cooldown duration (seconds) &lt;span class=val id=cadence-cooldown-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;input type=range id=cadence-cooldown min=0 max=30 step=0.5 style=&quot;width:100%&quot;&gt;
+&lt;label&gt;De-glitch (ms, filters instant noise spikes) &lt;span class=val id=cadence-arm-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=cadence-arm min=0 max=800 step=10 style=&quot;width:100%&quot;&gt;
 &lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=cadence-apply class=mini&gt;APPLY CADENCE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=cadence-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Alert duration is how long the beep/flash/event stays active once triggered (default 6s). Cooldown is the quiet window enforced right after (default 6s). Trigger threshold currently effective: &lt;b id=cadence-eff-v&gt;-&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz id=cadence-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Alert duration is how long the beep/flash/event stays active once triggered (default 6s). Cooldown is the quiet window enforced right after (default 6s). De-glitch requires the raw signal to sustain past threshold for this long before arming, so a one-cycle RF/ESD blip can&#x27;t fire an alert (default 150ms; real touches easily clear this). Trigger threshold currently effective: &lt;b id=cadence-eff-v&gt;-&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous field display. The optional pitch is separate from alert beeps. Turn the pitch off for quiet monitoring; alerts and snapshots still fire.&lt;/div&gt;
@@ -680,11 +682,12 @@ if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).oninput=function(){
 if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).oninput=function(){if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=this.value};
 if($(&#x27;rcmargin-apply&#x27;)){$(&#x27;rcmargin-apply&#x27;).onclick=function(){var mult=$(&#x27;rcmargin-mult&#x27;).value,fl=$(&#x27;rcmargin-floor&#x27;).value,m=$(&#x27;rcmargin-msg&#x27;);proxPost(&#x27;/prox/rcmargin?mult=&#x27;+mult+&#x27;&amp;floorUs=&#x27;+fl).then(function(){if(m)m.textContent=&#x27;Applied, recalibrating... keep your hand away for a moment.&#x27;;setTimeout(refreshRcMargin,1200)})}}
 refreshRcMargin();
-function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
+function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-arm&#x27;)){$(&#x27;cadence-arm&#x27;).value=d.armMs;$(&#x27;cadence-arm-v&#x27;).textContent=d.armMs}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
 if($(&#x27;cadence-alert&#x27;))$(&#x27;cadence-alert&#x27;).oninput=function(){if($(&#x27;cadence-alert-v&#x27;))$(&#x27;cadence-alert-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-cooldown&#x27;))$(&#x27;cadence-cooldown&#x27;).oninput=function(){if($(&#x27;cadence-cooldown-v&#x27;))$(&#x27;cadence-cooldown-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-thresh&#x27;))$(&#x27;cadence-thresh&#x27;).oninput=function(){if($(&#x27;cadence-thresh-v&#x27;))$(&#x27;cadence-thresh-v&#x27;).textContent=this.value};
-if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),t=$(&#x27;cadence-thresh&#x27;).value,m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;thresh=&#x27;+t).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
+if($(&#x27;cadence-arm&#x27;))$(&#x27;cadence-arm&#x27;).oninput=function(){if($(&#x27;cadence-arm-v&#x27;))$(&#x27;cadence-arm-v&#x27;).textContent=this.value};
+if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),g=$(&#x27;cadence-arm&#x27;).value,t=$(&#x27;cadence-thresh&#x27;).value,m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;armMs=&#x27;+g+&#x27;&amp;thresh=&#x27;+t).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
 refreshCadence();
 function saveTherm(){var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;),sm=$(&#x27;therm-save-msg&#x27;);if(tc)tc._userset=true;if(tt)tt._userset=true;window._thermSaving=true;if(sm){sm.textContent=&#x27;Saving to node...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:tc?tc.checked:false,tone:tt?tt.checked:true});setTimeout(function(){if(tc)tc._userset=false;if(tt)tt._userset=false;window._thermSaving=false;if(sm)sm.textContent=&#x27;Waiting for node confirmation...&#x27;;},700)}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=false;$(&#x27;therm-on&#x27;).onchange=saveTherm}
@@ -781,7 +784,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.31-maker&quot;
+#define FW_VERSION   &quot;2.12.32-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1148,6 +1151,7 @@ volatile int      rcMarginMult   = 5;   // learned timeout = ambient charge time
 volatile int      rcMarginFloorUs = 40;  // + this many us of absolute headroom (was an unconditional fixed 2000us)
 volatile int      proxAlertMs    = 6000;  // live-tunable: how long the PROX alert (beep+flash+event) stays active while triggered, default 6s
 volatile int      proxCooldownMs = 6000;  // live-tunable: quiet window enforced after a PROX alert ends, default 6s
+volatile int      proxArmMs      = 150;   // live-tunable: raw threshold crossing must sustain this long before arming an alert (de-glitch), default 150ms
 volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
@@ -1184,6 +1188,7 @@ volatile int     rfProxPeak = 0;       // captured prox signature (delta)
 // Alert lifecycle: 0 = idle/armed, 1 = alerting, 2 = cooling down (quiet).
 volatile int      alertPhase       = 0;
 volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
+uint32_t          proxRawSince      = 0;     // millis() the current raw prox_delta&gt;effThreshProx run began, 0 if not currently crossing
 volatile bool     bootBaselineDone = false; // false until the settle window elapses
 volatile uint32_t magRefractoryUntil = 0;   // mag alert is held off until this millis()
 volatile uint32_t heartbeatSuppressUntil = 0; // no idle heartbeat for this long after any detection
@@ -2138,6 +2143,20 @@ void hardwareTask(void* pv) {
         bool proxAlert = (proxDelta &gt; effThreshProx);
         bool magAlert  = (magDelta &gt; threshMag);
 
+        // DE-GLITCH: a real hand approach/touch takes many multiples of the
+        // ~70ms loop cadence to happen; a single-cycle instantaneous jump to a
+        // fixed ceiling value (RF/ESD coupling snapping the sense pin) does not.
+        // Require the raw crossing to sustain for proxArmMs before it can arm
+        // an alert. This does not affect the raw prox_delta/prox_alert values
+        // reported to the app or the diagnostic CSV -- only the arming gate below.
+        uint32_t nowMsRaw = millis();
+        if (proxAlert) {
+            if (proxRawSince == 0) proxRawSince = nowMsRaw;
+        } else {
+            proxRawSince = 0;
+        }
+        bool proxSustained = proxAlert &amp;&amp; proxRawSince != 0 &amp;&amp; (nowMsRaw - proxRawSince &gt;= (uint32_t)proxArmMs);
+
         // THEREMIN FIELD: continuous 0..100 from proxDelta, scaled by proxSpan.
         // proxNoise is a jitter deadband so an idle antenna truly rests at field 0
         // (the raw touch value floats +/- a few counts even with no hand near it).
@@ -2258,7 +2277,7 @@ void hardwareTask(void* pv) {
         // wobble as a real detection, or the node sputters alerts on/off.
         bool diagQuiet = (nowMs &lt; diagQuietUntil);
         bool magLive  = bootBaselineDone &amp;&amp; magAlert &amp;&amp; !diagQuiet;
-        bool proxLive = bootBaselineDone &amp;&amp; proxAlert &amp;&amp; !diagQuiet;
+        bool proxLive = bootBaselineDone &amp;&amp; proxSustained &amp;&amp; !diagQuiet;
 
         // ---------- PROX cadence state machine (prox only) ----------
         bool proxPainting = false;   // did the prox cadence paint the ring this cycle?
@@ -2903,11 +2922,12 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             prefs.end();
             if (proxMode == 1) rcSmartCalReq = true;   // re-learn the timeout window against the new margin immediately
         }
-        if (doc[&quot;alertMs&quot;].is&lt;int&gt;() || doc[&quot;cooldownMs&quot;].is&lt;int&gt;()) {
+        if (doc[&quot;alertMs&quot;].is&lt;int&gt;() || doc[&quot;cooldownMs&quot;].is&lt;int&gt;() || doc[&quot;armMs&quot;].is&lt;int&gt;()) {
             if (doc[&quot;alertMs&quot;].is&lt;int&gt;()) proxAlertMs = constrain((int)doc[&quot;alertMs&quot;], 200, 30000);
             if (doc[&quot;cooldownMs&quot;].is&lt;int&gt;()) proxCooldownMs = constrain((int)doc[&quot;cooldownMs&quot;], 0, 30000);
+            if (doc[&quot;armMs&quot;].is&lt;int&gt;()) proxArmMs = constrain((int)doc[&quot;armMs&quot;], 0, 2000);
             prefs.begin(&quot;specter&quot;, false);
-            prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs);
+            prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs); prefs.putInt(&quot;armMs&quot;, proxArmMs);
             prefs.end();
         }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
@@ -3094,6 +3114,7 @@ void setupNetwork() {
     rcMarginFloorUs = prefs.getInt(&quot;rcMarginFloorUs&quot;, 40);
     proxAlertMs    = prefs.getInt(&quot;alertMs&quot;, 6000);
     proxCooldownMs = prefs.getInt(&quot;cooldownMs&quot;, 6000);
+    proxArmMs      = prefs.getInt(&quot;armMs&quot;, 150);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
@@ -3478,19 +3499,20 @@ void setupNetwork() {
     server.on(&quot;/prox/cadence&quot;, HTTP_POST, []() {
         if (server.hasArg(&quot;alertMs&quot;)) proxAlertMs = constrain(server.arg(&quot;alertMs&quot;).toInt(), 200, 30000);
         if (server.hasArg(&quot;cooldownMs&quot;)) proxCooldownMs = constrain(server.arg(&quot;cooldownMs&quot;).toInt(), 0, 30000);
+        if (server.hasArg(&quot;armMs&quot;)) proxArmMs = constrain(server.arg(&quot;armMs&quot;).toInt(), 0, 2000);
         prefs.begin(&quot;specter&quot;, false);
-        prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs);
+        prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs); prefs.putInt(&quot;armMs&quot;, proxArmMs);
         if (server.hasArg(&quot;thresh&quot;)) {
             threshProx = server.arg(&quot;thresh&quot;).toInt();
             prefs.putInt(&quot;prox&quot;, threshProx);
             effThreshProx = recomputeEffThreshProx();
         }
         prefs.end();
-        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;armMs\&quot;:&quot; + proxArmMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
     });
     server.on(&quot;/prox/cadence&quot;, HTTP_GET, []() {
         JsonDocument d;
-        d[&quot;alertMs&quot;] = proxAlertMs; d[&quot;cooldownMs&quot;] = proxCooldownMs; d[&quot;effThreshProx&quot;] = effThreshProx; d[&quot;threshProx&quot;] = threshProx;
+        d[&quot;alertMs&quot;] = proxAlertMs; d[&quot;cooldownMs&quot;] = proxCooldownMs; d[&quot;armMs&quot;] = proxArmMs; d[&quot;effThreshProx&quot;] = effThreshProx; d[&quot;threshProx&quot;] = threshProx;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
 
@@ -3594,6 +3616,7 @@ void loadProximityPrefsEarly() {
     rcMarginFloorUs = early.getInt(&quot;rcMarginFloorUs&quot;, 40);
     proxAlertMs    = early.getInt(&quot;alertMs&quot;, 6000);
     proxCooldownMs = early.getInt(&quot;cooldownMs&quot;, 6000);
+    proxArmMs      = early.getInt(&quot;armMs&quot;, 150);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
     early.end();
