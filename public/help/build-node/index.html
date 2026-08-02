@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.39-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.40-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -675,7 +675,7 @@ if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x2
 rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
 function updateProxModeUi(mode,touch,charge,base,ok,fault){var rc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=rc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=rc?&#x27;RC / GPIO18 TO GPIO4&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=rc?&#x27;GPIO18 drive / GPIO4 sense&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=rc;if(save)save.disabled=rc;if(msg){var live=((charge||0)/10).toFixed(1),zero=((base||0)/10).toFixed(1),state=(ok===false?(fault===1?&#x27; GPIO4 could not discharge.&#x27;:fault===2?&#x27; GPIO4 never charged HIGH. Check GPIO18 to 1M to GPIO4.&#x27;:&#x27; Check RC wiring.&#x27;):&#x27; Wiring active.&#x27;);msg.textContent=rc?&#x27;GPIO18 drives the antenna node through 1M ohm and GPIO4 measures charge time. Live &#x27;+live+&#x27; us, baseline &#x27;+zero+&#x27; us.&#x27;+state+&#x27; The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}}
-if($(&#x27;pin-swap&#x27;)){$(&#x27;pin-swap&#x27;)._userset=false;$(&#x27;pin-swap&#x27;).onchange=function(){this._userset=true;send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,pinSwap:!!this.checked});setTimeout(function(){if($(&#x27;pin-swap&#x27;))$(&#x27;pin-swap&#x27;)._userset=false},700)}}
+if($(&#x27;pin-swap&#x27;)){$(&#x27;pin-swap&#x27;)._userset=false;$(&#x27;pin-swap&#x27;).onchange=function(){var el=this;var wanted=el.checked;el._userset=true;fetch(&#x27;/hardware/pinswap&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({enabled:wanted?&#x27;1&#x27;:&#x27;0&#x27;})}).then(function(r){return r.json()}).then(function(d){el.checked=!!d.pinSwap}).catch(function(){el.checked=!wanted}).finally(function(){el._userset=false})}}
 if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,proxMode:pm});var sm=$(&#x27;therm-save-msg&#x27;);if(sm){sm.textContent=&#x27;Sense source saved. Waiting for node confirmation...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}}}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
@@ -700,7 +700,7 @@ if($(&#x27;therm-save&#x27;)){$(&#x27;therm-save&#x27;).onclick=saveTherm}
 if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
 if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._userset=false;$(&#x27;therm-noise&#x27;).oninput=function(e){$(&#x27;therm-noise&#x27;)._userset=true;$(&#x27;therm-noise-v&#x27;).textContent=e.target.value;clearTimeout(window._tn);window._tn=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,noise:+e.target.value});setTimeout(function(){$(&#x27;therm-noise&#x27;)._userset=false},500)},250)}}
 
-function loadNodeIdentity(){fetch(&#x27;/node/identity&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;node-id&#x27;).textContent=d.nodeId||&#x27;-&#x27;;$(&#x27;node-slot&#x27;).value=String(d.slot||1);if($(&#x27;node-name&#x27;))$(&#x27;node-name&#x27;).value=d.customName?(d.name||&#x27;&#x27;):&#x27;&#x27;;if($(&#x27;node-name-status&#x27;))$(&#x27;node-name-status&#x27;).textContent=d.customName?&#x27;Custom name: &#x27;+(d.name||&#x27;-&#x27;):&#x27;Automatic name: Node &#x27;+(d.slot||1)}).catch(function(){})}
+function loadNodeIdentity(){fetch(&#x27;/node/identity&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;node-id&#x27;).textContent=d.nodeId||&#x27;-&#x27;;$(&#x27;node-slot&#x27;).value=String(d.slot||1);if($(&#x27;node-name&#x27;))$(&#x27;node-name&#x27;).value=d.customName?(d.name||&#x27;&#x27;):&#x27;&#x27;;if($(&#x27;pin-swap&#x27;))$(&#x27;pin-swap&#x27;).checked=!!d.pinSwap;if($(&#x27;node-name-status&#x27;))$(&#x27;node-name-status&#x27;).textContent=d.customName?&#x27;Custom name: &#x27;+(d.name||&#x27;-&#x27;):&#x27;Automatic name: Node &#x27;+(d.slot||1)}).catch(function(){})}
 $(&#x27;node-name-save&#x27;).onclick=function(){var name=$(&#x27;node-name&#x27;).value.trim();fetch(&#x27;/node/name&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({name:name})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-name&#x27;).value=d.customName?(d.name||&#x27;&#x27;):&#x27;&#x27;;$(&#x27;node-name-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-name-status&#x27;).textContent=d.customName?&#x27;Saved custom name: &#x27;+d.name:&#x27;Automatic name: Node &#x27;+d.slot}).catch(function(){$(&#x27;node-name-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;node-name-status&#x27;).textContent=&#x27;Could not save node name&#x27;})};
 $(&#x27;node-name-auto&#x27;).onclick=function(){fetch(&#x27;/node/name&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({name:&#x27;&#x27;})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-name&#x27;).value=&#x27;&#x27;;$(&#x27;node-name-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-name-status&#x27;).textContent=&#x27;Automatic name: &#x27;+d.name}).catch(function(){})};
 $(&#x27;node-slot-save&#x27;).onclick=function(){var slot=$(&#x27;node-slot&#x27;).value;fetch(&#x27;/node/slot&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({slot:slot})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-slot-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Saved as Node &#x27;+d.slot+&#x27; (&#x27;+(d.name||(&#x27;Node &#x27;+d.slot))+&#x27;). Reboot to reconnect with this slot.&#x27;;if($(&#x27;node-name&#x27;)&amp;&amp;!d.customName)$(&#x27;node-name&#x27;).value=&#x27;&#x27;;if($(&#x27;node-name-status&#x27;)&amp;&amp;!d.customName)$(&#x27;node-name-status&#x27;).textContent=&#x27;Automatic name: &#x27;+(d.name||(&#x27;Node &#x27;+d.slot))}).catch(function(){$(&#x27;node-slot-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Could not save slot&#x27;})};
@@ -790,7 +790,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.39-maker&quot;
+#define FW_VERSION   &quot;2.12.40-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -1769,8 +1769,13 @@ void hardwareTask(void* pv) {
     ledCfg.bootColorA = prefs.getUInt(&quot;ledBootA&quot;, ledCfg.bootColorA);
     ledCfg.bootColorB = prefs.getUInt(&quot;ledBootB&quot;, ledCfg.bootColorB);
     ledCfg.bootEnable = prefs.getInt(&quot;ledBoot&quot;,   ledCfg.bootEnable);
-    rcBuzzerPinsSwapped = prefs.getBool(&quot;rcBuzSwap&quot;, false);
     prefs.end();
+    // Keep the physical pin-role setting in its own namespace so unrelated
+    // sensor settings cannot overwrite it during portal updates.
+    Preferences hwPrefs;
+    hwPrefs.begin(&quot;nodehw&quot;, true);
+    rcBuzzerPinsSwapped = hwPrefs.getBool(&quot;pinSwap&quot;, false);
+    hwPrefs.end();
     // Bind the FastLED driver to the chipset the operator picked in the portal.
     // FastLED templates the chipset at compile time, so we can&#x27;t pass a string --
     // instead we branch across the supported types and add the matching driver.
@@ -2981,7 +2986,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
         if (doc[&quot;pinSwap&quot;].is&lt;bool&gt;()) {
             rcBuzzerPinsSwapped = (bool)doc[&quot;pinSwap&quot;];
-            prefs.begin(&quot;specter&quot;, false); prefs.putBool(&quot;rcBuzSwap&quot;, rcBuzzerPinsSwapped); prefs.end();
+            Preferences hwPrefs; hwPrefs.begin(&quot;nodehw&quot;, false); hwPrefs.putBool(&quot;pinSwap&quot;, rcBuzzerPinsSwapped); hwPrefs.end();
             pinMode(activeBuzzerPin(), OUTPUT); noTone(activeBuzzerPin());
             if (proxMode == 1) { digitalWrite(activeRcDrivePin(), LOW); pinMode(activeRcDrivePin(), OUTPUT); rcSmartCalReq = true; }
         }
@@ -3300,7 +3305,17 @@ void setupNetwork() {
 
     // ---- Multi-node identity + idle heartbeat -------------------------------
     server.on(&quot;/node/identity&quot;, []() {
-        JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom;
+        JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom; d[&quot;pinSwap&quot;] = rcBuzzerPinsSwapped;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/hardware/pinswap&quot;, HTTP_POST, []() {
+        bool enabled = false;
+        if (server.hasArg(&quot;enabled&quot;)) enabled = server.arg(&quot;enabled&quot;) == &quot;1&quot; || server.arg(&quot;enabled&quot;) == &quot;true&quot;;
+        rcBuzzerPinsSwapped = enabled;
+        Preferences hwPrefs; hwPrefs.begin(&quot;nodehw&quot;, false); hwPrefs.putBool(&quot;pinSwap&quot;, rcBuzzerPinsSwapped); hwPrefs.end();
+        pinMode(activeBuzzerPin(), OUTPUT); noTone(activeBuzzerPin());
+        if (proxMode == 1) { digitalWrite(activeRcDrivePin(), LOW); pinMode(activeRcDrivePin(), OUTPUT); rcSmartCalReq = true; }
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;pinSwap&quot;] = rcBuzzerPinsSwapped; d[&quot;rcDrivePin&quot;] = activeRcDrivePin(); d[&quot;buzzerPin&quot;] = activeBuzzerPin();
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/node/name&quot;, HTTP_POST, []() {
