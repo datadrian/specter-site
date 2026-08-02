@@ -1867,7 +1867,7 @@ void hardwareTask(void* pv) {
         }
         if (diagAnimActive) {
             const uint32_t ATTACK_MS = 350;
-            const uint32_t RELEASE_MS = (diagPulseChan == 1) ? 300 : 700;
+            const uint32_t RELEASE_MS = 700;
             float env = 0.0f;
             if (!diagAnimReleasing &amp;&amp; (int32_t)(animNow - diagAnimUntil) &gt;= 0) {
                 diagAnimReleasing = true;
@@ -1899,8 +1899,7 @@ void hardwareTask(void* pv) {
                 float rad = (diagPulseBrg - 90) * 0.01745329f;
                 int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
                 if (diagPulseChan == 1) {
-                    // Magnetic drives keep their directional lobe. Their release
-                    // is intentionally shorter so the device cools promptly.
+                    // Magnetic drives keep their original directional response.
                     renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + drive * 0.65f);
                     tone(BUZZER_PIN, 1500 + (int)(drive * 400), 30);
                 } else {
