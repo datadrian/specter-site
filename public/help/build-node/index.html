@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.32-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.33-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -504,14 +504,14 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;div class=tile&gt;&lt;div class=k&gt;Proximity&lt;/div&gt;&lt;div class=v id=prox&gt;-&lt;/div&gt;&lt;div class=u id=prox-unit&gt;raw capacitance&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=prox-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;div class=xyz id=proxdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;delta - / thr -&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Mag amplitude&lt;/div&gt;&lt;div class=v id=mag&gt;-&lt;/div&gt;&lt;div class=u&gt;LSB&lt;/div&gt;&lt;div class=xyz id=xyz&gt;x - y - z -&lt;/div&gt;&lt;div class=xyz id=magdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;sensor - &amp;middot; delta - / thr -&lt;/div&gt;&lt;/div&gt;
 &lt;div class=tile&gt;&lt;div class=k&gt;Signal&lt;/div&gt;&lt;div class=v id=rssi&gt;-&lt;/div&gt;&lt;div class=u&gt;dBm&lt;/div&gt;&lt;div class=bar&gt;&lt;i id=rssi-bar&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;-&lt;/div&gt;&lt;div class=u id=ssid&gt;-&lt;/div&gt;&lt;/div&gt;
+&lt;div class=tile&gt;&lt;div class=k&gt;Uptime&lt;/div&gt;&lt;div class=v id=uptime&gt;-&lt;/div&gt;&lt;div class=u id=ssid&gt;-&lt;/div&gt;&lt;div class=xyz id=linkdbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;app -&lt;/div&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;nav&gt;&lt;a class=on href=/&gt;TELEMETRY&lt;/a&gt;&lt;a href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){var d=$(&#x27;proxdbg&#x27;);if(d){d.textContent=&#x27;portal data error: &#x27;+(x&amp;&amp;x.message?x.message:&#x27;unknown&#x27;);d.style.color=&#x27;#ff5a5a&#x27;}if(window.console)console.error(x)}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.proxMode!=null){var pu=$(&#x27;prox-unit&#x27;);if(pu)pu.textContent=(+m.proxMode===1)?(&#x27;RC charge &#x27;+((m.rcCharge||0)/10).toFixed(1)+&#x27; us / base &#x27;+((m.rcBase||0)/10).toFixed(1)+&#x27; us&#x27;):&#x27;raw capacitance&#x27;;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)){var pd=(+m.proxMode===1&amp;&amp;m.rcOk===false)?(m.rcFault===1?&#x27;GPIO4 discharge failed&#x27;:m.rcFault===2?&#x27;GPIO18 to 1M to GPIO4 charge failed&#x27;:&#x27;RC sample failed&#x27;):(&#x27;delta &#x27;+(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;)+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;-&#x27;));$(&#x27;proxdbg&#x27;).textContent=pd;$(&#x27;proxdbg&#x27;).style.color=(+m.proxMode===1&amp;&amp;m.rcOk===false)?&#x27;#ff5a5a&#x27;:((m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(m.magDataOk===false?&#x27;NO DATA&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;)));var dd=(m.magDelta!=null?m.magDelta:&#x27;-&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;-&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 I2C &#x27;+(m.i2c||&#x27;-&#x27;)+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false||m.magDataOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;-&#x27;}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.proxMode!=null){var pu=$(&#x27;prox-unit&#x27;);if(pu)pu.textContent=(+m.proxMode===1)?(&#x27;RC charge &#x27;+((m.rcCharge||0)/10).toFixed(1)+&#x27; us / base &#x27;+((m.rcBase||0)/10).toFixed(1)+&#x27; us&#x27;):&#x27;raw capacitance&#x27;;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)){var pd=(+m.proxMode===1&amp;&amp;m.rcOk===false)?(m.rcFault===1?&#x27;GPIO4 discharge failed&#x27;:m.rcFault===2?&#x27;GPIO18 to 1M to GPIO4 charge failed&#x27;:&#x27;RC sample failed&#x27;):(&#x27;delta &#x27;+(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;)+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;-&#x27;));$(&#x27;proxdbg&#x27;).textContent=pd;$(&#x27;proxdbg&#x27;).style.color=(+m.proxMode===1&amp;&amp;m.rcOk===false)?&#x27;#ff5a5a&#x27;:((m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(m.magDataOk===false?&#x27;NO DATA&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;)));var dd=(m.magDelta!=null?m.magDelta:&#x27;-&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;-&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 I2C &#x27;+(m.i2c||&#x27;-&#x27;)+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false||m.magDataOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;-&#x27;;if($(&#x27;linkdbg&#x27;)){var lc=m.appConnected?&#x27;connected&#x27;:(m.appStarted?(&#x27;trying &#x27;+((m.appAgeMs||0)/1000).toFixed(0)+&#x27;s &#x27;+(m.appIp||&#x27;&#x27;)):&#x27;searching&#x27;);var ld=&#x27;app &#x27;+lc+(m.stallCount?(&#x27; \u00b7 stalls &#x27;+m.stallCount):&#x27;&#x27;);$(&#x27;linkdbg&#x27;).textContent=ld;$(&#x27;linkdbg&#x27;).style.color=m.appConnected?&#x27;#4ade80&#x27;:(m.appStarted?&#x27;#fbbf24&#x27;:&#x27;var(--accent)&#x27;)}}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -784,7 +784,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.32-maker&quot;
+#define FW_VERSION   &quot;2.12.33-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1086,6 +1086,21 @@ volatile bool     diagLogArmed = false;
 volatile uint32_t diagLogUntil = 0;
 volatile uint16_t diagLogCount = 0;
 DiagLogRow        diagLogRows[DIAG_LOG_CAP];
+
+// ── LOOP-STALL LOG: core-0 loop() calls server.handleClient()/localWS.loop()/
+// appWS.loop()/relayAssistLoop() every iteration with nothing between them and
+// nothing else running on this core. If ANY of those four blocks (e.g. the
+// WebSocketsClient lib doing a blocking TCP connect() against a dead/unreachable
+// saved app IP), telemetry sends and the local portal WS freeze together for the
+// whole stall -- which is exactly the &quot;freezes every few seconds&quot; symptom. This
+// ring buffer records which call stalled, for how long, and the app-link state
+// at that moment, so a real capture shows the cause instead of guesswork.
+#define STALL_LOG_CAP 40
+#define STALL_MIN_MS  40
+struct StallLogRow { uint32_t ts; char label[20]; uint16_t ms; uint8_t appWSStarted; uint8_t isAppConnected; };
+StallLogRow stallLogRows[STALL_LOG_CAP];
+volatile uint16_t stallLogCount = 0;   // total ever recorded (for overflow indication)
+volatile uint16_t stallLogHead  = 0;   // next write index (circular)
 #define DIAG_LOG_DEFAULT_MS 120000  // 2 minutes: enough for a 30s settle + approach + touch
 volatile int     threshProx = 8;      // OPERATOR-set floor from the app slider (abs deviation, LSB)
 volatile int     proxNoiseFloor = 0;  // measured rest jitter (max |sample-mean|) during boot settle
@@ -2429,6 +2444,16 @@ WebServer        server(80);
 AsyncUDP         udp;
 
 bool     isAppConnected = false, appWSStarted = false;
+
+static void recordStall(const char* label, uint32_t ms) {
+    if (ms &lt; STALL_MIN_MS) return;
+    StallLogRow &amp;r = stallLogRows[stallLogHead];
+    r.ts = millis(); strncpy(r.label, label, sizeof(r.label) - 1); r.label[sizeof(r.label) - 1] = 0;
+    r.ms = (uint16_t)constrain(ms, 0, 65535);
+    r.appWSStarted = appWSStarted ? 1 : 0; r.isAppConnected = isAppConnected ? 1 : 0;
+    stallLogHead = (stallLogHead + 1) % STALL_LOG_CAP;
+    if (stallLogCount &lt; 65535) stallLogCount++;
+}
 uint32_t appStartAt = 0;        // millis() when we last began an app WS connect (0 = idle)
 uint32_t appLinkOkAt = 0;       // millis() of last CONNECTED / inbound frame
 #define  APP_LINK_TIMEOUT_MS 15000   // started-but-never-connected -&gt; tear down + rediscover
@@ -3523,6 +3548,23 @@ void setupNetwork() {
         diagLogCount = 0; diagLogUntil = millis() + ms; diagLogArmed = true;
         server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;ms\&quot;:&quot;) + ms + &quot;}&quot;);
     });
+    server.on(&quot;/diag/stalls&quot;, []() {
+        JsonDocument d; JsonArray arr = d[&quot;stalls&quot;].to&lt;JsonArray&gt;();
+        uint32_t now = millis();
+        uint16_t n = stallLogCount &lt; STALL_LOG_CAP ? stallLogCount : STALL_LOG_CAP;
+        // Oldest-first: if the buffer has wrapped, start at stallLogHead; else start at 0.
+        uint16_t start = (stallLogCount &gt;= STALL_LOG_CAP) ? stallLogHead : 0;
+        for (uint16_t i = 0; i &lt; n; i++) {
+            StallLogRow &amp;r = stallLogRows[(start + i) % STALL_LOG_CAP];
+            JsonObject o = arr.add&lt;JsonObject&gt;();
+            o[&quot;ageMs&quot;] = now - r.ts; o[&quot;label&quot;] = r.label; o[&quot;ms&quot;] = r.ms;
+            o[&quot;appStarted&quot;] = r.appWSStarted; o[&quot;appConnected&quot;] = r.isAppConnected;
+        }
+        d[&quot;totalEver&quot;] = stallLogCount;
+        d[&quot;appStarted&quot;] = appWSStarted; d[&quot;appConnected&quot;] = isAppConnected;
+        d[&quot;appIp&quot;] = targetAppIP; d[&quot;appAgeMs&quot;] = appStartAt ? (now - appStartAt) : 0;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
     server.on(&quot;/diag/log/status&quot;, []() {
         JsonDocument d;
         d[&quot;armed&quot;] = diagLogArmed; d[&quot;rows&quot;] = diagLogCount; d[&quot;cap&quot;] = DIAG_LOG_CAP;
@@ -3632,7 +3674,10 @@ void setup() {
 }
 
 void loop() {
-    server.handleClient(); localWS.loop(); appWS.loop(); relayAssistLoop();
+    uint32_t _t0 = millis(); server.handleClient(); recordStall(&quot;handleClient&quot;, millis() - _t0);
+    _t0 = millis(); localWS.loop();                 recordStall(&quot;localWS.loop&quot;,  millis() - _t0);
+    _t0 = millis(); appWS.loop();                    recordStall(&quot;appWS.loop&quot;,    millis() - _t0);
+    _t0 = millis(); relayAssistLoop();               recordStall(&quot;relayAssist&quot;,   millis() - _t0);
     uint32_t now = millis();
     uint32_t period = 1000 / (telemetryHz &gt; 0 ? telemetryHz : TELEMETRY_HZ_DEFAULT);
 
@@ -3729,6 +3774,9 @@ void loop() {
         n[&quot;ip&quot;] = WiFi.localIP().toString(); n[&quot;uptime&quot;] = (now - bootMs) / 1000;
         n[&quot;ssid&quot;] = WiFi.SSID(); n[&quot;clients&quot;] = apClientsNow;
         n[&quot;heap&quot;] = ESP.getFreeHeap(); n[&quot;magOk&quot;] = magPresent;
+        n[&quot;appStarted&quot;] = appWSStarted; n[&quot;appConnected&quot;] = isAppConnected;
+        n[&quot;appIp&quot;] = targetAppIP; n[&quot;appAgeMs&quot;] = appStartAt ? (now - appStartAt) : 0;
+        n[&quot;stallCount&quot;] = stallLogCount;
         String no; serializeJson(n, no);
         if (isAppConnected) appWS.sendTXT(no);
         else raSendNet(now, apClientsNow);
