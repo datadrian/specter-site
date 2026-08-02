@@ -1,10 +1,10 @@
 {
-  "version": "2.12.33-maker",
-  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.33-maker.bin",
-  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.33-maker.bin",
-  "sha256": "a652751bd6f71c051aa1e9720bc969003133726f1909e13cc35d77e23e84aa7b",
-  "size": 1190448,
-  "notes": "Maker build from 8373c7c",
-  "built": "2026-08-02T06:23:50Z",
-  "commit": "8373c7ca5850a86ac0fe54fd6a4781515529fb5b"
+  "version": "2.12.34-maker",
+  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.34-maker.bin",
+  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.12.34-maker.bin",
+  "sha256": "f5e7bd1a93c54524d5029af82e232b1e3f8e38d1f6c89b7e3c6eac9735bea0bd",
+  "size": 1190480,
+  "notes": "Maker build from 763eb8d",
+  "built": "2026-08-02T06:49:06Z",
+  "commit": "763eb8db26ca055271954c2ef9642bdde983f9fd"
 }

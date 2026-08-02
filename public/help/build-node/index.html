@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.33-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.34-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -784,7 +784,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.33-maker&quot;
+#define FW_VERSION   &quot;2.12.34-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1948,9 +1948,24 @@ void hardwareTask(void* pv) {
                     // never an approaching hand. Follow it gently, not instantly.
                     // Small positive rest drift follows much more slowly; a real
                     // approach remains frozen against the baseline and stays visible.
+                    //
+                    // BUT: &quot;gently&quot; must still mean REJECTING implausible collapses,
+                    // not just following them slowly. A real ambient baseline never
+                    // halves in one 70ms sample -- that is a measurement glitch (a
+                    // spurious early edge on the sense line), not the antenna&#x27;s true
+                    // resting capacitance. Blending those glitch samples in, even at
+                    // a tiny alpha, accumulates over hundreds of samples into a
+                    // runaway downward drift that eventually reads as a permanent
+                    // false alert against a perfectly flat true signal. Reject any
+                    // sample that collapses below half the current baseline outright
+                    // -- it never touches the EMA, no matter how small its alpha
+                    // would otherwise be.
+                    bool implausibleCollapse = (rcCharge10 &lt; (int)(rcBaseEma10 * 0.5f));
                     float alpha = 0.0f;
-                    if (signedRise &lt; 0) alpha = (abs(signedRise) &lt;= restBand * 4) ? 0.02f : 0.005f;
-                    else if (signedRise &lt;= restBand) alpha = 0.002f;
+                    if (!implausibleCollapse) {
+                        if (signedRise &lt; 0) alpha = (abs(signedRise) &lt;= restBand * 4) ? 0.02f : 0.005f;
+                        else if (signedRise &lt;= restBand) alpha = 0.002f;
+                    }
                     if (alpha &gt; 0.0f) rcBaseEma10 += alpha * ((float)rcCharge10 - rcBaseEma10);
                     rcBase10 = (int)(rcBaseEma10 + 0.5f);
                     int rise = rcCharge10 - rcBase10;
