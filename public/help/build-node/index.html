@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.29-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.30-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -579,7 +579,13 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE TOUCH PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Touch mode only. Applies instantly, no reboot. GPIO4/27/32/33 are the safe touch pins; boot-strap pins are excluded.&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=diag-log-start class=mini&gt;CAPTURE 2 MIN LOG&lt;/button&gt;&lt;a id=diag-log-download class=mini style=&quot;display:none&quot; href=&quot;/diag/log/download&quot;&gt;DOWNLOAD CSV&lt;/a&gt;&lt;/div&gt;
-&lt;div class=xyz id=diag-log-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Starts a 2-minute capture of proximity, RC, magnetometer, alert phase, and Wi-Fi signal for troubleshooting. Boot the node, wait, approach, then touch, then download.&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz id=diag-log-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Starts a 2-minute capture of proximity, RC, magnetometer, alert phase, and Wi-Fi signal for troubleshooting. Boot the node, wait, approach, then touch, then download.&lt;/div&gt;
+&lt;label style=&quot;margin-top:10px&quot;&gt;Timeout margin (x ambient) &lt;span class=val id=rcmargin-mult-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=rcmargin-mult min=2 max=40 step=1 style=&quot;width:100%&quot;&gt;
+&lt;label&gt;Timeout floor (us) &lt;span class=val id=rcmargin-floor-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=rcmargin-floor min=5 max=2000 step=5 style=&quot;width:100%&quot;&gt;
+&lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=rcmargin-apply class=mini&gt;APPLY &amp;amp; RECALIBRATE&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz id=rcmargin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Extended-range mode only. Lower values make the antenna sensitive further from contact but closer to real noise; higher values are safer but touch-only. Current learned timeout window: &lt;b id=rcmargin-timeout-v&gt;-&lt;/b&gt; us against ambient &lt;b id=rcmargin-ambient-v&gt;-&lt;/b&gt; us.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
 &lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous field display. The optional pitch is separate from alert beeps. Turn the pitch off for quiet monitoring; alerts and snapshots still fire.&lt;/div&gt;
@@ -661,6 +667,11 @@ if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
 if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;diag-log-start&#x27;)){$(&#x27;diag-log-start&#x27;).onclick=function(){var b=$(&#x27;diag-log-start&#x27;),dl=$(&#x27;diag-log-download&#x27;),m=$(&#x27;diag-log-msg&#x27;);if(dl)dl.style.display=&#x27;none&#x27;;proxPost(&#x27;/diag/log/start?ms=120000&#x27;).then(function(){if(b)b.textContent=&#x27;CAPTURING...&#x27;;var poll=setInterval(function(){fetch(&#x27;/diag/log/status&#x27;).then(function(r){return r.json()}).then(function(d){if(m)m.textContent=&#x27;Capturing... &#x27;+(d.rows||0)+&#x27; rows, &#x27;+Math.max(0,Math.round((d.msRemaining||0)/1000))+&#x27;s left.&#x27;;if(!d.armed){clearInterval(poll);if(b)b.textContent=&#x27;CAPTURE 2 MIN LOG&#x27;;if(dl){dl.style.display=&#x27;inline&#x27;;dl.href=&#x27;/diag/log/download?_=&#x27;+Date.now();}if(m)m.textContent=&#x27;Capture complete, &#x27;+(d.rows||0)+&#x27; rows. Download and send the CSV.&#x27;;}})},1000)})}}
+function refreshRcMargin(){fetch(&#x27;/prox/rcmargin&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).value=d.mult;if($(&#x27;rcmargin-mult-v&#x27;))$(&#x27;rcmargin-mult-v&#x27;).textContent=d.mult;if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).value=d.floorUs;if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=d.floorUs;if($(&#x27;rcmargin-timeout-v&#x27;))$(&#x27;rcmargin-timeout-v&#x27;).textContent=(d.timeoutUs||0);if($(&#x27;rcmargin-ambient-v&#x27;))$(&#x27;rcmargin-ambient-v&#x27;).textContent=(d.ambientUs||0)})}
+if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).oninput=function(){if($(&#x27;rcmargin-mult-v&#x27;))$(&#x27;rcmargin-mult-v&#x27;).textContent=this.value};
+if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).oninput=function(){if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=this.value};
+if($(&#x27;rcmargin-apply&#x27;)){$(&#x27;rcmargin-apply&#x27;).onclick=function(){var mult=$(&#x27;rcmargin-mult&#x27;).value,fl=$(&#x27;rcmargin-floor&#x27;).value,m=$(&#x27;rcmargin-msg&#x27;);proxPost(&#x27;/prox/rcmargin?mult=&#x27;+mult+&#x27;&amp;floorUs=&#x27;+fl).then(function(){if(m)m.textContent=&#x27;Applied, recalibrating... keep your hand away for a moment.&#x27;;setTimeout(refreshRcMargin,1200)})}}
+refreshRcMargin();
 function saveTherm(){var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;),sm=$(&#x27;therm-save-msg&#x27;);if(tc)tc._userset=true;if(tt)tt._userset=true;window._thermSaving=true;if(sm){sm.textContent=&#x27;Saving to node...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:tc?tc.checked:false,tone:tt?tt.checked:true});setTimeout(function(){if(tc)tc._userset=false;if(tt)tt._userset=false;window._thermSaving=false;if(sm)sm.textContent=&#x27;Waiting for node confirmation...&#x27;;},700)}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=false;$(&#x27;therm-on&#x27;).onchange=saveTherm}
 if($(&#x27;therm-tone&#x27;)){$(&#x27;therm-tone&#x27;)._userset=false;$(&#x27;therm-tone&#x27;).onchange=saveTherm}
@@ -756,7 +767,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.29-maker&quot;
+#define FW_VERSION   &quot;2.12.30-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1052,7 +1063,7 @@ volatile uint32_t diagQuietUntil = 0;     // suppress the node&#x27;s OWN alert 
 struct DiagLogRow {
     uint32_t ts; int16_t rcCharge10; int16_t rcBase10; uint8_t rcOk; uint8_t rcFault;
     int16_t proxDelta; uint8_t proxAlert; uint8_t satArmed; int16_t magDelta; uint8_t magAlert;
-    uint8_t alertPhaseSnap; int8_t rssi;
+    uint8_t alertPhaseSnap; int8_t rssi; uint16_t rcTimeoutUs10;
 };
 volatile bool     diagLogArmed = false;
 volatile uint32_t diagLogUntil = 0;
@@ -1100,6 +1111,8 @@ volatile bool     rcQuickRebaseArmed = false;
 volatile uint8_t  rcQuickRebaseCount = 0;
 volatile int       rcQuickRebaseBuf[RC_QUICK_REBASE_SAMPLES];
 volatile int      rcLastGood10 = 0;    // last confirmed (non-timeout-dominated) charge reading, held during an UNCONFIRMED timeout burst
+volatile int      rcMarginMult   = 5;   // learned timeout = ambient charge time x this multiplier (was an unconditional 8x baked in)
+volatile int      rcMarginFloorUs = 40;  // + this many us of absolute headroom (was an unconditional fixed 2000us)
 volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
@@ -1949,11 +1962,20 @@ void hardwareTask(void* pv) {
                             // One impossible low sample can no longer force the baseline
                             // to 1.2 us or inflate the effective threshold to ~170.
                             proxNoiseFloor = max(0, spread10);
-                            // Eight ambient time constants plus at least 2 ms of
-                            // jitter headroom. Clamp to keep faults bounded while
-                            // allowing large loops that cannot fit the old 10 ms window.
-                            uint64_t target10 = (uint64_t)ambient10 * 8ULL + (uint64_t)max(20000, spread10 * 8);
-                            uint64_t min10 = (uint64_t)RC_TIMEOUT_MIN_US * 10ULL;
+                            // rcMarginMult ambient time constants plus rcMarginFloorUs of
+                            // absolute jitter headroom (both live-tunable from the portal,
+                            // default 5x + 40us). A hand approaching (not touching) only
+                            // shifts the RC charge time a little; if the timeout window is
+                            // thousands of times ambient (the old fixed 2ms/10ms floors),
+                            // that shift never reads as anything but flat baseline, then
+                            // touch alone crosses the huge window and it looks like an
+                            // on/off switch instead of a graduated approach signal. Keeping
+                            // the window close to actual ambient lets the in-between reads
+                            // through as real proportional numbers.
+                            int marginMult = rcMarginMult; if (marginMult &lt; 2) marginMult = 2; if (marginMult &gt; 40) marginMult = 40;
+                            int marginFloorUs = rcMarginFloorUs; if (marginFloorUs &lt; 5) marginFloorUs = 5; if (marginFloorUs &gt; 2000) marginFloorUs = 2000;
+                            uint64_t target10 = (uint64_t)ambient10 * (uint64_t)marginMult + (uint64_t)max((int64_t)marginFloorUs * 10, (int64_t)(spread10 * 8));
+                            uint64_t min10 = (uint64_t)ambient10 + 300ULL;   // never below ambient + 30us: keeps a hard-open-wire read fast
                             uint64_t max10 = (uint64_t)RC_TIMEOUT_MAX_US * 10ULL;
                             if (target10 &lt; min10) target10 = min10;
                             if (target10 &gt; max10) target10 = max10;
@@ -2338,6 +2360,7 @@ void hardwareTask(void* pv) {
                 r.satArmed = rcSaturated ? 1 : 0; r.magDelta = (int16_t)magDelta;
                 r.magAlert = magAlert ? 1 : 0; r.alertPhaseSnap = (uint8_t)alertPhase;
                 r.rssi = (int8_t)constrain((WiFi.status()==WL_CONNECTED)?WiFi.RSSI():0, -128, 127);
+                r.rcTimeoutUs10 = (uint16_t)constrain((uint32_t)(rcTimeoutUs / 10), 0, 65535);
             }
         }
         FastLED.setBrightness(ledCfg.bright);
@@ -2840,6 +2863,14 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             proxNoise = constrain((int)doc[&quot;noise&quot;], 0, 200);
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxNoise&quot;, proxNoise); prefs.end();
         }
+        if (doc[&quot;rcMarginX&quot;].is&lt;int&gt;() || doc[&quot;rcMarginFloorUs&quot;].is&lt;int&gt;()) {
+            if (doc[&quot;rcMarginX&quot;].is&lt;int&gt;()) rcMarginMult = constrain((int)doc[&quot;rcMarginX&quot;], 2, 40);
+            if (doc[&quot;rcMarginFloorUs&quot;].is&lt;int&gt;()) rcMarginFloorUs = constrain((int)doc[&quot;rcMarginFloorUs&quot;], 5, 2000);
+            prefs.begin(&quot;specter&quot;, false);
+            prefs.putInt(&quot;rcMarginX&quot;, rcMarginMult); prefs.putInt(&quot;rcMarginFloorUs&quot;, rcMarginFloorUs);
+            prefs.end();
+            if (proxMode == 1) rcSmartCalReq = true;   // re-learn the timeout window against the new margin immediately
+        }
         // Direct span set still allowed (advanced), but no longer used by REFIT.
         if (doc[&quot;span&quot;].is&lt;int&gt;()) proxSpan = constrain((int)doc[&quot;span&quot;], 8, 4000);
         // Prox sense source: 0 = touchRead on selected pin, 1 = GPIO18/1M/GPIO4 RC charge-time sensor.
@@ -3020,6 +3051,8 @@ void setupNetwork() {
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
+    rcMarginMult    = prefs.getInt(&quot;rcMarginX&quot;, 5);
+    rcMarginFloorUs = prefs.getInt(&quot;rcMarginFloorUs&quot;, 40);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
@@ -3379,6 +3412,26 @@ void setupNetwork() {
         server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true}&quot;);
     });
 
+    // Live-tunable RC timeout margin: how far above the learned ambient charge
+    // time the antenna must rise before a reading counts as a real close-range
+    // saturation event, instead of the old fixed 2ms/10ms margin that made
+    // approach invisible and only touch ever crossed the window.
+    server.on(&quot;/prox/rcmargin&quot;, HTTP_POST, []() {
+        if (server.hasArg(&quot;mult&quot;)) rcMarginMult = constrain(server.arg(&quot;mult&quot;).toInt(), 2, 40);
+        if (server.hasArg(&quot;floorUs&quot;)) rcMarginFloorUs = constrain(server.arg(&quot;floorUs&quot;).toInt(), 5, 2000);
+        prefs.begin(&quot;specter&quot;, false);
+        prefs.putInt(&quot;rcMarginX&quot;, rcMarginMult); prefs.putInt(&quot;rcMarginFloorUs&quot;, rcMarginFloorUs);
+        prefs.end();
+        if (proxMode == 1) rcSmartCalReq = true;
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;mult\&quot;:&quot;) + rcMarginMult + &quot;,\&quot;floorUs\&quot;:&quot; + rcMarginFloorUs + &quot;}&quot;);
+    });
+    server.on(&quot;/prox/rcmargin&quot;, HTTP_GET, []() {
+        JsonDocument d;
+        d[&quot;mult&quot;] = rcMarginMult; d[&quot;floorUs&quot;] = rcMarginFloorUs; d[&quot;timeoutUs&quot;] = rcTimeoutUs;
+        d[&quot;ambientUs&quot;] = rcBase10 / 10.0; d[&quot;calibrated&quot;] = rcSmartCalibrated;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+
     // ---- Field capture log: start / status / CSV download ----
     server.on(&quot;/diag/log/start&quot;, HTTP_POST, []() {
         uint32_t ms = server.hasArg(&quot;ms&quot;) ? (uint32_t)server.arg(&quot;ms&quot;).toInt() : DIAG_LOG_DEFAULT_MS;
@@ -3397,7 +3450,7 @@ void setupNetwork() {
         uint16_t n = diagLogCount;
         String csv;
         csv.reserve((size_t)n * 72 + 128);
-        csv += &quot;ts_ms,rc_charge_us_x10,rc_base_us_x10,rc_ok,rc_fault,prox_delta,prox_alert,sat_armed,mag_delta,mag_alert,alert_phase,rssi_dbm\n&quot;;
+        csv += &quot;ts_ms,rc_charge_us_x10,rc_base_us_x10,rc_ok,rc_fault,prox_delta,prox_alert,sat_armed,mag_delta,mag_alert,alert_phase,rssi_dbm,rc_timeout_us_x10\n&quot;;
         for (uint16_t i = 0; i &lt; n; ++i) {
             DiagLogRow &amp;r = diagLogRows[i];
             csv += r.ts; csv += &#x27;,&#x27;;
@@ -3411,7 +3464,8 @@ void setupNetwork() {
             csv += r.magDelta; csv += &#x27;,&#x27;;
             csv += r.magAlert; csv += &#x27;,&#x27;;
             csv += r.alertPhaseSnap; csv += &#x27;,&#x27;;
-            csv += r.rssi; csv += &#x27;\n&#x27;;
+            csv += r.rssi; csv += &#x27;,&#x27;;
+            csv += r.rcTimeoutUs10; csv += &#x27;\n&#x27;;
         }
         server.sendHeader(&quot;Content-Disposition&quot;, &quot;attachment; filename=specter-node-diag.csv&quot;);
         server.send(200, &quot;text/csv&quot;, csv);
@@ -3474,6 +3528,8 @@ void loadProximityPrefsEarly() {
     touchPin = early.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     threshProx = early.getInt(&quot;prox&quot;, 8);
     proxNoise = early.getInt(&quot;proxNoise&quot;, 6);
+    rcMarginMult    = early.getInt(&quot;rcMarginX&quot;, 5);
+    rcMarginFloorUs = early.getInt(&quot;rcMarginFloorUs&quot;, 40);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
     early.end();
@@ -3499,7 +3555,7 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = RC_DRIVE_PIN; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = RC_DRIVE_PIN; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
