@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.28-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.29-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -756,7 +756,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.28-maker&quot;
+#define FW_VERSION   &quot;2.12.29-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1099,6 +1099,7 @@ volatile uint32_t rcSaturatedAt = 0;                // sustained saturation even
 volatile bool     rcQuickRebaseArmed = false;
 volatile uint8_t  rcQuickRebaseCount = 0;
 volatile int       rcQuickRebaseBuf[RC_QUICK_REBASE_SAMPLES];
+volatile int      rcLastGood10 = 0;    // last confirmed (non-timeout-dominated) charge reading, held during an UNCONFIRMED timeout burst
 volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
@@ -1513,7 +1514,7 @@ void rcBegin() {
     rcReady = true;
     rcValid = false;
     rcFault = 0;
-    rcBase10 = 0; rcBaseEma10 = 0.0f;
+    rcBase10 = 0; rcBaseEma10 = 0.0f; rcLastGood10 = 0;
     // Start wide enough to characterize a large loop or a high-capacitance build.
     // The boot learning window tightens this automatically after settling.
     rcTimeoutUs = RC_TIMEOUT_CAL_US;
@@ -1596,8 +1597,21 @@ int rcRead10() {
         if (millis() - rcSaturatedAt &gt; RC_SATURATION_MAX_MS) {
             rcValid = false; rcFault = 2; consecutiveTimeoutReads = 0; return 0;
         }
+        // CONFIRMED: this is the 2nd+ consecutive majority-timeout call, so the
+        // elevated surrogate is trusted to represent a real close-range reading.
+        rcValid = true; rcFault = 0; rcLastGood10 = saturatedSample10;
+        return saturatedSample10;
     } else {
         rcSaturated = false; rcSaturatedAt = 0;
+    }
+    if (majorityTimeout) {
+        // UNCONFIRMED single-call timeout burst: this is exactly the case a lone
+        // Wi-Fi-timing stall or transient RF glitch produces. Hold the last
+        // confirmed-good value unchanged rather than letting the surrogate move
+        // proxVal/proxDelta at all. No fault is reported either - the wiring is
+        // fine, we simply are not yet confident this reading is real.
+        rcValid = true; rcFault = 0;
+        return rcLastGood10 &gt; 0 ? rcLastGood10 : baseSnapshot10;
     }
     if (n &lt; 5) {
         rcValid = false;
@@ -1608,6 +1622,7 @@ int rcRead10() {
         if (samples[b] &lt; samples[a]) { int t = samples[a]; samples[a] = samples[b]; samples[b] = t; }
     }
     rcValid = true; rcFault = 0;
+    rcLastGood10 = samples[n / 2];
     return samples[n / 2];
 }
 
@@ -1839,7 +1854,7 @@ void hardwareTask(void* pv) {
         // hardware core. This safely adapts after an antenna or resistor change.
         if (rcSmartCalReq) {
             rcSmartCalReq = false;
-            rcReady = false; rcBase10 = 0; rcBaseEma10 = 0.0f; rcValid = false; rcFault = 0;
+            rcReady = false; rcBase10 = 0; rcBaseEma10 = 0.0f; rcLastGood10 = 0; rcValid = false; rcFault = 0;
             rcTimeoutUs = RC_TIMEOUT_CAL_US; rcSmartCalibrated = false; rcSaturated = false; rcSaturatedAt = 0;
             bootBaselineAt = millis() + BASELINE_SETTLE_MS; bootBaselineDone = false;
             blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
