@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.25-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.26-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -580,8 +580,8 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Touch mode only. Applies instantly, no reboot. GPIO4/27/32/33 are the safe touch pins; boot-strap pins are excluded.&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
 &lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous glow and pitch behavior, not the hardware sense source above. Alerts and snapshots still fire.&lt;/div&gt;
-&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone checked&gt; Play pitch on buzzer&lt;/label&gt;
+&lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous field display. The optional pitch is separate from alert beeps. Turn the pitch off for quiet monitoring; alerts and snapshots still fire.&lt;/div&gt;
+&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone&gt; Continuous pitch below alert (optional)&lt;/label&gt;
 &lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;-&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;-&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
 &lt;div class=bar style=&quot;margin-top:4px&quot;&gt;&lt;i id=therm-bar style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
 &lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
@@ -753,7 +753,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.25-maker&quot;
+#define FW_VERSION   &quot;2.12.26-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1063,13 +1063,14 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 volatile int      proxMode    = 0;
 volatile int      rcCharge10  = 0;     // live charge time in 0.1 microsecond units
 volatile int      rcBase10    = 0;     // ambient no-hand baseline in same units
+float             rcBaseEma10 = 0.0f; // robust baseline; never latch one low outlier
 volatile bool     rcReady     = false; // pins configured and baseline initialized
 volatile bool     rcValid     = false; // sense node discharged and charged before timeout
 volatile int      rcFault     = 0;     // 0 ok, 1 discharge failed, 2 charge timeout, 3 too few valid samples
 volatile uint32_t rcTimeoutUs = RC_TIMEOUT_CAL_US; // learned at boot from this antenna
 volatile bool     rcSmartCalibrated = false;       // true after a valid boot learning window
 volatile bool     rcSmartCalReq = false;           // portal/app rebaseline reruns RC learning
-volatile bool    proxToneOn   = true;    // also play a continuous pitch on the buzzer in theremin mode
+volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
 volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) -- computed from magSens
@@ -1099,7 +1100,7 @@ volatile int     rfProxPeak = 0;       // captured prox signature (delta)
 //                   current ambient. The mag baseline is left untouched. This stops
 //                   the constant prox beeping while keeping mag detection fully live.
 #define BASELINE_SETTLE_MS   2600    // post-boot settle before first baseline (avg window)
-#define ALERT_MAX_MS         5000    // max continuous alert (beep+flash) duration
+#define ALERT_MAX_MS         2000    // max continuous alert (beep+flash) duration
 #define COOLDOWN_MS          6000    // enforced PROX quiet + re-baseline window after a prox alert
 #define MAG_REFRACTORY_MS    1500    // after a MAG event, hold off re-firing this long so a field
                                      // hovering near threshold cannot sputter mag alerts on/off
@@ -1120,6 +1121,9 @@ volatile uint32_t blSamples = 0;
 volatile uint64_t blRcSum10 = 0;
 volatile uint32_t blRcSamples = 0;
 volatile int      blRcMin10 = 0, blRcMax10 = 0;
+#define RC_CAL_SAMPLE_CAP 63
+volatile int      blRcValues10[RC_CAL_SAMPLE_CAP] = {0};
+volatile uint8_t  blRcValueCount = 0;
 float            rfTolerance = 0.35f;  // +/- 35% band
 volatile bool    rfCapturing = false;  // true while HOLD-capturing a signature
 volatile int     rfCapMag = 0, rfCapProx = 0;  // running peak during capture
@@ -1477,7 +1481,7 @@ void rcBegin() {
     rcReady = true;
     rcValid = false;
     rcFault = 0;
-    rcBase10 = 0;
+    rcBase10 = 0; rcBaseEma10 = 0.0f;
     // Start wide enough to characterize a large loop or a high-capacitance build.
     // The boot learning window tightens this automatically after settling.
     rcTimeoutUs = RC_TIMEOUT_CAL_US;
@@ -1607,7 +1611,7 @@ void hardwareTask(void* pv) {
     bootBaselineAt   = millis() + BASELINE_SETTLE_MS;
     bootBaselineDone = false;
     blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
-    blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0;
+    blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0; blRcValueCount = 0;
     // The averaged boot window is the calibration. Do not let the legacy
     // one-shot flag overwrite its learned mean on the closing sample.
     recalibrate = false;
@@ -1761,11 +1765,11 @@ void hardwareTask(void* pv) {
         // hardware core. This safely adapts after an antenna or resistor change.
         if (rcSmartCalReq) {
             rcSmartCalReq = false;
-            rcReady = false; rcBase10 = 0; rcValid = false; rcFault = 0;
+            rcReady = false; rcBase10 = 0; rcBaseEma10 = 0.0f; rcValid = false; rcFault = 0;
             rcTimeoutUs = RC_TIMEOUT_CAL_US; rcSmartCalibrated = false;
             bootBaselineAt = millis() + BASELINE_SETTLE_MS; bootBaselineDone = false;
             blMagXsum = blMagYsum = blMagZsum = blProxSum = 0; blSamples = 0;
-            blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0;
+            blRcSum10 = 0; blRcSamples = 0; blRcMin10 = 0; blRcMax10 = 0; blRcValueCount = 0;
             proxNoiseFloor = 0; proxInit = false; recalibrate = false; alertPhase = 0;
         }
 
@@ -1776,15 +1780,26 @@ void hardwareTask(void* pv) {
             if (!rcReady) rcBegin();
             rcCharge10 = rcRead10();
             if (rcValid) {
-                // No hand is the lowest stable charge time. A nearby hand adds
-                // capacitance, increasing charge time and therefore proximity.
-                if (rcBase10 == 0 || rcCharge10 &lt; rcBase10) rcBase10 = rcCharge10;
-                int rise = rcCharge10 - rcBase10;
-                if (rise &lt; 0) rise = 0;
-                // Follow tiny ambient drift inside the rest band. Larger rises stay
-                // untouched so an approaching hand cannot drag the baseline upward.
-                if (rise &gt; 0 &amp;&amp; rise &lt;= 3) { rcBase10 = rcCharge10; rise = 0; }
-                proxVal = rise;
+                if (!bootBaselineDone) {
+                    // The raw samples below calibrate the antenna. Do not derive a
+                    // temporary proximity signal from a moving minimum during boot.
+                    proxVal = 0;
+                } else {
+                    if (rcBaseEma10 &lt;= 0.0f) rcBaseEma10 = (float)(rcBase10 &gt; 0 ? rcBase10 : rcCharge10);
+                    int signedRise = rcCharge10 - (int)(rcBaseEma10 + 0.5f);
+                    int restBand = max(6, max(proxNoise * 2, effThreshProx / 3));
+                    // A lower sample can only mean ambient recovery or an outlier,
+                    // never an approaching hand. Follow it gently, not instantly.
+                    // Small positive rest drift follows much more slowly; a real
+                    // approach remains frozen against the baseline and stays visible.
+                    float alpha = 0.0f;
+                    if (signedRise &lt; 0) alpha = (abs(signedRise) &lt;= restBand * 4) ? 0.02f : 0.005f;
+                    else if (signedRise &lt;= restBand) alpha = 0.002f;
+                    if (alpha &gt; 0.0f) rcBaseEma10 += alpha * ((float)rcCharge10 - rcBaseEma10);
+                    rcBase10 = (int)(rcBaseEma10 + 0.5f);
+                    int rise = rcCharge10 - rcBase10;
+                    proxVal = rise &gt; 0 ? rise : 0;
+                }
             } else {
                 proxVal = 0; // missing/shorted RC wiring must never create a false alert
             }
@@ -1812,11 +1827,12 @@ void hardwareTask(void* pv) {
                 blRcSum10 += (uint32_t)rcCharge10; blRcSamples++;
                 if (blRcMin10 == 0 || rcCharge10 &lt; blRcMin10) blRcMin10 = rcCharge10;
                 if (rcCharge10 &gt; blRcMax10) blRcMax10 = rcCharge10;
+                if (blRcValueCount &lt; RC_CAL_SAMPLE_CAP) blRcValues10[blRcValueCount++] = rcCharge10;
             }
             // Track the noise floor: how far the resting prox reading swings around
             // its running mean while nobody is near it. This becomes the minimum
             // trigger threshold so idle jitter can never fire a false proximity alert.
-            if (blSamples &gt; 3) {
+            if (proxMode != 1 &amp;&amp; blSamples &gt; 3) {
                 int runMean = (int)(blProxSum / blSamples);
                 int dev = abs(proxVal - runMean);
                 if (dev &gt; proxNoiseFloor) proxNoiseFloor = dev;
@@ -1830,10 +1846,20 @@ void hardwareTask(void* pv) {
                     baseProx = (proxMode == 1) ? 0 : (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
                     if (proxMode == 1) {
-                        if (blRcSamples &gt;= 3) {
-                            int ambient10 = (int)(blRcSum10 / blRcSamples);
-                            int spread10 = max(0, blRcMax10 - blRcMin10);
-                            rcBase10 = ambient10;
+                        if (blRcValueCount &gt;= 3) {
+                            int sorted[RC_CAL_SAMPLE_CAP];
+                            int n = blRcValueCount;
+                            for (int i=0; i&lt;n; ++i) sorted[i] = blRcValues10[i];
+                            for (int a=1; a&lt;n; ++a) { int v=sorted[a], b=a-1; while (b&gt;=0 &amp;&amp; sorted[b]&gt;v) { sorted[b+1]=sorted[b]; --b; } sorted[b+1]=v; }
+                            int ambient10 = sorted[n/2];
+                            int low10 = sorted[n/10];
+                            int high10 = sorted[(n*9)/10];
+                            int spread10 = max(ambient10-low10, high10-ambient10);
+                            rcBase10 = ambient10; rcBaseEma10 = (float)ambient10;
+                            // RC noise uses the robust 10th..90th percentile spread.
+                            // One impossible low sample can no longer force the baseline
+                            // to 1.2 us or inflate the effective threshold to ~170.
+                            proxNoiseFloor = max(0, spread10);
                             // Eight ambient time constants plus at least 2 ms of
                             // jitter headroom. Clamp to keep faults bounded while
                             // allowing large loops that cannot fit the old 10 ms window.
@@ -1867,7 +1893,7 @@ void hardwareTask(void* pv) {
         if (recalibrate) {
             baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
             if (proxMode == 1) {
-                if (rcValid) rcBase10 = rcCharge10;
+                if (rcValid) { rcBase10 = rcCharge10; rcBaseEma10 = (float)rcCharge10; }
                 baseProx = 0; proxAvg = 0;
             } else {
                 baseProx = proxVal; proxAvg = proxVal;
@@ -1879,7 +1905,7 @@ void hardwareTask(void* pv) {
         // ambient without disturbing the magnetometer baseline, so mag stays live.
         if (proxRecalibrate) {
             if (proxMode == 1) {
-                if (rcValid) rcBase10 = rcCharge10;
+                if (rcValid) { rcBase10 = rcCharge10; rcBaseEma10 = (float)rcCharge10; }
                 baseProx = 0; proxAvg = 0;
             } else {
                 baseProx = proxVal; proxAvg = proxVal;
@@ -2023,7 +2049,7 @@ void hardwareTask(void* pv) {
                 if (proxHitStart == 0) proxHitStart = millis();
                 if (millis() - proxHitStart &gt; PROX_HOLD_MS) {
                     if (proxMode == 1) {
-                        if (rcValid) rcBase10 = rcCharge10; // absorb held capacitance in RC units
+                        if (rcValid) { rcBase10 = rcCharge10; rcBaseEma10 = (float)rcCharge10; } // absorb held capacitance in RC units
                         proxAvg = 0;
                     } else {
                         proxAvg = (float)proxVal;      // touch mode hard re-zero
@@ -2047,7 +2073,7 @@ void hardwareTask(void* pv) {
             baseProx = (int)proxAvg;
         }
 
-        // ── ALERT STATE MACHINE: fire (max 5s) -&gt; cooldown (10s, quiet + rebaseline) ──
+        // ── ALERT STATE MACHINE: fire (max 2s) -&gt; cooldown (6s, quiet + rebaseline) ──
         // Raw trigger this cycle (may be gated below). Held off until the boot
         // baseline is captured so startup noise never fires an alert.
         // ============================================================
@@ -2860,7 +2886,7 @@ void setupNetwork() {
     magSens     = prefs.getInt(&quot;magSens&quot;, 70);
     threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     proxTheremin= prefs.getInt(&quot;therm&quot;, 1) == 1;   // default ON when unset
-    proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 1) == 1;
+    proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 0) == 1;
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
@@ -3274,10 +3300,22 @@ void setupNetwork() {
     localWS.enableHeartbeat(15000, 3000, 2);
 }
 
+void loadProximityPrefsEarly() {
+    Preferences early; early.begin(&quot;specter&quot;, true);
+    proxMode = early.getInt(&quot;proxMode&quot;, 0);
+    touchPin = early.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
+    threshProx = early.getInt(&quot;prox&quot;, 8);
+    proxNoise = early.getInt(&quot;proxNoise&quot;, 6);
+    proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
+    proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
+    early.end();
+}
+
 void setup() {
     Serial.begin(115200);
     bootMs = millis();
     loadIdentityAndHeartbeat();
+    loadProximityPrefsEarly();
     xTaskCreatePinnedToCore(hardwareTask, &quot;HW_Task&quot;, 4096, NULL, 1, NULL, 1);
     setupNetwork();
 }
