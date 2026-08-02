@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.36-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.37-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -784,7 +784,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.36-maker&quot;
+#define FW_VERSION   &quot;2.12.37-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;SPECTER Node A&quot;;
 
@@ -1899,7 +1899,13 @@ void hardwareTask(void* pv) {
                 float rad = (diagPulseBrg - 90) * 0.01745329f;
                 int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
                 if (diagPulseChan == 1) {
-                    renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + drive * 0.65f);
+                    // Producer magnetic drives should look like a normal field
+                    // event on the instrument, not merely a directional fade.
+                    // Keep the app-side event classified as magnetic, but use
+                    // the same configured proximity event animation used by an
+                    // organic prox hit so the physical feedback is consistent.
+                    if (ledCfg.proxAnim == 0) renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
+                    else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
                     tone(BUZZER_PIN, 1500 + (int)(drive * 400), 30);
                 } else {
                     renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
