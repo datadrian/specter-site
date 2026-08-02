@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.38-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.39-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -543,6 +543,7 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;div class=grp&gt;Connection&lt;/div&gt;
 &lt;h4&gt;Node identity&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Hardware ID: &lt;span class=val id=node-id&gt;-&lt;/span&gt;&lt;/div&gt;
+&lt;label&gt;Node name&lt;/label&gt;&lt;input id=node-name maxlength=31 placeholder=&quot;Automatic from slot&quot; style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;div class=row&gt;&lt;button id=node-name-save class=mini&gt;SAVE NODE NAME&lt;/button&gt;&lt;button id=node-name-auto class=mini&gt;AUTO FROM SLOT&lt;/button&gt;&lt;/div&gt;&lt;div class=status id=node-name-status&gt;Automatic names follow the assigned slot.&lt;/div&gt;
 &lt;label&gt;Assigned node slot&lt;/label&gt;&lt;select id=node-slot style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=1&gt;Node 1&lt;/option&gt;&lt;option value=2&gt;Node 2&lt;/option&gt;&lt;option value=3&gt;Node 3&lt;/option&gt;&lt;/select&gt;
 &lt;div class=status id=node-slot-status&gt;Assign each physical Node a unique slot.&lt;/div&gt;&lt;div class=row&gt;&lt;button id=node-slot-save&gt;SAVE NODE SLOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Wi-Fi&lt;/h4&gt;&lt;div class=card&gt;
@@ -699,8 +700,10 @@ if($(&#x27;therm-save&#x27;)){$(&#x27;therm-save&#x27;).onclick=saveTherm}
 if($(&#x27;therm-refit&#x27;)){$(&#x27;therm-refit&#x27;).onclick=function(){var b=$(&#x27;therm-refit&#x27;);if(b)b.textContent=&#x27;WAVE NOW…&#x27;;setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,refit:true});if(b){b.textContent=&#x27;REFIT ✓&#x27;;setTimeout(function(){b.textContent=&#x27;REFIT RANGE&#x27;},1400)}},1500)}}
 if($(&#x27;therm-noise&#x27;)){$(&#x27;therm-noise&#x27;)._userset=false;$(&#x27;therm-noise&#x27;).oninput=function(e){$(&#x27;therm-noise&#x27;)._userset=true;$(&#x27;therm-noise-v&#x27;).textContent=e.target.value;clearTimeout(window._tn);window._tn=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:$(&#x27;therm-on&#x27;)?$(&#x27;therm-on&#x27;).checked:false,tone:$(&#x27;therm-tone&#x27;)?$(&#x27;therm-tone&#x27;).checked:true,noise:+e.target.value});setTimeout(function(){$(&#x27;therm-noise&#x27;)._userset=false},500)},250)}}
 
-function loadNodeIdentity(){fetch(&#x27;/node/identity&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;node-id&#x27;).textContent=d.nodeId||&#x27;-&#x27;;$(&#x27;node-slot&#x27;).value=String(d.slot||1)}).catch(function(){})}
-$(&#x27;node-slot-save&#x27;).onclick=function(){var slot=$(&#x27;node-slot&#x27;).value;fetch(&#x27;/node/slot&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({slot:slot})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-slot-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Saved as Node &#x27;+d.slot+&#x27;. Reboot to reconnect with this slot.&#x27;}).catch(function(){$(&#x27;node-slot-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Could not save slot&#x27;})};
+function loadNodeIdentity(){fetch(&#x27;/node/identity&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;node-id&#x27;).textContent=d.nodeId||&#x27;-&#x27;;$(&#x27;node-slot&#x27;).value=String(d.slot||1);if($(&#x27;node-name&#x27;))$(&#x27;node-name&#x27;).value=d.customName?(d.name||&#x27;&#x27;):&#x27;&#x27;;if($(&#x27;node-name-status&#x27;))$(&#x27;node-name-status&#x27;).textContent=d.customName?&#x27;Custom name: &#x27;+(d.name||&#x27;-&#x27;):&#x27;Automatic name: Node &#x27;+(d.slot||1)}).catch(function(){})}
+$(&#x27;node-name-save&#x27;).onclick=function(){var name=$(&#x27;node-name&#x27;).value.trim();fetch(&#x27;/node/name&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({name:name})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-name&#x27;).value=d.customName?(d.name||&#x27;&#x27;):&#x27;&#x27;;$(&#x27;node-name-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-name-status&#x27;).textContent=d.customName?&#x27;Saved custom name: &#x27;+d.name:&#x27;Automatic name: Node &#x27;+d.slot}).catch(function(){$(&#x27;node-name-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;node-name-status&#x27;).textContent=&#x27;Could not save node name&#x27;})};
+$(&#x27;node-name-auto&#x27;).onclick=function(){fetch(&#x27;/node/name&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({name:&#x27;&#x27;})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-name&#x27;).value=&#x27;&#x27;;$(&#x27;node-name-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-name-status&#x27;).textContent=&#x27;Automatic name: &#x27;+d.name}).catch(function(){})};
+$(&#x27;node-slot-save&#x27;).onclick=function(){var slot=$(&#x27;node-slot&#x27;).value;fetch(&#x27;/node/slot&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({slot:slot})}).then(function(r){return r.json()}).then(function(d){$(&#x27;node-slot-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Saved as Node &#x27;+d.slot+&#x27; (&#x27;+(d.name||(&#x27;Node &#x27;+d.slot))+&#x27;). Reboot to reconnect with this slot.&#x27;;if($(&#x27;node-name&#x27;)&amp;&amp;!d.customName)$(&#x27;node-name&#x27;).value=&#x27;&#x27;;if($(&#x27;node-name-status&#x27;)&amp;&amp;!d.customName)$(&#x27;node-name-status&#x27;).textContent=&#x27;Automatic name: &#x27;+(d.name||(&#x27;Node &#x27;+d.slot))}).catch(function(){$(&#x27;node-slot-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;node-slot-status&#x27;).textContent=&#x27;Could not save slot&#x27;})};
 function loadHeartbeat(){fetch(&#x27;/heartbeat/status&#x27;).then(function(r){return r.json()}).then(function(d){$(&#x27;heartbeat-on&#x27;).checked=!!d.enabled;$(&#x27;heartbeat-color&#x27;).value=&#x27;#&#x27;+(d.color||&#x27;20E080&#x27;)}).catch(function(){})}
 $(&#x27;heartbeat-save&#x27;).onclick=function(){var body=new URLSearchParams({enabled:$(&#x27;heartbeat-on&#x27;).checked?&#x27;1&#x27;:&#x27;0&#x27;,color:$(&#x27;heartbeat-color&#x27;).value.replace(&#x27;#&#x27;,&#x27;&#x27;)});fetch(&#x27;/heartbeat/save&#x27;,{method:&#x27;POST&#x27;,body:body}).then(function(r){return r.json()}).then(function(d){$(&#x27;heartbeat-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;heartbeat-status&#x27;).textContent=&#x27;Saved. Heartbeat &#x27;+(d.enabled?&#x27;enabled&#x27;:&#x27;disabled&#x27;)+&#x27;.&#x27;}).catch(function(){$(&#x27;heartbeat-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;heartbeat-status&#x27;).textContent=&#x27;Could not save heartbeat&#x27;})};
 loadNodeIdentity();loadHeartbeat();
@@ -787,9 +790,10 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.38-maker&quot;
+#define FW_VERSION   &quot;2.12.39-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
-static char nodeName[32] = &quot;SPECTER Node A&quot;;
+static char nodeName[32] = &quot;Node 1&quot;;
+static bool nodeNameCustom = false;
 
 // ---- pins ----
 #define TOUCH_PIN_DEFAULT 4   // T0 (GPIO4) -- capacitive telescopic antenna
@@ -865,6 +869,7 @@ LedCfg ledCfg = { &quot;SK6812RGBW&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM
 // separately from sensor/network settings. The hardware ID comes from eFuse MAC.
 char stableNodeId[24] = &quot;&quot;;
 volatile int nodeSlot = 1;
+static void applySlotName() { if (!nodeNameCustom) snprintf(nodeName, sizeof(nodeName), &quot;Node %d&quot;, nodeSlot); }
 
 // Optional lowest-priority idle heartbeat. Dedicated NVS namespace &quot;heartbeat&quot;
 // prevents contention with sensor/network and LED configuration writes.
@@ -3169,8 +3174,15 @@ void setupNetwork() {
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
     rfActive    = prefs.getInt(&quot;rfOn&quot;, 0) == 1;
     telemetryHz = prefs.getInt(&quot;hz&quot;, TELEMETRY_HZ_DEFAULT);
-    prefs.getString(&quot;name&quot;, &quot;&quot;).toCharArray(nodeName, sizeof(nodeName));
-    if (nodeName[0] == &#x27;\0&#x27;) strncpy(nodeName, &quot;SPECTER Node A&quot;, sizeof(nodeName));
+    String savedNodeName = prefs.getString(&quot;name&quot;, &quot;&quot;);
+    savedNodeName.trim();
+    if (savedNodeName.length() &gt; 0 &amp;&amp; savedNodeName != &quot;SPECTER Node A&quot; &amp;&amp; savedNodeName != &quot;SPECTER Node B&quot; &amp;&amp; savedNodeName != &quot;SPECTER Node C&quot; &amp;&amp; savedNodeName != &quot;node-a&quot; &amp;&amp; savedNodeName != &quot;node-b&quot; &amp;&amp; savedNodeName != &quot;node-c&quot;) {
+        savedNodeName.toCharArray(nodeName, sizeof(nodeName));
+        nodeNameCustom = true;
+    } else {
+        nodeNameCustom = false;
+        applySlotName();
+    }
     prefs.end();
 
     relayLocalId = ESP.getEfuseMac(); relayAssistLoad();
@@ -3288,14 +3300,26 @@ void setupNetwork() {
 
     // ---- Multi-node identity + idle heartbeat -------------------------------
     server.on(&quot;/node/identity&quot;, []() {
-        JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot;
+        JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/node/name&quot;, HTTP_POST, []() {
+        String name = server.hasArg(&quot;name&quot;) ? server.arg(&quot;name&quot;) : &quot;&quot;;
+        name.trim();
+        if (name.length() &gt; 31) name = name.substring(0, 31);
+        Preferences np; np.begin(&quot;nodeid&quot;, false);
+        if (name.length() == 0) { np.remove(&quot;name&quot;); nodeNameCustom = false; applySlotName(); }
+        else { name.toCharArray(nodeName, sizeof(nodeName)); nodeNameCustom = true; np.putString(&quot;name&quot;, nodeName); }
+        np.end();
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/node/slot&quot;, HTTP_POST, []() {
         int slot = constrain(server.hasArg(&quot;slot&quot;) ? server.arg(&quot;slot&quot;).toInt() : nodeSlot, 1, 3);
         Preferences np; np.begin(&quot;nodeid&quot;, false); np.putInt(&quot;slot&quot;, slot); np.end();
         nodeSlot = slot;
-        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot;
+        applySlotName();
+        JsonDocument d; d[&quot;ok&quot;] = true; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom;
         d[&quot;note&quot;] = &quot;Saved. Reconnects to SPECTER as this slot immediately after reboot.&quot;;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
