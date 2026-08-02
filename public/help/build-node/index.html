@@ -1867,7 +1867,7 @@ void hardwareTask(void* pv) {
         }
         if (diagAnimActive) {
             const uint32_t ATTACK_MS = 350;
-            const uint32_t RELEASE_MS = 700;
+            const uint32_t RELEASE_MS = (diagPulseChan == 1) ? 300 : 700;
             float env = 0.0f;
             if (!diagAnimReleasing &amp;&amp; (int32_t)(animNow - diagAnimUntil) &gt;= 0) {
                 diagAnimReleasing = true;
@@ -1899,16 +1899,15 @@ void hardwareTask(void* pv) {
                 float rad = (diagPulseBrg - 90) * 0.01745329f;
                 int lx = (int)(cosf(rad) * 1000.0f), ly = (int)(-sinf(rad) * 1000.0f);
                 if (diagPulseChan == 1) {
-                    // Producer magnetic drives should look like a normal field
-                    // event on the instrument, not merely a directional fade.
-                    // Keep the app-side event classified as magnetic, but use
-                    // the same configured proximity event animation used by an
-                    // organic prox hit so the physical feedback is consistent.
-                    if (ledCfg.proxAnim == 0) renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
-                    else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
+                    // Magnetic drives keep their directional lobe. Their release
+                    // is intentionally shorter so the device cools promptly.
+                    renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + drive * 0.65f);
                     tone(BUZZER_PIN, 1500 + (int)(drive * 400), 30);
                 } else {
-                    renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
+                    // Proximity drives must use the exact configured organic
+                    // proximity event animation, not a plain fade.
+                    if (ledCfg.proxAnim == 0) renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
+                    else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
                     tone(BUZZER_PIN, 500 + (int)(drive * drive * 1500.0f), 30);
                 }
                 FastLED.setBrightness(diagPulseMaxBrightness ? 255 : ledCfg.bright); ledShow();
