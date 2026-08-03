@@ -30,6 +30,7 @@
         <li><a href="#perf">Performance &amp; presets</a></li>
         <li><a href="#recording">Recording</a></li>
         <li><a href="#license">Licensing &amp; demo</a></li>
+        <li><a href="#node">SPECTER Node</a></li>
       </ul>
     </div>
 
@@ -108,6 +109,25 @@
       <div class="callout">
         <strong>Detectors seem quiet?</strong> Confirm the camera feed is active, and review your detector sensitivity in Settings. In licensed mode all detectors run at the thresholds you set in Settings.
       </div>
+    </section>
+
+    <section id="node">
+      <h2>SPECTER NODE</h2>
+      <table class="help-table">
+        <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Node on Wi-Fi but app does not discover it</td><td>Windows Firewall blocking inbound, or AP client isolation</td><td>Temporarily disable Windows Firewall to test. If that fixes it, allow SPECTER through. If using a phone hotspot or guest network, try a non-isolated access point.</td></tr>
+          <tr><td>Node connects but rail panel disappears</td><td>Missed status event during a burst</td><td>The rail now self-corrects every 2 seconds. If it does not, ensure SPECTER Node is enabled in Settings and restart the app.</td></tr>
+          <tr><td>Node over-triggers after a sync</td><td>Stale baseline under new thresholds</td><td>The receiver recalibrates automatically after sync. Keep clear of the nodes for ~10 seconds. If it persists, run REBASELINE from the app or portal.</td></tr>
+          <tr><td>MAG slider shows 0-4095</td><td>Old app version</td><td>Update the app. The slider is now 0-100 to match the firmware. Any stored value above 100 resets to 70.</td></tr>
+          <tr><td>AUDIBLE ALERT does not mute a node</td><td>Node firmware below 2.15.0</td><td>Update the node firmware via OTA or <a href="/help/flash-node/">USB flash</a>.</td></tr>
+          <tr><td>Direction finder arrow points wrong way</td><td>Display orientation not calibrated</td><td>Run orientation calibration: hold a magnet at FRONT and press FRONT, add other directions. See <a href="/help/using-the-node.html#orientation">orientation calibration</a>.</td></tr>
+          <tr><td>Node trace column is blank</td><td>Panel height too small or no data yet</td><td>Wait a few seconds for data. If still blank, widen the dock or reduce the number of visible panels.</td></tr>
+          <tr><td>Node will not join Wi-Fi after reflash</td><td>Stale SDK WiFi NVS</td><td>Open the node portal, re-save your Wi-Fi credentials. This clears the stale connection state.</td></tr>
+          <tr><td>Node loses connection intermittently</td><td>Weak Wi-Fi or relay hop degrading</td><td>Check route quality in Settings. If relayed, move the gateway node closer or add a direct path. Run <a href="/help/using-the-node.html#relay-mesh">Relay Assist</a> diagnostics.</td></tr>
+        </tbody>
+      </table>
+      <p>Full node reference: <a href="/help/using-the-node.html">Using the SPECTER Node in the app</a>.</p>
     </section>
 
     <section>

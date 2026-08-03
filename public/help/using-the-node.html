@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPECTER Help: Using the SPECTER Node in the App</title>
-  <meta name="description" content="Connect up to three SPECTER Nodes, use direct or relayed routes, read magnetic and proximity telemetry, link Nodes to cameras, and capture synchronized evidence.">
+  <meta name="description" content="Connect up to three SPECTER Nodes, set per-node alert thresholds, calibrate display orientation, run node-to-node sync, mute audible alerts, and capture synchronized evidence.">
   <link rel="stylesheet" href="/site.css">
   <script src="/analytics-track.js" defer></script>
 </head>
@@ -18,11 +18,31 @@
   </nav>
 
   <main class="page page-wide help-body">
-    <p class="fine"><a href="/help/">← Help center</a></p>
+    <p class="fine"><a href="/help/">&larr; Help center</a></p>
     <h1>USING THE SPECTER NODE IN THE APP</h1>
-    <p class="tagline">Connect up to three wireless field sensors, monitor their routes, and capture synchronized evidence</p>
+    <p class="tagline">Connect up to three wireless field sensors, tune thresholds per node, calibrate orientation, and capture synchronized evidence</p>
 
     <p>The SPECTER Node is a small wireless field sensor with a magnetometer and a proximity antenna. Once it is on your network it appears inside SPECTER on its own rail widget, streams live telemetry, and can fire an evidence capture on its own. This page covers using a node you already have. To build one, see <a href="/help/build-node/">Build Your Own SPECTER Node</a>.</p>
+
+    <div class="help-toc">
+      <strong>On this page</strong>
+      <ul>
+        <li><a href="#pairing">Pairing</a></li>
+        <li><a href="#relay-mesh">Three-node relay mesh</a></li>
+        <li><a href="#readouts">Rail widget readouts</a></li>
+        <li><a href="#traces">Live traces in the rail</a></li>
+        <li><a href="#thresholds">Per-node alert thresholds</a></li>
+        <li><a href="#link">Linking thresholds across nodes</a></li>
+        <li><a href="#audible">Audible alert mute</a></li>
+        <li><a href="#enable">Triggered snapshots (ENABLE)</a></li>
+        <li><a href="#orientation">Display orientation calibration</a></li>
+        <li><a href="#direction-finder">Direction Finder</a></li>
+        <li><a href="#sync">Node-to-node sync</a></li>
+        <li><a href="#portal">Node settings portal</a></li>
+        <li><a href="#camera-links">Link nodes to cameras</a></li>
+        <li><a href="#snapshot">The snapshot trigger</a></li>
+      </ul>
+    </div>
 
     <section id="pairing">
       <h2>PAIRING</h2>
@@ -36,6 +56,9 @@
         <img class="help-shot narrow" src="/help/img/node-widget.png" alt="SPECTER node rail widget">
         <figcaption>The node rail widget with live magnetometer and proximity readouts.</figcaption>
       </figure>
+      <div class="callout">
+        <strong>Not seeing your node?</strong> The app discovers nodes via a local network broadcast. If the node is connected to Wi-Fi but SPECTER does not see it, check that Windows Firewall is not blocking inbound traffic on the SPECTER ports, and that your Wi-Fi access point does not have client isolation enabled (common on hotspots and guest networks).
+      </div>
     </section>
 
     <section id="relay-mesh">
@@ -53,12 +76,14 @@
 
     <section id="readouts">
       <h2>RAIL WIDGET READOUTS</h2>
+      <p>Each connected node gets its own panel in the bottom dock. The panel shows a live field mesh on the left and stacked MAG/PROX traces on the right, so you can see the current reading and the recent history at a glance.</p>
       <table class="help-table">
         <thead><tr><th>Readout</th><th>Meaning</th></tr></thead>
         <tbody>
           <tr><td><strong>Magnetometer amplitude</strong></td><td>Combined field strength. Spikes when the local magnetic field shifts.</td></tr>
           <tr><td><strong>Proximity</strong></td><td>Field near the antenna. Reads a <strong>higher</strong> value as something gets <strong>closer</strong>.</td></tr>
           <tr><td><strong>Connection</strong></td><td>Live, or offline after a sustained loss of signal.</td></tr>
+          <tr><td><strong>Mode tag</strong></td><td>Shows whether the node is in touch mode or extended-range (RC) mode, and the current RC sub-channel.</td></tr>
         </tbody>
       </table>
       <div class="callout ok">
@@ -66,10 +91,169 @@
       </div>
     </section>
 
+    <section id="traces">
+      <h2>LIVE TRACES IN THE RAIL</h2>
+      <p>Each node panel shows two 3-minute rolling traces: one for magnetometer amplitude and one for proximity. The traces use the same data buffer that the settings panel uses for threshold tuning, so the rail, the settings cards, and the wall displays always agree.</p>
+      <ul>
+        <li><strong>Area fill</strong> shows the signal level over time. The trace holds peak values per 1-second bucket so short spikes are not averaged away.</li>
+        <li><strong>Amber hairline</strong> marks the current alert threshold. Anything crossing above this line would have triggered an alert.</li>
+        <li><strong>Red dots</strong> mark samples that crossed the threshold.</li>
+        <li><strong>Gaps</strong> (empty sections) mean the node was silent or disconnected during that period.</li>
+      </ul>
+      <div class="callout ok">If a trace column appears blank, the node may not have enough data yet, or the panel height is too small for the canvas to render. The traces need a minimum panel height to draw.</div>
+    </section>
+
     <section id="thresholds">
-      <h2>OPERATOR ALERT THRESHOLDS</h2>
-      <p>SPECTER has its own software thresholds, set in <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>. These are separate from the thresholds baked into the node's own onboard buzzer and LEDs. The app thresholds decide when SPECTER reacts on screen; the node's own thresholds decide when the device beeps and flashes in the field.</p>
-      <p>Live delta readouts next to each slider let you watch the current signal, so you can set a level just above the room's noise floor.</p>
+      <h2>PER-NODE ALERT THRESHOLDS</h2>
+      <p>Each node has its own MAG and PROX alert threshold. A node placed in a noisy room can run a higher threshold than one in a quiet corner, so each one fires only on genuine local changes.</p>
+      <p>The threshold card for each connected node is in <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>. Each card shows:</p>
+      <ul>
+        <li><strong>Node name and slot</strong> at the top.</li>
+        <li><strong>MAG slider</strong> (0 to 100) and <strong>PROX slider</strong> (max follows the node's reported range, typically 100 for touch mode or 400 for extended-range RC mode).</li>
+        <li><strong>3-minute trace</strong> under each slider showing that node's own signal against its own threshold, with threshold crossings dotted red.</li>
+      </ul>
+      <p>The <strong>device is the single source of truth</strong>. The app reads the node's reported threshold from telemetry and the capture level follows it, including any guard band the node applies on top. There are no separate app-side snapshot trigger sliders that can disagree with the device.</p>
+      <div class="callout">
+        <strong>MAG slider range is 0 to 100.</strong> Older versions of the app showed a 0 to 4095 range, but the firmware has always constrained magnetic sensitivity to 0 to 100. Any previously stored value above 100 resets to the default (70) on first load.
+      </div>
+    </section>
+
+    <section id="link">
+      <h2>LINKING THRESHOLDS ACROSS NODES</h2>
+      <p>By default, each node's sliders are independent. You can optionally <strong>LINK</strong> the MAG or PROX threshold across all nodes so one global slider controls every node at once.</p>
+      <ol>
+        <li>In the threshold card, toggle <strong>LINK MAG</strong> or <strong>LINK PROX</strong>.</li>
+        <li>When LINK is on, the per-node sliders disable and a single global slider appears.</li>
+        <li>Flipping LINK on immediately levels every connected node to the current global value, so the slider cannot claim control it does not have.</li>
+        <li>Turn LINK off to return to per-node control. Each node keeps whatever threshold it had when unlinked.</li>
+      </ol>
+      <div class="callout ok">LINK state is saved per channel (MAG and PROX independently). When LINK is off, the global sliders do not broadcast at all, so a stray global write cannot overwrite room-by-room tuning.</div>
+    </section>
+
+    <section id="audible">
+      <h2>AUDIBLE ALERT MUTE</h2>
+      <p>The <strong>AUDIBLE ALERT</strong> button in the detector bar is a master mute for every connected node. When muted, all node tones stop immediately, including the proximity alert beep, the boot tone, and diagnostic tones. The LED animations continue.</p>
+      <ul>
+        <li>The mute state is held centrally and re-sent to each node when it connects. A node that reboots mid-session comes back silent instead of chirping.</li>
+        <li>The state persists across app restarts.</li>
+        <li>The node's own audible setting (in the node portal) is the default for a fresh connection, but the app mute overrides it for the duration of the session.</li>
+      </ul>
+      <p>This requires firmware <strong>2.15.0</strong> or newer. Nodes running older firmware will not respond to the mute command.</p>
+    </section>
+
+    <section id="enable">
+      <h2>TRIGGERED SNAPSHOTS (ENABLE)</h2>
+      <p>The <strong>ENABLE</strong> toggle in the detector bar controls automatic evidence capture. When ENABLE is off, SPECTER continues to detect and display anomalies on screen, including the anomaly dialog, rail flash, and hit log entries, but does not save a gallery item for automatic captures.</p>
+      <ul>
+        <li><strong>ON (default):</strong> automatic captures from depth detection, node threshold crossings, and tracking intervals all save to the gallery as normal.</li>
+        <li><strong>OFF:</strong> detection still appears on screen, but no automatic evidence is written. Manual snapshots (F7 or the snapshot button) still work.</li>
+      </ul>
+      <div class="callout ok">Use this when you want to watch the live field without filling the gallery with captures, or when an operator is reviewing the session but not collecting evidence yet.</div>
+    </section>
+
+    <section id="orientation">
+      <h2>DISPLAY ORIENTATION CALIBRATION</h2>
+      <p>Each node can be calibrated so the on-screen direction finder arrow points the way the real world does. This is purely a <strong>display transform</strong>, it rotates the on-screen vector to match how the physical node is oriented in the room. It does not change detection, baselines, thresholds, or any sensor readings.</p>
+      <h3>How to calibrate</h3>
+      <ol>
+        <li>In the node's threshold card, find the <strong>Display Orientation</strong> section.</li>
+        <li>Hold a magnet at the pod's physical <strong>FRONT</strong> and press the <strong>FRONT</strong> button. The arrow should swing to point "up" for that direction.</li>
+        <li>For better accuracy, also hold the magnet at <strong>BACK</strong>, <strong>LEFT</strong>, and <strong>RIGHT</strong> and press the matching buttons. FRONT alone gives a usable rotation; FRONT plus BACK averages out the room's static field; LEFT and RIGHT reveal whether the pod is left or right-handed.</li>
+        <li>The status line reads <strong>ALIGNED</strong> with the rotation angle in degrees, and <strong>MIRRORED</strong> if the pod is left-handed.</li>
+        <li>Press <strong>CLEAR</strong> to reset orientation and start over.</li>
+      </ol>
+      <div class="callout">
+        <strong>Why handedness matters.</strong> Some LED rings are wired clockwise and others counterclockwise. The calibration solves the handedness first, then applies the rotation from the already-mirrored vector. If you swap the order, a left-handed pod will show the wrong angle.
+      </div>
+      <div class="callout ok">The <strong>TOP</strong> button stores a Z-axis reference but does not affect the solve, since the direction finder is a 2D top-down display. It reads "TOP STORED (3D)" so the press is not inert.</div>
+      <p>Orientation is saved per node, so each node remembers its own rotation. The oriented vector is published to the wall's direction finder and the rail; the raw unrotated vector rides along as <code>magRaw</code>.</p>
+    </section>
+
+    <section id="direction-finder">
+      <h2>DIRECTION FINDER</h2>
+      <p>The Direction Finder is a top-down compass radar in the Instrument Bay on a second screen. It shows not just <em>how strong</em> a magnetic disturbance is, but <em>which direction</em> it is coming from.</p>
+      <p>With multiple nodes connected, the direction finder draws <strong>one needle per node</strong>, each with independently smoothed angle and amplitude so they do not snap. The dominant node (strongest signal) keeps the solid arrow; other nodes draw dashed, dimmer, color-coded, numbered needles.</p>
+      <ul>
+        <li><strong>Bearing needle</strong> swings toward the source of the magnetic disturbance.</li>
+        <li><strong>Proximity ring</strong> closes in toward the center as something gets nearer to a node.</li>
+        <li>Each node's needle is numbered to match its slot (1, 2, 3) and color-coded.</li>
+        <li>When nodes converge on the same bearing, the arrows agree and point toward the same location from different positions, giving you a triangulation read.</li>
+      </ul>
+      <div class="callout ok">For the needles to agree with the physical room, run the <a href="#orientation">display orientation calibration</a> on each node first.</div>
+    </section>
+
+    <section id="sync">
+      <h2>NODE-TO-NODE SYNC</h2>
+      <p>The SYSTEM tab in the node portal has a <strong>SYNC ALL</strong> button that copies this node's tuning to every other node on the same local network. This is useful when you have dialed in one node's sensitivity, LED configuration, and alert timing and want every node to match.</p>
+      <h3>What gets synced</h3>
+      <ul>
+        <li>Magnetic sensitivity, proximity mode, threshold, span, noise floor, and curve</li>
+        <li>Extended-range (RC) margin and floor settings</li>
+        <li>Theremin on/off and tone curve</li>
+        <li>Alert duration, cooldown, arm time, heartbeat resume, and minimum animation hold time</li>
+        <li>Telemetry rate</li>
+        <li>Full LED configuration: chipset, color order, pin assignments, count, brightness, positional map (front/right/back/left), rotation, flip, six event colors, both animation selections, boot colors, and boot animation</li>
+        <li>Heartbeat enabled state and color</li>
+      </ul>
+      <h3>What is NOT synced (deliberately)</h3>
+      <ul>
+        <li><strong>Slot and node name</strong> - identity stays with the physical node.</li>
+        <li><strong>Wi-Fi credentials and relay URL</strong> - a sync must never strand a node.</li>
+        <li><strong>Touch pin and pin swap</strong> - these are per-node physical wiring.</li>
+        <li><strong>Field lock and audible alerts</strong> - these are live controls the app drives rig-wide.</li>
+      </ul>
+      <div class="callout">
+        <strong>After a sync, the receiving nodes recalibrate.</strong> The sync applies new thresholds, and the receiver re-zeroes both sensor channels to clear any stale baseline. The portal shows "keep clear for ~10 seconds" while this happens. Do not stand near the nodes during the recalibration period, or your own field will be measured as the new baseline.
+      </div>
+      <div class="callout ok">Sync runs in its own background task, so the app link and telemetry stay alive during the operation. The portal reports progress as it reaches each node.</div>
+    </section>
+
+    <section id="portal">
+      <h2>NODE SETTINGS PORTAL</h2>
+      <p>Each node hosts its own web portal at <strong>192.168.4.1</strong> when you join its setup Wi-Fi (named <code>SPECTER-NODE-01</code>, <code>SPECTER-NODE-02</code>, etc.). The portal has several tabs for configuring the node directly, without the app.</p>
+      <h3>Wi-Fi tab</h3>
+      <ul>
+        <li>Connect the node to your field network. Enter SSID and password, then save. The node reboots and joins your network.</li>
+        <li>If the node was previously on a different network, saving new Wi-Fi credentials clears the stale connection state so it does not try the old network first.</li>
+      </ul>
+      <h3>Settings tab</h3>
+      <ul>
+        <li><strong>Slot assignment</strong> - set Node 1, 2, or 3. Each node on the same app must have a unique slot.</li>
+        <li><strong>Node name</strong> - a friendly name shown in the app rail and settings.</li>
+        <li><strong>Sense source</strong> - choose basic touch mode (antenna on GPIO4) or extended-range RC mode (GPIO18 drive through a 1M resistor to GPIO4). Extended-range mode gives roughly 10x the proximity resolution.</li>
+        <li><strong>Magnetic sensitivity</strong> (0 to 100, default 70) - how large a magnetic delta is needed to trigger an alert. Lower is more sensitive.</li>
+        <li><strong>Proximity threshold</strong> - the raw trigger level. The node applies a guard band on top, so the effective trigger threshold is slightly higher than what you set.</li>
+        <li><strong>Proximity span</strong> - maps the raw sensor delta to the 0 to 100 field reading shown in the app. A larger span means the field reading rises more slowly as something approaches.</li>
+        <li><strong>Alert duration</strong> - how long the LED animation runs after a threshold crossing.</li>
+        <li><strong>Cooldown</strong> - minimum time between alerts on the same channel.</li>
+        <li><strong>Minimum animation hold</strong> (0 to 10 seconds, default 2) - the LED animation runs for at least this long even on a quick pass, so you get a recognizable pattern instead of a stutter. Clamped to alert duration, so a 1-second alert yields 1 second, not 2.</li>
+        <li><strong>Telemetry rate</strong> (default 10 Hz) - how often the node sends readings to the app.</li>
+      </ul>
+      <h3>LED tab</h3>
+      <ul>
+        <li><strong>Chipset</strong> - WS2812B (RGB) or SK6812 (RGBW). The node auto-detects and rebinds RGBW rings correctly.</li>
+        <li><strong>Color order</strong> - GRB, RGB, RGBW, etc.</li>
+        <li><strong>LED count, brightness, data pin, clock pin</strong> - match your hardware.</li>
+        <li><strong>Positional map</strong> - assign which LED physically faces front, right, back, and left. This is what makes the directional mag lobe point the right way.</li>
+        <li><strong>Rotation and flip</strong> - rotate or mirror the LED layout to match how the ring is mounted.</li>
+        <li><strong>Event colors</strong> - three colors per channel (mag and prox). Each color is used by different animation patterns. Colors A, B, and C let multi-color patterns like theatre chase, color wipe, and gradient cycle use contrasting hues.</li>
+        <li><strong>Animation</strong> (0 to 13) - 14 patterns: solid/directional, pulse, spin, blink, theatre chase, strobe, dual comet, ripple, color wipe, sparkle, gradient cycle, halves, breathe blend, and radar. Patterns 0 to 3 use color A only and are unchanged from older firmware; patterns 4 to 13 use all three colors.</li>
+        <li><strong>Boot colors and boot animation</strong> - what the ring does when the node powers on.</li>
+      </ul>
+      <h3>Theremin tab</h3>
+      <ul>
+        <li><strong>Theremin on/off</strong> - turns the proximity antenna into a continuous audible field. As an influence nears the node, the LED ring glows up and the tone rises in pitch.</li>
+        <li><strong>Tone curve</strong> - linear or sqrt (Natural). Sqrt gives a more musical response.</li>
+        <li><strong>Refit range</strong> - re-measures the proximity span from the strongest hand delta. Hold your hand at the intended sensing distance and press refit.</li>
+        <li><strong>Jitter deadband</strong> - raises the noise floor so the field rests at zero when nothing is near.</li>
+      </ul>
+      <h3>System tab</h3>
+      <ul>
+        <li><strong>Sync All</strong> - copies this node's tuning to every other node on the LAN. See <a href="#sync">Node-to-node sync</a> above.</li>
+        <li><strong>Audible alerts</strong> - master on/off for all node tones (prox beep, boot tone, diagnostic). Default is on. The app's AUDIBLE ALERT button overrides this during a session.</li>
+        <li><strong>Firmware version</strong> - shows the current version and checks for OTA updates.</li>
+        <li><strong>OTA update</strong> - downloads and installs new firmware from the SPECTER servers. The node reboots automatically after the update.</li>
+      </ul>
     </section>
 
     <section id="camera-links">
@@ -81,21 +265,26 @@
 
     <section id="snapshot">
       <h2>THE SNAPSHOT TRIGGER</h2>
-      <p>Arm the snapshot trigger and SPECTER will capture an evidence frame automatically whenever a sensor delta crosses your app threshold. Magnetic crossings and proximity crossings are evaluated separately, each with its own short cooldown so a noisy room does not flood the gallery.</p>
+      <p>Arm the snapshot trigger and SPECTER will capture an evidence frame automatically whenever a sensor delta crosses your alert threshold. Magnetic crossings and proximity crossings are evaluated separately, each with its own short cooldown so a noisy room does not flood the gallery.</p>
       <p>Each auto-capture lands in the gallery like any other detection, with its type, confidence, and synchronized timecode.</p>
       <div class="callout ok">
         Pair this with the <a href="/help/remote-monitoring.html#instrument">Instrument Bay</a> on a second screen to watch the Direction Finder while the node arms your captures.
       </div>
+      <p>If you want detection to appear on screen without saving evidence, turn off the <a href="#enable">ENABLE</a> toggle in the detector bar.</p>
     </section>
 
     <section id="related">
       <h2>RELATED</h2>
       <ul>
         <li><a href="/help/build-node/">Build your own SPECTER Node</a></li>
+        <li><a href="/help/flash-node/">Flash node firmware over USB</a></li>
         <li><a href="/help/remote-monitoring.html">Remote &amp; multi-screen monitoring</a></li>
         <li><a href="/help/field-guide.html">Technical field guide</a></li>
+        <li><a href="/help/troubleshooting.html">Troubleshooting index</a></li>
       </ul>
     </section>
   </main>
+
+  <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>
 </body>
 </html>

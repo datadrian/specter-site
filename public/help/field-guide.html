@@ -216,19 +216,34 @@
 
     <section id="node">
       <h2><span class="num">7.0</span>SPECTER NODE (WIRELESS FIELD SENSOR)</h2>
-      <p>The SPECTER Node is an optional wireless sensor that reports environmental readings to the app over your local network. It extends the instrument's reach into a room without a cable run.</p>
+      <p>The SPECTER Node is an optional wireless sensor that reports environmental readings to the app over your local network. It extends the instrument's reach into a room without a cable run. Up to three nodes can be deployed simultaneously.</p>
       <h3>7.1 Connecting a node</h3>
-      <p>Enable SPECTER NODE in Settings. The app announces itself on the local network and a powered node joins automatically. Once linked, a live node widget appears in the left rail and the node's readings feed the meters and the remote displays.</p>
+      <p>Enable SPECTER NODE in Settings. The app announces itself on the local network and a powered node joins automatically. Once linked, a live node widget appears in the left rail and the node's readings feed the meters and the remote displays. Each connected node gets its own panel in the bottom dock with a live field mesh and rolling 3-minute traces.</p>
       <h3>7.2 Readings</h3>
       <ul class="doc-list">
-        <li><span class="k">Proximity field.</span> A capacitive antenna reports how near an influence is to the node. The reading rises smoothly as something approaches.</li>
+        <li><span class="k">Proximity field.</span> A capacitive antenna reports how near an influence is to the node. The reading rises smoothly as something approaches. Higher value means closer.</li>
         <li><span class="k">Magnetic field.</span> A three-axis magnetometer reports magnetic amplitude and direction. Onboard lights glow toward the side nearest the source so you can read the bearing at a glance.</li>
         <li><span class="k">Link.</span> Signal strength and connection health, so you know the node is reporting.</li>
+        <li><span class="k">Mode tag.</span> Shows whether the node is in touch mode or extended-range (RC) mode, and the current RC sub-channel.</li>
       </ul>
-      <h3>7.3 Theremin mode</h3>
+      <h3>7.3 Live traces</h3>
+      <p>Each node panel shows two 3-minute rolling traces for magnetometer and proximity. The traces use the same data buffer as the threshold tuning cards in Settings, so the rail, the settings, and the wall displays always agree. The amber hairline marks the current alert threshold; red dots mark threshold crossings.</p>
+      <h3>7.4 Theremin mode</h3>
       <p>Theremin mode turns the proximity antenna into a continuous, audible field. As an influence nears the node, the onboard ring glows up and an optional tone rises in pitch, giving you a hands-free sense of approach. Use REFIT RANGE with your hand at the intended distance to fit the reach to your space, and raise the jitter deadband until the field rests at zero when nothing is near.</p>
-      <h3>7.4 Node events</h3>
-      <p>When a node reading crosses its threshold, SPECTER can log an event and trigger a capture automatically, the same as any onboard detection. Adjust node sensitivity in Settings to suit the location.</p>
+      <h3>7.5 Per-node alert thresholds</h3>
+      <p>Each node has its own MAG and PROX alert threshold, tuned from Settings. A node in a noisy room can run a higher threshold than one in a quiet corner. The device is the single source of truth: the app reads the node's reported threshold from telemetry, so the slider and the capture level always agree with what the node is actually running. Optionally LINK the MAG or PROX threshold across all nodes for one global slider.</p>
+      <h3>7.6 Display orientation calibration</h3>
+      <p>Each node can be calibrated so the on-screen direction finder arrow points the way the real world does. Hold a magnet at the pod's physical FRONT and press FRONT in the calibration section; add BACK, LEFT, and RIGHT for accuracy. The status reads ALIGNED with the rotation angle and MIRRORED for left-handed pods. This is a display-only transform and does not affect detection or sensor readings.</p>
+      <h3>7.7 Direction Finder</h3>
+      <p>The Instrument Bay shows a top-down compass radar with one needle per node, each independently smoothed and color-coded. The dominant node draws the solid arrow; others draw dashed. When nodes converge on the same bearing, the arrows triangulate toward the source. Run orientation calibration on each node first for the needles to agree with the physical room.</p>
+      <h3>7.8 Node events</h3>
+      <p>When a node reading crosses its threshold, SPECTER can log an event and trigger a capture automatically, the same as any onboard detection. Adjust node sensitivity in Settings to suit the location. The ENABLE toggle in the detector bar controls whether automatic captures save to the gallery; when off, detection still appears on screen but no evidence is written. Manual snapshots (F7) are always available.</p>
+      <h3>7.9 Audible alert mute</h3>
+      <p>The AUDIBLE ALERT button in the detector bar is a master mute for every connected node. When muted, all node tones stop immediately. The state is re-sent to each node on connection, so a node that reboots mid-session comes back silent. Requires firmware 2.15.0 or newer.</p>
+      <h3>7.10 Node-to-node sync</h3>
+      <p>The SYSTEM tab in the node portal has a SYNC ALL button that copies this node's tuning (sensitivity, thresholds, LED configuration, alert timing) to every other node on the same network. After a sync, the receiving nodes recalibrate for about 10 seconds to clear any stale baseline. Slot, name, Wi-Fi credentials, and physical wiring settings are not synced.</p>
+      <h3>7.11 Node settings portal</h3>
+      <p>Each node hosts a web portal at 192.168.4.1 for direct configuration: Wi-Fi, slot and name, sense source (touch or extended-range RC), sensitivity and thresholds, LED chipset and 14 animation patterns with 3 event colors per channel, theremin mode, audible alerts, firmware updates, and sync. See <a href="/help/using-the-node.html#portal">Using the SPECTER Node</a> for the full reference.</p>
     </section>
 
     <section id="displays">
