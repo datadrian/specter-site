@@ -37,6 +37,7 @@
         <li><a href="#enable">Triggered snapshots (ENABLE)</a></li>
         <li><a href="#orientation">Display orientation calibration</a></li>
         <li><a href="#direction-finder">Direction Finder</a></li>
+        <li><a href="#trajectory">Node trajectory &amp; convergence</a></li>
         <li><a href="#sync">Node-to-node sync</a></li>
         <li><a href="#portal">Node settings portal</a></li>
         <li><a href="#camera-links">Link nodes to cameras</a></li>
@@ -180,6 +181,26 @@
         <li>When nodes converge on the same bearing, the arrows agree and point toward the same location from different positions, giving you a triangulation read.</li>
       </ul>
       <div class="callout ok">For the needles to agree with the physical room, run the <a href="#orientation">display orientation calibration</a> on each node first.</div>
+    </section>
+
+    <section id="trajectory">
+      <h2>NODE TRAJECTORY &amp; CONVERGENCE</h2>
+      <p>When two or more nodes fire threshold events close together in time, SPECTER correlates them and shows a <strong>Node Trajectory</strong> readout at the bottom of the screen. This tells you not just that multiple nodes triggered, but the <em>sequence</em> and <em>timing</em> between them, which can reveal the direction and speed of something moving through the space.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>SPECTER watches for threshold-crossing events from all connected nodes within a rolling <strong>1.2-second window</strong>.</li>
+        <li>When two or more nodes fire in that window, the trajectory HUD appears showing the sequence: <code>NODE 1 -> NODE 2</code> with millisecond offsets: <code>T+0  +234ms</code>.</li>
+        <li>The HUD auto-hides after 5 seconds of quiet.</li>
+        <li>If a node has a <a href="#camera-links">camera link</a>, its mapped camera highlights immediately when that node fires.</li>
+      </ul>
+      <h3>Three-node convergence</h3>
+      <p>When all three nodes fire within the same 1.2-second window, SPECTER shows a <strong>THREE-NODE CONVERGENCE</strong> alert at the top of the screen with the full sequence and total span in milliseconds. This is a significant multi-sensor event worth noting in your investigation log. The convergence alert has a 4-second refractory so a single burst does not repeat the toast.</p>
+      <div class="callout ok">
+        Trajectory correlation works on genuine hardware event frames only. It never suppresses individual node events and never turns one node event into another. Each node still triggers independently on its own threshold; the trajectory readout is a correlation overlay that helps you read the pattern.
+      </div>
+      <div class="callout">
+        The trajectory shows <em>which</em> nodes fired and <em>when</em>, not <em>where</em> something was. For the spatial bearing, use the <a href="#direction-finder">Direction Finder</a>, which shows the magnetic vector from each node in real time.
+      </div>
     </section>
 
     <section id="sync">

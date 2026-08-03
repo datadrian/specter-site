@@ -236,13 +236,15 @@
       <p>Each node can be calibrated so the on-screen direction finder arrow points the way the real world does. Hold a magnet at the pod's physical FRONT and press FRONT in the calibration section; add BACK, LEFT, and RIGHT for accuracy. The status reads ALIGNED with the rotation angle and MIRRORED for left-handed pods. This is a display-only transform and does not affect detection or sensor readings.</p>
       <h3>7.7 Direction Finder</h3>
       <p>The Instrument Bay shows a top-down compass radar with one needle per node, each independently smoothed and color-coded. The dominant node draws the solid arrow; others draw dashed. When nodes converge on the same bearing, the arrows triangulate toward the source. Run orientation calibration on each node first for the needles to agree with the physical room.</p>
-      <h3>7.8 Node events</h3>
+      <h3>7.8 Node trajectory &amp; convergence</h3>
+      <p>When two or more nodes fire threshold events within a 1.2-second window, SPECTER shows a Node Trajectory readout at the bottom of the screen with the sequence and millisecond timing between hits. When all three nodes fire in that window, a THREE-NODE CONVERGENCE alert appears at the top. The trajectory shows which nodes fired and when; for the spatial bearing, use the Direction Finder. Correlation runs on genuine hardware events only and never suppresses individual node events.</p>
+      <h3>7.9 Node events</h3>
       <p>When a node reading crosses its threshold, SPECTER can log an event and trigger a capture automatically, the same as any onboard detection. Adjust node sensitivity in Settings to suit the location. The ENABLE toggle in the detector bar controls whether automatic captures save to the gallery; when off, detection still appears on screen but no evidence is written. Manual snapshots (F7) are always available.</p>
-      <h3>7.9 Audible alert mute</h3>
+      <h3>7.10 Audible alert mute</h3>
       <p>The AUDIBLE ALERT button in the detector bar is a master mute for every connected node. When muted, all node tones stop immediately. The state is re-sent to each node on connection, so a node that reboots mid-session comes back silent. Requires firmware 2.15.0 or newer.</p>
-      <h3>7.10 Node-to-node sync</h3>
+      <h3>7.11 Node-to-node sync</h3>
       <p>The SYSTEM tab in the node portal has a SYNC ALL button that copies this node's tuning (sensitivity, thresholds, LED configuration, alert timing) to every other node on the same network. After a sync, the receiving nodes recalibrate for about 10 seconds to clear any stale baseline. Slot, name, Wi-Fi credentials, and physical wiring settings are not synced.</p>
-      <h3>7.11 Node settings portal</h3>
+      <h3>7.12 Node settings portal</h3>
       <p>Each node hosts a web portal at 192.168.4.1 for direct configuration: Wi-Fi, slot and name, sense source (touch or extended-range RC), sensitivity and thresholds, LED chipset and 14 animation patterns with 3 event colors per channel, theremin mode, audible alerts, firmware updates, and sync. See <a href="/help/using-the-node.html#portal">Using the SPECTER Node</a> for the full reference.</p>
     </section>
 
