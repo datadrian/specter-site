@@ -37,6 +37,7 @@
         <li><a href="#license">License activation</a></li>
         <li><a href="#remote">Remote monitor &amp; recording</a></li>
         <li><a href="#performance">Performance tips</a></li>
+        <li><a href="#settings-menu">The Settings menu</a></li>
         <li><a href="#support">Still stuck?</a></li>
       </ul>
       <strong>Feature guides</strong>
@@ -48,7 +49,7 @@
         <li><a href="/help/ip-cameras.html">Security system / IP Camera Wall</a></li>
         <li><a href="/help/remote-monitoring.html#phone-alerts">Detection alerts to your phone</a></li>
         <li><a href="/help/remote-monitoring.html#away">Monitor from anywhere (internet)</a></li>
-        <li><a href="/help/using-the-node.html">Using the SPECTER Node in the app</a></li>
+        <li><a href="/help/using-the-node.html">Using the SPECTER Node in the app</a> - pairing, thresholds, expanded field vector, RF filter, <a href="/help/using-the-node.html#diag-capture">multi-node diagnostic capture</a>, portal log, internet relay, and the full settings portal reference</li>
         <li><a href="/help/evp-lab.html">EVP Audio Lab</a></li>
         <li><a href="/help/detection-types.html">Detection types reference</a></li>
         <li><a href="/help/build-node/"><strong>Build Your Own SPECTER Node</strong> (wiring + Arduino code)</a></li>
@@ -88,7 +89,7 @@
         <li><a href="/help/ip-cameras.html"><strong>Security system / IP Camera Wall</strong></a> - connect a Lorex or any RTSP / ONVIF NVR and run detection across four camera feeds at once.</li>
         <li><a href="/help/remote-monitoring.html#phone-alerts"><strong>Detection alerts to your phone</strong></a> - get notified the moment SPECTER flags something, even with the screen off.</li>
         <li><a href="/help/remote-monitoring.html#away"><strong>Monitor from anywhere</strong></a> - a secure internet link to your live feed and readings over cellular.</li>
-        <li><a href="/help/using-the-node.html"><strong>Using the SPECTER Node in the app</strong></a> - pairing, per-node thresholds, live traces, orientation calibration, direction finder, node trajectory &amp; convergence, audible mute, node sync, and the full settings portal reference.</li>
+        <li><a href="/help/using-the-node.html"><strong>Using the SPECTER Node in the app</strong></a> - pairing, per-node thresholds, live traces, orientation calibration, direction finder, node trajectory &amp; convergence, audible mute, node sync, expanded field vector view, RF interference filter, multi-node diagnostic capture, per-node portal diagnostic log, internet relay, and the full settings portal reference.</li>
         <li><a href="/help/evp-lab.html"><strong>EVP Audio Lab</strong></a> - review session audio and export a snippet share pack.</li>
         <li><a href="/help/detection-types.html"><strong>Detection types reference</strong></a> - what each anomaly label means.</li>
         <li><a href="/help/build-node/"><strong>Build Your Own SPECTER Node</strong></a> - wiring diagram, parts list, live interface simulator, and the full Arduino sketch to copy.</li>
@@ -272,6 +273,26 @@
         <li>Use wired power on the field laptop; disable battery saver.</li>
         <li>Room map / point cloud are GPU/CPU heavy, use on capable hardware only.</li>
       </ul>
+    </section>
+
+    <section id="settings-menu">
+      <h2>THE SETTINGS MENU</h2>
+      <p>Open the Settings menu with <code>Ctrl+Shift+G</code>. It is organized into seven tabs with a live search bar that filters cards by name. Changes save when you click <strong>Save</strong> and apply immediately to the running session.</p>
+      <table class="help-table">
+        <thead><tr><th>Tab</th><th>What you configure here</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Detection</strong></td><td>Face detection, body detection, smoke/spectral anomaly, output tier, view and detection defaults. Toggle detectors on or off and set confidence levels.</td></tr>
+          <tr><td><strong>Cameras</strong></td><td>RealSense D435i, Kinect v2, USB/HDMI capture card, P2W thermal camera, IP cameras (Lorex/RTSP), 2x2 IP Camera Wall layout, and performance preset (Light/Balanced/Show).</td></tr>
+          <tr><td><strong>Sensors &amp; Alerts</strong></td><td>Thermal detector controls, <a href="/help/using-the-node.html">SPECTER Node</a> (enable/disable, relay assist, node-to-camera links, internet relay URL, triggered snapshots), per-node alert thresholds with LINK toggle, and the app-side snapshot trigger.</td></tr>
+          <tr><td><strong>Recording</strong></td><td>Screen recording quality, global timecode, and the detection save folder. See <a href="/help/recording.html">Recording (MP4)</a>.</td></tr>
+          <tr><td><strong>Displays &amp; Remote</strong></td><td>Command Center (extra screens), 2x2 Control Center grid, display mode, and remote access (phone monitor, internet tunnel). See <a href="/help/remote-monitoring.html">Remote &amp; multi-screen monitoring</a>.</td></tr>
+          <tr><td><strong>App</strong></td><td>Interface options, diagnostics, startup tour replay, and a read-only hotkey reference.</td></tr>
+          <tr><td><strong>License &amp; Help</strong></td><td>License activation, support links, and software version info. See <a href="#license">License activation</a> below.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">
+        The Settings menu is the same panel in both the customer and show builds. It contains only legitimate configuration options. The node settings portal (on each node itself) has the full LED, theremin, and sensor tuning.
+      </div>
     </section>
 
     <section id="support">

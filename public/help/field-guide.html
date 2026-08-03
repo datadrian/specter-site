@@ -229,7 +229,7 @@
       <h3>7.3 Live traces</h3>
       <p>Each node panel shows two 3-minute rolling traces for magnetometer and proximity. The traces use the same data buffer as the threshold tuning cards in Settings, so the rail, the settings, and the wall displays always agree. The amber hairline marks the current alert threshold; red dots mark threshold crossings.</p>
       <h3>7.4 Theremin mode</h3>
-      <p>Theremin mode turns the proximity antenna into a continuous, audible field. As an influence nears the node, the onboard ring glows up and an optional tone rises in pitch, giving you a hands-free sense of approach. Use REFIT RANGE with your hand at the intended distance to fit the reach to your space, and raise the jitter deadband until the field rests at zero when nothing is near.</p>
+      <p>Theremin mode turns the proximity antenna into a continuous, audible field. As an influence nears the node, the onboard ring glows up and an optional tone rises in pitch, giving you a hands-free sense of approach. Use REFIT RANGE with your hand at the intended distance to fit the reach to your space, and raise the jitter deadband until the field rests at zero when nothing is near. Firmware 2.15.1 and later applies a median-of-3 de-glitch filter to the theremin display and span auto-fit, so isolated single-tick EMI spikes no longer cause the ring to flicker.</p>
       <h3>7.5 Per-node alert thresholds</h3>
       <p>Each node has its own MAG and PROX alert threshold, tuned from Settings. A node in a noisy room can run a higher threshold than one in a quiet corner. The device is the single source of truth: the app reads the node's reported threshold from telemetry, so the slider and the capture level always agree with what the node is actually running. Optionally LINK the MAG or PROX threshold across all nodes for one global slider.</p>
       <h3>7.6 Display orientation calibration</h3>
@@ -244,8 +244,18 @@
       <p>The AUDIBLE ALERT button in the detector bar is a master mute for every connected node. When muted, all node tones stop immediately. The state is re-sent to each node on connection, so a node that reboots mid-session comes back silent. Requires firmware 2.15.0 or newer.</p>
       <h3>7.11 Node-to-node sync</h3>
       <p>The SYSTEM tab in the node portal has a SYNC ALL button that copies this node's tuning (sensitivity, thresholds, LED configuration, alert timing) to every other node on the same network. After a sync, the receiving nodes recalibrate for about 10 seconds to clear any stale baseline. Slot, name, Wi-Fi credentials, and physical wiring settings are not synced.</p>
-      <h3>7.12 Node settings portal</h3>
-      <p>Each node hosts a web portal at 192.168.4.1 for direct configuration: Wi-Fi, slot and name, sense source (touch or extended-range RC), sensitivity and thresholds, LED chipset and 14 animation patterns with 3 event colors per channel, theremin mode, audible alerts, firmware updates, and sync. See <a href="/help/using-the-node.html#portal">Using the SPECTER Node</a> for the full reference.</p>
+      <h3>7.12 Expanded field vector view</h3>
+      <p>Double-click any node's field mesh in the bottom dock to open the expanded Field Vector overlay. This shows a large real-time magnetic vector mesh with the raw X/Y/Z axes, proximity, and Wi-Fi RSSI, plus a tuning panel with SET BASELINE (rebaseline this room), MAG and PROX sensitivity multipliers (0.1x to 3x, display only), and the MAG and PROX alert threshold sliders for that node. Press Esc or click X to close. See <a href="/help/using-the-node.html#expanded">Using the SPECTER Node: Expanded field vector view</a> for the full reference.</p>
+      <h3>7.13 RF interference filter</h3>
+      <p>The expanded view includes an RF filter for recording-mode operation. Press and hold HOLD TO CAPTURE INTERFERENCE while a crew radio or other known source is active to capture its magnetic signature. Toggle SUPPRESS MATCHES to suppress proximity alerts matching captured signatures. Per-node, not global. See <a href="/help/using-the-node.html#rf-filter">Using the SPECTER Node: RF interference filter</a> for details.</p>
+      <h3>7.14 Multi-node diagnostic capture</h3>
+      <p>The CAPTURE ALL (2 MIN) button in the node rail header fires the same 2-minute field-capture log at every connected node simultaneously and compares them side by side. It downloads all CSVs, computes per-node baseline noise (PROX and MAG mean + stdev), RC fault rate, RSSI, and alert counts, and flags any node whose stats stand out from the group. A folder with the CSVs and a SUMMARY.txt opens automatically. Use this when hand-made nodes behave inconsistently to see which one has a wiring or antenna difference. See <a href="/help/using-the-node.html#diag-capture">Using the SPECTER Node: Multi-node diagnostic capture</a> for the full guide.</p>
+      <h3>7.15 Per-node portal diagnostic log</h3>
+      <p>Each node's own web portal has a CAPTURE 2 MIN LOG button that records ~2 minutes of raw sensor data at ~20 Hz and downloads it as CSV. The CSV includes proximity delta, magnetometer delta, RC capacitance charge/fault state, alert phase, and RSSI. A stall log at <code>/diag/stalls</code> records any loop-blocking events over 40 ms. See <a href="/help/using-the-node.html#portal-log">Using the SPECTER Node: Per-node portal diagnostic log</a> for the column reference.</p>
+      <h3>7.16 Internet relay</h3>
+      <p>For nodes off the SPECTER computer's Wi-Fi network, Settings shows an Internet relay URL (Cloudflare tunnel, per-machine isolated). Paste it into the node's own portal Internet Relay field to connect over the internet. Requires Internet mode and a valid license. See <a href="/help/using-the-node.html#internet-relay">Using the SPECTER Node: Internet relay</a> for setup steps.</p>
+      <h3>7.17 Node settings portal</h3>
+      <p>Each node hosts a web portal at 192.168.4.1 for direct configuration: Wi-Fi, slot and name, sense source (touch or extended-range RC), sensitivity and thresholds, LED chipset and 14 animation patterns with 3 event colors per channel, theremin mode, audible alerts, firmware updates, sync, a 2-minute field-capture diagnostic log, and a loop-stall log. See <a href="/help/using-the-node.html#portal">Using the SPECTER Node</a> for the full reference.</p>
     </section>
 
     <section id="displays">
@@ -274,7 +284,7 @@
       </div>
     </section>
 
-    <div class="doc-foot">SPECTRAL IMAGING UNIT &middot; TECHNICAL OPERATIONS MANUAL &middot; REV 4.3.0 &middot; specter-imaging.com</div>
+    <div class="doc-foot">SPECTRAL IMAGING UNIT &middot; TECHNICAL OPERATIONS MANUAL &middot; REV 4.4.0 &middot; specter-imaging.com</div>
   </main>
 
   <footer class="site-footer">Support: <a href="mailto:support@specter-imaging.com">support@specter-imaging.com</a></footer>

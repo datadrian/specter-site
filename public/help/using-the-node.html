@@ -34,13 +34,19 @@
         <li><a href="#thresholds">Per-node alert thresholds</a></li>
         <li><a href="#link">Linking thresholds across nodes</a></li>
         <li><a href="#audible">Audible alert mute</a></li>
+        <li><a href="#app-controls">App-side node controls</a></li>
         <li><a href="#enable">Triggered snapshots (ENABLE)</a></li>
         <li><a href="#orientation">Display orientation calibration</a></li>
         <li><a href="#direction-finder">Direction Finder</a></li>
         <li><a href="#trajectory">Node trajectory &amp; convergence</a></li>
         <li><a href="#sync">Node-to-node sync</a></li>
+        <li><a href="#expanded">Expanded field vector view</a></li>
+        <li><a href="#rf-filter">RF interference filter</a></li>
+        <li><a href="#diag-capture">Multi-node diagnostic capture</a></li>
+        <li><a href="#portal-log">Per-node portal diagnostic log</a></li>
         <li><a href="#portal">Node settings portal</a></li>
         <li><a href="#camera-links">Link nodes to cameras</a></li>
+        <li><a href="#internet-relay">Internet relay (off-Wi-Fi nodes)</a></li>
         <li><a href="#snapshot">The snapshot trigger</a></li>
       </ul>
     </div>
@@ -142,6 +148,21 @@
       <p>This requires firmware <strong>2.15.0</strong> or newer. Nodes running older firmware will not respond to the mute command.</p>
     </section>
 
+    <section id="app-controls">
+      <h2>APP-SIDE NODE CONTROLS</h2>
+      <p>In <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>, the app provides several rig-wide controls that affect every connected node at once:</p>
+      <ul>
+        <li><strong>Enable SPECTER Node</strong> - master on/off for the entire node subsystem. When off, no node server runs, no rail widget appears, and no overhead is consumed. When on, the app starts a discovery beacon so nodes find this PC automatically.</li>
+        <li><strong>This PC (server) address</strong> - shows the IP address the app is listening on. If automatic discovery is blocked, you can type this into the node's config portal manually.</li>
+        <li><strong>IDENTIFY ALL (BLINK)</strong> - sends a blink command to every connected node so you can physically identify which node is which. Useful when all three are on a table and you need to match a node to its slot.</li>
+        <li><strong>REBASELINE ALL</strong> - sends a rebaseline command to every connected node simultaneously. Each node re-zeroes both sensor channels to the current ambient field. Step away from all nodes before pressing it. Use this when you move to a new location or when the room's ambient field has drifted.</li>
+        <li><strong>Node route list</strong> - shows each discovered node with its IP address, slot, connection state, and transport type (direct or relay). Click a node's address to open its web portal in a browser.</li>
+      </ul>
+      <div class="callout ok">
+        IDENTIFY ALL and REBASELINE ALL are convenience buttons that broadcast to all nodes. Individual nodes can also be identified or rebaselined from their own portal or from the <a href="#expanded">expanded field vector view</a>.
+      </div>
+    </section>
+
     <section id="enable">
       <h2>TRIGGERED SNAPSHOTS (ENABLE)</h2>
       <p>The <strong>ENABLE</strong> toggle in the detector bar controls automatic evidence capture. When ENABLE is off, SPECTER continues to detect and display anomalies on screen, including the anomaly dialog, rail flash, and hit log entries, but does not save a gallery item for automatic captures.</p>
@@ -229,6 +250,124 @@
       <div class="callout ok">Sync runs in its own background task, so the app link and telemetry stay alive during the operation. The portal reports progress as it reaches each node.</div>
     </section>
 
+    <section id="expanded">
+      <h2>EXPANDED FIELD VECTOR VIEW</h2>
+      <p>Double-click any node's field mesh in the bottom dock (or click the NODE grid button) to open the expanded Field Vector overlay. This replaces the center feed with a large magnetic vector display and a full tuning panel for that individual node.</p>
+      <h3>What it shows</h3>
+      <ul>
+        <li><strong>Magnetic vector canvas</strong> - a large real-time mesh showing the direction and amplitude of the magnetic field. The lobe points toward the side nearest the source.</li>
+        <li><strong>MAG amplitude</strong> - the combined field strength (raw units).</li>
+        <li><strong>X / Y / Z</strong> - the three raw magnetometer axes, so you can see which axis is driving a change.</li>
+        <li><strong>Proximity</strong> - the current capacitive field reading (higher = closer).</li>
+        <li><strong>Link RSSI</strong> - Wi-Fi signal strength in dBm. Closer to 0 is stronger. Useful for diagnosing intermittent drops.</li>
+      </ul>
+      <h3>Tuning controls in the expanded view</h3>
+      <ul>
+        <li><strong>SET BASELINE - CALIBRATE THIS ROOM</strong> - sends a rebaseline command to this node only. The node re-zeroes both sensor channels to the current ambient field. Use this when you move a node to a new position or when the room's baseline has drifted. Step away from the node before pressing it, or your own field will be measured as the new baseline.</li>
+        <li><strong>MAG SENSITIVITY</strong> (0.1x to 3.0x) - a display multiplier for the magnetic trace amplitude. Does not change the alert threshold; affects only how prominently the magnetic signal renders on screen.</li>
+        <li><strong>PROX SENSITIVITY</strong> (0.1x to 3.0x) - same, for the proximity trace.</li>
+        <li><strong>MAG ALERT THRESHOLD</strong> - the raw trigger level for magnetic alerts on this node. Anything crossing above this triggers an event.</li>
+        <li><strong>PROX ALERT THRESHOLD</strong> - the raw trigger level for proximity alerts on this node.</li>
+      </ul>
+      <div class="callout">
+        The sensitivity multipliers are display-only. They make the trace more or less prominent on screen, but the alert threshold sliders are what control when a detection event fires. If you want fewer false alerts, raise the threshold, not the sensitivity.
+      </div>
+      <p>Press <strong>Esc</strong> or click the <strong>X</strong> in the top-right corner to close the expanded view and return to the normal feed.</p>
+    </section>
+
+    <section id="rf-filter">
+      <h2>RF INTERFERENCE FILTER</h2>
+      <p>The expanded field vector view includes an RF filter panel for recording-mode operation. This lets you capture and suppress the magnetic signature of known interference sources (crew radios, fluorescent ballasts, nearby electronics) so they stop generating false proximity alerts.</p>
+      <h3>How to use it</h3>
+      <ol>
+        <li>Open the expanded view for the node you want to filter.</li>
+        <li>While the interference source is active (hold a crew radio key, or position the node near the ballast), press and hold <strong>HOLD TO CAPTURE INTERFERENCE</strong>.</li>
+        <li>The node records the magnetic signature of the source. Release the button when the capture is done.</li>
+        <li>The captured signature appears in the RF list below the button, labeled with the date and time.</li>
+        <li>Toggle <strong>SUPPRESS MATCHES</strong> to enable filtering. When on, the node will suppress proximity alerts that match a captured RF signature instead of firing a detection event.</li>
+      </ol>
+      <div class="callout ok">
+        You can capture multiple signatures. Each one is listed separately. Toggle SUPPRESS MATCHES on or off at any time without losing the stored signatures.
+      </div>
+      <div class="callout">
+        The RF filter is per-node, not global. Each node sees a different interference environment, so you should capture and filter on each node individually.
+      </div>
+    </section>
+
+    <section id="diag-capture">
+      <h2>MULTI-NODE DIAGNOSTIC CAPTURE</h2>
+      <p>When you have two or three nodes running side by side and they behave inconsistently (one over-triggers, another is sluggish, a third has a noisy baseline), the <strong>CAPTURE ALL (2 MIN)</strong> button in the node rail header fires the same 2-minute field-capture log at every connected node simultaneously and compares them side by side.</p>
+      <h3>What it does</h3>
+      <ol>
+        <li>Press <strong>CAPTURE ALL (2 MIN)</strong> in the SPECTER NODES header. The button text changes to "CAPTURING..." and the status line shows per-node progress.</li>
+        <li>Each connected node starts recording its raw sensor data at ~20 Hz for 2 minutes: proximity delta, magnetometer delta, RC capacitance charge/fault state, alert phase, and Wi-Fi RSSI.</li>
+        <li>When the capture window ends, the app downloads all the CSVs automatically, computes per-node statistics, and flags any node whose numbers stand out from the group.</li>
+        <li>A folder opens on your desktop containing one CSV per node, a SUMMARY.txt with the comparison, and a manifest.json.</li>
+      </ol>
+      <h3>What the stats mean</h3>
+      <ul>
+        <li><strong>PROX baseline (mean + stdev)</strong> - the resting noise floor of the proximity antenna during quiet periods (no alerts). A node with a much higher stdev than its siblings likely has a wiring or antenna-length difference causing more electrical noise.</li>
+        <li><strong>MAG baseline (mean + stdev)</strong> - same, for the magnetometer channel. A higher stdev here means the magnetometer is picking up more ambient magnetic variation, which could be placement (near a metal surface) or wiring.</li>
+        <li><strong>RC fault rate (%)</strong> - percentage of samples where the RC capacitance sensor reported a fault. A high fault rate (above a few percent) indicates a hardware issue with the antenna circuit on that node, not a sensitivity problem.</li>
+        <li><strong>RSSI (dBm)</strong> - average Wi-Fi signal strength. A node with significantly worse RSSI than the others may drop intermittently or deliver delayed telemetry, which can look like erratic behavior in the app.</li>
+        <li><strong>Alert counts</strong> - how many rows crossed the threshold during the capture. If one node fired many more alerts than the others in the same environment, its threshold is likely too low for that location, or its baseline noise is high enough to cross it.</li>
+      </ul>
+      <div class="callout ok">
+        The capture runs over each node's own local web portal (HTTP), not the app's WebSocket link, so it works even if the WS connection is flaky. Relay-assist virtual nodes (nodes forwarded through another node) are skipped because they have no direct LAN address to hit.
+      </div>
+      <div class="callout">
+        The capture uses the same <a href="#portal-log">per-node portal diagnostic log</a> feature, but fires it at all nodes at once from the app instead of you opening each portal individually. The CSV format is identical.
+      </div>
+    </section>
+
+    <section id="portal-log">
+      <h2>PER-NODE PORTAL DIAGNOSTIC LOG</h2>
+      <p>Each node's own web portal (at its LAN IP address, or 192.168.4.1 when on its setup Wi-Fi) includes a <strong>CAPTURE 2 MIN LOG</strong> button on the main page. This records ~2 minutes of raw sensor data at ~20 Hz and lets you download it as a CSV file.</p>
+      <h3>How to use it</h3>
+      <ol>
+        <li>Open the node's web portal in a browser (find its IP address in Settings, under the node route list, or join its setup Wi-Fi and go to 192.168.4.1).</li>
+        <li>Press <strong>CAPTURE 2 MIN LOG</strong>. The button changes to "CAPTURING..." and a status line shows the row count and time remaining.</li>
+        <li>When the capture finishes, a <strong>DOWNLOAD CSV</strong> button appears. Click it to save the file.</li>
+      </ol>
+      <h3>CSV columns</h3>
+      <ul>
+        <li><strong>ts_ms</strong> - timestamp in milliseconds since boot</li>
+        <li><strong>rc_charge_us_x100 / rc_base_us_x100</strong> - RC capacitance charge time and baseline (in microseconds x 100)</li>
+        <li><strong>rc_ok / rc_fault</strong> - whether the RC sensor reported a valid reading or a fault for this sample</li>
+        <li><strong>prox_delta</strong> - proximity delta (raw sensor reading above baseline)</li>
+        <li><strong>prox_alert</strong> - 1 if this sample crossed the proximity alert threshold, 0 otherwise</li>
+        <li><strong>sat_armed</strong> - 1 if the proximity sensor was in armed (saturated) mode</li>
+        <li><strong>mag_delta</strong> - magnetometer delta (combined three-axis amplitude change)</li>
+        <li><strong>mag_alert</strong> - 1 if this sample crossed the magnetic alert threshold, 0 otherwise</li>
+        <li><strong>alert_phase</strong> - current alert state machine phase</li>
+        <li><strong>rssi_dbm</strong> - Wi-Fi received signal strength in dBm</li>
+        <li><strong>rc_timeout_us</strong> - RC sensor timeout threshold in microseconds</li>
+      </ul>
+      <div class="callout ok">
+        For comparing multiple nodes at once, use the <a href="#diag-capture">multi-node diagnostic capture</a> button in the app instead of opening each portal separately. It runs the same capture on all nodes simultaneously and adds the comparison summary.
+      </div>
+      <p>The portal also has a <strong>stall log</strong> (visible at <code>/diag/stalls</code>) that records any time the node's main loop blocked for more than 40 ms, which is useful for diagnosing intermittent portal or telemetry freezes.</p>
+    </section>
+
+    <section id="internet-relay">
+      <h2>INTERNET RELAY (OFF-WI-FI NODES)</h2>
+      <p>For nodes that cannot be on the same Wi-Fi network as the SPECTER computer (for example, a node placed in a separate building with internet access), SPECTER can generate a secure relay URL that the node uses to connect over the internet through a Cloudflare tunnel.</p>
+      <h3>Setup</h3>
+      <ol>
+        <li>In SPECTER, go to <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong>.</li>
+        <li>Find the <strong>Internet relay URL</strong> field (labeled "for nodes off your Wi-Fi").</li>
+        <li>Click <strong>COPY RELAY URL</strong> to copy it to your clipboard.</li>
+        <li>Open the node's own web portal and paste the URL into its <strong>Internet Relay</strong> field.</li>
+        <li>Save and reboot the node. It will connect to your SPECTER over the internet instead of local Wi-Fi.</li>
+      </ol>
+      <div class="callout ok">
+        The tunnel is per-machine isolated. Each SPECTER install gets its own deterministic hostname. No shared server relays the video. The feed stays private to your session.
+      </div>
+      <div class="callout">
+        Leave the node's relay field blank to keep using normal local Wi-Fi discovery. The relay is a fallback, not a replacement. Requires Internet mode and a valid license.
+      </div>
+    </section>
+
     <section id="portal">
       <h2>NODE SETTINGS PORTAL</h2>
       <p>Each node hosts its own web portal at <strong>192.168.4.1</strong> when you join its setup Wi-Fi (named <code>SPECTER-NODE-01</code>, <code>SPECTER-NODE-02</code>, etc.). The portal has several tabs for configuring the node directly, without the app.</p>
@@ -302,6 +441,7 @@
         <li><a href="/help/remote-monitoring.html">Remote &amp; multi-screen monitoring</a></li>
         <li><a href="/help/field-guide.html">Technical field guide</a></li>
         <li><a href="/help/troubleshooting.html">Troubleshooting index</a></li>
+        <li><a href="/help/detection-types.html">Detection types reference</a></li>
       </ul>
     </section>
   </main>
