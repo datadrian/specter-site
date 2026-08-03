@@ -15,7 +15,7 @@
 // remote.specter-imaging.com), LICENSE_SALT (existing).
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { validateKey } = require('./_lib/license-key');
-const { configureStore, getRecord } = require('./_lib/license-store');
+const { configureStore, getRecord, saveRecord } = require('./_lib/license-store');
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -39,9 +39,10 @@ async function cf(path, opts = {}) {
 }
 
 // Deterministic, DNS-safe tunnel/subdomain name for a machine.
-function names(machineId) {
-  const slug = String(machineId).toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 20) || 'anon';
-  const sub = `m-${slug}`;
+function names(machineId, generation = 0) {
+  const slug = String(machineId).toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 16) || 'anon';
+  const suffix = Number(generation) > 0 ? `-r${Number(generation)}` : '';
+  const sub = `m-${slug}${suffix}`;
   // NOTE: keep the hostname at the 3rd level (m-xxx.specter-imaging.com) so the
   // FREE Cloudflare universal wildcard cert (*.specter-imaging.com) covers it.
   // A 4th level (m-xxx.remote.specter-imaging.com) would need paid Advanced
@@ -93,6 +94,23 @@ async function setTunnelConfig(accountId, tunnelId, hostname, port, nodeHostname
   });
 }
 
+async function deleteDns(zoneId, hostname) {
+  const existing = await cf(`/zones/${zoneId}/dns_records?type=CNAME&name=${encodeURIComponent(hostname)}`);
+  for (const rec of Array.isArray(existing) ? existing : []) {
+    await cf(`/zones/${zoneId}/dns_records/${rec.id}`, { method: 'DELETE' });
+  }
+}
+
+async function deleteTunnelByName(accountId, zoneId, tunnelName, hostnames) {
+  const list = await cf(`/accounts/${accountId}/cfd_tunnel?name=${encodeURIComponent(tunnelName)}&is_deleted=false`);
+  for (const tunnel of Array.isArray(list) ? list : []) {
+    await cf(`/accounts/${accountId}/cfd_tunnel/${tunnel.id}`, { method: 'DELETE' });
+  }
+  for (const hostname of hostnames || []) {
+    try { await deleteDns(zoneId, hostname); } catch (_) { /* DNS cleanup is best effort */ }
+  }
+}
+
 async function ensureDns(zoneId, hostname, tunnelId) {
   const target = `${tunnelId}.cfargotunnel.com`;
   const existing = await cf(`/zones/${zoneId}/dns_records?type=CNAME&name=${encodeURIComponent(hostname)}`);
@@ -139,9 +157,16 @@ exports.handler = async (event) => {
 
   const accountId = process.env.CF_ACCOUNT_ID;
   const zoneId = process.env.CF_ZONE_ID;
-  const { tunnelName, hostname, nodeHostname } = names(machineId);
+  let generation = Number(record.tunnelGeneration) || 0;
 
   try {
+    if (body.reset === true || body.reset === 'true') {
+      const old = names(machineId, generation);
+      await deleteTunnelByName(accountId, zoneId, old.tunnelName, [old.hostname, old.nodeHostname]);
+      generation += 1;
+      await saveRecord(fmt.key, { ...record, tunnelGeneration: generation, tunnelResetAt: new Date().toISOString() });
+    }
+    const { tunnelName, hostname, nodeHostname } = names(machineId, generation);
     const tunnel = await ensureTunnel(accountId, tunnelName);
     const tunnelId = tunnel.id;
     await setTunnelConfig(accountId, tunnelId, hostname, port, nodeHostname);
