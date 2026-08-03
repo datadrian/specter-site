@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.44-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -513,7 +513,7 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 var $=function(i){return document.getElementById(i)},ws,alertOn=false,vec={x:0,y:0,z:0},amp=0,target={x:0,y:0,z:0};
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onopen=function(){setConn(&#x27;live&#x27;)};ws.onclose=function(){setConn(&#x27;lost&#x27;);setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){var d=$(&#x27;proxdbg&#x27;);if(d){d.textContent=&#x27;portal data error: &#x27;+(x&amp;&amp;x.message?x.message:&#x27;unknown&#x27;);d.style.color=&#x27;#ff5a5a&#x27;}if(window.console)console.error(x)}}}
 function setConn(s){var c=$(&#x27;conn&#x27;);c.className=&#x27;conn&#x27;+(s===&#x27;live&#x27;?&#x27; live&#x27;:s===&#x27;alert&#x27;?&#x27; live alert&#x27;:&#x27;&#x27;);$(&#x27;conn-t&#x27;).textContent=s===&#x27;live&#x27;?&#x27;LIVE&#x27;:s===&#x27;alert&#x27;?&#x27;DISTURBANCE&#x27;:&#x27;LOST&#x27;}
-function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.rcBuzzerPinsSwapped!=null){var ps=$(&#x27;pin-swap&#x27;);if(ps&amp;&amp;!ps._userset)ps.checked=!!m.rcBuzzerPinsSwapped;}if(m.proxMode!=null){var pu=$(&#x27;prox-unit&#x27;);if(pu)pu.textContent=(+m.proxMode===1)?(&#x27;RC charge &#x27;+((m.rcCharge||0)/10).toFixed(1)+&#x27; us / base &#x27;+((m.rcBase||0)/10).toFixed(1)+&#x27; us&#x27;):&#x27;raw capacitance&#x27;;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)){var pd=(+m.proxMode===1&amp;&amp;m.rcOk===false)?(m.rcFault===1?&#x27;GPIO4 discharge failed&#x27;:m.rcFault===2?&#x27;GPIO18 to 1M to GPIO4 charge failed&#x27;:&#x27;RC sample failed&#x27;):(&#x27;delta &#x27;+(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;)+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;-&#x27;));$(&#x27;proxdbg&#x27;).textContent=pd;$(&#x27;proxdbg&#x27;).style.color=(+m.proxMode===1&amp;&amp;m.rcOk===false)?&#x27;#ff5a5a&#x27;:((m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(m.magDataOk===false?&#x27;NO DATA&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;)));var dd=(m.magDelta!=null?m.magDelta:&#x27;-&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;-&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 I2C &#x27;+(m.i2c||&#x27;-&#x27;)+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false||m.magDataOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;-&#x27;;if($(&#x27;linkdbg&#x27;)){var lc=m.appConnected?&#x27;connected&#x27;:(m.appStarted?(&#x27;trying &#x27;+((m.appAgeMs||0)/1000).toFixed(0)+&#x27;s &#x27;+(m.appIp||&#x27;&#x27;)):&#x27;searching&#x27;);var ld=&#x27;app &#x27;+lc+(m.stallCount?(&#x27; \u00b7 stalls &#x27;+m.stallCount):&#x27;&#x27;);$(&#x27;linkdbg&#x27;).textContent=ld;$(&#x27;linkdbg&#x27;).style.color=m.appConnected?&#x27;#4ade80&#x27;:(m.appStarted?&#x27;#fbbf24&#x27;:&#x27;var(--accent)&#x27;)}}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
+function onFrame(m){if(m.t===&#x27;telemetry&#x27;){$(&#x27;prox&#x27;).textContent=m.prox;var _pmax=(window._proxMax=Math.max(window._proxMax||1,m.prox));$(&#x27;prox-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.prox/_pmax*100)))+&#x27;%&#x27;;if($(&#x27;prox-live&#x27;))$(&#x27;prox-live&#x27;).textContent=m.prox;if($(&#x27;prox-delta-live&#x27;))$(&#x27;prox-delta-live&#x27;).textContent=(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;);if($(&#x27;prox-thr-live&#x27;))$(&#x27;prox-thr-live&#x27;).textContent=(m.proxThr!=null?m.proxThr:&#x27;-&#x27;);if(m.touchPin!=null){var pp=$(&#x27;prox-pin&#x27;);if(pp&amp;&amp;!pp._userset)pp.value=m.touchPin;}if(m.rcBuzzerPinsSwapped!=null){var ps=$(&#x27;pin-swap&#x27;);if(ps&amp;&amp;!ps._userset)ps.checked=!!m.rcBuzzerPinsSwapped;}if(m.proxMode!=null){var pu=$(&#x27;prox-unit&#x27;);if(pu)pu.textContent=(+m.proxMode===1)?(&#x27;RC charge &#x27;+((m.rcCharge||0)/(m.rcSub||100)).toFixed(2)+&#x27; us / base &#x27;+((m.rcBase||0)/(m.rcSub||100)).toFixed(2)+&#x27; us&#x27;):&#x27;raw capacitance&#x27;;}if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null){$(&#x27;therm-field&#x27;).textContent=m.proxField;var tb=$(&#x27;therm-bar&#x27;);if(tb)tb.style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;}if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;$(&#x27;therm-noise&#x27;)._u){$(&#x27;therm-noise&#x27;)._u=false;$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.theremin!=null&amp;&amp;$(&#x27;therm-on&#x27;)&amp;&amp;!$(&#x27;therm-on&#x27;)._userset)$(&#x27;therm-on&#x27;).checked=!!m.theremin;if($(&#x27;proxdbg&#x27;)){var pd=(+m.proxMode===1&amp;&amp;m.rcOk===false)?(m.rcFault===1?&#x27;GPIO4 discharge failed&#x27;:m.rcFault===2?&#x27;GPIO18 to 1M to GPIO4 charge failed&#x27;:&#x27;RC sample failed&#x27;):(&#x27;delta &#x27;+(m.proxDelta!=null?m.proxDelta:&#x27;-&#x27;)+&#x27; / thr &#x27;+(m.proxThr!=null?m.proxThr:&#x27;-&#x27;));$(&#x27;proxdbg&#x27;).textContent=pd;$(&#x27;proxdbg&#x27;).style.color=(+m.proxMode===1&amp;&amp;m.rcOk===false)?&#x27;#ff5a5a&#x27;:((m.proxThr!=null&amp;&amp;m.proxDelta&gt;m.proxThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}amp=Math.round(Math.sqrt(m.mag.x*m.mag.x+m.mag.y*m.mag.y+m.mag.z*m.mag.z));$(&#x27;mag&#x27;).textContent=amp;$(&#x27;xyz&#x27;).textContent=&#x27;x &#x27;+m.mag.x+&#x27;  y &#x27;+m.mag.y+&#x27;  z &#x27;+m.mag.z;$(&#x27;viz-amp&#x27;).textContent=amp+&#x27; LSB&#x27;;if($(&#x27;magdbg&#x27;)){var ok=(m.magOk===false)?&#x27;NOT FOUND&#x27;:(m.magDataOk===false?&#x27;NO DATA&#x27;:(&#x27;ok &#x27;+(m.magChip||&#x27;&#x27;)));var dd=(m.magDelta!=null?m.magDelta:&#x27;-&#x27;);var th=(m.magThr!=null?m.magThr:&#x27;-&#x27;);$(&#x27;magdbg&#x27;).textContent=&#x27;sensor &#x27;+ok+&#x27; \u00b7 I2C &#x27;+(m.i2c||&#x27;-&#x27;)+&#x27; \u00b7 delta &#x27;+dd+&#x27; / thr &#x27;+th;$(&#x27;magdbg&#x27;).style.color=(m.magOk===false||m.magDataOk===false)?&#x27;#ff5a5a&#x27;:((m.magDelta!=null&amp;&amp;m.magThr!=null&amp;&amp;m.magDelta&gt;m.magThr)?&#x27;#4ade80&#x27;:&#x27;var(--accent)&#x27;)}target={x:m.mag.x,y:m.mag.y,z:m.mag.z}}else if(m.t===&#x27;net&#x27;){$(&#x27;rssi&#x27;).textContent=m.rssi;$(&#x27;rssi-bar&#x27;).style.width=Math.max(0,Math.min(100,(m.rssi+100)*1.4))+&#x27;%&#x27;;$(&#x27;uptime&#x27;).textContent=m.uptime+&#x27;s&#x27;;$(&#x27;ssid&#x27;).textContent=m.ssid||&#x27;-&#x27;;if($(&#x27;linkdbg&#x27;)){var lc=m.appConnected?&#x27;connected&#x27;:(m.appStarted?(&#x27;trying &#x27;+((m.appAgeMs||0)/1000).toFixed(0)+&#x27;s &#x27;+(m.appIp||&#x27;&#x27;)):&#x27;searching&#x27;);var ld=&#x27;app &#x27;+lc+(m.stallCount?(&#x27; \u00b7 stalls &#x27;+m.stallCount):&#x27;&#x27;);$(&#x27;linkdbg&#x27;).textContent=ld;$(&#x27;linkdbg&#x27;).style.color=m.appConnected?&#x27;#4ade80&#x27;:(m.appStarted?&#x27;#fbbf24&#x27;:&#x27;var(--accent)&#x27;)}}else if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;)+&#x27; \u00b7 standalone&#x27;}else if(m.t===&#x27;event&#x27;){alertOn=true;setConn(&#x27;alert&#x27;);clearTimeout(window._a);window._a=setTimeout(function(){alertOn=false;setConn(&#x27;live&#x27;)},1600)}}
 var cv=$(&#x27;viz&#x27;),cx=cv.getContext(&#x27;2d&#x27;),rot=0,dpr=Math.min(2,window.devicePixelRatio||1);
 function fit(){var r=cv.parentElement.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr}window.addEventListener(&#x27;resize&#x27;,fit);fit();
 function proj(x,y,z,cxp,cyp,s){var c=Math.cos(rot),n=Math.sin(rot),rx=x*c-z*n,rz=x*n+z*c,t=0.55,sy=y*Math.cos(t)-rz*Math.sin(t);return[cxp+rx*s,cyp-sy*s]}
@@ -587,11 +587,15 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;select id=prox-mode&gt;&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)&lt;/option&gt;&lt;/select&gt;
 &lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
 &lt;label style=&quot;margin-top:10px&quot;&gt;Trigger threshold (lower = fires on a lighter approach) &lt;span class=val id=cadence-thresh-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=cadence-thresh min=4 max=100 step=1&gt;
+&lt;input type=range id=cadence-thresh min=5 max=400 step=1&gt;
+&lt;div class=xyz id=cadence-thresh-hint style=&quot;margin-top:2px&quot;&gt;Live delta is shown above &amp;mdash; set this below your normal touch reading.&lt;/div&gt;
 &lt;label style=&quot;margin-top:10px&quot;&gt;Alert duration (seconds) &lt;span class=val id=cadence-alert-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;input type=range id=cadence-alert min=0.5 max=30 step=0.5&gt;
 &lt;label&gt;Cooldown duration (seconds) &lt;span class=val id=cadence-cooldown-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;input type=range id=cadence-cooldown min=0 max=30 step=0.5&gt;
+&lt;label&gt;Heartbeat resumes after (seconds) &lt;span class=val id=cadence-hb-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=cadence-hb min=0 max=15 step=0.5&gt;
+&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;How long the ring stays dark after the last detection before the idle heartbeat comes back. Was fixed at 10s.&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=cadence-apply class=mini&gt;APPLY&lt;/button&gt;&lt;/div&gt;
 &lt;div class=xyz id=cadence-msg style=&quot;margin-top:4px&quot;&gt;Alert duration is how long the beep/flash/event stays active once triggered (default 6s); cooldown is the quiet window right after (default 6s). Effective trigger threshold: &lt;b id=cadence-eff-v&gt;-&lt;/b&gt;.&lt;/div&gt;
 &lt;label style=&quot;margin-top:14px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=therm-on style=&quot;width:auto&quot;&gt; Theremin response &amp;mdash; continuous field&lt;/label&gt;
@@ -680,7 +684,7 @@ showTab((location.hash||&#x27;#connect&#x27;).slice(1));
 var ws,thrMag=1500,thrProx=8;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
-function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk,m.rcFault);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.lock!=null&amp;&amp;$(&#x27;lock-on&#x27;)&amp;&amp;!$(&#x27;lock-on&#x27;)._userset)$(&#x27;lock-on&#x27;).checked=!!m.lock;if(m.lock!=null&amp;&amp;$(&#x27;lock-status&#x27;))$(&#x27;lock-status&#x27;).style.color=m.lock?&#x27;var(--warn)&#x27;:&#x27;var(--text-1)&#x27;;if(m.proxCurve!=null&amp;&amp;$(&#x27;therm-curve&#x27;)&amp;&amp;!$(&#x27;therm-curve&#x27;)._userset)$(&#x27;therm-curve&#x27;).value=String(m.proxCurve);var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
+function onFrame(m){if(m.rcSub)window._rcSub=m.rcSub;if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk,m.rcFault);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.lock!=null&amp;&amp;$(&#x27;lock-on&#x27;)&amp;&amp;!$(&#x27;lock-on&#x27;)._userset)$(&#x27;lock-on&#x27;).checked=!!m.lock;if(m.lock!=null&amp;&amp;$(&#x27;lock-status&#x27;))$(&#x27;lock-status&#x27;).style.color=m.lock?&#x27;var(--warn)&#x27;:&#x27;var(--text-1)&#x27;;if(m.proxCurve!=null&amp;&amp;$(&#x27;therm-curve&#x27;)&amp;&amp;!$(&#x27;therm-curve&#x27;)._userset)$(&#x27;therm-curve&#x27;).value=String(m.proxCurve);var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
 function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).textContent=thrMag}
 $(&#x27;baseline&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;rebaseline&#x27;})};$(&#x27;identify&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
 var mt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
@@ -691,7 +695,7 @@ if($(&#x27;rf-clr&#x27;)){$(&#x27;rf-clr&#x27;).onclick=function(){rfPost(&#x27;
 if($(&#x27;rf-arm&#x27;)){$(&#x27;rf-arm&#x27;).onchange=function(e){rfPost(&#x27;/rf/arm?on=&#x27;+(e.target.checked?&#x27;1&#x27;:&#x27;0&#x27;)).then(rfStat)}}
 rfStat();setInterval(rfStat,1500);
 function proxPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
-function updateProxModeUi(mode,touch,charge,base,ok,fault){var rc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=rc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=rc?&#x27;RC / GPIO18 TO GPIO4&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=rc?&#x27;GPIO18 drive / GPIO4 sense&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=rc;if(save)save.disabled=rc;if(msg){var live=((charge||0)/10).toFixed(1),zero=((base||0)/10).toFixed(1),state=(ok===false?(fault===1?&#x27; GPIO4 could not discharge.&#x27;:fault===2?&#x27; GPIO4 never charged HIGH. Check GPIO18 to 1M to GPIO4.&#x27;:&#x27; Check RC wiring.&#x27;):&#x27; Wiring active.&#x27;);msg.textContent=rc?&#x27;GPIO18 drives the antenna node through 1M ohm and GPIO4 measures charge time. Live &#x27;+live+&#x27; us, baseline &#x27;+zero+&#x27; us.&#x27;+state+&#x27; The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}}
+function updateProxModeUi(mode,touch,charge,base,ok,fault){var rc=(mode===1),sel=$(&#x27;prox-mode&#x27;),pv=$(&#x27;prox-pin-v&#x27;),pin=$(&#x27;prox-pin&#x27;),save=$(&#x27;prox-pin-save&#x27;),msg=$(&#x27;prox-mode-msg&#x27;);if(sel)sel.value=rc?&#x27;1&#x27;:&#x27;0&#x27;;if($(&#x27;prox-mode-v&#x27;))$(&#x27;prox-mode-v&#x27;).textContent=rc?&#x27;RC / GPIO18 TO GPIO4&#x27;:&#x27;TOUCH&#x27;;if(pv)pv.textContent=rc?&#x27;GPIO18 drive / GPIO4 sense&#x27;:&#x27;GPIO&#x27;+(touch||4);if(pin)pin.disabled=rc;if(save)save.disabled=rc;if(msg){var live=((charge||0)/(window._rcSub||100)).toFixed(2),zero=((base||0)/(window._rcSub||100)).toFixed(2),state=(ok===false?(fault===1?&#x27; GPIO4 could not discharge.&#x27;:fault===2?&#x27; GPIO4 never charged HIGH. Check GPIO18 to 1M to GPIO4.&#x27;:&#x27; Check RC wiring.&#x27;):&#x27; Wiring active.&#x27;);msg.textContent=rc?&#x27;GPIO18 drives the antenna node through 1M ohm and GPIO4 measures charge time. Live &#x27;+live+&#x27; us, baseline &#x27;+zero+&#x27; us.&#x27;+state+&#x27; The touch-pin selector is ignored in this mode.&#x27;:&#x27;Basic mode reads the selectable capacitive-touch GPIO below.&#x27;;}}
 if($(&#x27;pin-swap&#x27;)){$(&#x27;pin-swap&#x27;)._userset=false;$(&#x27;pin-swap&#x27;).onchange=function(){var el=this;var wanted=el.checked;el._userset=true;fetch(&#x27;/hardware/pinswap&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({enabled:wanted?&#x27;1&#x27;:&#x27;0&#x27;})}).then(function(r){return r.json()}).then(function(d){el.checked=!!d.pinSwap}).catch(function(){el.checked=!wanted}).finally(function(){el._userset=false})}}
 if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,proxMode:pm});var sm=$(&#x27;therm-save-msg&#x27;);if(sm){sm.textContent=&#x27;Sense source saved. Waiting for node confirmation...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}}}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
@@ -702,12 +706,13 @@ if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).oninput=function(){
 if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).oninput=function(){if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=this.value};
 if($(&#x27;rcmargin-apply&#x27;)){$(&#x27;rcmargin-apply&#x27;).onclick=function(){var mult=$(&#x27;rcmargin-mult&#x27;).value,fl=$(&#x27;rcmargin-floor&#x27;).value,m=$(&#x27;rcmargin-msg&#x27;);proxPost(&#x27;/prox/rcmargin?mult=&#x27;+mult+&#x27;&amp;floorUs=&#x27;+fl).then(function(){if(m)m.textContent=&#x27;Applied, recalibrating... keep your hand away for a moment.&#x27;;setTimeout(refreshRcMargin,1200)})}}
 refreshRcMargin();
-function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-arm&#x27;)){$(&#x27;cadence-arm&#x27;).value=d.armMs;$(&#x27;cadence-arm-v&#x27;).textContent=d.armMs}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
+function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if(d.rcSub)window._rcSub=d.rcSub;var ct=$(&#x27;cadence-thresh&#x27;);if(ct&amp;&amp;d.threshMax){ct.max=d.threshMax;ct.min=(d.proxMode===1?5:4)}var hh=$(&#x27;cadence-thresh-hint&#x27;);if(hh)hh.textContent=(d.proxMode===1?&#x27;RC mode: units are 0.01us of charge time. A full touch typically reads 60-100; rest jitter is under 15.&#x27;:&#x27;Touch mode: units are raw touchRead counts.&#x27;);if($(&#x27;cadence-hb&#x27;)&amp;&amp;d.hbResumeMs!=null){$(&#x27;cadence-hb&#x27;).value=(d.hbResumeMs/1000);$(&#x27;cadence-hb-v&#x27;).textContent=(d.hbResumeMs/1000)}if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-arm&#x27;)){$(&#x27;cadence-arm&#x27;).value=d.armMs;$(&#x27;cadence-arm-v&#x27;).textContent=d.armMs}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
 if($(&#x27;cadence-alert&#x27;))$(&#x27;cadence-alert&#x27;).oninput=function(){if($(&#x27;cadence-alert-v&#x27;))$(&#x27;cadence-alert-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-cooldown&#x27;))$(&#x27;cadence-cooldown&#x27;).oninput=function(){if($(&#x27;cadence-cooldown-v&#x27;))$(&#x27;cadence-cooldown-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-thresh&#x27;))$(&#x27;cadence-thresh&#x27;).oninput=function(){if($(&#x27;cadence-thresh-v&#x27;))$(&#x27;cadence-thresh-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-arm&#x27;))$(&#x27;cadence-arm&#x27;).oninput=function(){if($(&#x27;cadence-arm-v&#x27;))$(&#x27;cadence-arm-v&#x27;).textContent=this.value};
-if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),g=$(&#x27;cadence-arm&#x27;).value,t=$(&#x27;cadence-thresh&#x27;).value,m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;armMs=&#x27;+g+&#x27;&amp;thresh=&#x27;+t).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
+if($(&#x27;cadence-hb&#x27;))$(&#x27;cadence-hb&#x27;).oninput=function(){if($(&#x27;cadence-hb-v&#x27;))$(&#x27;cadence-hb-v&#x27;).textContent=this.value};
+if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),g=$(&#x27;cadence-arm&#x27;).value,t=$(&#x27;cadence-thresh&#x27;).value,hb=Math.round(($(&#x27;cadence-hb&#x27;)?$(&#x27;cadence-hb&#x27;).value:2)*1000),m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;armMs=&#x27;+g+&#x27;&amp;thresh=&#x27;+t+&#x27;&amp;hbResumeMs=&#x27;+hb).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
 refreshCadence();
 function saveTherm(){var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;),sm=$(&#x27;therm-save-msg&#x27;);if(tc)tc._userset=true;if(tt)tt._userset=true;window._thermSaving=true;if(sm){sm.textContent=&#x27;Saving to node...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:tc?tc.checked:false,tone:tt?tt.checked:true});setTimeout(function(){if(tc)tc._userset=false;if(tt)tt._userset=false;window._thermSaving=false;if(sm)sm.textContent=&#x27;Waiting for node confirmation...&#x27;;},700)}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=false;$(&#x27;therm-on&#x27;).onchange=saveTherm}
@@ -807,7 +812,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.44-maker&quot;
+#define FW_VERSION   &quot;2.13.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -829,6 +834,14 @@ volatile bool rcBuzzerPinsSwapped = false;
 // Wiring: GPIO18 -&gt; 1M -&gt; sense node -&gt; GPIO4; antenna -&gt; optional 10k -&gt; sense node.
 #define RC_DRIVE_PIN    18
 #define RC_SENSE_PIN     4
+// RC measurement resolution: sub-microsecond units per microsecond (WAS 10).
+// See the note at rcMeasureOnce10() -- tenths collapsed a real touch into 8
+// integer steps, below the trigger floor. Hundredths cost nothing.
+#define RC_SUB 100
+// Absolute floor for the RC-mode trigger, in RC_SUB units. Below this the
+// de-glitch window does all the work; kept only so a threshold of 0 can&#x27;t
+// free-run.
+#define RC_THRESH_MIN 5
 #define RC_TIMEOUT_MIN_US 10000
 #define RC_TIMEOUT_CAL_US 60000
 #define RC_TIMEOUT_MAX_US 60000
@@ -1109,6 +1122,23 @@ static void queueEvent(const char* kind, const char* channel, const char* sev, i
     evtHead = nxt;
 }
 volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
+// FLOAT accumulators behind the int16 baseline. The EMA used to be applied
+// directly to the int16s:
+//     baseMagX = (int16_t)(baseMagX + a * (magX - baseMagX));
+// which TRUNCATES. At the steady-state rate a = 0.002 the increment only
+// changes the stored integer once |magX - baseMagX| &gt;= 500 -- so for every
+// realistic residual the baseline literally could not move, and a stale offset
+// sat there forever: a phantom vector pointing one fixed direction, riding
+// just under threshold and flickering over it (diag11: magDelta held 36-96 for
+// the whole 112 s capture, 22 separate alert blips, never once converging
+// toward 0). It also worsened with uptime, because ambient drift accumulated
+// against a baseline that could never follow it. Accumulate in float, round on
+// the way out.
+float            baseMagXf = 0.0f, baseMagYf = 0.0f, baseMagZf = 0.0f;
+static inline void magBaselineSet(int16_t x, int16_t y, int16_t z) {
+    baseMagXf = x; baseMagYf = y; baseMagZf = z;
+    baseMagX = x;  baseMagY = y;  baseMagZ = z;
+}
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
 volatile int     ledTestReq   = 0;   // 0 none,1 boot,2 mag,3 prox,4 red,5 green,6 blue,7 white (portal preview)
@@ -1196,6 +1226,44 @@ volatile bool    proxInit     = false;   // baseline captured yet (shared: loop 
 //  proxMode 1 = two-pin RC charge-time sensor, GPIO18 drive + GPIO4 sense
 volatile int      proxMode    = 0;
 
+// Prox tuning is stored PER SENSE MODE. touchRead counts and RC_SUB units are
+// different physical scales (a touch is ~8-40 counts in touch mode, ~80 units
+// in RC mode), so one shared &quot;prox&quot; key meant switching modes silently loaded a
+// nonsense threshold. Keys: touch -&gt; prox/proxSpan/proxNoise,
+// RC -&gt; proxRC/proxSpanRC/proxNoiseRC.
+static const char* kThreshKey(int mode) { return mode == 1 ? &quot;proxRC&quot;     : &quot;prox&quot;; }
+static const char* kSpanKey  (int mode) { return mode == 1 ? &quot;proxSpanRC&quot; : &quot;proxSpan&quot;; }
+static const char* kNoiseKey (int mode) { return mode == 1 ? &quot;proxNoiseRC&quot;: &quot;proxNoise&quot;; }
+#define RC_THRESH_DEFAULT 30     // ~0.30us: ~4x the trimmed-mean rest band, ~35% of a full touch
+#define RC_SPAN_DEFAULT   80     // a full hand touch measures ~0.8us on a typical antenna
+#define RC_NOISE_DEFAULT  12
+
+// Load the tuning triple for `mode`. First run in RC mode migrates the old
+// shared tenths-scale value by x10 (that is exactly the RC_SUB change) so an
+// existing node keeps its feel instead of resetting to default.
+static void loadProxTuningFor(int mode) {
+    Preferences pp; pp.begin(&quot;specter&quot;, true);
+    if (mode == 1) {
+        int legacy = pp.getInt(&quot;prox&quot;, 0);
+        threshProx = pp.getInt(&quot;proxRC&quot;, legacy &gt; 0 ? constrain(legacy * 10, RC_THRESH_MIN, 400) : RC_THRESH_DEFAULT);
+        int legacySpan = pp.getInt(&quot;proxSpan&quot;, 0);
+        proxSpan   = pp.getInt(&quot;proxSpanRC&quot;, legacySpan &gt; 0 ? legacySpan * 10 : RC_SPAN_DEFAULT);
+        proxNoise  = pp.getInt(&quot;proxNoiseRC&quot;, RC_NOISE_DEFAULT);
+    } else {
+        threshProx = pp.getInt(&quot;prox&quot;, 8);
+        proxSpan   = pp.getInt(&quot;proxSpan&quot;, 60);
+        proxNoise  = pp.getInt(&quot;proxNoise&quot;, 6);
+    }
+    pp.end();
+}
+static void saveProxTuningFor(int mode) {
+    Preferences pp; pp.begin(&quot;specter&quot;, false);
+    pp.putInt(kThreshKey(mode), threshProx);
+    pp.putInt(kSpanKey(mode),   proxSpan);
+    pp.putInt(kNoiseKey(mode),  proxNoise);
+    pp.end();
+}
+
 int recomputeEffThreshProx() {
     // RC mode (proxMode==1) already has its raw-noise rejection handled by the
     // live-tunable rcMarginMult/rcMarginFloorUs timeout window (see rcRead10()).
@@ -1206,12 +1274,20 @@ int recomputeEffThreshProx() {
     // (proxMode==0) keeps the original noise-adaptive guard band unchanged.
     int v;
     if (proxMode == 1) {
-        v = 10;
+        // RC mode: the operator&#x27;s slider IS the trigger. The old fixed floor of
+        // 10 was in tenths-of-a-us and sat ABOVE a real touch (8) on a typical
+        // antenna -- the node could see the hand in telemetry and still refuse
+        // to fire, and no slider position could fix it. Timeout-window margin
+        // (rcMarginMult/FloorUs), the de-glitch window and the ramp gate already
+        // reject noise; a second hidden floor here only fights the operator.
+        // The remaining guard is a hard minimum well under any real touch.
+        v = threshProx;
+        if (v &lt; RC_THRESH_MIN) v = RC_THRESH_MIN;
     } else {
         v = proxNoiseFloor + 8;
+        if (v &lt; threshProx) v = threshProx;
+        if (v &lt; 12) v = 12;
     }
-    if (v &lt; threshProx) v = threshProx;
-    if (v &lt; (proxMode == 1 ? 6 : 12)) v = (proxMode == 1 ? 6 : 12);
     return v;
 }
 volatile int      rcCharge10  = 0;     // live charge time in 0.1 microsecond units
@@ -1227,6 +1303,16 @@ volatile uint32_t rcTimeoutUs = RC_TIMEOUT_CAL_US; // learned at boot from this 
 // boot-calibration window would itself disrupt Wi-Fi/BLE, so that phase
 // stays unguarded (it already tolerates more noise via other layers).
 #define RC_GUARD_MAX_US 2000
+// (RC_SUB / RC_THRESH_MIN are defined near the top with the other RC timing
+//  constants so they precede every use, including the NVS helpers.)
+// RC measurement resolution: sub-microsecond units per microsecond.
+// WAS 10 (tenths). At 240 MHz the cycle counter resolves 4.2 ns, and a typical
+// antenna rests near 16.7 us (~4000 cycles) while a full hand touch adds only
+// ~0.8 us. Quantizing to tenths turned that entire usable range into 8 integer
+// steps -- so the trigger floor (10) sat ABOVE a real touch (8), and there was
+// nothing to set a threshold *inside*. Hundredths cost nothing (the cycles were
+// always there, we were dividing them away) and turn the same touch into ~80
+// steps against a ~7-15 step noise band: a real 1-100 working range.
 static portMUX_TYPE rcMux = portMUX_INITIALIZER_UNLOCKED;
 volatile bool     rcSmartCalibrated = false;       // true after a valid boot learning window
 volatile bool     rcSmartCalReq = false;           // portal/app rebaseline reruns RC learning
@@ -1252,6 +1338,9 @@ volatile int      rcMarginMult   = 5;   // learned timeout = ambient charge time
 volatile int      rcMarginFloorUs = 40;  // + this many us of absolute headroom (was an unconditional fixed 2000us)
 volatile int      proxAlertMs    = 6000;  // live-tunable: how long the PROX alert (beep+flash+event) stays active while triggered, default 6s
 volatile int      proxCooldownMs = 6000;  // live-tunable: quiet window enforced after a PROX alert ends, default 6s
+// De-glitch window applied to a CONFIRMED saturated (contact) reading. Short
+// because saturation has already passed its own multi-call confirmation.
+#define PROX_SAT_ARM_MS 40
 volatile int      proxArmMs      = 150;   // live-tunable: raw threshold crossing must sustain this long before arming an alert (de-glitch), default 150ms
 volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
@@ -1292,8 +1381,13 @@ volatile uint32_t alertPhaseStart  = 0;     // millis() the current phase began
 uint32_t          proxRawSince      = 0;     // millis() the current raw prox_delta&gt;effThreshProx run began, 0 if not currently crossing
 volatile bool     bootBaselineDone = false; // false until the settle window elapses
 volatile uint32_t magRefractoryUntil = 0;   // mag alert is held off until this millis()
-volatile uint32_t heartbeatSuppressUntil = 0; // no idle heartbeat for this long after any detection
-#define HEARTBEAT_SUPPRESS_MS 10000
+volatile uint32_t heartbeatSuppressUntil = 0; // no idle heartbeat until this ms
+// How long the ring stays dark after the LAST event before the idle heartbeat
+// resumes. WAS a hard-coded 10s, which stacked on top of the 6s alert: a single
+// touch left the node visibly dead for ~16s. Now operator-settable and short by
+// default -- the alert animation itself already owns the ring while it runs.
+volatile int      heartbeatResumeMs = 2000;   // persisted (&quot;hbResumeMs&quot;)
+#define HEARTBEAT_SUPPRESS_MS heartbeatResumeMs
 volatile uint32_t bootBaselineAt   = 0;     // millis() target for the boot baseline
 // Boot-baseline averaging: instead of snapping ONE (possibly noisy) sample at
 // the settle point, we accumulate readings across the whole settle window and
@@ -1758,7 +1852,7 @@ IRAM_ATTR int rcMeasureOnce10() {
     if (!charged) return -2;   // loop exited without HIGH inside the bound
 
     // Tenths of a microsecond preserve useful resolution with small antenna capacitance.
-    int measured = (int)((cycles * 10UL + mhz / 2UL) / mhz);
+    int measured = (int)((cycles * (uint32_t)RC_SUB + mhz / 2UL) / mhz);
     return measured &gt; 0 ? measured : 1;
 }
 
@@ -1772,9 +1866,9 @@ int rcRead10() {
     // proxSpan or making the reported delta jump to hundreds of thousands.
     int thresholdSnapshot = effThreshProx;
     int spanSnapshot = proxSpan;
-    int satDelta = thresholdSnapshot + 40;
+    int satDelta = thresholdSnapshot + (4 * RC_SUB / 10);      // +0.4us over the trigger
     if (spanSnapshot &gt; satDelta) satDelta = spanSnapshot;
-    satDelta = constrain(satDelta, 40, 400);
+    satDelta = constrain(satDelta, (4 * RC_SUB / 10), (40 * RC_SUB / 10));
     int baseSnapshot10 = rcBase10;
     if (baseSnapshot10 &lt; 1) baseSnapshot10 = 1;
     int saturatedSample10 = baseSnapshot10 + satDelta;
@@ -1856,13 +1950,22 @@ int rcRead10() {
         if (samples[b] &lt; samples[a]) { int t = samples[a]; samples[a] = samples[b]; samples[b] = t; }
     }
     rcValid = true; rcFault = 0;
-    rcLastGood10 = samples[n / 2];
+    // TRIMMED MEAN over the sorted samples: drop the extreme low and high (the
+    // median&#x27;s outlier immunity is what we want to keep) and average the rest.
+    // A bare median of 7 discards six perfectly good samples; averaging the
+    // middle five cuts the per-read noise by roughly sqrt(5) with no extra
+    // measurement time. At RC_SUB=100 that is the difference between a +/-15
+    // and a +/-7 rest band under an ~80-count touch.
+    long acc = 0; int cnt = 0;
+    for (int k = 1; k &lt; n - 1; ++k) { acc += samples[k]; cnt++; }
+    int robust = cnt &gt; 0 ? (int)((acc + cnt / 2) / cnt) : samples[n / 2];
+    rcLastGood10 = robust;
     // Feed the ramp gate: a clean median meaningfully above baseline means a
     // real analog rise is in progress, so saturation is allowed to arm soon.
-    if (rcBase10 &gt; 0 &amp;&amp; (samples[n / 2] - rcBase10) &gt; (effThreshProx / 2)) {
+    if (rcBase10 &gt; 0 &amp;&amp; (robust - rcBase10) &gt; (effThreshProx / 2)) {
         lastElevatedCleanMs = millis();
     }
-    return samples[n / 2];
+    return robust;
 }
 
 void hardwareTask(void* pv) {
@@ -2160,9 +2263,9 @@ void hardwareTask(void* pv) {
             if ((int32_t)(millis() - bootBaselineAt) &gt;= 0) {
                 // Window closed: adopt the AVERAGE as the clean ambient baseline.
                 if (blSamples &gt; 0) {
-                    baseMagX = (int)(blMagXsum / blSamples);
-                    baseMagY = (int)(blMagYsum / blSamples);
-                    baseMagZ = (int)(blMagZsum / blSamples);
+                    magBaselineSet((int16_t)(blMagXsum / blSamples),
+                                   (int16_t)(blMagYsum / blSamples),
+                                   (int16_t)(blMagZsum / blSamples));
                     baseProx = (proxMode == 1) ? 0 : (int)(blProxSum / blSamples);
                     proxAvg  = baseProx; proxInit = true; proxSettleStart = millis();
                     if (proxMode == 1) {
@@ -2192,12 +2295,12 @@ void hardwareTask(void* pv) {
                             // through as real proportional numbers.
                             int marginMult = rcMarginMult; if (marginMult &lt; 2) marginMult = 2; if (marginMult &gt; 40) marginMult = 40;
                             int marginFloorUs = rcMarginFloorUs; if (marginFloorUs &lt; 5) marginFloorUs = 5; if (marginFloorUs &gt; 2000) marginFloorUs = 2000;
-                            uint64_t target10 = (uint64_t)ambient10 * (uint64_t)marginMult + (uint64_t)max((int64_t)marginFloorUs * 10, (int64_t)(spread10 * 8));
-                            uint64_t min10 = (uint64_t)ambient10 + 300ULL;   // never below ambient + 30us: keeps a hard-open-wire read fast
-                            uint64_t max10 = (uint64_t)RC_TIMEOUT_MAX_US * 10ULL;
+                            uint64_t target10 = (uint64_t)ambient10 * (uint64_t)marginMult + (uint64_t)max((int64_t)marginFloorUs * RC_SUB, (int64_t)(spread10 * 8));
+                            uint64_t min10 = (uint64_t)ambient10 + (30ULL * RC_SUB);   // never below ambient + 30us: keeps a hard-open-wire read fast
+                            uint64_t max10 = (uint64_t)RC_TIMEOUT_MAX_US * (uint64_t)RC_SUB;
                             if (target10 &lt; min10) target10 = min10;
                             if (target10 &gt; max10) target10 = max10;
-                            rcTimeoutUs = (uint32_t)((target10 + 9ULL) / 10ULL);
+                            rcTimeoutUs = (uint32_t)((target10 + (RC_SUB - 1)) / RC_SUB);
                             rcSmartCalibrated = true;
                         } else {
                             // No trustworthy antenna sample: return to the short
@@ -2218,7 +2321,7 @@ void hardwareTask(void* pv) {
         }
 
         if (recalibrate) {
-            baseMagX = magX; baseMagY = magY; baseMagZ = magZ;
+            magBaselineSet(magX, magY, magZ);
             if (proxMode == 1) {
                 // A single instantaneous rcCharge10 sample can be a transient glitch
                 // (RF, power draw, etc). Collect a short burst instead of snapping to
@@ -2283,11 +2386,30 @@ void hardwareTask(void* pv) {
             // the node stops screaming forever. Removing the magnet then produces
             // a brief opposite blip that re-settles in a couple seconds instead of
             // latching on until a manual reset.
+            // STALE-BASELINE WATCHDOG. The tracking below only runs while NO hit
+            // is active, and the hard re-zero needs MAG_HOLD_MS of CONTINUOUS
+            // hit. A residual parked near threshold satisfies neither: it
+            // flickers, so magHitStart keeps resetting and the re-zero never
+            // fires, while the flickers themselves keep pausing the tracking.
+            // diag11 sat in exactly that state. If the field has not agreed
+            // with the baseline (delta under half threshold) for MAG_STALE_MS,
+            // force a re-zero regardless of hit state.
+            const uint32_t MAG_STALE_MS = 25000;
+            static uint32_t magAgreeAt = 0;
+            if (magAgreeAt == 0 || recalibrate) magAgreeAt = millis();
+            if (magDelta &lt; (threshMag / 2)) magAgreeAt = millis();
+            if (!fieldLock &amp;&amp; (millis() - magAgreeAt &gt; MAG_STALE_MS)) {
+                magBaselineSet(magX, magY, magZ);
+                magAgreeAt = millis();
+                magHitStart = 0;
+                magSettleStart = millis();
+            }
+
             const uint32_t MAG_HOLD_MS = 6000;
             if (magHitActive &amp;&amp; !fieldLock) {   // locked: no post-hit hard re-zero
                 if (magHitStart == 0) magHitStart = millis();
                 if (millis() - magHitStart &gt; MAG_HOLD_MS) {
-                    baseMagX = magX; baseMagY = magY; baseMagZ = magZ;   // hard re-zero
+                    magBaselineSet(magX, magY, magZ);                   // hard re-zero
                     magHitStart = 0;
                     magSettleStart = millis();                            // fast-settle after
                 }
@@ -2298,9 +2420,12 @@ void hardwareTask(void* pv) {
             // Normal slow baseline tracking while NOT in a hit (fast-settle 3s after boot/recal).
             float a = (millis() - magSettleStart &lt; 3000) ? 0.05f : 0.002f;
             if (!magHitActive &amp;&amp; !fieldLock) {   // locked: mag baseline frozen too
-                baseMagX = (int16_t)(baseMagX + a * (magX - baseMagX));
-                baseMagY = (int16_t)(baseMagY + a * (magY - baseMagY));
-                baseMagZ = (int16_t)(baseMagZ + a * (magZ - baseMagZ));
+                baseMagXf += a * ((float)magX - baseMagXf);
+                baseMagYf += a * ((float)magY - baseMagYf);
+                baseMagZf += a * ((float)magZ - baseMagZf);
+                baseMagX = (int16_t)lroundf(baseMagXf);
+                baseMagY = (int16_t)lroundf(baseMagYf);
+                baseMagZ = (int16_t)lroundf(baseMagZf);
             }
         }
 
@@ -2334,7 +2459,17 @@ void hardwareTask(void* pv) {
         } else {
             proxRawSince = 0;
         }
-        bool proxSustained = proxAlert &amp;&amp; proxRawSince != 0 &amp;&amp; (nowMsRaw - proxRawSince &gt;= (uint32_t)proxArmMs);
+        // A CONFIRMED saturation (rcSaturated) is already the most heavily
+        // vetted reading the sensor produces: 4+ consecutive majority-timeout
+        // calls, stall samples excluded, plus the ramp gate. Making it ALSO wait
+        // out the full de-glitch window meant a firm touch that saturated and
+        // released inside ~150 ms produced prox_alert=1 in telemetry and no
+        // alert at all -- exactly diag11&#x27;s touch, which held for two 71 ms diag
+        // rows and never reached alertPhase 1. Give a confirmed saturation a
+        // shorter window; everything else keeps the full proxArmMs.
+        uint32_t armWindow = (uint32_t)proxArmMs;
+        if (rcSaturated &amp;&amp; armWindow &gt; PROX_SAT_ARM_MS) armWindow = PROX_SAT_ARM_MS;
+        bool proxSustained = proxAlert &amp;&amp; proxRawSince != 0 &amp;&amp; (nowMsRaw - proxRawSince &gt;= armWindow);
 
         // THEREMIN FIELD: continuous 0..100 from proxDelta, scaled by proxSpan.
         // proxNoise is a jitter deadband so an idle antenna truly rests at field 0
@@ -2355,7 +2490,7 @@ void hardwareTask(void* pv) {
             proxSpan = (proxPeakSeen &gt; 12) ? proxPeakSeen : 12;
             proxPeakSeen = 0;
             proxRefitReq = false;
-            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxSpan&quot;, proxSpan); prefs.end();
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(kSpanKey(proxMode), proxSpan); prefs.end();
         }
         // Auto-nudge span up if a hand ever pushes past it (self-fitting reach).
         // Surrogate (saturated) values are synthetic -- never fit span to them.
@@ -2595,7 +2730,12 @@ void hardwareTask(void* pv) {
                 diagLogArmed = false;
             } else if (diagLogCount &lt; DIAG_LOG_CAP &amp;&amp; (++diagLogDecim % 5) == 0) {  // hardwareTask runs ~100Hz; keep this ~20Hz
                 DiagLogRow &amp;r = diagLogRows[diagLogCount++];
-                r.ts = nowMs; r.rcCharge10 = (int16_t)rcCharge10; r.rcBase10 = (int16_t)rcBase10;
+                // Snapshot volatiles once: Arduino&#x27;s min() is a macro that would
+                // otherwise read them twice and could latch two different samples.
+                int chSnap = rcCharge10, bsSnap = rcBase10;
+                if (chSnap &gt; 32767) chSnap = 32767;
+                if (bsSnap &gt; 32767) bsSnap = 32767;
+                r.ts = nowMs; r.rcCharge10 = (int16_t)chSnap; r.rcBase10 = (int16_t)bsSnap;
                 r.rcOk = rcValid ? 1 : 0; r.rcFault = (uint8_t)rcFault;
                 r.proxDelta = (int16_t)proxDelta; r.proxAlert = proxAlert ? 1 : 0;
                 r.satArmed = rcSaturated ? 1 : 0; r.magDelta = (int16_t)magDelta;
@@ -3058,7 +3198,7 @@ void sendHello() {
 
 void persistThresholds() {
     prefs.begin(&quot;specter&quot;, false);
-    prefs.putInt(&quot;magSens&quot;, magSens); prefs.putInt(&quot;prox&quot;, threshProx);
+    prefs.putInt(&quot;magSens&quot;, magSens); prefs.putInt(kThreshKey(proxMode), threshProx);
     prefs.end();
 }
 
@@ -3116,7 +3256,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (doc[&quot;refit&quot;] | false) { proxRefitReq = true; proxPeakSeen = 0; }
         if (doc[&quot;noise&quot;].is&lt;int&gt;()) {
             proxNoise = constrain((int)doc[&quot;noise&quot;], 0, 200);
-            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxNoise&quot;, proxNoise); prefs.end();
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(kNoiseKey(proxMode), proxNoise); prefs.end();
         }
         if (doc[&quot;curve&quot;].is&lt;int&gt;()) {
             proxCurve = constrain((int)doc[&quot;curve&quot;], 0, 1);
@@ -3153,7 +3293,10 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
                 // Basic touch mode needs GPIO18 high-impedance; leaving it LOW would
                 // bias GPIO4 through the external 1M resistor on a wired Road B node.
                 if (pm == 0) { digitalWrite(activeRcDrivePin(), LOW); pinMode(activeRcDrivePin(), INPUT); }
+                saveProxTuningFor(proxMode);      // keep the mode we&#x27;re leaving
                 proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
+                loadProxTuningFor(proxMode);      // adopt the mode we&#x27;re entering (different unit scale)
+                effThreshProx = recomputeEffThreshProx();
                 if (pm == 1) rcSmartCalReq = true;
             }
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxMode&quot;, proxMode); prefs.end();
@@ -3161,7 +3304,7 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         prefs.begin(&quot;specter&quot;, false);
         prefs.putInt(&quot;therm&quot;, proxTheremin ? 1 : 0);
         prefs.putInt(&quot;thermTone&quot;, proxToneOn ? 1 : 0);
-        prefs.putInt(&quot;proxSpan&quot;, proxSpan);
+        prefs.putInt(kSpanKey(proxMode), proxSpan);
         prefs.end();
         if (!proxTheremin) noTone(activeBuzzerPin());
     } else if (!strcmp(cmd, &quot;setRate&quot;)) {
@@ -3319,19 +3462,20 @@ void setupNetwork() {
     targetAppIP = prefs.getString(&quot;appip&quot;, &quot;&quot;);
     relayUrl    = prefs.getString(&quot;relayurl&quot;, &quot;&quot;);
     magSens     = prefs.getInt(&quot;magSens&quot;, 70);
-    threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     proxTheremin= prefs.getInt(&quot;therm&quot;, 1) == 1;   // default ON when unset
     proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 0) == 1;
     proxCurve   = prefs.getInt(&quot;proxCurve&quot;, 1);
     fieldLock   = prefs.getInt(&quot;fieldLock&quot;, 0) == 1;
-    proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
-    proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
+    // threshProx / proxSpan / proxNoise are per-mode (different unit scales);
+    // loadProxTuningFor opens its own handle, so read proxMode first.
+    prefs.end(); loadProxTuningFor(proxMode); prefs.begin(&quot;specter&quot;, true);
     rcMarginMult    = prefs.getInt(&quot;rcMarginX&quot;, 5);
     rcMarginFloorUs = prefs.getInt(&quot;rcMarginFloorUs&quot;, 40);
     proxAlertMs    = prefs.getInt(&quot;alertMs&quot;, 6000);
     proxCooldownMs = prefs.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = prefs.getInt(&quot;armMs&quot;, 150);
+    heartbeatResumeMs = prefs.getInt(&quot;hbResumeMs&quot;, 2000);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
@@ -3752,7 +3896,7 @@ void setupNetwork() {
     server.on(&quot;/prox/rcmargin&quot;, HTTP_GET, []() {
         JsonDocument d;
         d[&quot;mult&quot;] = rcMarginMult; d[&quot;floorUs&quot;] = rcMarginFloorUs; d[&quot;timeoutUs&quot;] = rcTimeoutUs;
-        d[&quot;ambientUs&quot;] = rcBase10 / 10.0; d[&quot;calibrated&quot;] = rcSmartCalibrated;
+        d[&quot;ambientUs&quot;] = rcBase10 / (double)RC_SUB; d[&quot;calibrated&quot;] = rcSmartCalibrated;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
 
@@ -3762,19 +3906,22 @@ void setupNetwork() {
         if (server.hasArg(&quot;alertMs&quot;)) proxAlertMs = constrain(server.arg(&quot;alertMs&quot;).toInt(), 200, 30000);
         if (server.hasArg(&quot;cooldownMs&quot;)) proxCooldownMs = constrain(server.arg(&quot;cooldownMs&quot;).toInt(), 0, 30000);
         if (server.hasArg(&quot;armMs&quot;)) proxArmMs = constrain(server.arg(&quot;armMs&quot;).toInt(), 0, 2000);
+        if (server.hasArg(&quot;hbResumeMs&quot;)) heartbeatResumeMs = constrain((int)server.arg(&quot;hbResumeMs&quot;).toInt(), 0, 15000);
         prefs.begin(&quot;specter&quot;, false);
         prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs); prefs.putInt(&quot;armMs&quot;, proxArmMs);
+        prefs.putInt(&quot;hbResumeMs&quot;, heartbeatResumeMs);
         if (server.hasArg(&quot;thresh&quot;)) {
-            threshProx = server.arg(&quot;thresh&quot;).toInt();
-            prefs.putInt(&quot;prox&quot;, threshProx);
+            threshProx = constrain((int)server.arg(&quot;thresh&quot;).toInt(), 1, 400);
+            prefs.putInt(kThreshKey(proxMode), threshProx);
             effThreshProx = recomputeEffThreshProx();
         }
         prefs.end();
-        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;armMs\&quot;:&quot; + proxArmMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;armMs\&quot;:&quot; + proxArmMs + &quot;,\&quot;hbResumeMs\&quot;:&quot; + heartbeatResumeMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
     });
     server.on(&quot;/prox/cadence&quot;, HTTP_GET, []() {
         JsonDocument d;
         d[&quot;alertMs&quot;] = proxAlertMs; d[&quot;cooldownMs&quot;] = proxCooldownMs; d[&quot;armMs&quot;] = proxArmMs; d[&quot;effThreshProx&quot;] = effThreshProx; d[&quot;threshProx&quot;] = threshProx;
+        d[&quot;hbResumeMs&quot;] = heartbeatResumeMs; d[&quot;proxMode&quot;] = proxMode; d[&quot;rcSub&quot;] = RC_SUB; d[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
 
@@ -3813,7 +3960,7 @@ void setupNetwork() {
         uint16_t n = diagLogCount;
         String csv;
         csv.reserve((size_t)n * 72 + 128);
-        csv += &quot;ts_ms,rc_charge_us_x10,rc_base_us_x10,rc_ok,rc_fault,prox_delta,prox_alert,sat_armed,mag_delta,mag_alert,alert_phase,rssi_dbm,rc_timeout_us\n&quot;;
+        csv += &quot;ts_ms,rc_charge_us_x100,rc_base_us_x100,rc_ok,rc_fault,prox_delta,prox_alert,sat_armed,mag_delta,mag_alert,alert_phase,rssi_dbm,rc_timeout_us\n&quot;;
         for (uint16_t i = 0; i &lt; n; ++i) {
             DiagLogRow &amp;r = diagLogRows[i];
             csv += r.ts; csv += &#x27;,&#x27;;
@@ -3897,13 +4044,24 @@ void loadProximityPrefsEarly() {
     Preferences early; early.begin(&quot;specter&quot;, true);
     proxMode = early.getInt(&quot;proxMode&quot;, 0);
     touchPin = early.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
-    threshProx = early.getInt(&quot;prox&quot;, 8);
-    proxNoise = early.getInt(&quot;proxNoise&quot;, 6);
+    // early boot: mode first, then the matching per-mode tuning
+    { int em = early.getInt(&quot;proxMode&quot;, 0);
+      int legacyT = early.getInt(&quot;prox&quot;, 0), legacyS = early.getInt(&quot;proxSpan&quot;, 0);
+      if (em == 1) {
+          threshProx = early.getInt(&quot;proxRC&quot;, legacyT &gt; 0 ? constrain(legacyT * 10, RC_THRESH_MIN, 400) : RC_THRESH_DEFAULT);
+          proxSpan   = early.getInt(&quot;proxSpanRC&quot;, legacyS &gt; 0 ? legacyS * 10 : RC_SPAN_DEFAULT);
+          proxNoise  = early.getInt(&quot;proxNoiseRC&quot;, RC_NOISE_DEFAULT);
+      } else {
+          threshProx = legacyT &gt; 0 ? legacyT : 8;
+          proxSpan   = legacyS &gt; 0 ? legacyS : 60;
+          proxNoise  = early.getInt(&quot;proxNoise&quot;, 6);
+      } }
     rcMarginMult    = early.getInt(&quot;rcMarginX&quot;, 5);
     rcMarginFloorUs = early.getInt(&quot;rcMarginFloorUs&quot;, 40);
     proxAlertMs    = early.getInt(&quot;alertMs&quot;, 6000);
     proxCooldownMs = early.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = early.getInt(&quot;armMs&quot;, 150);
+    heartbeatResumeMs = early.getInt(&quot;hbResumeMs&quot;, 2000);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
     proxCurve = early.getInt(&quot;proxCurve&quot;, 1);
@@ -3934,7 +4092,7 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
