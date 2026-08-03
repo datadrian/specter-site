@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.43-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.44-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -672,11 +672,12 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;/section&gt;
 &lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
+var $=function(i){return document.getElementById(i)};
 var TABS=[&#x27;connect&#x27;,&#x27;detect&#x27;,&#x27;leds&#x27;,&#x27;system&#x27;];
 function showTab(t){if(TABS.indexOf(t)&lt;0)t=&#x27;connect&#x27;;TABS.forEach(function(n){var s=$(&#x27;tab-&#x27;+n),b=$(&#x27;tb-&#x27;+n);if(s)s.className=&#x27;sect&#x27;+(n===t?&#x27; on&#x27;:&#x27;&#x27;);if(b)b.className=(n===t?&#x27;on&#x27;:&#x27;&#x27;)});try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+t)}catch(x){}}
 TABS.forEach(function(n){var b=$(&#x27;tb-&#x27;+n);if(b)b.onclick=function(){showTab(n)}});
 showTab((location.hash||&#x27;#connect&#x27;).slice(1));
-var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=8;
+var ws,thrMag=1500,thrProx=8;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
 function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk,m.rcFault);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.lock!=null&amp;&amp;$(&#x27;lock-on&#x27;)&amp;&amp;!$(&#x27;lock-on&#x27;)._userset)$(&#x27;lock-on&#x27;).checked=!!m.lock;if(m.lock!=null&amp;&amp;$(&#x27;lock-status&#x27;))$(&#x27;lock-status&#x27;).style.color=m.lock?&#x27;var(--warn)&#x27;:&#x27;var(--text-1)&#x27;;if(m.proxCurve!=null&amp;&amp;$(&#x27;therm-curve&#x27;)&amp;&amp;!$(&#x27;therm-curve&#x27;)._userset)$(&#x27;therm-curve&#x27;).value=String(m.proxCurve);var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
@@ -806,7 +807,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.43-maker&quot;
+#define FW_VERSION   &quot;2.12.44-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
