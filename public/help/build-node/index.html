@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.40-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.12.43-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -471,8 +471,10 @@
 #include &lt;HTTPClient.h&gt;
 #include &lt;HTTPUpdate.h&gt;
 #include &lt;WiFiClientSecure.h&gt;
+#include &lt;ESPmDNS.h&gt;          // specter-node-&lt;slot&gt;.local for the portal
 #include &lt;esp_now.h&gt;
 #include &lt;esp_wifi.h&gt;
+#include &lt;soc/gpio_struct.h&gt;     // direct GPIO register access inside rcMeasureOnce10 (IRAM)
 #include &lt;mbedtls/md.h&gt;
 #include &lt;stddef.h&gt;
 #include &lt;math.h&gt;
@@ -531,20 +533,28 @@ const char PAGE_SETTINGS[] PROGMEM = R&quot;HTMLPAGE(
 :root{--bg-0:#07090b;--bg-1:#0a0d10;--bg-2:#0f1318;--line:#1c2329;--text-0:#c6d4dc;--text-1:#889aa3;--text-2:#586872;--text-dim:#3b4750;--accent:#6ad7a8;--warn:#f0b65e;--alert:#ff4d4f;--mono:ui-monospace,Menlo,monospace}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg-0);color:var(--text-0);font-family:var(--mono);font-size:14px}body{padding:16px 16px 90px;user-select:none}
 header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:8px}.brand{font-size:12px;font-weight:700;letter-spacing:.22em}.sub{font-size:10px;color:var(--text-dim);letter-spacing:.15em}
-h4{font-size:10px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase;margin:22px 0 8px}.grp{font-size:11px;font-weight:700;letter-spacing:.24em;color:var(--accent);text-transform:uppercase;margin:30px 0 2px;padding-bottom:6px;border-bottom:1px solid var(--line)}.grp:first-of-type{margin-top:14px}.card{background:var(--bg-1);border:1px solid var(--line);border-radius:5px;padding:14px}
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:var(--bg-0);padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{flex:1;padding:10px 0;font-size:10px;letter-spacing:.16em}
+.sect{display:none}.sect.on{display:block}
+h4{font-size:10px;letter-spacing:.2em;color:var(--text-2);text-transform:uppercase;margin:22px 0 8px}.card{background:var(--bg-1);border:1px solid var(--line);border-radius:5px;padding:14px;margin-bottom:14px}
 button{font-family:var(--mono);background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);padding:11px 12px;border-radius:3px;font-size:11px;letter-spacing:.12em;cursor:pointer}button:active,button.on{border-color:var(--accent);color:var(--accent)}button[disabled]{opacity:.4}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row&gt;button{flex:1}label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text-2);margin:12px 0 4px;text-transform:uppercase}
-input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[type=password]{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:10px;border-radius:3px}.val{color:var(--text-0);font-size:12px}
+input[type=range]{width:100%;accent-color:var(--accent)}input[type=text],input[type=password],select{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:10px;border-radius:3px}.val{color:var(--text-0);font-size:12px}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .12s linear}
 .wifi-list{margin:4px 0;max-height:190px;overflow:auto}.wifi{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:3px;margin-bottom:6px;cursor:pointer;font-size:12px}.wifi:active,.wifi.sel{border-color:var(--accent)}.wifi .rssi{color:var(--text-2);font-size:10px}.wifi .lock{color:var(--text-dim);font-size:10px;margin-left:6px}
 .status{font-size:11px;color:var(--text-1);margin:8px 0;min-height:14px}.ok{color:var(--accent)}.warn{color:var(--warn)}.err{color:var(--alert)}
+.xyz{font-size:10px;color:var(--text-1)}
+details{border:1px solid var(--line);border-radius:4px;margin-top:12px;background:var(--bg-2)}details summary{cursor:pointer;padding:10px 12px;font-size:10px;letter-spacing:.18em;color:var(--warn);text-transform:uppercase;list-style:none}details summary::-webkit-details-marker{display:none}details summary:before{content:&#x27;\25B8  &#x27;}details[open] summary:before{content:&#x27;\25BE  &#x27;}details .inner{padding:0 12px 12px}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);border-top:1px solid var(--line)}nav a{flex:1;text-align:center;padding:16px 0;font-size:10px;letter-spacing:.18em;color:var(--text-2);text-decoration:none;text-transform:uppercase}nav a.on{color:var(--accent);border-top:2px solid var(--accent);margin-top:-1px}
+button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
 &lt;header&gt;&lt;div&gt;&lt;div class=brand&gt;SPECTER NODE&lt;/div&gt;&lt;div class=sub&gt;SETTINGS&lt;/div&gt;&lt;/div&gt;&lt;div class=sub id=fwline&gt;fw -&lt;/div&gt;&lt;/header&gt;
-&lt;div class=grp&gt;Connection&lt;/div&gt;
+&lt;div class=tabs&gt;&lt;button id=tb-connect&gt;CONNECT&lt;/button&gt;&lt;button id=tb-detect&gt;DETECT&lt;/button&gt;&lt;button id=tb-leds&gt;LEDS&lt;/button&gt;&lt;button id=tb-system&gt;SYSTEM&lt;/button&gt;&lt;/div&gt;
+&lt;section class=sect id=tab-connect&gt;
 &lt;h4&gt;Node identity&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Hardware ID: &lt;span class=val id=node-id&gt;-&lt;/span&gt;&lt;/div&gt;
-&lt;label&gt;Node name&lt;/label&gt;&lt;input id=node-name maxlength=31 placeholder=&quot;Automatic from slot&quot; style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;div class=row&gt;&lt;button id=node-name-save class=mini&gt;SAVE NODE NAME&lt;/button&gt;&lt;button id=node-name-auto class=mini&gt;AUTO FROM SLOT&lt;/button&gt;&lt;/div&gt;&lt;div class=status id=node-name-status&gt;Automatic names follow the assigned slot.&lt;/div&gt;
-&lt;label&gt;Assigned node slot&lt;/label&gt;&lt;select id=node-slot style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=1&gt;Node 1&lt;/option&gt;&lt;option value=2&gt;Node 2&lt;/option&gt;&lt;option value=3&gt;Node 3&lt;/option&gt;&lt;/select&gt;
+&lt;label&gt;Node name&lt;/label&gt;&lt;input type=text id=node-name maxlength=31 placeholder=&quot;Automatic from slot&quot;&gt;&lt;div class=row&gt;&lt;button id=node-name-save class=mini&gt;SAVE NODE NAME&lt;/button&gt;&lt;button id=node-name-auto class=mini&gt;AUTO FROM SLOT&lt;/button&gt;&lt;/div&gt;&lt;div class=status id=node-name-status&gt;Automatic names follow the assigned slot.&lt;/div&gt;
+&lt;label&gt;Assigned node slot&lt;/label&gt;&lt;select id=node-slot&gt;&lt;option value=1&gt;Node 1&lt;/option&gt;&lt;option value=2&gt;Node 2&lt;/option&gt;&lt;option value=3&gt;Node 3&lt;/option&gt;&lt;/select&gt;
 &lt;div class=status id=node-slot-status&gt;Assign each physical Node a unique slot.&lt;/div&gt;&lt;div class=row&gt;&lt;button id=node-slot-save&gt;SAVE NODE SLOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Wi-Fi&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status id=wifi-cur&gt;Current: -&lt;/div&gt;
@@ -552,121 +562,127 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--bg-1);b
 &lt;label&gt;Network (SSID)&lt;/label&gt;&lt;input type=text id=wifi-ssid placeholder=&quot;Select above or type SSID&quot;&gt;
 &lt;label&gt;Password&lt;/label&gt;&lt;input type=password id=wifi-pass placeholder=&quot;Leave blank for open network&quot;&gt;
 &lt;div class=status id=wifi-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=wifi-join&gt;SAVE &amp;amp; CONNECT&lt;/button&gt;&lt;button id=wifi-forget class=mini&gt;FORGET SAVED WI-FI&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Internet Relay&lt;/h4&gt;&lt;div class=card&gt;
+&lt;h4&gt;Reaching SPECTER&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status id=relay-cur&gt;Mode: LAN discovery&lt;/div&gt;
-&lt;label&gt;SPECTER Relay URL&lt;/label&gt;&lt;input type=text id=relay-url placeholder=&quot;Paste the relay address SPECTER shows (leave blank for LAN)&quot;&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Set this to connect to ONE SPECTER over the internet through a secure tunnel. Leave blank to use local-network discovery. Reboot after saving.&lt;/div&gt;
-&lt;div class=status id=relay-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=relay-save&gt;SAVE RELAY&lt;/button&gt;&lt;button id=relay-clear class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Relay Assist&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label style=&quot;margin-top:2px&quot;&gt;&lt;input type=checkbox id=ra-on&gt; Enable peer routing&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin:4px 0 10px&quot;&gt;Direct Wi-Fi remains primary. If this Node cannot reach SPECTER, it can forward through one or two nearby Nodes using the same group key. Firmware updates still require direct Wi-Fi.&lt;/div&gt;
+&lt;label&gt;Internet relay URL&lt;/label&gt;&lt;input type=text id=relay-url placeholder=&quot;Paste the relay address SPECTER shows (leave blank for LAN)&quot;&gt;
+&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;Connects to ONE SPECTER over the internet through a secure tunnel. Leave blank for local-network discovery. Reboot after saving.&lt;/div&gt;
+&lt;div class=status id=relay-status&gt;&lt;/div&gt;&lt;div class=row&gt;&lt;button id=relay-save&gt;SAVE RELAY&lt;/button&gt;&lt;button id=relay-clear class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:16px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=ra-on style=&quot;width:auto&quot;&gt; Peer routing (Relay Assist)&lt;/label&gt;
+&lt;div class=xyz style=&quot;margin:4px 0 10px&quot;&gt;Direct Wi-Fi remains primary. If this Node cannot reach SPECTER, it can forward through one or two nearby Nodes using the same group key. Firmware updates still require direct Wi-Fi.&lt;/div&gt;
 &lt;label&gt;Relay group key&lt;/label&gt;&lt;input type=password id=ra-key minlength=12 maxlength=64 placeholder=&quot;12 to 64 characters; use the same key on all Nodes&quot;&gt;
 &lt;div class=status id=ra-route&gt;Route: -&lt;/div&gt;&lt;div class=status id=ra-status&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=ra-generate class=mini&gt;GENERATE KEY&lt;/button&gt;&lt;button id=ra-save&gt;SAVE RELAY ASSIST&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=grp&gt;Sensors &amp;amp; Detection&lt;/div&gt;
-&lt;h4&gt;Calibrate&lt;/h4&gt;&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Detection thresholds&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label&gt;Mag sensitivity &lt;span class=val id=thr-mag-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=0 max=100 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Higher = reacts to smaller/farther field changes. Baseline auto-zeros to ambient, so any NEW field for a direction triggers.&lt;/div&gt;
-&lt;label&gt;Prox threshold &lt;span class=val id=thr-prox-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-prox min=1 max=200 step=1&gt;&lt;/div&gt;
-&lt;h4&gt;Antenna / proximity&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Live prox reading: &lt;b id=prox-live&gt;-&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;-&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;-&lt;/b&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;section class=sect id=tab-detect&gt;
+&lt;div class=card&gt;&lt;div class=row&gt;&lt;button id=baseline&gt;SET BASELINE&lt;/button&gt;&lt;button id=identify&gt;IDENTIFY&lt;/button&gt;&lt;/div&gt;
+&lt;div class=status&gt;Baseline zeroes BOTH channels to the current ambient. Identify flashes this pod&#x27;s ring.&lt;/div&gt;
+&lt;label style=&quot;margin-top:10px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=lock-on style=&quot;width:auto&quot;&gt; &lt;span style=&quot;color:var(--warn)&quot;&gt;FIELD LOCK&lt;/span&gt; &amp;mdash; freeze self-tuning for a session&lt;/label&gt;
+&lt;div class=xyz id=lock-status style=&quot;margin-top:4px&quot;&gt;While locked the node stops adapting itself: no span auto-fit, no baseline drift-follow, no mag re-zero. Your explicit actions (baseline, thresholds) still apply. Survives reboot.&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Magnetometer&lt;/h4&gt;&lt;div class=card&gt;
+&lt;label&gt;Mag sensitivity &lt;span class=val id=thr-mag-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=thr-mag min=0 max=100 step=1&gt;
+&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;Higher = reacts to smaller/farther field changes. Baseline auto-zeros to ambient, so any NEW field for a direction triggers. Auto-saves as you drag.&lt;/div&gt;&lt;/div&gt;
+&lt;h4&gt;Proximity antenna&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;margin-bottom:8px&quot;&gt;Live: &lt;b id=prox-live&gt;-&lt;/b&gt; &amp;nbsp; delta &lt;b id=prox-delta-live&gt;-&lt;/b&gt; / thr &lt;b id=prox-thr-live&gt;-&lt;/b&gt;&lt;/div&gt;
 &lt;label&gt;Sense source &lt;span class=val id=prox-mode-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;select id=prox-mode style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)&lt;/option&gt;&lt;/select&gt;
-&lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
-&lt;label style=&quot;margin-top:10px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=pin-swap&gt; Swap RC drive / buzzer pins&lt;/label&gt;
-&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;For miswired nodes only. Normal: RC drive GPIO18, buzzer GPIO12. Swapped: RC drive GPIO12, buzzer GPIO18. Saves to the node and applies immediately.&lt;/div&gt;
-&lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;select id=prox-pin style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
-&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE TOUCH PIN&lt;/button&gt;&lt;button id=prox-recal class=mini&gt;RECALIBRATE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Touch mode only. Applies instantly, no reboot. GPIO4/27/32/33 are the safe touch pins; boot-strap pins are excluded.&lt;/div&gt;&lt;/div&gt;
-&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=diag-log-start class=mini&gt;CAPTURE 2 MIN LOG&lt;/button&gt;&lt;a id=diag-log-download class=mini style=&quot;display:none&quot; href=&quot;/diag/log/download&quot;&gt;DOWNLOAD CSV&lt;/a&gt;&lt;/div&gt;
-&lt;div class=xyz id=diag-log-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Starts a 2-minute capture of proximity, RC, magnetometer, alert phase, and Wi-Fi signal for troubleshooting. Boot the node, wait, approach, then touch, then download.&lt;/div&gt;
-&lt;label style=&quot;margin-top:10px&quot;&gt;Timeout margin (x ambient) &lt;span class=val id=rcmargin-mult-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=rcmargin-mult min=2 max=40 step=1 style=&quot;width:100%&quot;&gt;
-&lt;label&gt;Timeout floor (us) &lt;span class=val id=rcmargin-floor-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=rcmargin-floor min=5 max=2000 step=5 style=&quot;width:100%&quot;&gt;
-&lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=rcmargin-apply class=mini&gt;APPLY &amp;amp; RECALIBRATE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=rcmargin-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Extended-range mode only. Lower values make the antenna sensitive further from contact but closer to real noise; higher values are safer but touch-only. Current learned timeout window: &lt;b id=rcmargin-timeout-v&gt;-&lt;/b&gt; us against ambient &lt;b id=rcmargin-ambient-v&gt;-&lt;/b&gt; us.&lt;/div&gt;
+&lt;select id=prox-mode&gt;&lt;option value=0&gt;Basic capacitive touch input&lt;/option&gt;&lt;option value=1&gt;Extended-range resistor sensor (GPIO18 drive to 1M to GPIO4)&lt;/option&gt;&lt;/select&gt;
+&lt;div class=xyz id=prox-mode-msg style=&quot;margin-top:4px&quot;&gt;Basic mode reads the selectable touch GPIO below.&lt;/div&gt;
 &lt;label style=&quot;margin-top:10px&quot;&gt;Trigger threshold (lower = fires on a lighter approach) &lt;span class=val id=cadence-thresh-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=cadence-thresh min=4 max=100 step=1 style=&quot;width:100%&quot;&gt;
+&lt;input type=range id=cadence-thresh min=4 max=100 step=1&gt;
 &lt;label style=&quot;margin-top:10px&quot;&gt;Alert duration (seconds) &lt;span class=val id=cadence-alert-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=cadence-alert min=0.5 max=30 step=0.5 style=&quot;width:100%&quot;&gt;
+&lt;input type=range id=cadence-alert min=0.5 max=30 step=0.5&gt;
 &lt;label&gt;Cooldown duration (seconds) &lt;span class=val id=cadence-cooldown-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=cadence-cooldown min=0 max=30 step=0.5 style=&quot;width:100%&quot;&gt;
-&lt;label&gt;De-glitch (ms, filters instant noise spikes) &lt;span class=val id=cadence-arm-v&gt;-&lt;/span&gt;&lt;/label&gt;
-&lt;input type=range id=cadence-arm min=0 max=800 step=10 style=&quot;width:100%&quot;&gt;
-&lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=cadence-apply class=mini&gt;APPLY CADENCE&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=cadence-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Alert duration is how long the beep/flash/event stays active once triggered (default 6s). Cooldown is the quiet window enforced right after (default 6s). De-glitch requires the raw signal to sustain past threshold for this long before arming, so a one-cycle RF/ESD blip can&#x27;t fire an alert (default 150ms; real touches easily clear this). Trigger threshold currently effective: &lt;b id=cadence-eff-v&gt;-&lt;/b&gt;.&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Theremin mode&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-on&gt; Theremin response - continuous field&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin:2px 0 8px&quot;&gt;This controls the continuous field display. The optional pitch is separate from alert beeps. Turn the pitch off for quiet monitoring; alerts and snapshots still fire.&lt;/div&gt;
-&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=therm-tone&gt; Continuous pitch below alert (optional)&lt;/label&gt;
+&lt;input type=range id=cadence-cooldown min=0 max=30 step=0.5&gt;
+&lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=cadence-apply class=mini&gt;APPLY&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz id=cadence-msg style=&quot;margin-top:4px&quot;&gt;Alert duration is how long the beep/flash/event stays active once triggered (default 6s); cooldown is the quiet window right after (default 6s). Effective trigger threshold: &lt;b id=cadence-eff-v&gt;-&lt;/b&gt;.&lt;/div&gt;
+&lt;label style=&quot;margin-top:14px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=therm-on style=&quot;width:auto&quot;&gt; Theremin response &amp;mdash; continuous field&lt;/label&gt;
+&lt;div class=xyz style=&quot;margin:2px 0 8px&quot;&gt;Continuous field display below the alert threshold. The optional pitch is separate from alert beeps; turn it off for quiet monitoring &amp;mdash; alerts still fire.&lt;/div&gt;
+&lt;label style=&quot;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=therm-tone style=&quot;width:auto&quot;&gt; Continuous pitch below alert (optional)&lt;/label&gt;
 &lt;div class=xyz style=&quot;margin-top:8px&quot;&gt;Live field: &lt;b id=therm-field&gt;-&lt;/b&gt; / 100 &lt;span style=&quot;color:var(--text-2)&quot;&gt;(span &lt;b id=therm-span&gt;-&lt;/b&gt;)&lt;/span&gt;&lt;/div&gt;
 &lt;div class=bar style=&quot;margin-top:4px&quot;&gt;&lt;i id=therm-bar style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
-&lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;color:var(--text-2);margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near. The antenna floats a few counts; this ignores that noise so it truly rests.&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;Response curve&lt;/label&gt;&lt;select id=therm-curve&gt;&lt;option value=1&gt;Natural (spread across the approach)&lt;/option&gt;&lt;option value=0&gt;Linear (legacy, bunches near contact)&lt;/option&gt;&lt;/select&gt;
+&lt;label style=&quot;margin-top:8px&quot;&gt;Jitter deadband &lt;span class=val id=therm-noise-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=therm-noise min=0 max=60 step=1&gt;&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;Raise until the field sits at 0 with no hand near.&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=therm-refit class=mini&gt;REFIT RANGE&lt;/button&gt;&lt;button id=therm-save class=mini&gt;SAVE THEREMIN&lt;/button&gt;&lt;/div&gt;
-&lt;div class=xyz id=therm-save-msg style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Loading saved node settings...&lt;/div&gt;
-&lt;div class=xyz style=&quot;margin-top:4px;color:var(--text-2)&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna. It sizes the field to THAT motion - so your hand pass = full field.&lt;/div&gt;&lt;/div&gt;
-&lt;div class=grp&gt;LED Ring&lt;/div&gt;
-&lt;h4&gt;Idle heartbeat&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label style=&quot;margin-top:4px&quot;&gt;&lt;input type=checkbox id=heartbeat-on&gt; Heartbeat light &lt;span style=&quot;color:var(--warn);margin-left:8px&quot;&gt;May reduce battery life&lt;/span&gt;&lt;/label&gt;
-&lt;label&gt;Heartbeat color&lt;/label&gt;&lt;input type=color id=heartbeat-color value=&quot;#20e080&quot;&gt;
-&lt;div class=status id=heartbeat-status&gt;Gently fades while the Node is idle. Alerts and guided effects take priority.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=heartbeat-save&gt;SAVE HEARTBEAT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;LED ring&lt;/h4&gt;&lt;div class=card&gt;
-&lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
-&lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;
-&lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;option&gt;GRBW&lt;/option&gt;&lt;option&gt;RGBW&lt;/option&gt;&lt;option&gt;BGRW&lt;/option&gt;&lt;/select&gt;
+&lt;div class=xyz id=therm-save-msg style=&quot;margin-top:4px&quot;&gt;Loading saved node settings...&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-top:4px&quot;&gt;Click REFIT, then within ~1.5s make your closest hand pass at the antenna &amp;mdash; that motion becomes full field.&lt;/div&gt;
+&lt;details&gt;&lt;summary&gt;Advanced / troubleshooting&lt;/summary&gt;&lt;div class=inner&gt;
+&lt;label style=&quot;margin-top:10px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=pin-swap style=&quot;width:auto&quot;&gt; Swap RC drive / buzzer pins&lt;/label&gt;
+&lt;div class=xyz style=&quot;margin-top:4px&quot;&gt;For miswired nodes only. Normal: RC drive GPIO18, buzzer GPIO12. Swapped: RC drive GPIO12, buzzer GPIO18. Applies immediately.&lt;/div&gt;
+&lt;div id=touch-pin-controls&gt;&lt;label&gt;Antenna GPIO &lt;span class=val id=prox-pin-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;select id=prox-pin&gt;&lt;option value=4&gt;GPIO4 (T0, default)&lt;/option&gt;&lt;option value=27&gt;GPIO27 (T7)&lt;/option&gt;&lt;option value=32&gt;GPIO32 (T9)&lt;/option&gt;&lt;option value=33&gt;GPIO33 (T8)&lt;/option&gt;&lt;/select&gt;
+&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=prox-pin-save class=mini&gt;SAVE TOUCH PIN&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz id=prox-pin-msg style=&quot;margin-top:4px&quot;&gt;Touch mode only. Applies instantly, no reboot. Boot-strap pins are excluded.&lt;/div&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:10px&quot;&gt;Timeout margin (x ambient) &lt;span class=val id=rcmargin-mult-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=rcmargin-mult min=2 max=40 step=1&gt;
+&lt;label&gt;Timeout floor (us) &lt;span class=val id=rcmargin-floor-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=rcmargin-floor min=5 max=2000 step=5&gt;
+&lt;div class=row style=&quot;margin-top:6px&quot;&gt;&lt;button id=rcmargin-apply class=mini&gt;APPLY &amp;amp; RECALIBRATE&lt;/button&gt;&lt;/div&gt;
+&lt;div class=xyz id=rcmargin-msg style=&quot;margin-top:4px&quot;&gt;Extended-range mode only. Lower = sensitive further from contact but closer to noise. Learned window: &lt;b id=rcmargin-timeout-v&gt;-&lt;/b&gt; us against ambient &lt;b id=rcmargin-ambient-v&gt;-&lt;/b&gt; us.&lt;/div&gt;
+&lt;label style=&quot;margin-top:10px&quot;&gt;De-glitch (ms, filters instant noise spikes) &lt;span class=val id=cadence-arm-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=cadence-arm min=0 max=800 step=10&gt;
+&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;Raw signal must sustain past threshold this long before arming (default 150ms; real touches easily clear it). Applied with the APPLY button above.&lt;/div&gt;
+&lt;div class=row style=&quot;margin-top:10px&quot;&gt;&lt;button id=diag-log-start class=mini&gt;CAPTURE 2 MIN LOG&lt;/button&gt;&lt;a id=diag-log-download class=mini style=&quot;display:none&quot; href=&quot;/diag/log/download&quot;&gt;DOWNLOAD CSV&lt;/a&gt;&lt;/div&gt;
+&lt;div class=xyz id=diag-log-msg style=&quot;margin-top:4px&quot;&gt;2-minute capture of proximity, RC, magnetometer, alert phase, and Wi-Fi signal for troubleshooting.&lt;/div&gt;
+&lt;/div&gt;&lt;/details&gt;&lt;/div&gt;
+&lt;h4&gt;Interference&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;margin-bottom:8px&quot;&gt;Walkie-talkie / RF cancel: silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:8px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=rf-arm style=&quot;width:auto&quot;&gt; Suppress matching signals&lt;/label&gt;
+&lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;section class=sect id=tab-leds&gt;
+&lt;h4&gt;Ring setup&lt;/h4&gt;&lt;div class=card&gt;
+&lt;label&gt;Chipset&lt;/label&gt;&lt;select id=led-chip&gt;&lt;option&gt;WS2812B&lt;/option&gt;&lt;option&gt;SK6812&lt;/option&gt;&lt;option&gt;SK6812RGBW&lt;/option&gt;&lt;option&gt;WS2811&lt;/option&gt;&lt;option&gt;WS2813&lt;/option&gt;&lt;option&gt;APA102&lt;/option&gt;&lt;option&gt;SK9822&lt;/option&gt;&lt;/select&gt;
+&lt;label&gt;Color order&lt;/label&gt;&lt;select id=led-order&gt;&lt;option&gt;GRB&lt;/option&gt;&lt;option&gt;RGB&lt;/option&gt;&lt;option&gt;BGR&lt;/option&gt;&lt;option&gt;BRG&lt;/option&gt;&lt;option&gt;RBG&lt;/option&gt;&lt;option&gt;GBR&lt;/option&gt;&lt;option&gt;GRBW&lt;/option&gt;&lt;option&gt;RGBW&lt;/option&gt;&lt;option&gt;BGRW&lt;/option&gt;&lt;/select&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Data pin&lt;/label&gt;&lt;input type=text id=led-data&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Count&lt;/label&gt;&lt;input type=text id=led-count&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;label&gt;Brightness &lt;span class=val id=led-bright-v&gt;-&lt;/span&gt;&lt;/label&gt;&lt;input type=range id=led-bright min=0 max=255 step=1&gt;
 &lt;label&gt;Magnetic direction alignment&lt;/label&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;A steady lobe lights the &quot;front&quot; of the ring. Tap ROTATE to spin it 45&amp;deg; at a time until the lit side points the way your antenna faces - then mag hits glow toward the source.&lt;/div&gt;
-&lt;div class=row style=&quot;align-items:center&quot;&gt;&lt;button id=led-rot class=mini style=&quot;flex:1&quot;&gt;ROTATE 45&amp;deg;&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;angle &lt;b id=led-rot-v&gt;0&amp;deg;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=row style=&quot;align-items:center;margin-top:6px&quot;&gt;&lt;button id=led-flip class=mini style=&quot;flex:1&quot;&gt;FLIP DIRECTION&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center;font-family:var(--mono)&quot;&gt;spin &lt;b id=led-flip-v&gt;CW&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=xyz style=&quot;margin-bottom:8px&quot;&gt;A steady lobe lights the &quot;front&quot; of the ring. Tap ROTATE to spin it 45&amp;deg; at a time until the lit side points the way your antenna faces.&lt;/div&gt;
+&lt;div class=row style=&quot;align-items:center&quot;&gt;&lt;button id=led-rot class=mini style=&quot;flex:1&quot;&gt;ROTATE 45&amp;deg;&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center&quot;&gt;angle &lt;b id=led-rot-v&gt;0&amp;deg;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row style=&quot;align-items:center;margin-top:6px&quot;&gt;&lt;button id=led-flip class=mini style=&quot;flex:1&quot;&gt;FLIP DIRECTION&lt;/button&gt;&lt;div style=&quot;flex:1;text-align:center&quot;&gt;spin &lt;b id=led-flip-v&gt;CW&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Front pixel (ring start)&lt;/label&gt;&lt;input type=text id=led-front&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash. With the Solid mag animation, magnetic hits glow on the side nearest the source. Use ROTATE to line the lit direction up with your physical antenna; Front pixel sets which LED is index 0 on the ring.&lt;/div&gt;
-&lt;div class=status id=led-test-hint&gt;Test the ring: fires a solid color on all &lt;span class=val id=led-count-echo&gt;16&lt;/span&gt; pixels for 2s. If only some light up, check your Count; if the color is wrong, change Color order.&lt;/div&gt;
+&lt;div class=status id=led-status&gt;Brightness, map, count &amp;amp; color order apply live. Chipset and data/clock pin need a reflash.&lt;/div&gt;
+&lt;div class=status id=led-test-hint&gt;Test: fires a solid color on all &lt;span class=val id=led-count-echo&gt;16&lt;/span&gt; pixels for 2s. If only some light up, check Count; wrong color, change Color order.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=t-red class=mini style=&quot;border-color:#c0392b&quot;&gt;RED&lt;/button&gt;&lt;button id=t-grn class=mini style=&quot;border-color:#27ae60&quot;&gt;GREEN&lt;/button&gt;&lt;button id=t-blu class=mini style=&quot;border-color:#2980b9&quot;&gt;BLUE&lt;/button&gt;&lt;button id=t-wht class=mini&gt;WHITE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=led-save&gt;SAVE LED CONFIG&lt;/button&gt;&lt;button id=led-test&gt;PREVIEW BOOT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Detection LED themes&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=status&gt;Pick a color + animation for each detection type. Applies live.&lt;/div&gt;
+&lt;h4&gt;Effects&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=status&gt;Detection themes: a color + animation per detection type. Applies live; higher severity auto-brightens toward white.&lt;/div&gt;
 &lt;label&gt;Magnetic anomaly&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;label&gt;Proximity&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a style=&quot;width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:9px;border-radius:3px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=status id=ev-status&gt;Higher-severity hits automatically brighten and tint toward white.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=ev-save&gt;SAVE THEMES&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h4&gt;Boot animation&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=status id=ev-status&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=ev-save&gt;SAVE THEMES&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:14px&quot;&gt;Boot animation&lt;/label&gt;
 &lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Build color&lt;/label&gt;&lt;input type=color id=boot-a&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;label&gt;Sweep color&lt;/label&gt;&lt;input type=color id=boot-b&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;label&gt;&lt;input type=checkbox id=boot-en style=&quot;width:auto;vertical-align:middle&quot;&gt; Play boot animation on startup&lt;/label&gt;
-&lt;div class=status&gt;On power-up the ring builds 1&amp;rarr;N, sweeps your two colors, then goes dark until a detection.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=boot-save&gt;SAVE BOOT&lt;/button&gt;&lt;button id=boot-test class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=grp&gt;Interference&lt;/div&gt;
-&lt;h4&gt;Walkie-talkie / RF cancel&lt;/h4&gt;&lt;div class=card&gt;
-&lt;div class=xyz style=&quot;color:var(--text-2);margin-bottom:8px&quot;&gt;Silences false hits from a keyed two-way radio. Hold CAPTURE and key your radio near the node for ~2s, then release.&lt;/div&gt;
-&lt;div class=row&gt;&lt;button id=rf-cap class=mini&gt;HOLD TO CAPTURE&lt;/button&gt;&lt;button id=rf-clr class=mini&gt;CLEAR&lt;/button&gt;&lt;/div&gt;
-&lt;label style=&quot;margin-top:8px&quot;&gt;&lt;input type=checkbox id=rf-arm&gt; Suppress matching signals&lt;/label&gt;
-&lt;div class=xyz id=rf-dbg style=&quot;margin-top:4px;color:var(--accent)&quot;&gt;no signature captured&lt;/div&gt;&lt;/div&gt;
-&lt;div class=grp&gt;System&lt;/div&gt;
+&lt;label style=&quot;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=boot-en style=&quot;width:auto&quot;&gt; Play boot animation on startup&lt;/label&gt;
+&lt;div class=xyz&gt;On power-up the ring builds 1&amp;rarr;N, sweeps your two colors, then goes dark until a detection.&lt;/div&gt;
+&lt;div class=row style=&quot;margin-top:8px&quot;&gt;&lt;button id=boot-save&gt;SAVE BOOT&lt;/button&gt;&lt;button id=boot-test class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;
+&lt;label style=&quot;margin-top:14px;display:flex;align-items:center;gap:8px&quot;&gt;&lt;input type=checkbox id=heartbeat-on style=&quot;width:auto&quot;&gt; Idle heartbeat light &lt;span style=&quot;color:var(--warn)&quot;&gt;may reduce battery life&lt;/span&gt;&lt;/label&gt;
+&lt;label&gt;Heartbeat color&lt;/label&gt;&lt;input type=color id=heartbeat-color value=&quot;#20e080&quot;&gt;
+&lt;div class=status id=heartbeat-status&gt;Gently fades while the Node is idle. Alerts and guided effects take priority.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=heartbeat-save&gt;SAVE HEARTBEAT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;section class=sect id=tab-system&gt;
 &lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;-&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;-&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status id=upd-line&gt;Tap below to check specter-imaging.com for a newer build.&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=upd-check&gt;CHECK FOR UPDATES&lt;/button&gt;&lt;button id=upd-install disabled&gt;INSTALL UPDATE&lt;/button&gt;&lt;/div&gt;
 &lt;div class=status style=&quot;font-size:10px;margin-top:6px&quot;&gt;Update will not install? Flash over USB at &lt;b&gt;specter-imaging.com/help/flash-node&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
 &lt;nav&gt;&lt;a href=/&gt;TELEMETRY&lt;/a&gt;&lt;a class=on href=/settings&gt;SETTINGS&lt;/a&gt;&lt;/nav&gt;
 &lt;script&gt;
+var TABS=[&#x27;connect&#x27;,&#x27;detect&#x27;,&#x27;leds&#x27;,&#x27;system&#x27;];
+function showTab(t){if(TABS.indexOf(t)&lt;0)t=&#x27;connect&#x27;;TABS.forEach(function(n){var s=$(&#x27;tab-&#x27;+n),b=$(&#x27;tb-&#x27;+n);if(s)s.className=&#x27;sect&#x27;+(n===t?&#x27; on&#x27;:&#x27;&#x27;);if(b)b.className=(n===t?&#x27;on&#x27;:&#x27;&#x27;)});try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+t)}catch(x){}}
+TABS.forEach(function(n){var b=$(&#x27;tb-&#x27;+n);if(b)b.onclick=function(){showTab(n)}});
+showTab((location.hash||&#x27;#connect&#x27;).slice(1));
 var $=function(i){return document.getElementById(i)},ws,thrMag=1500,thrProx=8;
 function connect(){ws=new WebSocket(&#x27;ws://&#x27;+location.hostname+&#x27;:81/&#x27;);ws.onclose=function(){setTimeout(connect,2000)};ws.onmessage=function(e){try{onFrame(JSON.parse(e.data))}catch(x){}}}
 function send(o){if(ws&amp;&amp;ws.readyState===1)ws.send(JSON.stringify(o))}
-function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk,m.rcFault);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
-function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;$(&#x27;thr-prox&#x27;).value=thrProx;$(&#x27;thr-prox-v&#x27;).textContent=thrProx}
+function onFrame(m){if(m.t===&#x27;hello&#x27;){$(&#x27;fwline&#x27;).textContent=&#x27;fw &#x27;+(m.fw||&#x27;-&#x27;);$(&#x27;fwv&#x27;).textContent=m.fw||&#x27;-&#x27;;$(&#x27;devn&#x27;).textContent=m.name||m.device||&#x27;-&#x27;;if(m.thresholds){thrMag=(m.thresholds.magSens!=null?m.thresholds.magSens:70);thrProx=m.thresholds.prox;syncThr()}}else if(m.t===&#x27;telemetry&#x27;){if(m.proxMode!=null)updateProxModeUi(+m.proxMode,m.touchPin,m.rcCharge,m.rcBase,m.rcOk,m.rcFault);var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;);if(tc&amp;&amp;m.theremin!=null&amp;&amp;!tc._userset)tc.checked=!!m.theremin;if(tt&amp;&amp;m.thermTone!=null&amp;&amp;!tt._userset)tt.checked=!!m.thermTone;if($(&#x27;therm-field&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-field&#x27;).textContent=m.proxField;if($(&#x27;therm-span&#x27;)&amp;&amp;m.proxSpan!=null)$(&#x27;therm-span&#x27;).textContent=m.proxSpan;if($(&#x27;therm-bar&#x27;)&amp;&amp;m.proxField!=null)$(&#x27;therm-bar&#x27;).style.width=Math.max(0,Math.min(100,m.proxField))+&#x27;%&#x27;;if($(&#x27;therm-noise&#x27;)&amp;&amp;m.proxNoise!=null&amp;&amp;!$(&#x27;therm-noise&#x27;)._userset){$(&#x27;therm-noise&#x27;).value=m.proxNoise;if($(&#x27;therm-noise-v&#x27;))$(&#x27;therm-noise-v&#x27;).textContent=m.proxNoise;}if(m.lock!=null&amp;&amp;$(&#x27;lock-on&#x27;)&amp;&amp;!$(&#x27;lock-on&#x27;)._userset)$(&#x27;lock-on&#x27;).checked=!!m.lock;if(m.lock!=null&amp;&amp;$(&#x27;lock-status&#x27;))$(&#x27;lock-status&#x27;).style.color=m.lock?&#x27;var(--warn)&#x27;:&#x27;var(--text-1)&#x27;;if(m.proxCurve!=null&amp;&amp;$(&#x27;therm-curve&#x27;)&amp;&amp;!$(&#x27;therm-curve&#x27;)._userset)$(&#x27;therm-curve&#x27;).value=String(m.proxCurve);var sm=$(&#x27;therm-save-msg&#x27;);if(sm&amp;&amp;!window._thermSaving){sm.textContent=&#x27;Saved on node: response &#x27;+(m.theremin?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;, buzzer &#x27;+(m.thermTone?&#x27;ON&#x27;:&#x27;OFF&#x27;)+&#x27;.&#x27;;sm.style.color=&#x27;#4ade80&#x27;;}}}
+function syncThr(){$(&#x27;thr-mag&#x27;).value=thrMag;$(&#x27;thr-mag-v&#x27;).textContent=thrMag}
 $(&#x27;baseline&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;rebaseline&#x27;})};$(&#x27;identify&#x27;).onclick=function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;identify&#x27;})};
-var mt,pt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
-$(&#x27;thr-prox&#x27;).oninput=function(e){thrProx=+e.target.value;$(&#x27;thr-prox-v&#x27;).textContent=thrProx;clearTimeout(pt);pt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;prox&#x27;,value:thrProx})},250)};
+var mt;$(&#x27;thr-mag&#x27;).oninput=function(e){thrMag=+e.target.value;$(&#x27;thr-mag-v&#x27;).textContent=thrMag;clearTimeout(mt);mt=setTimeout(function(){send({t:&#x27;cmd&#x27;,cmd:&#x27;setThreshold&#x27;,channel:&#x27;mag&#x27;,value:thrMag})},250)};
 function rfPost(u){return fetch(u,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).catch(function(){return{}})}
 function rfStat(){fetch(&#x27;/rf/status&#x27;).then(function(r){return r.json()}).then(function(d){var a=$(&#x27;rf-arm&#x27;);if(a)a.checked=!!d.active;var db=$(&#x27;rf-dbg&#x27;);if(db){if(d.capturing){db.textContent=&#x27;capturing... key your radio now&#x27;;db.style.color=&#x27;#fbbf24&#x27;}else if(d.magPeak&gt;0||d.proxPeak&gt;0){db.textContent=&#x27;signature: mag &#x27;+d.magPeak+&#x27; / prox &#x27;+d.proxPeak+(d.active?&#x27; \u00b7 ARMED&#x27;:&#x27; \u00b7 off&#x27;);db.style.color=d.active?&#x27;#4ade80&#x27;:&#x27;var(--text-2)&#x27;}else{db.textContent=&#x27;no signature captured&#x27;;db.style.color=&#x27;var(--text-2)&#x27;}}}).catch(function(){})}
 if($(&#x27;rf-cap&#x27;)){var cap=$(&#x27;rf-cap&#x27;);var down=function(e){e.preventDefault();rfPost(&#x27;/rf/capture?action=start&#x27;).then(rfStat)};var up=function(e){e.preventDefault();rfPost(&#x27;/rf/capture?action=stop&#x27;).then(rfStat)};cap.addEventListener(&#x27;mousedown&#x27;,down);cap.addEventListener(&#x27;touchstart&#x27;,down);cap.addEventListener(&#x27;mouseup&#x27;,up);cap.addEventListener(&#x27;mouseleave&#x27;,up);cap.addEventListener(&#x27;touchend&#x27;,up);}
@@ -679,7 +695,6 @@ if($(&#x27;pin-swap&#x27;)){$(&#x27;pin-swap&#x27;)._userset=false;$(&#x27;pin-s
 if($(&#x27;prox-mode&#x27;)){$(&#x27;prox-mode&#x27;).onchange=function(e){var pm=+e.target.value;updateProxModeUi(pm,+($(&#x27;prox-pin&#x27;)?$(&#x27;prox-pin&#x27;).value:4),0,0);send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,proxMode:pm});var sm=$(&#x27;therm-save-msg&#x27;);if(sm){sm.textContent=&#x27;Sense source saved. Waiting for node confirmation...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}}}
 if($(&#x27;prox-pin&#x27;)){$(&#x27;prox-pin&#x27;)._userset=false;$(&#x27;prox-pin&#x27;).onchange=function(){$(&#x27;prox-pin&#x27;)._userset=true;};}
 if($(&#x27;prox-pin-save&#x27;)){$(&#x27;prox-pin-save&#x27;).onclick=function(){var v=$(&#x27;prox-pin&#x27;).value;proxPost(&#x27;/prox/pin?pin=&#x27;+v).then(function(d){if($(&#x27;prox-pin-v&#x27;))$(&#x27;prox-pin-v&#x27;).textContent=&#x27;GPIO&#x27;+(d.pin||v);var m=$(&#x27;prox-pin-msg&#x27;);if(m){m.textContent=&#x27;Saved GPIO&#x27;+(d.pin||v)+&#x27; \u00b7 recalibrated. Keep your hand away for a moment.&#x27;;}})}}
-if($(&#x27;prox-recal&#x27;)){$(&#x27;prox-recal&#x27;).onclick=function(){proxPost(&#x27;/prox/recal&#x27;).then(function(){var b=$(&#x27;prox-recal&#x27;);if(b){b.textContent=&#x27;RECALIBRATED&#x27;;setTimeout(function(){b.textContent=&#x27;RECALIBRATE BASELINE&#x27;},1200)}})}}
 if($(&#x27;diag-log-start&#x27;)){$(&#x27;diag-log-start&#x27;).onclick=function(){var b=$(&#x27;diag-log-start&#x27;),dl=$(&#x27;diag-log-download&#x27;),m=$(&#x27;diag-log-msg&#x27;);if(dl)dl.style.display=&#x27;none&#x27;;proxPost(&#x27;/diag/log/start?ms=120000&#x27;).then(function(){if(b)b.textContent=&#x27;CAPTURING...&#x27;;var poll=setInterval(function(){fetch(&#x27;/diag/log/status&#x27;).then(function(r){return r.json()}).then(function(d){if(m)m.textContent=&#x27;Capturing... &#x27;+(d.rows||0)+&#x27; rows, &#x27;+Math.max(0,Math.round((d.msRemaining||0)/1000))+&#x27;s left.&#x27;;if(!d.armed){clearInterval(poll);if(b)b.textContent=&#x27;CAPTURE 2 MIN LOG&#x27;;if(dl){dl.style.display=&#x27;inline&#x27;;dl.href=&#x27;/diag/log/download?_=&#x27;+Date.now();}if(m)m.textContent=&#x27;Capture complete, &#x27;+(d.rows||0)+&#x27; rows. Download and send the CSV.&#x27;;}})},1000)})}}
 function refreshRcMargin(){fetch(&#x27;/prox/rcmargin&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).value=d.mult;if($(&#x27;rcmargin-mult-v&#x27;))$(&#x27;rcmargin-mult-v&#x27;).textContent=d.mult;if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).value=d.floorUs;if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=d.floorUs;if($(&#x27;rcmargin-timeout-v&#x27;))$(&#x27;rcmargin-timeout-v&#x27;).textContent=(d.timeoutUs||0);if($(&#x27;rcmargin-ambient-v&#x27;))$(&#x27;rcmargin-ambient-v&#x27;).textContent=(d.ambientUs||0)})}
 if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).oninput=function(){if($(&#x27;rcmargin-mult-v&#x27;))$(&#x27;rcmargin-mult-v&#x27;).textContent=this.value};
@@ -719,7 +734,8 @@ function raStatus(){fetch(&#x27;/relay-assist/status&#x27;).then(function(r){ret
 $(&#x27;ra-generate&#x27;).onclick=function(){var a=new Uint8Array(18);crypto.getRandomValues(a);$(&#x27;ra-key&#x27;).value=Array.from(a,function(b){return b.toString(16).padStart(2,&#x27;0&#x27;)}).join(&#x27;&#x27;);$(&#x27;ra-on&#x27;).checked=true};
 $(&#x27;ra-save&#x27;).onclick=function(){var enabled=$(&#x27;ra-on&#x27;).checked,key=$(&#x27;ra-key&#x27;).value.trim();if(enabled&amp;&amp;(key.length&lt;12||key.length&gt;64)){$(&#x27;ra-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Group key must be 12 to 64 characters.&#x27;;return}$(&#x27;ra-save&#x27;).disabled=true;$(&#x27;ra-status&#x27;).className=&#x27;status&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Saving...&#x27;;fetch(&#x27;/relay-assist/save&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({enabled:enabled?&#x27;1&#x27;:&#x27;0&#x27;,key:key})}).then(function(r){if(!r.ok)throw new Error(&#x27;save&#x27;);return r.json()}).then(function(){$(&#x27;ra-key&#x27;).value=&#x27;&#x27;;$(&#x27;ra-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Saved. Direct Wi-Fi remains primary.&#x27;;raStatus()}).catch(function(){$(&#x27;ra-status&#x27;).className=&#x27;status err&#x27;;$(&#x27;ra-status&#x27;).textContent=&#x27;Save failed. Check the group key length.&#x27;}).then(function(){$(&#x27;ra-save&#x27;).disabled=false})};
 raStatus();setInterval(raStatus,3000);
-
+if($(&#x27;lock-on&#x27;)){$(&#x27;lock-on&#x27;)._userset=false;$(&#x27;lock-on&#x27;).onchange=function(){var el=this;el._userset=true;fetch(&#x27;/lock/set&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({on:el.checked?&#x27;1&#x27;:&#x27;0&#x27;})}).then(function(r){return r.json()}).then(function(d){el.checked=!!d.lock;var st=$(&#x27;lock-status&#x27;);if(st)st.textContent=d.lock?&#x27;LOCKED: the node will not retune itself until you unlock.&#x27;:&#x27;Unlocked: span auto-fit and baseline drift-follow active.&#x27;}).catch(function(){el.checked=!el.checked}).finally(function(){el._userset=false})}}
+if($(&#x27;therm-curve&#x27;)){$(&#x27;therm-curve&#x27;)._userset=false;$(&#x27;therm-curve&#x27;).onchange=function(){var el=this;el._userset=true;send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,curve:+el.value});setTimeout(function(){el._userset=false},600)}}
 // ---- LED config (per-node, on-device) ----
 function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json()}).then(function(d){
  $(&#x27;led-chip&#x27;).value=d.chipset||&#x27;WS2812B&#x27;;$(&#x27;led-order&#x27;).value=d.order||&#x27;GRB&#x27;;
@@ -790,7 +806,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.12.40-maker&quot;
+#define FW_VERSION   &quot;2.12.43-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -1061,9 +1077,36 @@ volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
 volatile int     proxVal = 0;
 volatile int     magDelta = 0;
+// ---- EVENT QUEUE: 4-deep single-producer/single-consumer ring (Core1 -&gt; Core0).
+// The old handoff was one slot behind an eventPending flag: two crossings inside
+// one 100ms drain window meant the second silently overwrote (or was skipped
+// over) the first, and the app had no way to detect the loss. Every event now
+// carries a monotonic `seq`; a ring-full drop shows up as a seq gap, so the
+// app&#x27;s CLASS-tier statistics become trustworthy.
+#define EVT_RING 4
+struct EvtSlot { uint32_t seq; int value; int threshold; char kind[16]; char channel[8]; char severity[8]; };
+EvtSlot          evtRing[EVT_RING];
+volatile uint8_t evtHead = 0, evtTail = 0;       // head: Core1 writes, tail: Core0 drains
+volatile uint32_t evtSeqCounter = 0;             // total events GENERATED (drops leave gaps)
+// Legacy mirror of the event being drained -- the Relay Assist payload
+// builder (raSendEvent) still reads these.
 volatile bool    eventPending = false;
 volatile int     evtValue = 0, evtThreshold = 0;
 char             evtChannel[8] = &quot;mag&quot;, evtSeverity[8] = &quot;low&quot;, evtKind[16] = &quot;spike&quot;;
+
+// Core1-side enqueue. Ring full -&gt; the event is dropped but seq still advances,
+// so the gap is visible downstream.
+static void queueEvent(const char* kind, const char* channel, const char* sev, int value, int threshold) {
+    uint32_t seq = ++evtSeqCounter;
+    uint8_t h = evtHead, nxt = (uint8_t)((h + 1) % EVT_RING);
+    if (nxt == evtTail) return;                  // full
+    EvtSlot &amp;e = evtRing[h];
+    e.seq = seq; e.value = value; e.threshold = threshold;
+    strncpy(e.kind, kind, sizeof(e.kind)-1); e.kind[sizeof(e.kind)-1] = 0;
+    strncpy(e.channel, channel, sizeof(e.channel)-1); e.channel[sizeof(e.channel)-1] = 0;
+    strncpy(e.severity, sev, sizeof(e.severity)-1); e.severity[sizeof(e.severity)-1] = 0;
+    evtHead = nxt;
+}
 volatile int16_t baseMagX = 0, baseMagY = 0, baseMagZ = 0;
 volatile int     baseProx = 0;
 volatile bool    recalibrate = true;
@@ -1127,6 +1170,18 @@ volatile int     effThreshProx = 40;  // ACTUAL prox trigger used = max(threshPr
 // brightness and (optionally) a continuously-pitched buzzer tone. The proximity
 // event/alert path still fires when the field crosses threshProx, so snapshots
 // and the app dashboard keep working.
+// FIELD LOCK: freezes every self-tuning behavior for the duration of an
+// investigation session -- span auto-fit/shrink/refit, the prox rolling-baseline
+// drift-follow, and the mag slow baseline (incl. its post-hit hard re-zero).
+// EXPLICIT operator actions (rebaseline cmd, threshold changes) still apply:
+// the lock stops the instrument changing itself, not the operator changing it.
+// Settable from the portal (/lock/set) and from SPECTER (cmd setFieldLock),
+// persisted so a mid-session brownout comes back still locked.
+volatile bool    fieldLock = false;
+// Distance shaping for the 0..100 theremin field: hand capacitance falls off
+// steeply with distance, so a linear map bunches all response near contact.
+// 1 = natural (sqrt) spreads the field across the approach; 0 = legacy linear.
+volatile int     proxCurve = 1;          // persisted
 volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
 volatile int     proxSpan     = 60;      // proxDelta that maps to full field (100). Auto-fits: nudges up on a bigger pass, slowly shrinks toward real passes so a fresh/NVS-erased node self-calibrates to its antenna within a few waves.
 volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
@@ -1180,6 +1235,13 @@ volatile uint32_t rcSaturatedAt = 0;                // sustained saturation even
 #define PROX_MIN_ALERT_MS_DEFAULT 350
 #define RC_SATURATION_ARM_READS 4
 #define RC_SATURATION_CLEAR_READS 10
+// Saturation may only ARM if a genuinely elevated CLEAN reading (median rise &gt;
+// effThreshProx/2) was seen this recently. A real hand approaching the antenna
+// always ramps the analog charge time up through intermediate values before it
+// saturates the window; a CPU-stall burst jumps straight from a flat ambient
+// baseline to &quot;timeout&quot; with no ramp at all (diag9: ambient delta 0-9 on one
+// 10ms tick, full saturation on the next -- physically impossible for a hand).
+#define RC_SAT_RAMP_WINDOW_MS 2500
 #define RC_QUICK_REBASE_SAMPLES 9
 volatile bool     rcQuickRebaseArmed = false;
 volatile uint8_t  rcQuickRebaseCount = 0;
@@ -1593,7 +1655,25 @@ void renderMagDirectional(uint32_t colorHex, int dirX, int dirY, float strength)
 // Measure antenna capacitance as charge time. GPIO18 alternately discharges and
 // charges GPIO4 through the external 1M resistor. Seven readings are median-filtered
 // so Wi-Fi and LED switching spikes do not move the proximity channel.
+// Cached at rcBegin(): ESP.getCpuFreqMHz() is flash-resident and must not be
+// called from inside the IRAM measurement routine.
+static uint32_t rcCpuMhz = 240;
+
+// Direct-register GPIO for the timed charge window. All three candidate pins
+// (RC_SENSE_PIN 4, RC_DRIVE_PIN 18, BUZZER_PIN 12) are &lt; 32, so the low
+// out_w1ts/out_w1tc/in registers cover them. Using registers (instead of
+// digitalWrite/digitalRead) guarantees no flash-resident HAL call can sneak
+// into the IRAM poll loop, and shaves ~50 cycles per poll.
+static inline __attribute__((always_inline)) void rcDriveWrite(uint8_t pin, int level) {
+    if (level) GPIO.out_w1ts = ((uint32_t)1 &lt;&lt; pin);
+    else       GPIO.out_w1tc = ((uint32_t)1 &lt;&lt; pin);
+}
+static inline __attribute__((always_inline)) int rcSenseLevel() {
+    return (int)((GPIO.in &gt;&gt; RC_SENSE_PIN) &amp; 0x1);
+}
+
 void rcBegin() {
+    rcCpuMhz = (uint32_t)ESP.getCpuFreqMHz();
     pinMode(activeRcDrivePin(), OUTPUT);
     digitalWrite(activeRcDrivePin(), LOW);
     // Force GPIO4 back from the touch peripheral to ordinary digital GPIO.
@@ -1611,39 +1691,70 @@ void rcBegin() {
     rcSmartCalibrated = false; rcSaturated = false; rcSaturatedAt = 0;
 }
 
-int rcMeasureOnce10() {
-    const uint32_t mhz = (uint32_t)ESP.getCpuFreqMHz();
+// Return codes:
+//   &gt;0  charge time in 0.1us units
+//   -1  discharge fail (sense stuck HIGH before the window: wiring/short)
+//   -2  GENUINE charge timeout: the pin was still LOW at the timing bound.
+//       The RC node truly never charged inside the learned window -- real
+//       over-capacitance (hand on/near the antenna). Only this code may feed
+//       the saturation surrogate.
+//   -3  STALL: the pin was HIGH at the bound but we noticed late. The analog
+//       crossing happened at an unknown earlier time while the CPU was frozen
+//       mid-poll. The charge itself was normal; the SAMPLE is unusable. It
+//       must be discarded -- never mapped to the saturation surrogate.
+//
+// Why stalls happen at all: interrupts on this core are already masked for the
+// window (portENTER_CRITICAL below), but a critical section CANNOT guard
+// against flash-cache suspension. Whenever the OTHER core commits an NVS /
+// LittleFS / OTA write, the SPI flash cache is disabled and any code that is
+// not in IRAM freezes on BOTH cores until the flash op completes (multiple
+// milliseconds -- far past a ~150us tuned window). The old build ran this
+// routine from flash and lumped &quot;HIGH but late&quot; together with &quot;never charged&quot;,
+// so every such stall was misclassified as a saturated hand reading. diag9
+// signature: charge pinned at EXACTLY rcBase10 + satDelta (the surrogate, a
+// manufactured constant -- not a measurement) for seconds at a time, with
+// ambient flat at delta 0-9 immediately before and after.
+//
+// Defense in depth, in order:
+//   1. IRAM_ATTR + register GPIO: the poll loop keeps executing through a
+//      flash-cache stall, so the crossing is timestamped on time and the
+//      sample is simply VALID. This removes the false spikes at the source.
+//   2. -3 classification: any residual late-notice case is discarded instead
+//      of being mistaken for saturation.
+//   3. Ramp gate in rcRead10: saturation can only arm off -2 runs that were
+//      preceded by a genuinely elevated clean reading (a hand ramps; a stall
+//      burst does not).
+IRAM_ATTR int rcMeasureOnce10() {
+    const uint32_t mhz = rcCpuMhz;
     const uint32_t maxCycles = mhz * rcTimeoutUs;
+    const uint8_t  drivePin = activeRcDrivePin();
 
     // Discharge the sense node directly through GPIO4. Discharging only through
     // the 1M resistor can leave long antennas above the digital LOW threshold.
-    digitalWrite(activeRcDrivePin(), LOW);
+    // (pinMode is flash-resident but runs BEFORE the timed window, where a
+    // stall costs nothing.)
+    rcDriveWrite(drivePin, 0);
     pinMode(RC_SENSE_PIN, OUTPUT);
-    digitalWrite(RC_SENSE_PIN, LOW);
+    rcDriveWrite(RC_SENSE_PIN, 0);
     delayMicroseconds(20);
-    if (digitalRead(RC_SENSE_PIN) != LOW) { pinMode(RC_SENSE_PIN, INPUT); return -1; }
+    if (rcSenseLevel() != 0) { pinMode(RC_SENSE_PIN, INPUT); return -1; }
     pinMode(RC_SENSE_PIN, INPUT);
 
-    // Charge through GPIO18 -&gt; 1M and time GPIO4 crossing the HIGH threshold.
-    // A Wi-Fi radio ISR (or cross-core memory-bus contention from Wi-Fi
-    // activity) preempting this loop right as the pin actually crosses HIGH
-    // delays when we notice it, adding a fixed extra delay to the reported
-    // time -- which reads as a small, HIGHLY CONSISTENT elevated &quot;glitch&quot;
-    // value every time it happens (matches diag6: repeated near-identical
-    // 282-284 spikes against a flat ~174 baseline), not the randomly-varying
-    // magnitude real analog/RF noise would produce. Mask interrupts on this
-    // core for the window itself to remove that source outright. Only when
-    // the window is short (normal tuned operation): see RC_GUARD_MAX_US.
+    // Charge through the drive pin -&gt; 1M and time GPIO4 crossing HIGH. The
+    // interrupt mask still removes same-core ISR jitter from the measurement
+    // (see RC_GUARD_MAX_US); IRAM removes cross-core flash-cache stalls.
     bool guarded = (rcTimeoutUs &lt;= RC_GUARD_MAX_US);
     if (guarded) portENTER_CRITICAL(&amp;rcMux);
     uint32_t start = ESP.getCycleCount();
-    digitalWrite(activeRcDrivePin(), HIGH);
-    while (digitalRead(RC_SENSE_PIN) == LOW &amp;&amp; (uint32_t)(ESP.getCycleCount() - start) &lt; maxCycles) {}
+    rcDriveWrite(drivePin, 1);
+    while (rcSenseLevel() == 0 &amp;&amp; (uint32_t)(ESP.getCycleCount() - start) &lt; maxCycles) {}
     uint32_t cycles = (uint32_t)(ESP.getCycleCount() - start);
-    bool charged = (digitalRead(RC_SENSE_PIN) == HIGH);
-    digitalWrite(activeRcDrivePin(), LOW);
+    bool charged = (rcSenseLevel() != 0);
+    rcDriveWrite(drivePin, 0);
     if (guarded) portEXIT_CRITICAL(&amp;rcMux);
-    if (!charged || cycles &gt;= maxCycles) return -2;
+
+    if (cycles &gt;= maxCycles) return charged ? -3 : -2;
+    if (!charged) return -2;   // loop exited without HIGH inside the bound
 
     // Tenths of a microsecond preserve useful resolution with small antenna capacitance.
     int measured = (int)((cycles * 10UL + mhz / 2UL) / mhz);
@@ -1666,10 +1777,13 @@ int rcRead10() {
     int baseSnapshot10 = rcBase10;
     if (baseSnapshot10 &lt; 1) baseSnapshot10 = 1;
     int saturatedSample10 = baseSnapshot10 + satDelta;
+    int stallFails = 0;
     for (int i = 0; i &lt; 7; ++i) {
         int v = rcMeasureOnce10();
         if (v &gt; 0) samples[n++] = v;
         else if (v == -1) dischargeFails++;
+        else if (v == -3) stallFails++;   // CPU-stall-invalidated: discard outright.
+                                          // NEVER a chargeFail, NEVER the surrogate.
         else {
             chargeFails++;
             if (rcSmartCalibrated) samples[n++] = saturatedSample10;
@@ -1690,7 +1804,17 @@ int rcRead10() {
     // the antenna. Require RC_SATURATION_ARM_READS consecutive calls before we
     // trust it as a real close-range reading, and require the sensor to come
     // back clean for RC_SATURATION_CLEAR_READS calls before it can arm again.
-    bool majoritySaturated = (consecutiveTimeoutReads &gt;= RC_SATURATION_ARM_READS);
+    //
+    // RAMP GATE: additionally require that a genuinely elevated CLEAN reading
+    // was measured within RC_SAT_RAMP_WINDOW_MS. A hand physically approaching
+    // the antenna raises the analog charge time continuously, so at 100 Hz the
+    // approach ALWAYS produces intermediate elevated medians before the window
+    // saturates. A stall burst starts from a flat ambient baseline and jumps
+    // straight to timeout -- no ramp -- so it can never arm.
+    static uint32_t lastElevatedCleanMs = 0;
+    bool rampSeen = (lastElevatedCleanMs != 0) &amp;&amp;
+                    ((uint32_t)(millis() - lastElevatedCleanMs) &lt;= RC_SAT_RAMP_WINDOW_MS);
+    bool majoritySaturated = (consecutiveTimeoutReads &gt;= RC_SATURATION_ARM_READS) &amp;&amp; rampSeen;
     if (majoritySaturated) {
         if (!rcSaturatedAt) rcSaturatedAt = millis();
         rcSaturated = true;
@@ -1716,6 +1840,13 @@ int rcRead10() {
         return rcLastGood10 &gt; 0 ? rcLastGood10 : baseSnapshot10;
     }
     if (n &lt; 5) {
+        // Stall-dominated call: too few usable samples, but the shortfall came
+        // from discarded -3 stalls, not from wiring. Hold the last good value;
+        // no fault, no surrogate -- the sensor is fine, the CPU was busy.
+        if (stallFails &gt; 0 &amp;&amp; dischargeFails == 0 &amp;&amp; chargeFails == 0) {
+            rcValid = true; rcFault = 0;
+            return rcLastGood10 &gt; 0 ? rcLastGood10 : baseSnapshot10;
+        }
         rcValid = false;
         rcFault = dischargeFails &gt; chargeFails ? 1 : (chargeFails &gt; 0 ? 2 : 3);
         return 0;
@@ -1725,6 +1856,11 @@ int rcRead10() {
     }
     rcValid = true; rcFault = 0;
     rcLastGood10 = samples[n / 2];
+    // Feed the ramp gate: a clean median meaningfully above baseline means a
+    // real analog rise is in progress, so saturation is allowed to arm soon.
+    if (rcBase10 &gt; 0 &amp;&amp; (samples[n / 2] - rcBase10) &gt; (effThreshProx / 2)) {
+        lastElevatedCleanMs = millis();
+    }
     return samples[n / 2];
 }
 
@@ -1974,7 +2110,7 @@ void hardwareTask(void* pv) {
                     // would otherwise be.
                     bool implausibleCollapse = (rcCharge10 &lt; (int)(rcBaseEma10 * 0.5f));
                     float alpha = 0.0f;
-                    if (!implausibleCollapse) {
+                    if (!implausibleCollapse &amp;&amp; !fieldLock) {   // locked: baseline frozen
                         if (signedRise &lt; 0) alpha = (abs(signedRise) &lt;= restBand * 4) ? 0.02f : 0.005f;
                         else if (signedRise &lt;= restBand) alpha = 0.002f;
                     }
@@ -2147,7 +2283,7 @@ void hardwareTask(void* pv) {
             // a brief opposite blip that re-settles in a couple seconds instead of
             // latching on until a manual reset.
             const uint32_t MAG_HOLD_MS = 6000;
-            if (magHitActive) {
+            if (magHitActive &amp;&amp; !fieldLock) {   // locked: no post-hit hard re-zero
                 if (magHitStart == 0) magHitStart = millis();
                 if (millis() - magHitStart &gt; MAG_HOLD_MS) {
                     baseMagX = magX; baseMagY = magY; baseMagZ = magZ;   // hard re-zero
@@ -2160,7 +2296,7 @@ void hardwareTask(void* pv) {
 
             // Normal slow baseline tracking while NOT in a hit (fast-settle 3s after boot/recal).
             float a = (millis() - magSettleStart &lt; 3000) ? 0.05f : 0.002f;
-            if (!magHitActive) {
+            if (!magHitActive &amp;&amp; !fieldLock) {   // locked: mag baseline frozen too
                 baseMagX = (int16_t)(baseMagX + a * (magX - baseMagX));
                 baseMagY = (int16_t)(baseMagY + a * (magY - baseMagY));
                 baseMagZ = (int16_t)(baseMagZ + a * (magZ - baseMagZ));
@@ -2206,10 +2342,14 @@ void hardwareTask(void* pv) {
         int effDelta = proxDelta - proxNoise;
         if (effDelta &lt; 0) effDelta = 0;
         // remember the strongest reach this session so REFIT can size the span to
-        // an ACTUAL hand pass rather than a guess.
-        if (effDelta &gt; proxPeakSeen) proxPeakSeen = effDelta;
+        // an ACTUAL hand pass rather than a guess. Never learn from a saturated
+        // read: its value is the manufactured surrogate (base + satDelta), not a
+        // measurement -- letting it in is how span self-fitted to false spikes
+        // in diag9 (span converged to exactly satDelta&#x27;s cap).
+        if (effDelta &gt; proxPeakSeen &amp;&amp; !rcSaturated &amp;&amp; !fieldLock) proxPeakSeen = effDelta;
         // REFIT: size the span to the biggest hand delta we&#x27;ve just seen (min 12),
         // so the closest your hand got == full field. Then reset the peak tracker.
+        if (proxRefitReq &amp;&amp; fieldLock) proxRefitReq = false;   // locked: ignore refit
         if (proxRefitReq) {
             proxSpan = (proxPeakSeen &gt; 12) ? proxPeakSeen : 12;
             proxPeakSeen = 0;
@@ -2217,7 +2357,8 @@ void hardwareTask(void* pv) {
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxSpan&quot;, proxSpan); prefs.end();
         }
         // Auto-nudge span up if a hand ever pushes past it (self-fitting reach).
-        if (effDelta &gt; proxSpan) proxSpan = (int)(proxSpan + 0.25f * (effDelta - proxSpan)) + 1;
+        // Surrogate (saturated) values are synthetic -- never fit span to them.
+        if (effDelta &gt; proxSpan &amp;&amp; !rcSaturated &amp;&amp; !fieldLock) proxSpan = (int)(proxSpan + 0.25f * (effDelta - proxSpan)) + 1;
         // Auto-SHRINK: remember the best pass over a rolling window and let span decay
         // toward it when idle. Without this, span only ever grew, so a fresh node (or
         // one whose saved span was wiped by a USB flash) stayed stuck wide and felt
@@ -2231,14 +2372,17 @@ void hardwareTask(void* pv) {
             // every 20s, if we saw a decent pass, ease span down toward it (never below
             // a floor so idle jitter can&#x27;t collapse it). Only shrink, never below 40.
             if (nowMs - spanWinAt &gt; 20000) {
-                if (spanBestPass &gt; 40 &amp;&amp; spanBestPass &lt; proxSpan)
+                if (spanBestPass &gt; 40 &amp;&amp; spanBestPass &lt; proxSpan &amp;&amp; !fieldLock)
                     proxSpan = (int)(proxSpan + 0.5f * (spanBestPass - proxSpan));   // halve the gap toward the real pass
                 if (proxSpan &lt; 40) proxSpan = 40;
                 spanBestPass = 0; spanWinAt = nowMs;
             }
         }
         {
-            float f = (proxSpan &gt; 0) ? (100.0f * (float)effDelta / (float)proxSpan) : 0.0f;
+            float ratio = (proxSpan &gt; 0) ? ((float)effDelta / (float)proxSpan) : 0.0f;
+            if (ratio &gt; 1.0f) ratio = 1.0f;
+            if (proxCurve == 1) ratio = sqrtf(ratio);   // natural: spread response across the approach
+            float f = 100.0f * ratio;
             static float fieldEma = 0.0f;
             fieldEma = fieldEma * 0.65f + (f &gt; 100 ? 100 : f) * 0.35f;
             if (fieldEma &lt; 0.4f) fieldEma = 0.0f;   // snap to true rest so idle = 0
@@ -2357,11 +2501,14 @@ void hardwareTask(void* pv) {
                 const char* sev = &quot;low&quot;;
                 if (proxDelta &gt; effThreshProx + 40) sev = &quot;high&quot;;
                 else if (proxDelta &gt; effThreshProx + 18) sev = &quot;med&quot;;
-                if (!eventPending) {
-                    strncpy(evtChannel, &quot;prox&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
-                    strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
-                    strncpy(evtKind, &quot;proximity&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
-                    evtValue = proxDelta; evtThreshold = effThreshProx; eventPending = true;
+                // Rate-gate to the old effective cadence (one per ~100ms drain)
+                // instead of relying on the single-slot side effect. A mag event
+                // arriving in the same window now queues alongside instead of
+                // being lost.
+                static uint32_t lastProxEvtMs = 0;
+                if (nowMs - lastProxEvtMs &gt;= 100) {
+                    lastProxEvtMs = nowMs;
+                    queueEvent(&quot;proximity&quot;, &quot;prox&quot;, sev, proxDelta, effThreshProx);
                     heartbeatSuppressUntil = nowMs + HEARTBEAT_SUPPRESS_MS;
                 }
                 int pitch = constrain(map(proxDelta, effThreshProx, effThreshProx + 60, 400, 2000), 400, 2000);
@@ -2414,13 +2561,10 @@ void hardwareTask(void* pv) {
             // (b) EVENT + buzzer -- only once per refractory window.
             if (!magInRefractory) {
                 magRefractoryUntil = nowMs + MAG_REFRACTORY_MS;
-                if (!eventPending) {
-                    strncpy(evtChannel, &quot;mag&quot;, sizeof(evtChannel) - 1); evtChannel[sizeof(evtChannel)-1] = 0;
-                    strncpy(evtSeverity, sev, sizeof(evtSeverity) - 1); evtSeverity[sizeof(evtSeverity)-1] = 0;
-                    strncpy(evtKind, &quot;mag_anomaly&quot;, sizeof(evtKind) - 1); evtKind[sizeof(evtKind)-1] = 0;
-                    evtValue = magDelta; evtThreshold = threshMag; eventPending = true;
-                    heartbeatSuppressUntil = nowMs + HEARTBEAT_SUPPRESS_MS;
-                }
+                // MAG_REFRACTORY_MS already rate-limits this channel; the ring
+                // guarantees it is not lost when a prox event shares the window.
+                queueEvent(&quot;mag_anomaly&quot;, &quot;mag&quot;, sev, magDelta, threshMag);
+                heartbeatSuppressUntil = nowMs + HEARTBEAT_SUPPRESS_MS;
                 if (magToneOn) { tone(activeBuzzerPin(), 1600, 30); }
             }
         }
@@ -2902,7 +3046,7 @@ void sendHello() {
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
     caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
-    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;;
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;; doc[&quot;lock&quot;] = fieldLock;
     JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;();
     relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId;
     relay[&quot;role&quot;] = isAppConnected ? &quot;gateway&quot; : (raRoute.valid ? &quot;relayed&quot; : &quot;idle&quot;); relay[&quot;depth&quot;] = raRoute.depth;
@@ -2953,6 +3097,13 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             effThreshProx = recomputeEffThreshProx();   // re-apply the guard band around the operator&#x27;s new value
         }
         persistThresholds();
+    } else if (!strcmp(cmd, &quot;setFieldLock&quot;)) {
+        // SPECTER locks/unlocks all nodes when a session starts/ends.
+        if (doc[&quot;on&quot;].is&lt;bool&gt;()) {
+            fieldLock = (bool)doc[&quot;on&quot;];
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;fieldLock&quot;, fieldLock ? 1 : 0); prefs.end();
+        }
+        sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;setTheremin&quot;)) {
         // Only change fields explicitly present in the command. Portal controls
         // such as Sense source, noise, and refit must never silently turn the
@@ -2965,6 +3116,10 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
         if (doc[&quot;noise&quot;].is&lt;int&gt;()) {
             proxNoise = constrain((int)doc[&quot;noise&quot;], 0, 200);
             prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxNoise&quot;, proxNoise); prefs.end();
+        }
+        if (doc[&quot;curve&quot;].is&lt;int&gt;()) {
+            proxCurve = constrain((int)doc[&quot;curve&quot;], 0, 1);
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;proxCurve&quot;, proxCurve); prefs.end();
         }
         if (doc[&quot;rcMarginX&quot;].is&lt;int&gt;() || doc[&quot;rcMarginFloorUs&quot;].is&lt;int&gt;()) {
             if (doc[&quot;rcMarginX&quot;].is&lt;int&gt;()) rcMarginMult = constrain((int)doc[&quot;rcMarginX&quot;], 2, 40);
@@ -3106,7 +3261,7 @@ void sendHelloTo(uint8_t num) {
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
     caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
-    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;;
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;; doc[&quot;lock&quot;] = fieldLock;
     JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;(); relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId; relay[&quot;depth&quot;] = raRoute.depth;
     JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
     th[&quot;magSens&quot;] = magSens; th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
@@ -3166,6 +3321,8 @@ void setupNetwork() {
     threshProx  = prefs.getInt(&quot;prox&quot;, 8);
     proxTheremin= prefs.getInt(&quot;therm&quot;, 1) == 1;   // default ON when unset
     proxToneOn  = prefs.getInt(&quot;thermTone&quot;, 0) == 1;
+    proxCurve   = prefs.getInt(&quot;proxCurve&quot;, 1);
+    fieldLock   = prefs.getInt(&quot;fieldLock&quot;, 0) == 1;
     proxSpan    = prefs.getInt(&quot;proxSpan&quot;, 60);   // touch-mode friendly default; auto-fits to the antenna
     proxMode    = prefs.getInt(&quot;proxMode&quot;, 0);
     proxNoise   = prefs.getInt(&quot;proxNoise&quot;, 6);
@@ -3209,6 +3366,10 @@ void setupNetwork() {
         // the background retry in the network loop + auto-reconnect keep working on it.
     }
     if (WiFi.status() == WL_CONNECTED) {
+        // mDNS: reach the portal at specter-node-&lt;slot&gt;.local instead of
+        // hunting DHCP tables for the IP.
+        char mdnsHost[24]; snprintf(mdnsHost, sizeof(mdnsHost), &quot;specter-node-%d&quot;, nodeSlot);
+        if (MDNS.begin(mdnsHost)) MDNS.addService(&quot;http&quot;, &quot;tcp&quot;, 80);
         // RELAY MODE takes priority: if a relay URL is saved, connect over the
         // internet tunnel and skip LAN beacon discovery entirely.
         if (relayUrl.length() &gt; 0) {
@@ -3284,6 +3445,10 @@ void setupNetwork() {
         JsonDocument d;
         if (WiFi.status() == WL_CONNECTED) {
             d[&quot;ok&quot;] = true; d[&quot;ip&quot;] = WiFi.localIP().toString();
+            { // (re)announce mDNS on the newly joined network
+              char mdnsHost[24]; snprintf(mdnsHost, sizeof(mdnsHost), &quot;specter-node-%d&quot;, nodeSlot);
+              MDNS.end(); if (MDNS.begin(mdnsHost)) MDNS.addService(&quot;http&quot;, &quot;tcp&quot;, 80);
+              d[&quot;mdns&quot;] = String(mdnsHost) + &quot;.local&quot;; }
         } else {
             // Saved anyway -- the boot loader + background retry will keep trying.
             d[&quot;ok&quot;] = false; d[&quot;saved&quot;] = true;
@@ -3307,6 +3472,14 @@ void setupNetwork() {
     server.on(&quot;/node/identity&quot;, []() {
         JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom; d[&quot;pinSwap&quot;] = rcBuzzerPinsSwapped;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/lock/set&quot;, HTTP_POST, []() {
+        if (server.hasArg(&quot;on&quot;)) {
+            fieldLock = (server.arg(&quot;on&quot;) == &quot;1&quot; || server.arg(&quot;on&quot;) == &quot;true&quot;);
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;fieldLock&quot;, fieldLock ? 1 : 0); prefs.end();
+        }
+        server.send(200, &quot;application/json&quot;,
+            String(&quot;{\&quot;ok\&quot;:true,\&quot;lock\&quot;:&quot;) + (fieldLock ? &quot;true&quot; : &quot;false&quot;) + &quot;}&quot;);
     });
     server.on(&quot;/hardware/pinswap&quot;, HTTP_POST, []() {
         bool enabled = false;
@@ -3724,6 +3897,8 @@ void loadProximityPrefsEarly() {
     proxArmMs      = early.getInt(&quot;armMs&quot;, 150);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
+    proxCurve = early.getInt(&quot;proxCurve&quot;, 1);
+    fieldLock = early.getInt(&quot;fieldLock&quot;, 0) == 1;
     early.end();
 }
 
@@ -3750,7 +3925,7 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs;
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve;
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
@@ -3770,15 +3945,23 @@ void loop() {
         else raSendTelemetry(now);
         localWS.broadcastTXT(out);
 
-        if (eventPending) {
+        while (evtTail != evtHead) {           // drain EVERY pending event this tick
+            EvtSlot &amp;q = evtRing[evtTail];
+            // Mirror into the legacy globals so the Relay Assist payload builder
+            // (raSendEvent) keeps working untouched.
+            strncpy(evtKind, q.kind, sizeof(evtKind)-1); evtKind[sizeof(evtKind)-1] = 0;
+            strncpy(evtChannel, q.channel, sizeof(evtChannel)-1); evtChannel[sizeof(evtChannel)-1] = 0;
+            strncpy(evtSeverity, q.severity, sizeof(evtSeverity)-1); evtSeverity[sizeof(evtSeverity)-1] = 0;
+            evtValue = q.value; evtThreshold = q.threshold;
             JsonDocument e;
-            e[&quot;t&quot;] = &quot;event&quot;; e[&quot;ts&quot;] = now; e[&quot;kind&quot;] = evtKind; e[&quot;channel&quot;] = evtChannel;
+            e[&quot;t&quot;] = &quot;event&quot;; e[&quot;ts&quot;] = now; e[&quot;seq&quot;] = q.seq;
+            e[&quot;kind&quot;] = evtKind; e[&quot;channel&quot;] = evtChannel;
             e[&quot;value&quot;] = evtValue; e[&quot;threshold&quot;] = evtThreshold; e[&quot;severity&quot;] = evtSeverity;
             String eo; serializeJson(e, eo);
             if (isAppConnected) appWS.sendTXT(eo);
             else raSendEvent(now);
             localWS.broadcastTXT(eo);
-            eventPending = false;
+            evtTail = (uint8_t)((evtTail + 1) % EVT_RING);
         }
     }
     // Wi-Fi reconnect watchdog: if we have saved creds but aren&#x27;t on the network

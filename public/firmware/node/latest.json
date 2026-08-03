@@ -1,10 +1,10 @@
 {
-  "version": "2.0.0",
-  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.0.0.bin",
-  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.0.0.bin",
-  "sha256": "2036017192d23680bc420db85592446644b890a55af2f10f1410474af1331f04",
-  "size": 1105024,
-  "notes": "Automated build from 60c7b83",
-  "built": "2026-08-02T10:11:05Z",
-  "commit": "60c7b831a2e9ec3f3924e72c8d8466a5ff5ffe31"
+  "version": "2.1.1",
+  "url": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.1.1.bin",
+  "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-2.1.1.bin",
+  "sha256": "733df88460601a52c64a06c132a8326e091f3672274e39f91c42faf4d19486ee",
+  "size": 1124528,
+  "notes": "Automated build from d7bdc7e",
+  "built": "2026-08-03T04:34:23Z",
+  "commit": "d7bdc7ef04993a8740641506449afe759f1f5b8c"
 }
