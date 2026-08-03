@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.14.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.15.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -836,7 +836,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.14.0-maker&quot;
+#define FW_VERSION   &quot;2.15.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -1381,6 +1381,21 @@ volatile int      proxCooldownMs = 6000;  // live-tunable: quiet window enforced
 volatile int      proxArmMs      = 150;   // live-tunable: raw threshold crossing must sustain this long before arming an alert (de-glitch), default 150ms
 volatile bool    proxToneOn   = false;    // also play a continuous pitch on the buzzer in theremin mode
 volatile bool    magToneOn    = false;   // optional buzzer chirp on a mag hit (default OFF; mag shows on LEDs)
+// MASTER AUDIBLE-ALERT SWITCH. Gates every buzzer output on the node: alert
+// beeps, mag chirps, theremin pitch, boot/diag tones. The per-feature toggles
+// (magToneOn, proxToneOn) still work underneath it -- this is the one control
+// that silences a pod outright, so the app can mute a whole rig from one
+// button during a take without the operator re-tuning anything.
+// Persisted (&quot;audible&quot;); default ON so nothing changes for existing nodes.
+volatile bool    audibleAlerts = true;
+// Every buzzer call in the firmware goes through these two wrappers. Using
+// tone()/noTone() directly would bypass the mute -- if you add a new sound,
+// use these.
+static inline void buzz(unsigned int freq, unsigned long durMs) {
+    if (!audibleAlerts) return;
+    tone(activeBuzzerPin(), freq, durMs);
+}
+static inline void buzzStop() { noTone(activeBuzzerPin()); }
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
 volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) -- computed from magSens
 volatile int     magSens    = 70;     // 0..100 sensitivity slider (100 = most sensitive)
@@ -1633,7 +1648,7 @@ void playBootAnimation() {
         // gentle trailing dim so it reads as a growing arc, not a hard fill
         if (i &gt; 0) leds[i-1].nscale8(180);
         ledShow();
-        tone(activeBuzzerPin(), 600 + i * 45, 18);
+        buzz(600 + i * 45, 18);
         delay(38);
     }
     delay(90);
@@ -1650,7 +1665,7 @@ void playBootAnimation() {
             delay(22);
         }
     }
-    tone(activeBuzzerPin(), 1400, 60);
+    buzz(1400, 60);
 
     // 3) fade to dark -- idle until first detection
     for (int f = 255; f &gt;= 0; f -= 15) {
@@ -2331,13 +2346,13 @@ void hardwareTask(void* pv) {
                 if (diagPulseChan == 1) {
                     // Magnetic drives keep their original directional response.
                     renderMagDirectional(ledCfg.magColor, lx, ly, 0.35f + drive * 0.65f);
-                    tone(activeBuzzerPin(), 1500 + (int)(drive * 400), 30);
+                    buzz(1500 + (int)(drive * 400), 30);
                 } else {
                     // Proximity drives must use the exact configured organic
                     // proximity event animation, not a plain fade.
                     if (ledCfg.proxAnim == 0) renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
                     else renderEventLeds(ledCfg.proxColor, ledCfg.proxColorB, ledCfg.proxColorC, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
-                    tone(activeBuzzerPin(), 500 + (int)(drive * drive * 1500.0f), 30);
+                    buzz(500 + (int)(drive * drive * 1500.0f), 30);
                 }
                 FastLED.setBrightness(diagPulseMaxBrightness ? 255 : ledCfg.bright); ledShow();
             }
@@ -2821,7 +2836,7 @@ void hardwareTask(void* pv) {
                     heartbeatSuppressUntil = nowMs + HEARTBEAT_SUPPRESS_MS;
                 }
                 int pitch = constrain(map(proxDelta, effThreshProx, effThreshProx + 60, 400, 2000), 400, 2000);
-                tone(activeBuzzerPin(), pitch, 40);
+                buzz(pitch, 40);
                 if (ledCfg.proxAnim == 0) {
                     float approach = (float)(proxDelta - effThreshProx) / 40.0f;
                     approach = 0.15f + approach * 1.15f;
@@ -2874,7 +2889,7 @@ void hardwareTask(void* pv) {
                 // guarantees it is not lost when a prox event shares the window.
                 queueEvent(&quot;mag_anomaly&quot;, &quot;mag&quot;, sev, magDelta, threshMag);
                 heartbeatSuppressUntil = nowMs + HEARTBEAT_SUPPRESS_MS;
-                if (magToneOn) { tone(activeBuzzerPin(), 1600, 30); }
+                if (magToneOn) { buzz(1600, 30); }
             }
         }
 
@@ -2887,7 +2902,7 @@ void hardwareTask(void* pv) {
                 renderProxFade(ledCfg.proxColor, 0.08f + fld * 1.05f);
                 if (proxToneOn) {
                     int hz = 180 + (int)(fld * fld * 2020.0f);
-                    tone(activeBuzzerPin(), hz, 30);
+                    buzz(hz, 30);
                 }
             } else {
                 if (proxToneOn) noTone(activeBuzzerPin());
@@ -3360,7 +3375,7 @@ void sendHello() {
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
     caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
-    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;; doc[&quot;lock&quot;] = fieldLock;
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;linked&quot;; doc[&quot;lock&quot;] = fieldLock; doc[&quot;audible&quot;] = audibleAlerts;
     JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;();
     relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId;
     relay[&quot;role&quot;] = isAppConnected ? &quot;gateway&quot; : (raRoute.valid ? &quot;relayed&quot; : &quot;idle&quot;); relay[&quot;depth&quot;] = raRoute.depth;
@@ -3411,6 +3426,15 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
             effThreshProx = recomputeEffThreshProx();   // re-apply the guard band around the operator&#x27;s new value
         }
         persistThresholds();
+    } else if (!strcmp(cmd, &quot;setAudible&quot;)) {
+        // App-driven master mute. Applies immediately and silences any tone
+        // already sounding, so a button press during a take is instant.
+        if (doc[&quot;on&quot;].is&lt;bool&gt;()) {
+            audibleAlerts = (bool)doc[&quot;on&quot;];
+            if (!audibleAlerts) buzzStop();
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;audible&quot;, audibleAlerts ? 1 : 0); prefs.end();
+        }
+        sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;setFieldLock&quot;)) {
         // SPECTER locks/unlocks all nodes when a session starts/ends.
         if (doc[&quot;on&quot;].is&lt;bool&gt;()) {
@@ -3578,7 +3602,7 @@ void sendHelloTo(uint8_t num) {
     doc[&quot;name&quot;] = nodeName;
     JsonArray caps = doc[&quot;caps&quot;].to&lt;JsonArray&gt;();
     caps.add(&quot;prox&quot;); caps.add(&quot;mag&quot;); caps.add(&quot;net&quot;); caps.add(&quot;relay&quot;);
-    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;; doc[&quot;lock&quot;] = fieldLock;
+    doc[&quot;hz&quot;] = telemetryHz; doc[&quot;mode&quot;] = &quot;standalone&quot;; doc[&quot;lock&quot;] = fieldLock; doc[&quot;audible&quot;] = audibleAlerts;
     JsonObject relay = doc[&quot;relayAssist&quot;].to&lt;JsonObject&gt;(); relay[&quot;enabled&quot;] = relayAssistEnabled; relay[&quot;groupId&quot;] = relayGroupId; relay[&quot;depth&quot;] = raRoute.depth;
     JsonObject th = doc[&quot;thresholds&quot;].to&lt;JsonObject&gt;();
     th[&quot;magSens&quot;] = magSens; th[&quot;mag&quot;] = threshMag; th[&quot;prox&quot;] = threshProx;
@@ -3679,6 +3703,10 @@ static void buildSyncBundle(JsonDocument&amp; d) {
     led[&quot;chipset&quot;] = ledCfg.chipset; led[&quot;order&quot;] = ledCfg.order;
     led[&quot;dataPin&quot;] = ledCfg.dataPin; led[&quot;count&quot;] = ledCfg.count; led[&quot;bright&quot;] = ledCfg.bright;
     led[&quot;front&quot;] = ledCfg.mFront; led[&quot;rot&quot;] = ledCfg.magRot; led[&quot;flip&quot;] = ledCfg.magFlip;
+    // The rest of the positional map: without right/back/left the directional
+    // mag lobe points differently on a synced node than on the source.
+    led[&quot;right&quot;] = ledCfg.mRight; led[&quot;back&quot;] = ledCfg.mBack; led[&quot;left&quot;] = ledCfg.mLeft;
+    led[&quot;clkPin&quot;] = ledCfg.clkPin;
     led[&quot;magColor&quot;] = ledCfg.magColor;   led[&quot;magColorB&quot;] = ledCfg.magColorB;   led[&quot;magColorC&quot;] = ledCfg.magColorC;
     led[&quot;magAnim&quot;] = ledCfg.magAnim;
     led[&quot;proxColor&quot;] = ledCfg.proxColor; led[&quot;proxColorB&quot;] = ledCfg.proxColorB; led[&quot;proxColorC&quot;] = ledCfg.proxColorC;
@@ -3686,6 +3714,13 @@ static void buildSyncBundle(JsonDocument&amp; d) {
     led[&quot;bootColorA&quot;] = ledCfg.bootColorA; led[&quot;bootColorB&quot;] = ledCfg.bootColorB; led[&quot;bootEnable&quot;] = ledCfg.bootEnable;
     JsonObject hb = d[&quot;heartbeat&quot;].to&lt;JsonObject&gt;();
     hb[&quot;enabled&quot;] = heartbeatEnabled; hb[&quot;color&quot;] = heartbeatColor;
+    // NOT synced: audibleAlerts. Like fieldLock it is a live control the app
+    // drives across every node at once, not per-node configuration.
+    // NOT synced: the walkie-talkie / RF cancel signature (rfMag/rfProx/rfOn).
+    // It is a MEASUREMENT taken through one node&#x27;s own antenna and coupling, so
+    // the peak amplitudes only describe that node. Copying them to a pod with
+    // different coupling either over-suppresses real hits or does nothing.
+    // Capture it per node.
 }
 
 // Apply a received bundle. Returns true; sets rebootNeeded when a field that
@@ -3748,6 +3783,10 @@ static bool applySyncBundle(JsonDocument&amp; d, bool&amp; rebootNeeded) {
         if (led[&quot;count&quot;].is&lt;int&gt;())  ledCfg.count  = constrain((int)led[&quot;count&quot;], 1, LED_MAX);
         if (led[&quot;bright&quot;].is&lt;int&gt;()) ledCfg.bright = constrain((int)led[&quot;bright&quot;], 0, 255);
         if (led[&quot;front&quot;].is&lt;int&gt;())  ledCfg.mFront = (int)led[&quot;front&quot;];
+        if (led[&quot;right&quot;].is&lt;int&gt;())  ledCfg.mRight = (int)led[&quot;right&quot;];
+        if (led[&quot;back&quot;].is&lt;int&gt;())   ledCfg.mBack  = (int)led[&quot;back&quot;];
+        if (led[&quot;left&quot;].is&lt;int&gt;())   ledCfg.mLeft  = (int)led[&quot;left&quot;];
+        if (led[&quot;clkPin&quot;].is&lt;int&gt;() &amp;&amp; (int)led[&quot;clkPin&quot;] != ledCfg.clkPin) { ledCfg.clkPin = (int)led[&quot;clkPin&quot;]; chipChanged = true; }
         if (led[&quot;rot&quot;].is&lt;int&gt;())    ledCfg.magRot = (int)led[&quot;rot&quot;];
         if (led[&quot;flip&quot;].is&lt;int&gt;())   ledCfg.magFlip = (int)led[&quot;flip&quot;] ? 1 : 0;
         if (led[&quot;magColor&quot;].is&lt;uint32_t&gt;())  ledCfg.magColor  = (uint32_t)led[&quot;magColor&quot;];
@@ -3785,6 +3824,8 @@ static bool applySyncBundle(JsonDocument&amp; d, bool&amp; rebootNeeded) {
     prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); prefs.putInt(&quot;ledCount&quot;, ledCfg.count);
     prefs.putInt(&quot;ledBright&quot;, ledCfg.bright); prefs.putInt(&quot;ledFront&quot;, ledCfg.mFront);
     prefs.putInt(&quot;ledMagRot&quot;, ledCfg.magRot); prefs.putInt(&quot;ledMagFlip&quot;, ledCfg.magFlip);
+    prefs.putInt(&quot;ledRight&quot;, ledCfg.mRight); prefs.putInt(&quot;ledBack&quot;, ledCfg.mBack);
+    prefs.putInt(&quot;ledLeft&quot;, ledCfg.mLeft);   prefs.putInt(&quot;ledClk&quot;, ledCfg.clkPin);
     prefs.putUInt(&quot;ledMagC&quot;, ledCfg.magColor); prefs.putUInt(&quot;ledMagC2&quot;, ledCfg.magColorB); prefs.putUInt(&quot;ledMagC3&quot;, ledCfg.magColorC);
     prefs.putInt(&quot;ledMagA&quot;, ledCfg.magAnim);
     prefs.putUInt(&quot;ledPrxC&quot;, ledCfg.proxColor); prefs.putUInt(&quot;ledPrxC2&quot;, ledCfg.proxColorB); prefs.putUInt(&quot;ledPrxC3&quot;, ledCfg.proxColorC);
@@ -3799,6 +3840,24 @@ static bool applySyncBundle(JsonDocument&amp; d, bool&amp; rebootNeeded) {
 
     FastLED.setBrightness(ledCfg.bright);
     ledTestReq = 8;                 // re-render with the new theme
+
+    // ── RE-ZERO AFTER ADOPTING SOMEONE ELSE&#x27;S THRESHOLDS ────────────────────
+    // This is mandatory, not a nicety. A threshold is only meaningful relative
+    // to the baseline it was tuned against. The source node&#x27;s numbers were
+    // chosen for ITS rest state; the receiver still holds a baseline learned
+    // under its own previous settings, and (per the v2.13.1 investigation) a
+    // mag baseline in particular can be carrying a stale residual of 60-90 LSB
+    // that its OLD, looser threshold happened to sit above. Drop a tighter
+    // threshold on top of that residual and the node alerts continuously the
+    // moment the sync lands -- which is exactly what nodes 2 and 3 did while
+    // the source node, which never applies a bundle to itself, stayed quiet.
+    //
+    // recalibrate re-zeroes BOTH channels against current ambient. In RC mode
+    // also re-learn the timeout window, because rcMarginX/rcMarginFloorUs just
+    // changed and the existing window was learned against the old ones.
+    recalibrate = true;
+    if (proxMode == 1) rcSmartCalReq = true;
+
     rebootNeeded = chipChanged;     // chipset/data pin only bind at boot
     return true;
 }
@@ -3860,7 +3919,9 @@ static void syncPushTask(void*) {
     if (total == 0)
         snprintf(syncMsg, sizeof(syncMsg), &quot;No other nodes found on this network. Peers must be on the same Wi-Fi and powered on.&quot;);
     else
-        snprintf(syncMsg, sizeof(syncMsg), &quot;Synced %d of %d node%s.%s&quot;, okC, total, total == 1 ? &quot;&quot; : &quot;s&quot;,
+        snprintf(syncMsg, sizeof(syncMsg),
+                 &quot;Synced %d of %d node%s. They are re-zeroing to the new thresholds - keep clear for ~10s.%s&quot;,
+                 okC, total, total == 1 ? &quot;&quot; : &quot;s&quot;,
                  rebootC ? &quot; Some need a reboot to bind a new LED chipset/pin.&quot; : &quot;&quot;);
     syncFinishedAt = millis();
     syncBusy = false;
@@ -3888,6 +3949,7 @@ void setupNetwork() {
     proxCooldownMs = prefs.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = prefs.getInt(&quot;armMs&quot;, 150);
     heartbeatResumeMs = prefs.getInt(&quot;hbResumeMs&quot;, 2000);
+    audibleAlerts  = prefs.getInt(&quot;audible&quot;, 1) == 1;
     proxMinHoldMs  = prefs.getInt(&quot;minHoldMs&quot;, PROX_MIN_ALERT_MS_DEFAULT);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
@@ -4043,7 +4105,7 @@ void setupNetwork() {
         if (deserializeJson(d, body)) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad-json\&quot;}&quot;); return; }
         bool rebootNeeded = false;
         if (!applySyncBundle(d, rebootNeeded)) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad-version\&quot;}&quot;); return; }
-        JsonDocument r; r[&quot;ok&quot;] = true; r[&quot;rebootNeeded&quot;] = rebootNeeded; r[&quot;node&quot;] = nodeName; r[&quot;slot&quot;] = nodeSlot;
+        JsonDocument r; r[&quot;ok&quot;] = true; r[&quot;rebootNeeded&quot;] = rebootNeeded; r[&quot;node&quot;] = nodeName; r[&quot;slot&quot;] = nodeSlot; r[&quot;recalibrating&quot;] = true;
         String o; serializeJson(r, o); server.send(200, &quot;application/json&quot;, o);
     });
     // Push this node&#x27;s settings to every peer found on the LAN.
@@ -4064,6 +4126,15 @@ void setupNetwork() {
         d[&quot;busy&quot;] = (bool)syncBusy; d[&quot;total&quot;] = syncTotal; d[&quot;ok&quot;] = syncOkCount;
         d[&quot;failed&quot;] = syncFailCount; d[&quot;rebootNeeded&quot;] = syncRebootCount; d[&quot;msg&quot;] = syncMsg;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    server.on(&quot;/audible/set&quot;, HTTP_POST, []() {
+        if (server.hasArg(&quot;on&quot;)) {
+            audibleAlerts = (server.arg(&quot;on&quot;) == &quot;1&quot; || server.arg(&quot;on&quot;) == &quot;true&quot;);
+            if (!audibleAlerts) buzzStop();
+            prefs.begin(&quot;specter&quot;, false); prefs.putInt(&quot;audible&quot;, audibleAlerts ? 1 : 0); prefs.end();
+        }
+        server.send(200, &quot;application/json&quot;,
+            String(&quot;{\&quot;ok\&quot;:true,\&quot;audible\&quot;:&quot;) + (audibleAlerts ? &quot;true&quot; : &quot;false&quot;) + &quot;}&quot;);
     });
     server.on(&quot;/lock/set&quot;, HTTP_POST, []() {
         if (server.hasArg(&quot;on&quot;)) {
@@ -4519,6 +4590,7 @@ void loadProximityPrefsEarly() {
     proxCooldownMs = early.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = early.getInt(&quot;armMs&quot;, 150);
     heartbeatResumeMs = early.getInt(&quot;hbResumeMs&quot;, 2000);
+    audibleAlerts  = early.getInt(&quot;audible&quot;, 1) == 1;
     proxMinHoldMs  = early.getInt(&quot;minHoldMs&quot;, PROX_MIN_ALERT_MS_DEFAULT);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
@@ -4550,7 +4622,7 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;minHoldMs&quot;] = proxMinHoldMs; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;minHoldMs&quot;] = proxMinHoldMs; doc[&quot;audible&quot;] = audibleAlerts; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
