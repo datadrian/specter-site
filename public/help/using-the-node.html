@@ -296,10 +296,10 @@
 
     <section id="diag-capture">
       <h2>MULTI-NODE DIAGNOSTIC CAPTURE</h2>
-      <p>When you have two or three nodes running side by side and they behave inconsistently (one over-triggers, another is sluggish, a third has a noisy baseline), the <strong>CAPTURE ALL (2 MIN)</strong> button in the node rail header fires the same 2-minute field-capture log at every connected node simultaneously and compares them side by side.</p>
+      <p>When you have two or three nodes running side by side and they behave inconsistently (one over-triggers, another is sluggish, a third has a noisy baseline), the <strong>CAPTURE ALL (2 MIN)</strong> button in <strong>Settings &gt; Sensors &amp; Alerts &gt; SPECTER Node</strong> fires the same 2-minute field-capture log at every connected node simultaneously and compares them side by side.</p>
       <h3>What it does</h3>
       <ol>
-        <li>Press <strong>CAPTURE ALL (2 MIN)</strong> in the SPECTER NODES header. The button text changes to "CAPTURING..." and the status line shows per-node progress.</li>
+        <li>Press <strong>CAPTURE ALL (2 MIN)</strong> in Settings, under the SPECTER Node section. The button text changes to "CAPTURING..." and the status line shows per-node progress.</li>
         <li>Each connected node starts recording its raw sensor data at ~20 Hz for 2 minutes: proximity delta, magnetometer delta, RC capacitance charge/fault state, alert phase, and Wi-Fi RSSI.</li>
         <li>When the capture window ends, the app downloads all the CSVs automatically, computes per-node statistics, and flags any node whose numbers stand out from the group.</li>
         <li>A folder opens on your desktop containing one CSV per node, a SUMMARY.txt with the comparison, and a manifest.json.</li>
