@@ -3870,6 +3870,14 @@ void setupNetwork() {
         d[&quot;otaFreeHeap&quot;]=otaFreeHeap; d[&quot;otaMaxBlock&quot;]=otaMaxBlock; d[&quot;otaStage&quot;]=updOtaStage;
         String o; serializeJson(d,o); server.send(200, &quot;application/json&quot;, o);
     });
+    server.on(&quot;/update/install&quot;, HTTP_GET, []() {
+        // Browser-friendly: same logic as POST so typing the URL works
+        if (updBinUrl.length()==0) checkForUpdate();
+        if (updBinUrl.length()==0) { server.send(409, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;&quot; + (updError.length()?updError:String(&quot;no-update&quot;)) + &quot;\&quot;}&quot;); return; }
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;installing\&quot;:\&quot;&quot; + updAvailVer + &quot;\&quot;}&quot;);
+        delay(150);
+        performUpdate(updBinUrl);
+    });
     server.on(&quot;/update/install&quot;, HTTP_POST, []() {
         if (updBinUrl.length()==0) checkForUpdate();
         if (updBinUrl.length()==0) { server.send(409, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;&quot; + (updError.length()?updError:String(&quot;no-update&quot;)) + &quot;\&quot;}&quot;); return; }
