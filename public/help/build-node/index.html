@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.15.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.16.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -836,7 +836,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.15.1-maker&quot;
+#define FW_VERSION   &quot;2.16.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -1200,6 +1200,12 @@ struct DiagLogRow {
     uint32_t ts; int16_t rcCharge10; int16_t rcBase10; uint8_t rcOk; uint8_t rcFault;
     int16_t proxDelta; uint8_t proxAlert; uint8_t satArmed; int16_t magDelta; uint8_t magAlert;
     uint8_t alertPhaseSnap; int8_t rssi; uint16_t rcTimeoutUsRaw;
+    // v2.16.0: proxDelta/magDelta above are now the CALIBRATED values (gain
+    // applied). Raw pre-calibration values are NOT stored per-row here (2400
+    // rows x extra int16s overflowed DRAM by 2.5KB) -- the currently-applied
+    // proxGain/magGain is exposed once via /diag/log/status and telemetry
+    // instead, and raw = calibrated / gain since gain is constant during a
+    // capture window.
 };
 volatile bool     diagLogArmed = false;
 volatile uint32_t diagLogUntil = 0;
@@ -1245,6 +1251,9 @@ volatile int     proxCurve = 1;          // persisted
 volatile bool    proxTheremin = true;    // theremin mode on/off (persisted) -- DEFAULT ON
 volatile int     proxSpan     = 60;      // proxDelta that maps to full field (100). Auto-fits: nudges up on a bigger pass, slowly shrinks toward real passes so a fresh/NVS-erased node self-calibrates to its antenna within a few waves.
 volatile int     proxNoise    = 6;       // jitter deadband: proxDelta below this = field 0 (rest)
+volatile float   proxGain     = 1.0f;    // per-node calibration multiplier, see magGain comment above
+volatile int     proxDeltaG    = 0;      // CALIBRATED prox delta (proxGain applied) -- single source of truth; alert/telemetry/diag/relay all read THIS, never recompute abs(baseProx-proxVal) themselves
+volatile int     proxDeltaRawG = 0;      // uncalibrated abs(baseProx-proxVal) -- diagnostic visibility only
 volatile int     proxPeakSeen = 0;       // largest proxDelta seen since last refit (for smart REFIT)
 volatile bool    proxRefitReq = false;   // REFIT pressed -&gt; set span from the peak hand delta just seen
 volatile int     proxField    = 0;       // live 0..100 continuous field
@@ -1399,6 +1408,18 @@ static inline void buzzStop() { noTone(activeBuzzerPin()); }
 volatile bool    proxRecalibrate = false;// re-zero PROX baseline only (mag baseline untouched) -- used after prox cooldown
 volatile int     threshMag  = 60;     // DERIVED vector-delta trigger (LSB) -- computed from magSens
 volatile int     magSens    = 70;     // 0..100 sensitivity slider (100 = most sensitive)
+// ---- Per-node calibration gain (v2.16.0) ----
+// Hand-wired antennas/wiring differ node to node, so the SAME physical
+// stimulus can produce a different raw delta on each node. A shared (LINKed)
+// app-side threshold only means the same thing on every node if the raw
+// signal is normalized FIRST. proxGain/magGain are per-node multipliers
+// applied to the raw delta the instant it&#x27;s computed -- before ANY threshold
+// comparison, span learning, or telemetry -- so everything downstream
+// (alerts, theremin field, diag CSV, telemetry) already operates in
+// calibrated units. Persisted in their own &quot;nodecal&quot; NVS namespace. Default
+// 1.0 = uncalibrated/factory, byte-identical to pre-2.16.0 behavior.
+volatile float   magGain     = 1.0f;
+volatile int     magDeltaRawG = 0;   // uncalibrated vector delta -- diagnostic visibility only, never compared against a threshold
 // ---- Walkie-talkie / RF interference cancel (on-device) ----
 // A keyed two-way radio induces a repeatable spike on the antenna + mag. We let the
 // operator CAPTURE that signature (peak magDelta + proxDelta), persist it, then
@@ -2204,6 +2225,18 @@ void hardwareTask(void* pv) {
     hwPrefs.begin(&quot;nodehw&quot;, true);
     rcBuzzerPinsSwapped = hwPrefs.getBool(&quot;pinSwap&quot;, false);
     hwPrefs.end();
+    // Per-node calibration gain -- OWN namespace (never the frequently-written
+    // &quot;specter&quot; namespace) so it can&#x27;t be clobbered by unrelated portal saves.
+    {
+        Preferences calPrefs;
+        calPrefs.begin(&quot;nodecal&quot;, true);
+        proxGain = calPrefs.getFloat(&quot;proxGain&quot;, 1.0f);
+        magGain  = calPrefs.getFloat(&quot;magGain&quot;, 1.0f);
+        calPrefs.end();
+        // Guard against a corrupt/out-of-range persisted value bricking sensitivity.
+        if (!(proxGain &gt; 0.05f &amp;&amp; proxGain &lt; 20.0f)) proxGain = 1.0f;
+        if (!(magGain  &gt; 0.05f &amp;&amp; magGain  &lt; 20.0f)) magGain  = 1.0f;
+    }
     // Bind the FastLED driver to the chipset the operator picked in the portal.
     // FastLED templates the chipset at compile time, so we can&#x27;t pass a string --
     // instead we branch across the supported types and add the matching driver.
@@ -2554,7 +2587,8 @@ void hardwareTask(void* pv) {
         // SLOW baseline tracker (drifts with temperature/humidity). We freeze it while
         // a touch is active so the baseline doesn&#x27;t creep toward the touched value.
         int dX = magX - baseMagX, dY = magY - baseMagY, dZ = magZ - baseMagZ;
-        magDelta = (int)sqrtf((float)dX * dX + (float)dY * dY + (float)dZ * dZ);
+        magDeltaRawG = (int)sqrtf((float)dX * dX + (float)dY * dY + (float)dZ * dZ);
+        magDelta = (int)lroundf((float)magDeltaRawG * magGain);   // calibration applied HERE, before threshMag compare below
 
         // SLOW dynamic mag baseline: self-zeros to the ambient field so even a small NEW
         // field stands out. It drifts gently (alpha 0.002 ~= tens of seconds) toward the
@@ -2629,7 +2663,9 @@ void hardwareTask(void* pv) {
         // A hand nearing the antenna changes its capacitance, moving touchRead() away from
         // baseline in EITHER direction (rises or falls depending on core/board). We react to
         // the magnitude of the change, so approach -- not just contact -- triggers.
-        int proxDelta = abs(baseProx - proxVal);
+        proxDeltaRawG = abs(baseProx - proxVal);
+        proxDeltaG = (int)lroundf((float)proxDeltaRawG * proxGain);   // calibration applied HERE, before effThreshProx compare below
+        int proxDelta = proxDeltaG;   // local alias -- rest of this tick (span learning, theremin, alert, diag row) already reads `proxDelta`
         // Use the guard-banded threshold: never fire below the measured rest
         // jitter, so idle capacitance drift can&#x27;t sputter false proximity alerts.
         bool proxAlert = (proxDelta &gt; effThreshProx);
@@ -3236,7 +3272,7 @@ static void raSendHello() {
 static void raSendTelemetry(uint32_t now) {
     if (!raRoute.valid || isAppConnected) return;
     RelayPacket p = raPacket(RA_TELEMETRY, 0, raRoute.parentId, false); RaTelemetryPayload t = {};
-    t.ts=now; t.sampleSeq=seqNum; t.prox=proxVal; t.proxBase=baseProx; t.proxDelta=abs(baseProx-proxVal);
+    t.ts=now; t.sampleSeq=seqNum; t.prox=proxVal; t.proxBase=baseProx; t.proxDelta=proxDeltaG;   // v2.16.0: use the calibrated global, not a raw recompute -- a relayed node&#x27;s alerts must reflect its calibration too
     t.proxThreshold=effThreshProx; t.proxThresholdSet=threshProx; t.proxNoiseFloor=proxNoiseFloor; t.proxField=proxField;
     t.proxSpan=proxSpan; t.proxNoise=proxNoise; t.rcCharge=rcCharge10; t.rcBase=rcBase10; t.magDelta=magDelta; t.magThreshold=threshMag;
     t.magX=magX; t.magY=magY; t.magZ=magZ; t.magSens=magSens; t.touchPin=touchPin; t.slot=nodeSlot;
@@ -3537,6 +3573,37 @@ void handleCommand(JsonDocument&amp; doc, int src = 0, uint8_t localNum = 0) {
     } else if (!strcmp(cmd, &quot;rebaseline&quot;)) {
         recalibrate = true;
         if (proxMode == 1) rcSmartCalReq = true;
+        sendAck(src, ackId, true, localNum);
+    } else if (!strcmp(cmd, &quot;setgain&quot;)) {
+        // Per-node calibration (v2.16.0): normalizes a hand-wired antenna/mag&#x27;s
+        // raw response so a shared (LINKed) app-side threshold behaves the same
+        // across differently-built nodes. Applied to proxDelta/magDelta BEFORE
+        // any threshold comparison, span learning, or telemetry -- see the
+        // gain-apply sites in hardwareTask() above.
+        bool changed = false;
+        if (!doc[&quot;proxGain&quot;].isNull()) {
+            float g = doc[&quot;proxGain&quot;] | 1.0f;
+            if (g &gt; 0.05f &amp;&amp; g &lt; 20.0f) { proxGain = g; changed = true; }
+        }
+        if (!doc[&quot;magGain&quot;].isNull()) {
+            float g = doc[&quot;magGain&quot;] | 1.0f;
+            if (g &gt; 0.05f &amp;&amp; g &lt; 20.0f) { magGain = g; changed = true; }
+        }
+        if (changed) {
+            Preferences calPrefs;
+            calPrefs.begin(&quot;nodecal&quot;, false);
+            calPrefs.putFloat(&quot;proxGain&quot;, proxGain);
+            calPrefs.putFloat(&quot;magGain&quot;, magGain);
+            calPrefs.end();
+        }
+        sendAck(src, ackId, changed, localNum);
+    } else if (!strcmp(cmd, &quot;resetGain&quot;)) {
+        proxGain = 1.0f; magGain = 1.0f;
+        Preferences calPrefs;
+        calPrefs.begin(&quot;nodecal&quot;, false);
+        calPrefs.putFloat(&quot;proxGain&quot;, 1.0f);
+        calPrefs.putFloat(&quot;magGain&quot;, 1.0f);
+        calPrefs.end();
         sendAck(src, ackId, true, localNum);
     } else if (!strcmp(cmd, &quot;identify&quot;)) {
         for (int k = 0; k &lt; 3; k++) {
@@ -4508,6 +4575,7 @@ void setupNetwork() {
         JsonDocument d;
         d[&quot;armed&quot;] = diagLogArmed; d[&quot;rows&quot;] = diagLogCount; d[&quot;cap&quot;] = DIAG_LOG_CAP;
         d[&quot;msRemaining&quot;] = diagLogArmed ? (int32_t)(diagLogUntil - millis()) : 0;
+        d[&quot;proxGain&quot;] = proxGain; d[&quot;magGain&quot;] = magGain;   // v2.16.0: currently-applied per-node calibration
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
     server.on(&quot;/diag/log/download&quot;, []() {
@@ -4649,10 +4717,12 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;minHoldMs&quot;] = proxMinHoldMs; doc[&quot;audible&quot;] = audibleAlerts; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = proxDeltaG; doc[&quot;proxDeltaRaw&quot;] = proxDeltaRawG; doc[&quot;proxGain&quot;] = proxGain; doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;minHoldMs&quot;] = proxMinHoldMs; doc[&quot;audible&quot;] = audibleAlerts; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
-        doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
+        doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB), CALIBRATED (magGain applied)
+        doc[&quot;magDeltaRaw&quot;] = magDeltaRawG;  // uncalibrated, diagnostic visibility only
+        doc[&quot;magGain&quot;]  = magGain;       // currently-applied per-node calibration multiplier
         doc[&quot;magThr&quot;]   = threshMag;     // trigger threshold (LSB, derived)
         doc[&quot;magSens&quot;]  = magSens;       // 0..100 sensitivity slider value
         doc[&quot;magOk&quot;]    = magPresent;
