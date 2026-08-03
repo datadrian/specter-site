@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.13.1-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.14.0-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -593,6 +593,9 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;input type=range id=cadence-alert min=0.5 max=30 step=0.5&gt;
 &lt;label&gt;Cooldown duration (seconds) &lt;span class=val id=cadence-cooldown-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;input type=range id=cadence-cooldown min=0 max=30 step=0.5&gt;
+&lt;label&gt;Minimum animation time (seconds) &lt;span class=val id=cadence-minhold-v&gt;-&lt;/span&gt;&lt;/label&gt;
+&lt;input type=range id=cadence-minhold min=0 max=10 step=0.5&gt;
+&lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;Any crossing over the threshold plays at least this much animation, even if your hand is already gone. Capped by the alert duration above.&lt;/div&gt;
 &lt;label&gt;Heartbeat resumes after (seconds) &lt;span class=val id=cadence-hb-v&gt;-&lt;/span&gt;&lt;/label&gt;
 &lt;input type=range id=cadence-hb min=0 max=15 step=0.5&gt;
 &lt;div class=xyz style=&quot;margin-top:2px&quot;&gt;How long the ring stays dark after the last detection before the idle heartbeat comes back. Was fixed at 10s.&lt;/div&gt;
@@ -651,9 +654,12 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;h4&gt;Effects&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Detection themes: a color + animation per detection type. Applies live; higher severity auto-brightens toward white.&lt;/div&gt;
 &lt;label&gt;Magnetic anomaly&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-mag-a&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c2&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-mag-c3&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-mag-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;select id=ev-mag-a style=&quot;margin-top:6px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;option value=4&gt;Theatre chase&lt;/option&gt;&lt;option value=5&gt;Strobe&lt;/option&gt;&lt;option value=6&gt;Dual comet&lt;/option&gt;&lt;option value=7&gt;Ripple&lt;/option&gt;&lt;option value=8&gt;Colour wipe&lt;/option&gt;&lt;option value=9&gt;Sparkle&lt;/option&gt;&lt;option value=10&gt;Gradient cycle&lt;/option&gt;&lt;option value=11&gt;Halves&lt;/option&gt;&lt;option value=12&gt;Breathe blend&lt;/option&gt;&lt;option value=13&gt;Radar&lt;/option&gt;&lt;/select&gt;
 &lt;label&gt;Proximity&lt;/label&gt;
-&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:2&quot;&gt;&lt;select id=ev-prox-a&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=row&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c2&gt;&lt;/div&gt;&lt;div style=&quot;flex:1&quot;&gt;&lt;input type=color id=ev-prox-c3&gt;&lt;/div&gt;&lt;div&gt;&lt;button id=ev-prox-t class=mini&gt;PREVIEW&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;select id=ev-prox-a style=&quot;margin-top:6px&quot;&gt;&lt;option value=0&gt;Directional (fade to source)&lt;/option&gt;&lt;option value=1&gt;Pulse&lt;/option&gt;&lt;option value=2&gt;Spin&lt;/option&gt;&lt;option value=3&gt;Blink&lt;/option&gt;&lt;option value=4&gt;Theatre chase&lt;/option&gt;&lt;option value=5&gt;Strobe&lt;/option&gt;&lt;option value=6&gt;Dual comet&lt;/option&gt;&lt;option value=7&gt;Ripple&lt;/option&gt;&lt;option value=8&gt;Colour wipe&lt;/option&gt;&lt;option value=9&gt;Sparkle&lt;/option&gt;&lt;option value=10&gt;Gradient cycle&lt;/option&gt;&lt;option value=11&gt;Halves&lt;/option&gt;&lt;option value=12&gt;Breathe blend&lt;/option&gt;&lt;option value=13&gt;Radar&lt;/option&gt;&lt;/select&gt;
+&lt;div class=xyz style=&quot;margin-top:6px&quot;&gt;Three colours per channel. Directional, Pulse, Spin and Blink use the first colour only; the rest blend or cycle all three.&lt;/div&gt;
 &lt;div class=status id=ev-status&gt;&lt;/div&gt;
 &lt;div class=row&gt;&lt;button id=ev-save&gt;SAVE THEMES&lt;/button&gt;&lt;/div&gt;
 &lt;label style=&quot;margin-top:14px&quot;&gt;Boot animation&lt;/label&gt;
@@ -667,6 +673,10 @@ button.mini{padding:6px 10px;font-size:11px;min-width:auto}
 &lt;div class=row&gt;&lt;button id=heartbeat-save&gt;SAVE HEARTBEAT&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/section&gt;
 &lt;section class=sect id=tab-system&gt;
+&lt;h4&gt;Sync nodes&lt;/h4&gt;&lt;div class=card&gt;
+&lt;div class=xyz style=&quot;margin-bottom:8px&quot;&gt;Copies THIS node&#x27;s detection tuning, cadence, LED setup, animations and colours to every other SPECTER node on the same Wi-Fi. Each node keeps its own name, slot, Wi-Fi and relay settings.&lt;/div&gt;
+&lt;div class=row&gt;&lt;button id=sync-push&gt;SYNC ALL NODES TO THIS ONE&lt;/button&gt;&lt;/div&gt;
+&lt;div class=status id=sync-status&gt;Nodes are found automatically over the local network.&lt;/div&gt;&lt;/div&gt;
 &lt;h4&gt;Firmware&lt;/h4&gt;&lt;div class=card&gt;
 &lt;div class=status&gt;Installed: &lt;span class=val id=fwv&gt;-&lt;/span&gt;&lt;/div&gt;
 &lt;div class=status&gt;Device: &lt;span class=val id=devn&gt;-&lt;/span&gt;&lt;/div&gt;
@@ -706,13 +716,14 @@ if($(&#x27;rcmargin-mult&#x27;))$(&#x27;rcmargin-mult&#x27;).oninput=function(){
 if($(&#x27;rcmargin-floor&#x27;))$(&#x27;rcmargin-floor&#x27;).oninput=function(){if($(&#x27;rcmargin-floor-v&#x27;))$(&#x27;rcmargin-floor-v&#x27;).textContent=this.value};
 if($(&#x27;rcmargin-apply&#x27;)){$(&#x27;rcmargin-apply&#x27;).onclick=function(){var mult=$(&#x27;rcmargin-mult&#x27;).value,fl=$(&#x27;rcmargin-floor&#x27;).value,m=$(&#x27;rcmargin-msg&#x27;);proxPost(&#x27;/prox/rcmargin?mult=&#x27;+mult+&#x27;&amp;floorUs=&#x27;+fl).then(function(){if(m)m.textContent=&#x27;Applied, recalibrating... keep your hand away for a moment.&#x27;;setTimeout(refreshRcMargin,1200)})}}
 refreshRcMargin();
-function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if(d.rcSub)window._rcSub=d.rcSub;var ct=$(&#x27;cadence-thresh&#x27;);if(ct&amp;&amp;d.threshMax){ct.max=d.threshMax;ct.min=(d.proxMode===1?5:4)}var hh=$(&#x27;cadence-thresh-hint&#x27;);if(hh)hh.textContent=(d.proxMode===1?&#x27;RC mode: units are 0.01us of charge time. A full touch typically reads 60-100; rest jitter is under 15.&#x27;:&#x27;Touch mode: units are raw touchRead counts.&#x27;);if($(&#x27;cadence-hb&#x27;)&amp;&amp;d.hbResumeMs!=null){$(&#x27;cadence-hb&#x27;).value=(d.hbResumeMs/1000);$(&#x27;cadence-hb-v&#x27;).textContent=(d.hbResumeMs/1000)}if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-arm&#x27;)){$(&#x27;cadence-arm&#x27;).value=d.armMs;$(&#x27;cadence-arm-v&#x27;).textContent=d.armMs}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
+function refreshCadence(){fetch(&#x27;/prox/cadence&#x27;).then(function(r){return r.json()}).then(function(d){if($(&#x27;cadence-minhold&#x27;)&amp;&amp;d.minHoldMs!=null){$(&#x27;cadence-minhold&#x27;).value=(d.minHoldMs/1000);$(&#x27;cadence-minhold-v&#x27;).textContent=(d.minHoldMs/1000)}if(d.rcSub)window._rcSub=d.rcSub;var ct=$(&#x27;cadence-thresh&#x27;);if(ct&amp;&amp;d.threshMax){ct.max=d.threshMax;ct.min=(d.proxMode===1?5:4)}var hh=$(&#x27;cadence-thresh-hint&#x27;);if(hh)hh.textContent=(d.proxMode===1?&#x27;RC mode: units are 0.01us of charge time. A full touch typically reads 60-100; rest jitter is under 15.&#x27;:&#x27;Touch mode: units are raw touchRead counts.&#x27;);if($(&#x27;cadence-hb&#x27;)&amp;&amp;d.hbResumeMs!=null){$(&#x27;cadence-hb&#x27;).value=(d.hbResumeMs/1000);$(&#x27;cadence-hb-v&#x27;).textContent=(d.hbResumeMs/1000)}if($(&#x27;cadence-alert&#x27;)){$(&#x27;cadence-alert&#x27;).value=(d.alertMs/1000);$(&#x27;cadence-alert-v&#x27;).textContent=(d.alertMs/1000)}if($(&#x27;cadence-cooldown&#x27;)){$(&#x27;cadence-cooldown&#x27;).value=(d.cooldownMs/1000);$(&#x27;cadence-cooldown-v&#x27;).textContent=(d.cooldownMs/1000)}if($(&#x27;cadence-arm&#x27;)){$(&#x27;cadence-arm&#x27;).value=d.armMs;$(&#x27;cadence-arm-v&#x27;).textContent=d.armMs}if($(&#x27;cadence-thresh&#x27;)){$(&#x27;cadence-thresh&#x27;).value=d.threshProx;$(&#x27;cadence-thresh-v&#x27;).textContent=d.threshProx}if($(&#x27;cadence-eff-v&#x27;))$(&#x27;cadence-eff-v&#x27;).textContent=d.effThreshProx})}
 if($(&#x27;cadence-alert&#x27;))$(&#x27;cadence-alert&#x27;).oninput=function(){if($(&#x27;cadence-alert-v&#x27;))$(&#x27;cadence-alert-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-cooldown&#x27;))$(&#x27;cadence-cooldown&#x27;).oninput=function(){if($(&#x27;cadence-cooldown-v&#x27;))$(&#x27;cadence-cooldown-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-thresh&#x27;))$(&#x27;cadence-thresh&#x27;).oninput=function(){if($(&#x27;cadence-thresh-v&#x27;))$(&#x27;cadence-thresh-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-arm&#x27;))$(&#x27;cadence-arm&#x27;).oninput=function(){if($(&#x27;cadence-arm-v&#x27;))$(&#x27;cadence-arm-v&#x27;).textContent=this.value};
 if($(&#x27;cadence-hb&#x27;))$(&#x27;cadence-hb&#x27;).oninput=function(){if($(&#x27;cadence-hb-v&#x27;))$(&#x27;cadence-hb-v&#x27;).textContent=this.value};
-if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),g=$(&#x27;cadence-arm&#x27;).value,t=$(&#x27;cadence-thresh&#x27;).value,hb=Math.round(($(&#x27;cadence-hb&#x27;)?$(&#x27;cadence-hb&#x27;).value:2)*1000),m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;armMs=&#x27;+g+&#x27;&amp;thresh=&#x27;+t+&#x27;&amp;hbResumeMs=&#x27;+hb).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
+if($(&#x27;cadence-minhold&#x27;))$(&#x27;cadence-minhold&#x27;).oninput=function(){if($(&#x27;cadence-minhold-v&#x27;))$(&#x27;cadence-minhold-v&#x27;).textContent=this.value};
+if($(&#x27;cadence-apply&#x27;)){$(&#x27;cadence-apply&#x27;).onclick=function(){var a=Math.round($(&#x27;cadence-alert&#x27;).value*1000),c=Math.round($(&#x27;cadence-cooldown&#x27;).value*1000),g=$(&#x27;cadence-arm&#x27;).value,t=$(&#x27;cadence-thresh&#x27;).value,hb=Math.round(($(&#x27;cadence-hb&#x27;)?$(&#x27;cadence-hb&#x27;).value:2)*1000),m=$(&#x27;cadence-msg&#x27;);proxPost(&#x27;/prox/cadence?alertMs=&#x27;+a+&#x27;&amp;cooldownMs=&#x27;+c+&#x27;&amp;armMs=&#x27;+g+&#x27;&amp;thresh=&#x27;+t+&#x27;&amp;hbResumeMs=&#x27;+hb+&#x27;&amp;minHoldMs=&#x27;+Math.round(($(&#x27;cadence-minhold&#x27;)?$(&#x27;cadence-minhold&#x27;).value:2)*1000)).then(function(){if(m)m.textContent=&#x27;Applied.&#x27;;setTimeout(refreshCadence,600)})}}
 refreshCadence();
 function saveTherm(){var tc=$(&#x27;therm-on&#x27;),tt=$(&#x27;therm-tone&#x27;),sm=$(&#x27;therm-save-msg&#x27;);if(tc)tc._userset=true;if(tt)tt._userset=true;window._thermSaving=true;if(sm){sm.textContent=&#x27;Saving to node...&#x27;;sm.style.color=&#x27;#fbbf24&#x27;;}send({t:&#x27;cmd&#x27;,cmd:&#x27;setTheremin&#x27;,on:tc?tc.checked:false,tone:tt?tt.checked:true});setTimeout(function(){if(tc)tc._userset=false;if(tt)tt._userset=false;window._thermSaving=false;if(sm)sm.textContent=&#x27;Waiting for node confirmation...&#x27;;},700)}
 if($(&#x27;therm-on&#x27;)){$(&#x27;therm-on&#x27;)._userset=false;$(&#x27;therm-on&#x27;).onchange=saveTherm}
@@ -751,6 +762,8 @@ function ledLoad(){fetch(&#x27;/led/status&#x27;).then(function(r){return r.json
  if($(&#x27;led-rot-v&#x27;))$(&#x27;led-rot-v&#x27;).textContent=((m.rot!=null?m.rot:0))+&#x27;°&#x27;;window._magRot=(m.rot!=null?m.rot:0);window._magFlip=(m.flip?1:0);if($(&#x27;led-flip-v&#x27;))$(&#x27;led-flip-v&#x27;).textContent=(window._magFlip?&#x27;CCW&#x27;:&#x27;CW&#x27;);
  var ev=d.events||{},bt=d.boot||{};
  if($(&#x27;ev-mag-c&#x27;)){$(&#x27;ev-mag-c&#x27;).value=&#x27;#&#x27;+(ev.magColor||&#x27;FF2020&#x27;);$(&#x27;ev-mag-a&#x27;).value=(ev.magAnim!=null?ev.magAnim:0);
+  $(&#x27;ev-mag-c2&#x27;).value=&#x27;#&#x27;+(ev.magColorB||&#x27;FF8000&#x27;);$(&#x27;ev-mag-c3&#x27;).value=&#x27;#&#x27;+(ev.magColorC||&#x27;FFFFFF&#x27;);
+  $(&#x27;ev-prox-c2&#x27;).value=&#x27;#&#x27;+(ev.proxColorB||&#x27;2060FF&#x27;);$(&#x27;ev-prox-c3&#x27;).value=&#x27;#&#x27;+(ev.proxColorC||&#x27;FFFFFF&#x27;);
   $(&#x27;ev-prox-c&#x27;).value=&#x27;#&#x27;+(ev.proxColor||&#x27;20E0FF&#x27;);$(&#x27;ev-prox-a&#x27;).value=(ev.proxAnim!=null?ev.proxAnim:2);
   $(&#x27;boot-a&#x27;).value=&#x27;#&#x27;+(bt.colorA||&#x27;1030FF&#x27;);$(&#x27;boot-b&#x27;).value=&#x27;#&#x27;+(bt.colorB||&#x27;10FF80&#x27;);$(&#x27;boot-en&#x27;).checked=(bt.enable!=0);}
  var ce=$(&#x27;led-count-echo&#x27;);if(ce)ce.textContent=(d.count!=null?d.count:16);
@@ -782,13 +795,24 @@ function echoCount(){var e=$(&#x27;led-count-echo&#x27;);if(e)e.textContent=$(&#
 if($(&#x27;led-count&#x27;))$(&#x27;led-count&#x27;).oninput=echoCount;
 function hx6(v){return (v||&#x27;&#x27;).replace(&#x27;#&#x27;,&#x27;&#x27;).toUpperCase()}
 function ledPreview(what){fetch(&#x27;/led/test&#x27;,{method:&#x27;POST&#x27;,body:new URLSearchParams({what:what})}).catch(function(){})}
-function themeSave(cb){var b=new URLSearchParams({magColor:hx6($(&#x27;ev-mag-c&#x27;).value),magAnim:$(&#x27;ev-mag-a&#x27;).value,proxColor:hx6($(&#x27;ev-prox-c&#x27;).value),proxAnim:$(&#x27;ev-prox-a&#x27;).value});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
+function themeSave(cb){var b=new URLSearchParams({magColor:hx6($(&#x27;ev-mag-c&#x27;).value),magColorB:hx6($(&#x27;ev-mag-c2&#x27;).value),magColorC:hx6($(&#x27;ev-mag-c3&#x27;).value),magAnim:$(&#x27;ev-mag-a&#x27;).value,proxColor:hx6($(&#x27;ev-prox-c&#x27;).value),proxColorB:hx6($(&#x27;ev-prox-c2&#x27;).value),proxColorC:hx6($(&#x27;ev-prox-c3&#x27;).value),proxAnim:$(&#x27;ev-prox-a&#x27;).value});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
 function bootSave(cb){var b=new URLSearchParams({bootColorA:hx6($(&#x27;boot-a&#x27;).value),bootColorB:hx6($(&#x27;boot-b&#x27;).value),bootEnable:$(&#x27;boot-en&#x27;).checked?1:0});fetch(&#x27;/led/config&#x27;,{method:&#x27;POST&#x27;,body:b}).then(function(r){return r.json()}).then(function(){if(cb)cb()}).catch(function(){})}
 if($(&#x27;ev-save&#x27;)){$(&#x27;ev-save&#x27;).onclick=function(){themeSave(function(){$(&#x27;ev-status&#x27;).className=&#x27;status ok&#x27;;$(&#x27;ev-status&#x27;).textContent=&#x27;Themes saved.&#x27;})};}
 if($(&#x27;ev-mag-t&#x27;)){$(&#x27;ev-mag-t&#x27;).onclick=function(){themeSave(function(){ledPreview(&#x27;mag&#x27;)})};}
 if($(&#x27;ev-prox-t&#x27;)){$(&#x27;ev-prox-t&#x27;).onclick=function(){themeSave(function(){ledPreview(&#x27;prox&#x27;)})};}
 if($(&#x27;boot-save&#x27;)){$(&#x27;boot-save&#x27;).onclick=function(){bootSave(function(){})};}
 if($(&#x27;boot-test&#x27;)){$(&#x27;boot-test&#x27;).onclick=function(){bootSave(function(){ledPreview(&#x27;boot&#x27;)})};}
+if($(&#x27;sync-push&#x27;)){$(&#x27;sync-push&#x27;).onclick=function(){
+ var b=$(&#x27;sync-push&#x27;),st=$(&#x27;sync-status&#x27;);
+ if(!confirm(&#x27;Copy this node\&#x27;s settings to every other node on this network?&#x27;))return;
+ b.disabled=true;st.className=&#x27;status&#x27;;st.textContent=&#x27;Looking for other nodes...&#x27;;
+ fetch(&#x27;/sync/push&#x27;,{method:&#x27;POST&#x27;}).then(function(r){return r.json()}).then(function(d){
+  if(!d.ok){st.className=&#x27;status err&#x27;;st.textContent=&#x27;Could not start: &#x27;+(d.error||&#x27;unknown&#x27;);b.disabled=false;return}
+  var poll=setInterval(function(){fetch(&#x27;/sync/status&#x27;).then(function(r){return r.json()}).then(function(s){
+   st.textContent=s.msg||&#x27;Working...&#x27;;
+   if(!s.busy){clearInterval(poll);b.disabled=false;st.className=&#x27;status &#x27;+(s.failed||s.total===0?&#x27;warn&#x27;:&#x27;ok&#x27;)}
+  }).catch(function(){clearInterval(poll);b.disabled=false;st.className=&#x27;status err&#x27;;st.textContent=&#x27;Lost contact with the node&#x27;})},1200);
+ }).catch(function(){st.className=&#x27;status err&#x27;;st.textContent=&#x27;Sync request failed&#x27;;b.disabled=false})}}
 // ---- firmware update ----
 function fmtK(v){v=+v||0;return v&gt;=1024?(Math.round(v/1024)+&#x27;K&#x27;):(&#x27;&#x27;+v)}
 function updDiag(d){
@@ -812,7 +836,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.13.1-maker&quot;
+#define FW_VERSION   &quot;2.14.0-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -882,16 +906,21 @@ struct LedCfg {
   int  magRot;         // extra rotation of the mag lobe, DEGREES (0/45/90.. via ROTATE button)
   int  magFlip;        // 0 = ring winds CW (default), 1 = CCW. Flips rotation DIRECTION of the lobe.
   // Per-event theming (applied live, persisted). Colors are 0xRRGGBB.
-  // anim: 0=solid 1=pulse 2=spin 3=blink. Severity brightens via value.
-  uint32_t magColor;   int magAnim;    // magnetic anomaly event
-  uint32_t proxColor;  int proxAnim;   // proximity event
+  // Each channel carries THREE colors. Every animation uses A; the multi-colour
+  // patterns (4..13) blend or cycle B and C as well. Older single-colour
+  // patterns (0..3) ignore B and C, so an existing config keeps its exact look.
+  // anim: 0=solid/directional 1=pulse 2=spin 3=blink 4=chase 5=strobe
+  //       6=dual comet 7=ripple 8=wipe 9=sparkle 10=gradient 11=halves
+  //       12=breathe blend 13=radar. Severity brightens via value.
+  uint32_t magColor;   uint32_t magColorB;  uint32_t magColorC;  int magAnim;
+  uint32_t proxColor;  uint32_t proxColorB; uint32_t proxColorC; int proxAnim;
   uint32_t bootColorA; uint32_t bootColorB;  // boot sweep colors
   int  bootEnable;     // 1 = play boot animation
 };
 LedCfg ledCfg = { &quot;SK6812RGBW&quot;, &quot;GRB&quot;, LED_DATA_PIN, -1, NUM_LEDS, LED_BRIGHT,
                   LED_FRONT, LED_RIGHT, LED_BACK, LED_LEFT, /*magRot*/ 0, /*magFlip*/ 0,
-                  /*magColor*/  0xFF2020, /*magAnim*/  0,   // red, directional
-                  /*proxColor*/ 0x20E0FF, /*proxAnim*/ 2,   // cyan spin
+                  /*magColor*/  0xFF2020, /*magColorB*/ 0xFF8000, /*magColorC*/ 0xFFFFFF, /*magAnim*/  0,
+                  /*proxColor*/ 0x20E0FF, /*proxColorB*/0x2060FF, /*proxColorC*/0xFFFFFF, /*proxAnim*/ 2,
                   /*bootColorA*/0x1030FF, /*bootColorB*/0x10FF80, // blue+green
                   /*bootEnable*/1 };
 
@@ -1319,7 +1348,15 @@ volatile bool     rcSmartCalReq = false;           // portal/app rebaseline reru
 volatile bool     rcSaturated = false;              // majority charge timeouts after healthy calibration
 volatile uint32_t rcSaturatedAt = 0;                // sustained saturation eventually becomes a real fault
 #define RC_SATURATION_MAX_MS 5000
-#define PROX_MIN_ALERT_MS_DEFAULT 350
+// Minimum time a prox alert stays in the ALERTING phase once it triggers, even
+// if the field drops away immediately. WAS a fixed 350 ms, which is shorter
+// than most of the animations&#x27; own cycle -- a quick hand pass produced a
+// visual stutter rather than a recognisable pattern. Now operator-settable
+// (&quot;minHoldMs&quot;) and defaulted to a full 2 s so ANY crossing over the threshold
+// plays a complete animation. Still clamped to proxAlertMs: the minimum can
+// never outlast the configured alert duration.
+#define PROX_MIN_ALERT_MS_DEFAULT 2000
+volatile int      proxMinHoldMs  = PROX_MIN_ALERT_MS_DEFAULT;
 #define RC_SATURATION_ARM_READS 4
 #define RC_SATURATION_CLEAR_READS 10
 // Saturation may only ARM if a genuinely elevated CLEAN reading (median rise &gt;
@@ -1628,9 +1665,21 @@ void playBootAnimation() {
 
 // Render one detection event with its themed color + animation.
 // sevScale 0..255 lets severity push brightness/intensity.
-void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t nowMs) {
+#define LED_ANIM_MAX 13   // highest valid anim id (0..13)
+
+// Three-colour event animation renderer.
+//  cA is the primary colour (every pattern uses it); cB/cC are used by the
+//  multi-colour patterns 4..13. Patterns 0..3 deliberately ignore cB/cC so an
+//  existing single-colour config renders EXACTLY as it did before.
+//  sevScale (0..255) is the severity brightness; patterns that don&#x27;t fold it in
+//  themselves get it applied at the end.
+void renderEventLeds(uint32_t cAHex, uint32_t cBHex, uint32_t cCHex,
+                     int anim, uint8_t sevScale, uint32_t nowMs) {
     int n = constrain(ledCfg.count, 1, LED_MAX);
-    CRGB c = hex2crgb(colorHex);
+    CRGB c  = hex2crgb(cAHex);
+    CRGB cB = hex2crgb(cBHex);
+    CRGB cC = hex2crgb(cCHex);
+    bool scaleAtEnd = (anim &gt;= 4);      // 0..3 keep their original internal handling
     switch (anim) {
         case 1: { // pulse -- whole ring breathes
             uint8_t b = scale8(sin8(nowMs / 4), 200) + 55;
@@ -1655,11 +1704,131 @@ void renderEventLeds(uint32_t colorHex, int anim, uint8_t sevScale, uint32_t now
             fill_solid(leds, LED_MAX, on ? c : CRGB::Black);
             break;
         }
+        case 4: { // theatre chase -- every 3rd pixel, groups cycle A/B/C
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            int step = (nowMs / 90) % 3;
+            for (int i = 0; i &lt; n; i++) {
+                if (((i + step) % 3) != 0) continue;
+                int grp = ((i / 3) % 3);
+                leds[i] = (grp == 0) ? c : (grp == 1) ? cB : cC;
+            }
+            break;
+        }
+        case 5: { // strobe -- double flash then a dark gap, alternating A / B
+            uint32_t t = nowMs % 900;
+            bool on = (t &lt; 60) || (t &gt;= 140 &amp;&amp; t &lt; 200);
+            bool second = (t &gt;= 140);
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            if (on) for (int i = 0; i &lt; n; i++) leds[i] = second ? cB : c;
+            break;
+        }
+        case 6: { // dual comet -- two heads 180 deg apart, A and B, C at the meet
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            int head = (nowMs / 40) % n;
+            int head2 = (head + n / 2) % n;
+            for (int t = 0; t &lt; 6; t++) {
+                uint8_t f = 255 - t * 42;
+                CRGB a1 = c;  a1.nscale8(f);
+                CRGB a2 = cB; a2.nscale8(f);
+                int i1 = (head - t + n) % n, i2 = (head2 - t + n) % n;
+                leds[i1] += a1;
+                if (i2 == i1) leds[i2] = cC; else leds[i2] += a2;
+            }
+            break;
+        }
+        case 7: { // ripple -- expands outward from the mapped FRONT pixel
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            int front = constrain(ledCfg.mFront, 0, n - 1);
+            int half = n / 2 + 1;
+            int r = (nowMs / 70) % half;
+            for (int d = 0; d &lt;= half; d++) {
+                int age = r - d;
+                if (age &lt; 0 || age &gt; 3) continue;
+                CRGB cc = blend(c, cB, (uint8_t)constrain(d * 255 / (half ? half : 1), 0, 255));
+                cc.nscale8(255 - age * 60);
+                leds[(front + d) % n] += cc;
+                leds[(front - d + n) % n] += cc;
+            }
+            break;
+        }
+        case 8: { // colour wipe -- fills the ring A, then B, then C
+            uint32_t period = (uint32_t)n * 55;
+            uint32_t phase = (nowMs / (period ? period : 1)) % 3;
+            int filled = (int)(((nowMs % (period ? period : 1)) * n) / (period ? period : 1));
+            CRGB fillC = (phase == 0) ? c : (phase == 1) ? cB : cC;
+            CRGB prevC = (phase == 0) ? cC : (phase == 1) ? c : cB;
+            for (int i = 0; i &lt; n; i++) leds[i] = (i &lt;= filled) ? fillC : prevC;
+            for (int i = n; i &lt; LED_MAX; i++) leds[i] = CRGB::Black;
+            break;
+        }
+        case 9: { // sparkle -- random twinkles in A/B/C over black
+            fadeToBlackBy(leds, LED_MAX, 60);
+            for (int k = 0; k &lt; 2; k++) {
+                int i = random8(n);
+                uint8_t pick = random8(3);
+                leds[i] = (pick == 0) ? c : (pick == 1) ? cB : cC;
+            }
+            for (int i = n; i &lt; LED_MAX; i++) leds[i] = CRGB::Black;
+            break;
+        }
+        case 10: { // gradient cycle -- smooth A-&gt;B-&gt;C-&gt;A rotating around the ring
+            uint8_t off = (uint8_t)((nowMs / 12) &amp; 0xFF);
+            for (int i = 0; i &lt; n; i++) {
+                uint8_t pos = (uint8_t)(((uint16_t)i * 255) / (n ? n : 1) + off);
+                CRGB cc;
+                if (pos &lt; 85)       cc = blend(c,  cB, (uint8_t)(pos * 3));
+                else if (pos &lt; 170) cc = blend(cB, cC, (uint8_t)((pos - 85) * 3));
+                else                cc = blend(cC, c,  (uint8_t)((pos - 170) * 3));
+                leds[i] = cc;
+            }
+            for (int i = n; i &lt; LED_MAX; i++) leds[i] = CRGB::Black;
+            break;
+        }
+        case 11: { // halves -- ring split A/B, swapping, C flashes on the swap
+            uint32_t slot = nowMs / 400;
+            bool swap = (slot &amp; 1);
+            bool flash = ((nowMs % 400) &lt; 70);
+            int half = n / 2;
+            for (int i = 0; i &lt; n; i++) {
+                if (flash) { leds[i] = cC; continue; }
+                bool first = (i &lt; half);
+                leds[i] = (first != swap) ? c : cB;
+            }
+            for (int i = n; i &lt; LED_MAX; i++) leds[i] = CRGB::Black;
+            break;
+        }
+        case 12: { // breathe blend -- whole ring breathes while cycling A-&gt;B-&gt;C
+            uint8_t b = scale8(sin8(nowMs / 5), 205) + 50;
+            uint8_t pos = (uint8_t)((nowMs / 9) &amp; 0xFF);
+            CRGB cc;
+            if (pos &lt; 85)       cc = blend(c,  cB, (uint8_t)(pos * 3));
+            else if (pos &lt; 170) cc = blend(cB, cC, (uint8_t)((pos - 85) * 3));
+            else                cc = blend(cC, c,  (uint8_t)((pos - 170) * 3));
+            cc.nscale8(b);
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            for (int i = 0; i &lt; n; i++) leds[i] = cc;
+            break;
+        }
+        case 13: { // radar -- bright head, long fading tail blending A-&gt;B, C tip
+            fill_solid(leds, LED_MAX, CRGB::Black);
+            int head = (nowMs / 55) % n;
+            int tail = (n &gt; 10) ? (n / 2) : 5;
+            for (int t = 0; t &lt; tail; t++) {
+                int idx = (head - t + n) % n;
+                CRGB cc = blend(c, cB, (uint8_t)((t * 255) / (tail ? tail : 1)));
+                cc.nscale8((uint8_t)(255 - (t * 240) / (tail ? tail : 1)));
+                leds[idx] = cc;
+            }
+            leds[head] = cC;
+            break;
+        }
         default: { // 0 solid
             fill_solid(leds, LED_MAX, c);
             break;
         }
     }
+    if (scaleAtEnd &amp;&amp; sevScale &lt; 255)
+        for (int i = 0; i &lt; LED_MAX; i++) leds[i].nscale8(sevScale);
     // severity tint toward white on the brightest events
     if (sevScale &gt; 210 &amp;&amp; anim != 1)
         for (int i = 0; i &lt; LED_MAX; i++) leds[i] += CRGB(30, 30, 30);
@@ -2003,8 +2172,12 @@ void hardwareTask(void* pv) {
     lastOtaErrBlk = prefs.getUInt(&quot;otaErrBlk&quot;, 0);
     lastOtaErrAt  = prefs.getUInt(&quot;otaErrAt&quot;, 0);
     ledCfg.magColor   = prefs.getUInt(&quot;ledMagC&quot;,  ledCfg.magColor);
+    ledCfg.magColorB  = prefs.getUInt(&quot;ledMagC2&quot;, ledCfg.magColorB);
+    ledCfg.magColorC  = prefs.getUInt(&quot;ledMagC3&quot;, ledCfg.magColorC);
     ledCfg.magAnim    = prefs.getInt(&quot;ledMagA&quot;,   ledCfg.magAnim);
     ledCfg.proxColor  = prefs.getUInt(&quot;ledPrxC&quot;,  ledCfg.proxColor);
+    ledCfg.proxColorB = prefs.getUInt(&quot;ledPrxC2&quot;, ledCfg.proxColorB);
+    ledCfg.proxColorC = prefs.getUInt(&quot;ledPrxC3&quot;, ledCfg.proxColorC);
     ledCfg.proxAnim   = prefs.getInt(&quot;ledPrxA&quot;,   ledCfg.proxAnim);
     ledCfg.bootColorA = prefs.getUInt(&quot;ledBootA&quot;, ledCfg.bootColorA);
     ledCfg.bootColorB = prefs.getUInt(&quot;ledBootB&quot;, ledCfg.bootColorB);
@@ -2085,13 +2258,13 @@ void hardwareTask(void* pv) {
                         // physical antenna. (Solid look; themed anims just play the theme.)
                         if (ledCfg.magAnim == 0) {
                             renderMagDirectional(ledCfg.magColor, 0, 1000, 1.0f);  // dirX=0,dirY+ = FRONT
-                        } else renderEventLeds(ledCfg.magColor, ledCfg.magAnim, 255, millis());
+                        } else renderEventLeds(ledCfg.magColor, ledCfg.magColorB, ledCfg.magColorC, ledCfg.magAnim, 255, millis());
                     } else {
                         // PROX preview: if solid, fade the whole ring UP then hold; else the theme.
                         if (ledCfg.proxAnim == 0) {
                             float a = e &lt; 1200 ? (float)e / 1200.0f : 1.0f;   // ramp to 100%
                             renderProxFade(ledCfg.proxColor, a);
-                        } else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, 255, millis());
+                        } else renderEventLeds(ledCfg.proxColor, ledCfg.proxColorB, ledCfg.proxColorC, ledCfg.proxAnim, 255, millis());
                     }
                     FastLED.setBrightness(ledCfg.bright); ledShow();
                     delay(16);
@@ -2163,7 +2336,7 @@ void hardwareTask(void* pv) {
                     // Proximity drives must use the exact configured organic
                     // proximity event animation, not a plain fade.
                     if (ledCfg.proxAnim == 0) renderProxFade(ledCfg.proxColor, 0.15f + drive * 1.05f);
-                    else renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
+                    else renderEventLeds(ledCfg.proxColor, ledCfg.proxColorB, ledCfg.proxColorC, ledCfg.proxAnim, (uint8_t)constrain((int)(drive * 255.0f), 0, 255), millis());
                     tone(activeBuzzerPin(), 500 + (int)(drive * drive * 1500.0f), 30);
                 }
                 FastLED.setBrightness(diagPulseMaxBrightness ? 255 : ledCfg.bright); ledShow();
@@ -2625,7 +2798,7 @@ void hardwareTask(void* pv) {
             // can disappear before any audible or event output is produced. The
             // minimum hold never exceeds the operator&#x27;s configured alert duration.
             int alertMsSnap = proxAlertMs;
-            uint32_t minHoldMs = (uint32_t)((alertMsSnap &lt; (int)PROX_MIN_ALERT_MS_DEFAULT) ? alertMsSnap : (int)PROX_MIN_ALERT_MS_DEFAULT);
+            uint32_t minHoldMs = (uint32_t)((alertMsSnap &lt; proxMinHoldMs) ? alertMsSnap : proxMinHoldMs);
             bool proxHeld = bootBaselineDone &amp;&amp; !diagQuiet
                 &amp;&amp; (alertAge &lt; minHoldMs || proxDelta &gt; proxReleaseThr);
             bool expired = (alertAge &gt;= (uint32_t)proxAlertMs);
@@ -2657,7 +2830,7 @@ void hardwareTask(void* pv) {
                     uint8_t sevScale = 150;
                     if      (!strcmp(sev, &quot;high&quot;)) sevScale = 255;
                     else if (!strcmp(sev, &quot;med&quot;))  sevScale = 205;
-                    renderEventLeds(ledCfg.proxColor, ledCfg.proxAnim, sevScale, nowMs);
+                    renderEventLeds(ledCfg.proxColor, ledCfg.proxColorB, ledCfg.proxColorC, ledCfg.proxAnim, sevScale, nowMs);
                 }
                 proxPainting = true;
             }
@@ -2691,7 +2864,7 @@ void hardwareTask(void* pv) {
                 mstr = 0.35f + mstr; if (mstr &gt; 1) mstr = 1; if (mstr &lt; 0.35f) mstr = 0.35f;
                 renderMagDirectional(ledCfg.magColor, dX, dY, mstr);
             } else {
-                renderEventLeds(ledCfg.magColor, ledCfg.magAnim, sevScale, nowMs);
+                renderEventLeds(ledCfg.magColor, ledCfg.magColorB, ledCfg.magColorC, ledCfg.magAnim, sevScale, nowMs);
             }
             magPainting = true;
             // (b) EVENT + buzzer -- only once per refractory window.
@@ -3455,6 +3628,245 @@ void connectToRelay(const String&amp; url) {
     appWSStarted = true; appStartAt = millis();
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE SETTINGS SYNC -- push this node&#x27;s tuning to every other node on the LAN.
+//
+// Scope is deliberately &quot;everything that makes two nodes BEHAVE the same&quot;,
+// and deliberately NOT identity or connectivity. Slot, node name, Wi-Fi
+// credentials, relay URL and the Relay Assist group key are all excluded: a
+// sync that renamed every node &quot;Node 1&quot; or moved them onto one SSID would be
+// unrecoverable without a USB cable. Field lock is excluded too -- it is
+// session state the app drives, not configuration.
+//
+// Discovery uses the mDNS service every node already advertises
+// (specter-node-&lt;slot&gt;._http._tcp). No new protocol, no pairing step.
+//
+// SECURITY NOTE, stated plainly: /sync/apply is unauthenticated, exactly like
+// every other endpoint on this portal (/led/config, /wifi/save, /prox/cadence
+// are all open too). Anyone already on your LAN could call it. That matches the
+// device&#x27;s existing posture rather than adding a lock to one door in an
+// unlocked house -- but if the portal ever gets auth, this must be covered by it.
+// ─────────────────────────────────────────────────────────────────────────────
+#define SYNC_MAX_PEERS 12
+volatile bool     syncBusy = false;
+volatile int      syncTotal = 0, syncOkCount = 0, syncFailCount = 0, syncRebootCount = 0;
+char              syncMsg[192] = &quot;&quot;;
+uint32_t          syncFinishedAt = 0;
+
+// Build the shareable settings bundle. Used by /sync/export (inspection) and
+// as the body pushed to every peer.
+static void buildSyncBundle(JsonDocument&amp; d) {
+    d[&quot;v&quot;] = 1;
+    d[&quot;from&quot;] = stableNodeId;
+    d[&quot;fw&quot;] = FW_VERSION;
+    JsonObject sen = d[&quot;sensor&quot;].to&lt;JsonObject&gt;();
+    sen[&quot;magSens&quot;] = magSens;
+    sen[&quot;proxMode&quot;] = proxMode;              // applied FIRST on the peer: it selects the unit scale
+    sen[&quot;threshProx&quot;] = threshProx;          // in the units of proxMode above
+    sen[&quot;proxSpan&quot;] = proxSpan;
+    sen[&quot;proxNoise&quot;] = proxNoise;
+    sen[&quot;proxCurve&quot;] = proxCurve;
+    sen[&quot;rcMarginX&quot;] = rcMarginMult;
+    sen[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs;
+    sen[&quot;theremin&quot;] = proxTheremin;
+    sen[&quot;thermTone&quot;] = proxToneOn;
+    JsonObject cad = d[&quot;cadence&quot;].to&lt;JsonObject&gt;();
+    cad[&quot;alertMs&quot;] = proxAlertMs; cad[&quot;cooldownMs&quot;] = proxCooldownMs; cad[&quot;armMs&quot;] = proxArmMs;
+    cad[&quot;hbResumeMs&quot;] = heartbeatResumeMs; cad[&quot;minHoldMs&quot;] = proxMinHoldMs;
+    cad[&quot;hz&quot;] = telemetryHz;
+    JsonObject led = d[&quot;led&quot;].to&lt;JsonObject&gt;();
+    led[&quot;chipset&quot;] = ledCfg.chipset; led[&quot;order&quot;] = ledCfg.order;
+    led[&quot;dataPin&quot;] = ledCfg.dataPin; led[&quot;count&quot;] = ledCfg.count; led[&quot;bright&quot;] = ledCfg.bright;
+    led[&quot;front&quot;] = ledCfg.mFront; led[&quot;rot&quot;] = ledCfg.magRot; led[&quot;flip&quot;] = ledCfg.magFlip;
+    led[&quot;magColor&quot;] = ledCfg.magColor;   led[&quot;magColorB&quot;] = ledCfg.magColorB;   led[&quot;magColorC&quot;] = ledCfg.magColorC;
+    led[&quot;magAnim&quot;] = ledCfg.magAnim;
+    led[&quot;proxColor&quot;] = ledCfg.proxColor; led[&quot;proxColorB&quot;] = ledCfg.proxColorB; led[&quot;proxColorC&quot;] = ledCfg.proxColorC;
+    led[&quot;proxAnim&quot;] = ledCfg.proxAnim;
+    led[&quot;bootColorA&quot;] = ledCfg.bootColorA; led[&quot;bootColorB&quot;] = ledCfg.bootColorB; led[&quot;bootEnable&quot;] = ledCfg.bootEnable;
+    JsonObject hb = d[&quot;heartbeat&quot;].to&lt;JsonObject&gt;();
+    hb[&quot;enabled&quot;] = heartbeatEnabled; hb[&quot;color&quot;] = heartbeatColor;
+}
+
+// Apply a received bundle. Returns true; sets rebootNeeded when a field that
+// only binds at boot (LED chipset / data pin) actually changed.
+static bool applySyncBundle(JsonDocument&amp; d, bool&amp; rebootNeeded) {
+    rebootNeeded = false;
+    if ((int)(d[&quot;v&quot;] | 0) != 1) return false;
+
+    JsonObject sen = d[&quot;sensor&quot;];
+    if (!sen.isNull()) {
+        if (sen[&quot;magSens&quot;].is&lt;int&gt;()) { magSens = constrain((int)sen[&quot;magSens&quot;], 0, 100); }
+        // proxMode FIRST: it decides which NVS keys (and unit scale) the
+        // threshold/span/noise values below belong to.
+        if (sen[&quot;proxMode&quot;].is&lt;int&gt;()) {
+            int pm = constrain((int)sen[&quot;proxMode&quot;], 0, 1);
+            if (pm != proxMode) {
+                saveProxTuningFor(proxMode);
+                if (pm == 0) { digitalWrite(activeRcDrivePin(), LOW); pinMode(activeRcDrivePin(), INPUT); }
+                proxMode = pm; rcReady = false; rcBase10 = 0; rcValid = false; proxInit = false; recalibrate = true;
+                if (pm == 1) rcSmartCalReq = true;
+            }
+        }
+        if (sen[&quot;threshProx&quot;].is&lt;int&gt;()) threshProx = constrain((int)sen[&quot;threshProx&quot;], 1, 400);
+        if (sen[&quot;proxSpan&quot;].is&lt;int&gt;())   proxSpan   = constrain((int)sen[&quot;proxSpan&quot;], 1, 4000);
+        if (sen[&quot;proxNoise&quot;].is&lt;int&gt;())  proxNoise  = constrain((int)sen[&quot;proxNoise&quot;], 0, 200);
+        if (sen[&quot;proxCurve&quot;].is&lt;int&gt;())  proxCurve  = constrain((int)sen[&quot;proxCurve&quot;], 0, 1);
+        if (sen[&quot;rcMarginX&quot;].is&lt;int&gt;())       rcMarginMult    = constrain((int)sen[&quot;rcMarginX&quot;], 2, 40);
+        if (sen[&quot;rcMarginFloorUs&quot;].is&lt;int&gt;()) rcMarginFloorUs = constrain((int)sen[&quot;rcMarginFloorUs&quot;], 5, 2000);
+        if (sen[&quot;theremin&quot;].is&lt;bool&gt;())  proxTheremin = (bool)sen[&quot;theremin&quot;];
+        if (sen[&quot;thermTone&quot;].is&lt;bool&gt;()) proxToneOn   = (bool)sen[&quot;thermTone&quot;];
+        saveProxTuningFor(proxMode);
+        effThreshProx = recomputeEffThreshProx();
+    }
+
+    JsonObject cad = d[&quot;cadence&quot;];
+    if (!cad.isNull()) {
+        if (cad[&quot;alertMs&quot;].is&lt;int&gt;())    proxAlertMs    = constrain((int)cad[&quot;alertMs&quot;], 200, 30000);
+        if (cad[&quot;cooldownMs&quot;].is&lt;int&gt;()) proxCooldownMs = constrain((int)cad[&quot;cooldownMs&quot;], 0, 30000);
+        if (cad[&quot;armMs&quot;].is&lt;int&gt;())      proxArmMs      = constrain((int)cad[&quot;armMs&quot;], 0, 2000);
+        if (cad[&quot;hbResumeMs&quot;].is&lt;int&gt;()) heartbeatResumeMs = constrain((int)cad[&quot;hbResumeMs&quot;], 0, 15000);
+        if (cad[&quot;minHoldMs&quot;].is&lt;int&gt;())  proxMinHoldMs  = constrain((int)cad[&quot;minHoldMs&quot;], 0, 10000);
+        if (cad[&quot;hz&quot;].is&lt;int&gt;())         telemetryHz    = constrain((int)cad[&quot;hz&quot;], 1, 30);
+    }
+
+    JsonObject led = d[&quot;led&quot;];
+    bool chipChanged = false;
+    if (!led.isNull()) {
+        if (led[&quot;chipset&quot;].is&lt;const char*&gt;()) {
+            const char* cs = led[&quot;chipset&quot;];
+            if (cs &amp;&amp; strncmp(cs, ledCfg.chipset, sizeof(ledCfg.chipset)) != 0) {
+                strncpy(ledCfg.chipset, cs, sizeof(ledCfg.chipset) - 1);
+                ledCfg.chipset[sizeof(ledCfg.chipset) - 1] = 0; chipChanged = true;
+            }
+        }
+        if (led[&quot;order&quot;].is&lt;const char*&gt;()) {
+            const char* od = led[&quot;order&quot;];
+            if (od) { strncpy(ledCfg.order, od, sizeof(ledCfg.order) - 1); ledCfg.order[sizeof(ledCfg.order) - 1] = 0; }
+        }
+        if (led[&quot;dataPin&quot;].is&lt;int&gt;() &amp;&amp; (int)led[&quot;dataPin&quot;] != ledCfg.dataPin) { ledCfg.dataPin = (int)led[&quot;dataPin&quot;]; chipChanged = true; }
+        if (led[&quot;count&quot;].is&lt;int&gt;())  ledCfg.count  = constrain((int)led[&quot;count&quot;], 1, LED_MAX);
+        if (led[&quot;bright&quot;].is&lt;int&gt;()) ledCfg.bright = constrain((int)led[&quot;bright&quot;], 0, 255);
+        if (led[&quot;front&quot;].is&lt;int&gt;())  ledCfg.mFront = (int)led[&quot;front&quot;];
+        if (led[&quot;rot&quot;].is&lt;int&gt;())    ledCfg.magRot = (int)led[&quot;rot&quot;];
+        if (led[&quot;flip&quot;].is&lt;int&gt;())   ledCfg.magFlip = (int)led[&quot;flip&quot;] ? 1 : 0;
+        if (led[&quot;magColor&quot;].is&lt;uint32_t&gt;())  ledCfg.magColor  = (uint32_t)led[&quot;magColor&quot;];
+        if (led[&quot;magColorB&quot;].is&lt;uint32_t&gt;()) ledCfg.magColorB = (uint32_t)led[&quot;magColorB&quot;];
+        if (led[&quot;magColorC&quot;].is&lt;uint32_t&gt;()) ledCfg.magColorC = (uint32_t)led[&quot;magColorC&quot;];
+        if (led[&quot;magAnim&quot;].is&lt;int&gt;())        ledCfg.magAnim   = constrain((int)led[&quot;magAnim&quot;], 0, LED_ANIM_MAX);
+        if (led[&quot;proxColor&quot;].is&lt;uint32_t&gt;())  ledCfg.proxColor  = (uint32_t)led[&quot;proxColor&quot;];
+        if (led[&quot;proxColorB&quot;].is&lt;uint32_t&gt;()) ledCfg.proxColorB = (uint32_t)led[&quot;proxColorB&quot;];
+        if (led[&quot;proxColorC&quot;].is&lt;uint32_t&gt;()) ledCfg.proxColorC = (uint32_t)led[&quot;proxColorC&quot;];
+        if (led[&quot;proxAnim&quot;].is&lt;int&gt;())        ledCfg.proxAnim   = constrain((int)led[&quot;proxAnim&quot;], 0, LED_ANIM_MAX);
+        if (led[&quot;bootColorA&quot;].is&lt;uint32_t&gt;()) ledCfg.bootColorA = (uint32_t)led[&quot;bootColorA&quot;];
+        if (led[&quot;bootColorB&quot;].is&lt;uint32_t&gt;()) ledCfg.bootColorB = (uint32_t)led[&quot;bootColorB&quot;];
+        if (led[&quot;bootEnable&quot;].is&lt;int&gt;())      ledCfg.bootEnable = (int)led[&quot;bootEnable&quot;] ? 1 : 0;
+    }
+
+    JsonObject hb = d[&quot;heartbeat&quot;];
+    if (!hb.isNull()) {
+        Preferences hp; hp.begin(&quot;heartbeat&quot;, false);
+        if (hb[&quot;enabled&quot;].is&lt;bool&gt;()) { heartbeatEnabled = (bool)hb[&quot;enabled&quot;]; hp.putBool(&quot;enabled&quot;, heartbeatEnabled); }
+        if (hb[&quot;color&quot;].is&lt;uint32_t&gt;()) { heartbeatColor = (uint32_t)hb[&quot;color&quot;]; hp.putUInt(&quot;color&quot;, heartbeatColor); }
+        hp.end();
+    }
+
+    // Persist everything in one NVS session.
+    prefs.begin(&quot;specter&quot;, false);
+    prefs.putInt(&quot;magSens&quot;, magSens);
+    prefs.putInt(&quot;proxMode&quot;, proxMode);
+    prefs.putInt(&quot;proxCurve&quot;, proxCurve);
+    prefs.putInt(&quot;rcMarginX&quot;, rcMarginMult); prefs.putInt(&quot;rcMarginFloorUs&quot;, rcMarginFloorUs);
+    prefs.putInt(&quot;therm&quot;, proxTheremin ? 1 : 0); prefs.putInt(&quot;thermTone&quot;, proxToneOn ? 1 : 0);
+    prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs);
+    prefs.putInt(&quot;armMs&quot;, proxArmMs); prefs.putInt(&quot;hbResumeMs&quot;, heartbeatResumeMs);
+    prefs.putInt(&quot;minHoldMs&quot;, proxMinHoldMs); prefs.putInt(&quot;hz&quot;, telemetryHz);
+    prefs.putString(&quot;ledOrd&quot;, ledCfg.order);
+    prefs.putInt(&quot;ledData&quot;, ledCfg.dataPin); prefs.putInt(&quot;ledCount&quot;, ledCfg.count);
+    prefs.putInt(&quot;ledBright&quot;, ledCfg.bright); prefs.putInt(&quot;ledFront&quot;, ledCfg.mFront);
+    prefs.putInt(&quot;ledMagRot&quot;, ledCfg.magRot); prefs.putInt(&quot;ledMagFlip&quot;, ledCfg.magFlip);
+    prefs.putUInt(&quot;ledMagC&quot;, ledCfg.magColor); prefs.putUInt(&quot;ledMagC2&quot;, ledCfg.magColorB); prefs.putUInt(&quot;ledMagC3&quot;, ledCfg.magColorC);
+    prefs.putInt(&quot;ledMagA&quot;, ledCfg.magAnim);
+    prefs.putUInt(&quot;ledPrxC&quot;, ledCfg.proxColor); prefs.putUInt(&quot;ledPrxC2&quot;, ledCfg.proxColorB); prefs.putUInt(&quot;ledPrxC3&quot;, ledCfg.proxColorC);
+    prefs.putInt(&quot;ledPrxA&quot;, ledCfg.proxAnim);
+    prefs.putUInt(&quot;ledBootA&quot;, ledCfg.bootColorA); prefs.putUInt(&quot;ledBootB&quot;, ledCfg.bootColorB);
+    prefs.putInt(&quot;ledBoot&quot;, ledCfg.bootEnable);
+    prefs.end();
+    // Chipset has its OWN namespace (&quot;ledcfg&quot;/&quot;chip&quot;) so the hardware task&#x27;s
+    // frequent &quot;specter&quot; writes can never clobber it -- mirror that here.
+    { Preferences cp; cp.begin(&quot;ledcfg&quot;, false); cp.putString(&quot;chip&quot;, ledCfg.chipset); cp.end(); }
+    saveProxTuningFor(proxMode);
+
+    FastLED.setBrightness(ledCfg.bright);
+    ledTestReq = 8;                 // re-render with the new theme
+    rebootNeeded = chipChanged;     // chipset/data pin only bind at boot
+    return true;
+}
+
+// Background push: discover peers over mDNS and POST the bundle to each.
+// Runs off the web handler because mDNS query + N HTTP round-trips take
+// seconds and would otherwise stall loop() (and with it the app link).
+static void syncPushTask(void*) {
+    String body;
+    { JsonDocument d; buildSyncBundle(d); serializeJson(d, body); }
+
+    IPAddress mine = WiFi.localIP();
+    IPAddress peers[SYNC_MAX_PEERS];
+    int peerCount = 0;
+
+    // Primary discovery: browse the _http._tcp services every node advertises.
+    int found = MDNS.queryService(&quot;http&quot;, &quot;tcp&quot;);
+    for (int i = 0; i &lt; found &amp;&amp; peerCount &lt; SYNC_MAX_PEERS; ++i) {
+        String host = MDNS.hostname(i);
+        IPAddress ip = MDNS.IP(i);
+        if (!host.startsWith(&quot;specter-node&quot;)) continue;   // only our own kind
+        if (ip == mine) continue;                          // never push to self
+        bool dup = false;
+        for (int k = 0; k &lt; peerCount; ++k) if (peers[k] == ip) dup = true;
+        if (!dup) peers[peerCount++] = ip;
+    }
+    // Fallback: some mDNS responders answer host queries but not service
+    // browses. Slots are 1..3 and each node registers specter-node-&lt;slot&gt;, so
+    // resolve those directly for anything the browse missed.
+    for (int slot = 1; slot &lt;= 3 &amp;&amp; peerCount &lt; SYNC_MAX_PEERS; ++slot) {
+        if (slot == nodeSlot) continue;
+        char hn[24]; snprintf(hn, sizeof(hn), &quot;specter-node-%d&quot;, slot);
+        IPAddress ip = MDNS.queryHost(hn, 1200);
+        if (ip == IPAddress((uint32_t)0) || ip == mine) continue;
+        bool dup = false;
+        for (int k = 0; k &lt; peerCount; ++k) if (peers[k] == ip) dup = true;
+        if (!dup) peers[peerCount++] = ip;
+    }
+
+    int total = 0, okC = 0, failC = 0, rebootC = 0;
+    for (int i = 0; i &lt; peerCount; ++i) {
+        IPAddress ip = peers[i];
+        total++;
+        WiFiClient client; HTTPClient http;
+        http.setConnectTimeout(4000); http.setTimeout(6000);
+        String url = String(&quot;http://&quot;) + ip.toString() + &quot;/sync/apply&quot;;
+        if (!http.begin(client, url)) { failC++; continue; }
+        http.addHeader(&quot;Content-Type&quot;, &quot;application/json&quot;);
+        int code = http.POST(body);
+        if (code == 200) {
+            okC++;
+            String resp = http.getString();
+            if (resp.indexOf(&quot;\&quot;rebootNeeded\&quot;:true&quot;) &gt;= 0) rebootC++;
+        } else failC++;
+        http.end();
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+    syncTotal = total; syncOkCount = okC; syncFailCount = failC; syncRebootCount = rebootC;
+    if (total == 0)
+        snprintf(syncMsg, sizeof(syncMsg), &quot;No other nodes found on this network. Peers must be on the same Wi-Fi and powered on.&quot;);
+    else
+        snprintf(syncMsg, sizeof(syncMsg), &quot;Synced %d of %d node%s.%s&quot;, okC, total, total == 1 ? &quot;&quot; : &quot;s&quot;,
+                 rebootC ? &quot; Some need a reboot to bind a new LED chipset/pin.&quot; : &quot;&quot;);
+    syncFinishedAt = millis();
+    syncBusy = false;
+    vTaskDelete(NULL);
+}
+
 void setupNetwork() {
     prefs.begin(&quot;specter&quot;, true);
     targetSSID  = prefs.getString(&quot;ssid&quot;, &quot;&quot;);
@@ -3476,6 +3888,7 @@ void setupNetwork() {
     proxCooldownMs = prefs.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = prefs.getInt(&quot;armMs&quot;, 150);
     heartbeatResumeMs = prefs.getInt(&quot;hbResumeMs&quot;, 2000);
+    proxMinHoldMs  = prefs.getInt(&quot;minHoldMs&quot;, PROX_MIN_ALERT_MS_DEFAULT);
     touchPin    = prefs.getInt(&quot;touchPin&quot;, TOUCH_PIN_DEFAULT);
     rfMagPeak   = prefs.getInt(&quot;rfMag&quot;, 0);
     rfProxPeak  = prefs.getInt(&quot;rfProx&quot;, 0);
@@ -3618,6 +4031,40 @@ void setupNetwork() {
         JsonDocument d; d[&quot;nodeId&quot;] = stableNodeId; d[&quot;slot&quot;] = nodeSlot; d[&quot;name&quot;] = nodeName; d[&quot;customName&quot;] = nodeNameCustom; d[&quot;pinSwap&quot;] = rcBuzzerPinsSwapped;
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
+    // ---- settings sync ----
+    server.on(&quot;/sync/export&quot;, HTTP_GET, []() {
+        JsonDocument d; buildSyncBundle(d);
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    // Receive a bundle from another node and adopt it.
+    server.on(&quot;/sync/apply&quot;, HTTP_POST, []() {
+        String body = server.hasArg(&quot;plain&quot;) ? server.arg(&quot;plain&quot;) : String(&quot;&quot;);
+        JsonDocument d;
+        if (deserializeJson(d, body)) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad-json\&quot;}&quot;); return; }
+        bool rebootNeeded = false;
+        if (!applySyncBundle(d, rebootNeeded)) { server.send(400, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad-version\&quot;}&quot;); return; }
+        JsonDocument r; r[&quot;ok&quot;] = true; r[&quot;rebootNeeded&quot;] = rebootNeeded; r[&quot;node&quot;] = nodeName; r[&quot;slot&quot;] = nodeSlot;
+        String o; serializeJson(r, o); server.send(200, &quot;application/json&quot;, o);
+    });
+    // Push this node&#x27;s settings to every peer found on the LAN.
+    server.on(&quot;/sync/push&quot;, HTTP_POST, []() {
+        if (syncBusy) { server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;busy\&quot;:true}&quot;); return; }
+        if (WiFi.status() != WL_CONNECTED) {
+            server.send(409, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;not-on-a-network\&quot;}&quot;); return;
+        }
+        syncBusy = true; syncTotal = syncOkCount = syncFailCount = syncRebootCount = 0;
+        snprintf(syncMsg, sizeof(syncMsg), &quot;Looking for other nodes...&quot;);
+        // Own task: mDNS discovery plus N HTTP round-trips take seconds and
+        // must not block loop() (and with it the app link and portal).
+        xTaskCreatePinnedToCore(syncPushTask, &quot;SyncPush&quot;, 8192, NULL, 1, NULL, 0);
+        server.send(200, &quot;application/json&quot;, &quot;{\&quot;ok\&quot;:true,\&quot;started\&quot;:true}&quot;);
+    });
+    server.on(&quot;/sync/status&quot;, HTTP_GET, []() {
+        JsonDocument d;
+        d[&quot;busy&quot;] = (bool)syncBusy; d[&quot;total&quot;] = syncTotal; d[&quot;ok&quot;] = syncOkCount;
+        d[&quot;failed&quot;] = syncFailCount; d[&quot;rebootNeeded&quot;] = syncRebootCount; d[&quot;msg&quot;] = syncMsg;
+        String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
+    });
     server.on(&quot;/lock/set&quot;, HTTP_POST, []() {
         if (server.hasArg(&quot;on&quot;)) {
             fieldLock = (server.arg(&quot;on&quot;) == &quot;1&quot; || server.arg(&quot;on&quot;) == &quot;true&quot;);
@@ -3734,7 +4181,12 @@ void setupNetwork() {
         char hx[8];
         JsonObject ev = d[&quot;events&quot;].to&lt;JsonObject&gt;();
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColor);  ev[&quot;magColor&quot;]=hx;  ev[&quot;magAnim&quot;]=ledCfg.magAnim;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColorB); ev[&quot;magColorB&quot;]=hx;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.magColorC); ev[&quot;magColorC&quot;]=hx;
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.proxColor); ev[&quot;proxColor&quot;]=hx; ev[&quot;proxAnim&quot;]=ledCfg.proxAnim;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.proxColorB);ev[&quot;proxColorB&quot;]=hx;
+        snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.proxColorC);ev[&quot;proxColorC&quot;]=hx;
+        ev[&quot;animMax&quot;]=LED_ANIM_MAX;
         JsonObject bt = d[&quot;boot&quot;].to&lt;JsonObject&gt;();
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.bootColorA); bt[&quot;colorA&quot;]=hx;
         snprintf(hx,sizeof(hx),&quot;%06X&quot;,ledCfg.bootColorB); bt[&quot;colorB&quot;]=hx;
@@ -3791,9 +4243,13 @@ void setupNetwork() {
         // per-event theming + boot (live, no reboot). Colors accepted as hex &quot;RRGGBB&quot; or &quot;#RRGGBB&quot;.
         auto parseHex = [](String v)-&gt;uint32_t{ if(v.startsWith(&quot;#&quot;)) v=v.substring(1); return (uint32_t) strtoul(v.c_str(), nullptr, 16); };
         if (server.hasArg(&quot;magColor&quot;)) { ledCfg.magColor = parseHex(server.arg(&quot;magColor&quot;)); prefs.putUInt(&quot;ledMagC&quot;, ledCfg.magColor); }
-        if (server.hasArg(&quot;magAnim&quot;))  { ledCfg.magAnim  = constrain(server.arg(&quot;magAnim&quot;).toInt(),0,3); prefs.putInt(&quot;ledMagA&quot;, ledCfg.magAnim); }
+        if (server.hasArg(&quot;magColorB&quot;)){ ledCfg.magColorB= parseHex(server.arg(&quot;magColorB&quot;)); prefs.putUInt(&quot;ledMagC2&quot;, ledCfg.magColorB); }
+        if (server.hasArg(&quot;magColorC&quot;)){ ledCfg.magColorC= parseHex(server.arg(&quot;magColorC&quot;)); prefs.putUInt(&quot;ledMagC3&quot;, ledCfg.magColorC); }
+        if (server.hasArg(&quot;magAnim&quot;))  { ledCfg.magAnim  = constrain(server.arg(&quot;magAnim&quot;).toInt(),0,LED_ANIM_MAX); prefs.putInt(&quot;ledMagA&quot;, ledCfg.magAnim); }
         if (server.hasArg(&quot;proxColor&quot;)){ ledCfg.proxColor= parseHex(server.arg(&quot;proxColor&quot;)); prefs.putUInt(&quot;ledPrxC&quot;, ledCfg.proxColor); }
-        if (server.hasArg(&quot;proxAnim&quot;)) { ledCfg.proxAnim = constrain(server.arg(&quot;proxAnim&quot;).toInt(),0,3); prefs.putInt(&quot;ledPrxA&quot;, ledCfg.proxAnim); }
+        if (server.hasArg(&quot;proxColorB&quot;)){ledCfg.proxColorB=parseHex(server.arg(&quot;proxColorB&quot;)); prefs.putUInt(&quot;ledPrxC2&quot;, ledCfg.proxColorB); }
+        if (server.hasArg(&quot;proxColorC&quot;)){ledCfg.proxColorC=parseHex(server.arg(&quot;proxColorC&quot;)); prefs.putUInt(&quot;ledPrxC3&quot;, ledCfg.proxColorC); }
+        if (server.hasArg(&quot;proxAnim&quot;)) { ledCfg.proxAnim = constrain(server.arg(&quot;proxAnim&quot;).toInt(),0,LED_ANIM_MAX); prefs.putInt(&quot;ledPrxA&quot;, ledCfg.proxAnim); }
         if (server.hasArg(&quot;bootColorA&quot;)){ ledCfg.bootColorA=parseHex(server.arg(&quot;bootColorA&quot;)); prefs.putUInt(&quot;ledBootA&quot;, ledCfg.bootColorA); }
         if (server.hasArg(&quot;bootColorB&quot;)){ ledCfg.bootColorB=parseHex(server.arg(&quot;bootColorB&quot;)); prefs.putUInt(&quot;ledBootB&quot;, ledCfg.bootColorB); }
         if (server.hasArg(&quot;bootEnable&quot;)){ ledCfg.bootEnable=server.arg(&quot;bootEnable&quot;).toInt()?1:0; prefs.putInt(&quot;ledBoot&quot;, ledCfg.bootEnable); }
@@ -3907,21 +4363,22 @@ void setupNetwork() {
         if (server.hasArg(&quot;cooldownMs&quot;)) proxCooldownMs = constrain(server.arg(&quot;cooldownMs&quot;).toInt(), 0, 30000);
         if (server.hasArg(&quot;armMs&quot;)) proxArmMs = constrain(server.arg(&quot;armMs&quot;).toInt(), 0, 2000);
         if (server.hasArg(&quot;hbResumeMs&quot;)) heartbeatResumeMs = constrain((int)server.arg(&quot;hbResumeMs&quot;).toInt(), 0, 15000);
+        if (server.hasArg(&quot;minHoldMs&quot;)) proxMinHoldMs = constrain((int)server.arg(&quot;minHoldMs&quot;).toInt(), 0, 10000);
         prefs.begin(&quot;specter&quot;, false);
         prefs.putInt(&quot;alertMs&quot;, proxAlertMs); prefs.putInt(&quot;cooldownMs&quot;, proxCooldownMs); prefs.putInt(&quot;armMs&quot;, proxArmMs);
-        prefs.putInt(&quot;hbResumeMs&quot;, heartbeatResumeMs);
+        prefs.putInt(&quot;hbResumeMs&quot;, heartbeatResumeMs); prefs.putInt(&quot;minHoldMs&quot;, proxMinHoldMs);
         if (server.hasArg(&quot;thresh&quot;)) {
             threshProx = constrain((int)server.arg(&quot;thresh&quot;).toInt(), 1, 400);
             prefs.putInt(kThreshKey(proxMode), threshProx);
             effThreshProx = recomputeEffThreshProx();
         }
         prefs.end();
-        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;armMs\&quot;:&quot; + proxArmMs + &quot;,\&quot;hbResumeMs\&quot;:&quot; + heartbeatResumeMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
+        server.send(200, &quot;application/json&quot;, String(&quot;{\&quot;ok\&quot;:true,\&quot;alertMs\&quot;:&quot;) + proxAlertMs + &quot;,\&quot;cooldownMs\&quot;:&quot; + proxCooldownMs + &quot;,\&quot;armMs\&quot;:&quot; + proxArmMs + &quot;,\&quot;hbResumeMs\&quot;:&quot; + heartbeatResumeMs + &quot;,\&quot;minHoldMs\&quot;:&quot; + proxMinHoldMs + &quot;,\&quot;threshProx\&quot;:&quot; + threshProx + &quot;}&quot;);
     });
     server.on(&quot;/prox/cadence&quot;, HTTP_GET, []() {
         JsonDocument d;
         d[&quot;alertMs&quot;] = proxAlertMs; d[&quot;cooldownMs&quot;] = proxCooldownMs; d[&quot;armMs&quot;] = proxArmMs; d[&quot;effThreshProx&quot;] = effThreshProx; d[&quot;threshProx&quot;] = threshProx;
-        d[&quot;hbResumeMs&quot;] = heartbeatResumeMs; d[&quot;proxMode&quot;] = proxMode; d[&quot;rcSub&quot;] = RC_SUB; d[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
+        d[&quot;hbResumeMs&quot;] = heartbeatResumeMs; d[&quot;minHoldMs&quot;] = proxMinHoldMs; d[&quot;proxMode&quot;] = proxMode; d[&quot;rcSub&quot;] = RC_SUB; d[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         String o; serializeJson(d, o); server.send(200, &quot;application/json&quot;, o);
     });
 
@@ -4062,6 +4519,7 @@ void loadProximityPrefsEarly() {
     proxCooldownMs = early.getInt(&quot;cooldownMs&quot;, 6000);
     proxArmMs      = early.getInt(&quot;armMs&quot;, 150);
     heartbeatResumeMs = early.getInt(&quot;hbResumeMs&quot;, 2000);
+    proxMinHoldMs  = early.getInt(&quot;minHoldMs&quot;, PROX_MIN_ALERT_MS_DEFAULT);
     proxTheremin = early.getInt(&quot;therm&quot;, 1) == 1;
     proxToneOn = early.getInt(&quot;thermTone&quot;, 0) == 1;
     proxCurve = early.getInt(&quot;proxCurve&quot;, 1);
@@ -4092,7 +4550,7 @@ void loop() {
         doc[&quot;t&quot;] = &quot;telemetry&quot;; doc[&quot;ts&quot;] = now; doc[&quot;seq&quot;] = seqNum;
         doc[&quot;nodeId&quot;] = stableNodeId; doc[&quot;slot&quot;] = nodeSlot;
         doc[&quot;heartbeatOn&quot;] = heartbeatEnabled;
-        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
+        doc[&quot;prox&quot;] = proxVal; doc[&quot;proxBase&quot;] = baseProx; doc[&quot;touchPin&quot;] = touchPin; doc[&quot;proxDelta&quot;] = abs(baseProx - proxVal); doc[&quot;proxThr&quot;] = effThreshProx; doc[&quot;proxThrSet&quot;] = threshProx; doc[&quot;proxNoiseFloor&quot;] = proxNoiseFloor; doc[&quot;proxField&quot;] = proxField; doc[&quot;theremin&quot;] = proxTheremin; doc[&quot;thermTone&quot;] = proxToneOn; doc[&quot;proxSpan&quot;] = proxSpan; doc[&quot;proxNoise&quot;] = proxNoise; doc[&quot;proxMode&quot;] = proxMode; doc[&quot;rcCharge&quot;] = rcCharge10; doc[&quot;rcBase&quot;] = rcBase10; doc[&quot;rcOk&quot;] = rcValid; doc[&quot;rcFault&quot;] = rcFault; doc[&quot;rcDrivePin&quot;] = activeRcDrivePin(); doc[&quot;rcBuzzerPinsSwapped&quot;] = rcBuzzerPinsSwapped; doc[&quot;rcSensePin&quot;] = RC_SENSE_PIN; doc[&quot;rcTimeoutUs&quot;] = rcTimeoutUs; doc[&quot;rcMarginX&quot;] = rcMarginMult; doc[&quot;rcMarginFloorUs&quot;] = rcMarginFloorUs; doc[&quot;lock&quot;] = fieldLock; doc[&quot;proxCurve&quot;] = proxCurve; doc[&quot;rcSub&quot;] = RC_SUB; doc[&quot;hbResumeMs&quot;] = heartbeatResumeMs; doc[&quot;minHoldMs&quot;] = proxMinHoldMs; doc[&quot;threshMax&quot;] = (proxMode == 1 ? 400 : 100);
         JsonObject mag = doc[&quot;mag&quot;].to&lt;JsonObject&gt;();
         mag[&quot;x&quot;] = magX; mag[&quot;y&quot;] = magY; mag[&quot;z&quot;] = magZ;
         doc[&quot;magDelta&quot;] = magDelta;      // live vector delta from baseline (LSB)
