@@ -434,7 +434,7 @@
       <div class="code-head"><span>specter_node.ino</span><button class="copy-btn" id="copyBtn" onclick="copyCode()">COPY CODE</button></div>
       <pre class="code"><code id="fw-code">/*
   ============================================================================
-  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.16.0-maker
+  SPECTER NODE -- MAKER EDITION  ·  ESP32  ·  firmware v2.16.1-maker
   ============================================================================
   Public build-your-own field-sensor pod for the SPECTER system.
 
@@ -836,7 +836,7 @@ fetch(&#x27;/update/status&#x27;).then(function(r){return r.json()}).then(functi
 )HTMLPAGE&quot;;
 
 // ---- identity / version ----
-#define FW_VERSION   &quot;2.16.0-maker&quot;
+#define FW_VERSION   &quot;2.16.1-maker&quot;
 #define DEVICE_TYPE  &quot;specter-node&quot;
 static char nodeName[32] = &quot;Node 1&quot;;
 static bool nodeNameCustom = false;
@@ -2358,6 +2358,7 @@ void hardwareTask(void* pv) {
                     diagAnimActive = false;
                     noTone(activeBuzzerPin());
                     ledIdle(); ledShow();
+                    heartbeatSuppressUntil = animNow + HEARTBEAT_SUPPRESS_MS;
                 } else {
                     float k = 1.0f - (float)re / (float)RELEASE_MS;
                     env = k * k;
@@ -2959,7 +2960,13 @@ void hardwareTask(void* pv) {
         // THEREMIN OVERLAY: continuous prox glow + pitch below the alert threshold,
         // so the node plays like a theremin. Runs only when NOTHING above painted
         // (no mag hit, no prox alert) and prox isn&#x27;t in its cooldown window.
-        if (proxTheremin &amp;&amp; bootBaselineDone &amp;&amp; !magPainting &amp;&amp; !proxPainting &amp;&amp; alertPhase == 0) {
+        // A producer-driven trigger/pattern/diag pulse (see the diagAnimActive
+        // block above) is its OWN paint source, same priority as a real mag/prox
+        // hit -- it must block the idle heartbeat exactly like magPainting/
+        // proxPainting do, or the heartbeat repaints over/right after the pulse&#x27;s
+        // own frame every cycle (the &quot;mag light obscured by heartbeat&quot; bug).
+        bool diagPainting = diagAnimActive;
+        if (proxTheremin &amp;&amp; bootBaselineDone &amp;&amp; !magPainting &amp;&amp; !proxPainting &amp;&amp; !diagPainting &amp;&amp; alertPhase == 0) {
             float fld = proxField / 100.0f;                 // 0..1
             if (fld &gt; 0.02f) {
                 renderProxFade(ledCfg.proxColor, 0.08f + fld * 1.05f);
@@ -2971,7 +2978,7 @@ void hardwareTask(void* pv) {
                 if (proxToneOn) noTone(activeBuzzerPin());
                 if (!magPainting &amp;&amp; !proxPainting) renderHeartbeat(nowMs);
             }
-        } else if (!magPainting &amp;&amp; !proxPainting &amp;&amp; alertPhase != 1) {
+        } else if (!magPainting &amp;&amp; !proxPainting &amp;&amp; !diagPainting &amp;&amp; alertPhase != 1) {
             // Nothing painting and not mid prox-alert: render optional heartbeat.
             renderHeartbeat(nowMs);
         }
