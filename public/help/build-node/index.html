@@ -2960,7 +2960,7 @@ void hardwareTask(void* pv) {
         // THEREMIN OVERLAY: continuous prox glow + pitch below the alert threshold,
         // so the node plays like a theremin. Runs only when NOTHING above painted
         // (no mag hit, no prox alert) and prox isn&#x27;t in its cooldown window.
-        // A producer-driven trigger/pattern/diag pulse (see the diagAnimActive
+        // A driven trigger/pattern/diag pulse from the paired app (see the diagAnimActive
         // block above) is its OWN paint source, same priority as a real mag/prox
         // hit -- it must block the idle heartbeat exactly like magPainting/
         // proxPainting do, or the heartbeat repaints over/right after the pulse&#x27;s
