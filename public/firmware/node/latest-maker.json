@@ -4,7 +4,7 @@
   "bin": "https://specter-imaging.com/firmware/node/SPECTER-Node-maker-2.16.1-maker.bin",
   "sha256": "ae25d0e3f7bcf9f1043250d02511995b49b516da2ff11763a053dd9686aa4e13",
   "size": 1250976,
-  "notes": "Maker build from 582e352",
-  "built": "2026-08-04T03:25:36Z",
-  "commit": "582e35293bb950e8ccaa140ec8c843554918bf62"
+  "notes": "Maker build from e9ec6f7",
+  "built": "2026-08-06T11:10:58Z",
+  "commit": "e9ec6f752e8d1387a819cb494184ac1cf0a1b0a4"
 }
