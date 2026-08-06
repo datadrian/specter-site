@@ -178,18 +178,24 @@
         <li>They're useful as B-roll of the live rig in action: the wall of feeds, the direction-finder radar, sensor sparklines updating in real time.</li>
       </ul>
       <p class="fine">If a feed recording looks like it's missing, check the screen-recordings subfolder inside <code>Specter</code> and confirm you pointed the app's Screen Recording folder there (step 4) so it's easy to locate.</p>
+
+      <div class="callout">
+        <strong>New: the Instrument Bay render.</strong> If the operator recorded a session where the Instrument Bay (the direction-finder radar and telemetry dashboards) was running, look for a second file next to the main screen recording named the same but ending in <code>.instrument-bay.mp4</code>. That's a rendered clip of the radar and telemetry, sharing the exact same global timecode as the main recording, so you can drop it onto the timeline at the same point and it lines up automatically with zero manual sync work. It's built for use as a synced picture-in-picture or split-screen layer alongside the main footage.
+      </div>
+      <p class="fine">If you only find a <code>.instrument-bay.ndjson</code> file with no matching <code>.mp4</code> next to it, that take was never rendered on the operator's end. That's just a raw telemetry log, not something you can drop on a timeline. Ask the operator to open <strong>Settings, Recording, Instrument Bay Recordings</strong> and render it before the next drop, or if you're in a hurry, they can render every pending take in one click with <strong>Queue All Pending</strong>.</p>
     </section>
 
     <section id="ipcameras">
-      <h2>10. IP CAMERA WALL EVIDENCE</h2>
-      <p>Some sessions add fixed IP cameras (for example a room-corner NVR camera) alongside the main instrument. When that happens, the day's drop can include detections captured from those cameras. In the gallery they look and behave like any other evidence item, with the camera name noted so you can tell them apart.</p>
+      <h2>10. IP CAMERA WALL EVIDENCE (LOREX / SECURITY CAMERAS)</h2>
+      <p>Most locations already have a security system running, and SPECTER hooks straight into it. When the operator has the <strong>IP Camera Wall</strong> connected to a Lorex NVR (or any RTSP/ONVIF camera setup), the day's drop can include detections from up to <strong>eight</strong> camera feeds at once, all running detection in parallel with the main instrument. This is a full second evidence source, not an occasional extra camera, so it's worth knowing what to expect from it.</p>
       <ul>
         <li>Each IP camera detection is its own gallery card with a still frame, timecode, and metadata, exactly like a main-feed detection.</li>
-        <li>When a sensor event fires while the camera wall is up, SPECTER captures every camera at that moment, so you may see several stills that share the same timecode from different cameras. Those are meant to be reviewed together as one event.</li>
-        <li>Look at the metadata panel for the camera label so you know which angle each still came from when you build the sequence.</li>
-        <li>When a hit fires on the camera wall, SPECTER bundles a frame from <strong>every</strong> camera into one detection. In the review view you can click through the <strong>camera layers</strong> (CAM 1, CAM 2 and so on) to see the same instant from each angle. The angle that flagged the event carries the red detection box; the others are clean reference frames. In the metadata this is the <code>camera_layers</code> list.</li>
+        <li>When a hit fires on the camera wall, SPECTER bundles a frame from <strong>every active camera</strong> in that session's layout into one detection, not just the camera that triggered. In the review view, click through the <strong>camera layers</strong> (CAM 1, CAM 2, and so on) to see the same instant from every angle. The angle that flagged the event carries the red detection box; the rest are clean reference frames. In the metadata this is the <code>camera_layers</code> list.</li>
+        <li>How many layers you'll see depends on how many cameras the operator had wired up that session, from a single feed up to all eight. Check the metadata panel or ask the operator if you need to know the layout for a given day.</li>
+        <li>Look at the metadata panel for the camera label on each layer so you know which angle is which when you build the sequence.</li>
+        <li><strong>Resolution:</strong> the live wall you'd see on set runs detection on a lower-resolution stream to keep things fast, but every saved evidence still is pulled from the camera's full-resolution main stream. Don't assume a camera-wall still is lower quality than a main-instrument capture; it isn't.</li>
       </ul>
-      <p class="fine">If the operator also screen-recorded the camera wall during the session, that MP4 lands in the screen-recordings folder (see the previous section) and is great B-roll of the multi-camera view.</p>
+      <p class="fine">If the operator also screen-recorded the camera wall during the session, that MP4 lands in the screen-recordings folder (see the previous section) and is great B-roll of the full multi-camera view, up to all eight feeds live at once.</p>
     </section>
 
     <section id="structure">

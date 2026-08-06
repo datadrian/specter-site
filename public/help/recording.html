@@ -63,6 +63,23 @@
       <p>If you set a project start timecode and frame rate in Settings (<code>Ctrl+Shift+G</code>), recordings and captures share that same global timecode. In addition to being burned into the video visually, this global timecode is permanently stamped directly into each clip's evidence metadata. This allows investigators to effortlessly align SPECTER footage with external cameras, environmental logging hardware, and audio recorders during post-investigation review. See the <a href="/help/field-guide.html#timecode">field guide</a> for details.</p>
     </section>
 
+    <section id="bay-recordings">
+      <h2>INSTRUMENT BAY RECORDINGS</h2>
+      <p>If you screen-record while the <strong>Instrument Bay</strong> display (the direction-finder radar and telemetry dashboards) is running, SPECTER automatically captures a synced telemetry log alongside your main recording, tracking every proximity and magnetic-vector reading for the whole take.</p>
+      <p>That log on its own is not a video. To turn it into an actual clip, use the new render queue:</p>
+      <ol class="steps">
+        <li>Open <strong>Settings</strong> (the gear) and go to the <strong>Recording</strong> tab.</li>
+        <li>Find <strong>Instrument Bay Recordings</strong> and click <strong>Open Render Queue</strong>.</li>
+        <li>Every take with a telemetry log is listed. Click <strong>Queue Render</strong> on one, or <strong>Queue All Pending</strong> to batch the whole backlog.</li>
+        <li>Watch it move through <strong>Queued &rarr; Rendering &rarr; Done</strong>. A live log tail shows while it renders.</li>
+      </ol>
+      <p>The rendered clip lands right next to your main recording, named the same but ending in <code>.instrument-bay.mp4</code>, and shares the exact same global timecode. Drop it onto your NLE timeline at the same point as the main footage and it lines up automatically, no manual sync required.</p>
+      <div class="callout ok">
+        Rendering pauses automatically while a new take is recording, so it never competes for resources with a live session, then resumes on its own the moment you stop.
+      </div>
+      <p class="fine">Something go wrong mid-render? It's marked <strong>Error</strong> with the reason shown right on the card, and a <strong>Retry Render</strong> button to try again. A render can also be cancelled mid-flight.</p>
+    </section>
+
     <section id="transcode">
       <h2>TRANSCODE PROGRESS</h2>
       <p>If the app has to fall back to a temporary WebM capture, it converts the file to MP4 after you stop. A <strong>transcode progress bar</strong> appears until the MP4 is ready. Do not close SPECTER until it finishes, or the final file may be incomplete.</p>
