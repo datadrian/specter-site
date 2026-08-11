@@ -47,8 +47,8 @@
         <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
         <tbody>
           <tr><td>"CONNECTING TO DEPTH SENSOR" overlay</td><td>Sensor booting or unplugged</td><td>Wait 5-10 s; check USB 3.0; replug the sensor; verify the SDK/service for Kinect.</td></tr>
-          <tr><td>DEPTH view black</td><td>No depth stream</td><td>Select the RealSense/Kinect source; check the performance preset isn't blocking depth.</td></tr>
-          <tr><td>3D view empty</td><td>Intrinsics not loaded</td><td>Restart the app; confirm the sidecar/bridge is running (RealSense).</td></tr>
+          <tr><td>DEPTH view black</td><td>No depth stream</td><td>Select the RealSense/Orbbec/Kinect source; check the performance preset isn't blocking depth.</td></tr>
+          <tr><td>3D view empty</td><td>Intrinsics not loaded</td><td>Restart the app; confirm the sidecar/bridge is running (RealSense or Orbbec).</td></tr>
           <tr><td><strong>Flickering</strong> brightness/colors in live depth</td><td>Old build</td><td>Update to the latest build (range smoothing fix). Keep RANGE near <strong>center</strong>.</td></tr>
           <tr><td>Close objects white, far black (or reverse)</td><td>RANGE slider off-center</td><td>Reset RANGE to <strong>50</strong> (center).</td></tr>
           <tr><td>Gallery DEPTH looks flat / wrong</td><td>Static PNG vs raw</td><td>Use the <strong>DEPTH</strong> layer (re-rendered), not an old screenshot; move RANGE.</td></tr>

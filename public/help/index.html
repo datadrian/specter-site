@@ -38,6 +38,7 @@
         <li><a href="#quick">Quick start checklist</a></li>
         <li><a href="#first-launch">First launch &amp; sensor selection</a></li>
         <li><a href="#realsense">Intel RealSense D435i</a></li>
+        <li><a href="#orbbec">Orbbec Gemini 335</a></li>
         <li><a href="#kinect">Microsoft Kinect v2</a></li>
         <li><a href="#webcam">Webcam / HDMI capture card</a></li>
         <li><a href="#detectors">Detectors &amp; demo mode</a></li>
@@ -72,7 +73,7 @@
       <h2>QUICK START CHECKLIST</h2>
       <ol class="steps">
         <li>Install SPECTER on a <strong>Windows 10/11</strong> field unit with USB 3.0 ports.</li>
-        <li>Plug in your depth sensor <strong>before</strong> launching the app (D435i or Kinect v2).</li>
+        <li>Plug in your depth sensor <strong>before</strong> launching the app (D435i, Orbbec Gemini 335, or Kinect v2).</li>
         <li>On first launch, pick your sensor type on the setup screen.</li>
         <li>Wait for the <strong>WARMING UP</strong> overlay to clear (RealSense sidecar, can take 30-90 seconds).</li>
         <li>Press <code>S</code> if you need to change source, always pick the <strong>sidecar</strong> entry for RealSense, never the bare UVC camera.</li>
@@ -114,6 +115,7 @@
       <ul>
         <li><strong>Kinect v2</strong>, depth + RGB + 25-joint body skeleton (Windows, Kinect SDK required).</li>
         <li><strong>Intel D435i</strong>, depth + RGB via the RealSense sidecar (recommended for most installs).</li>
+        <li><strong>Orbbec Gemini 335</strong>, depth + RGB + IMU via the Orbbec sidecar, no SDK to install.</li>
         <li><strong>Webcam / HDMI</strong>, RGB only, no depth views.</li>
       </ul>
       <div class="callout ok">
@@ -153,6 +155,36 @@
         <li>SPECTER retries silently; no action needed unless it exceeds several minutes.</li>
         <li>Try a different USB 3.0 port or cable.</li>
         <li>Reboot the field unit with the D435i already connected.</li>
+        <li>Settings → restart sidecar (if available) or relaunch SPECTER.</li>
+      </ul>
+
+      <h3>Depth views (DEPTH, point cloud, room map)</h3>
+      <p>Press <code>V</code> to cycle views. If you see “CONNECTING TO DEPTH SENSOR”, the sidecar is still booting or the device is unplugged.</p>
+    </section>
+
+    <section id="orbbec">
+      <h2>ORBBEC GEMINI 335</h2>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li>USB <strong>3.0</strong> port (blue port or SS marking), USB 2.0 will not stream reliably.</li>
+        <li>No SDK or driver install, the Gemini 335 runs over plain USB3 out of the box.</li>
+        <li>Gemini 335 plugged in directly, avoid unpowered hubs when troubleshooting.</li>
+      </ul>
+
+      <h3>Setup</h3>
+      <ol class="steps">
+        <li>Plug in the Orbbec Gemini 335 before launching SPECTER.</li>
+        <li>On first launch, choose <strong>ORBBEC GEMINI 335</strong> in the sensor picker (or switch to it later from the source menu, <strong>Change sensor type</strong>).</li>
+        <li>Select the RGB camera entry in the next step, as prompted.</li>
+        <li>Launch SPECTER, the sidecar starts automatically and shows <strong>WARMING UP</strong> until ready.</li>
+      </ol>
+
+      <h3>Warming up / no feed</h3>
+      <ul>
+        <li>The sidecar may take <strong>30-90 seconds</strong> on cold boot, this is normal.</li>
+        <li>Try a different USB 3.0 port or cable.</li>
+        <li>Reboot the field unit with the Gemini 335 already connected.</li>
         <li>Settings → restart sidecar (if available) or relaunch SPECTER.</li>
       </ul>
 
