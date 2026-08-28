@@ -84,11 +84,14 @@ async function listRecords() {
   return Array.from(mem.values()).sort((a, b) => new Date(b.purchasedAt || 0) - new Date(a.purchasedAt || 0));
 }
 
-async function mintAndSave({ email, type, note, stripeSessionId, replacementFor }) {
-  const key = mintLicenseKey(process.env.LICENSE_SALT);
+async function mintAndSave({ email, type, note, stripeSessionId, replacementFor, product = 'imaging', purchaseProduct = null }) {
+  const normalizedProduct = product === 'sdr' ? 'sdr' : 'imaging';
+  const key = mintLicenseKey(process.env.LICENSE_SALT, normalizedProduct);
   const record = {
     key,
     email: String(email || '').trim().toLowerCase() || null,
+    product: normalizedProduct,
+    purchaseProduct: purchaseProduct || normalizedProduct,
     machineId: null,
     type: type || 'retail',
     note: note || null,
@@ -111,6 +114,8 @@ async function getStats() {
     comp: all.filter(r => r.type === 'comp').length,
     dev: all.filter(r => r.type === 'dev').length,
     replacement: all.filter(r => r.type === 'replacement').length,
+    imaging: all.filter(r => (r.product || 'imaging') === 'imaging').length,
+    sdr: all.filter(r => r.product === 'sdr').length,
   };
 }
 

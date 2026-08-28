@@ -64,7 +64,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>Key</th><th>Type</th><th>Email</th><th>Machine</th><th>Created</th><th>Activated</th><th>Note</th><th></th>
+                  <th>Key</th><th>Product</th><th>Type</th><th>Email</th><th>Machine</th><th>Created</th><th>Activated</th><th>Note</th><th></th>
                 </tr>
               </thead>
               <tbody id="licenses-body"></tbody>
@@ -97,6 +97,8 @@
             <input type="email" id="mint-email" placeholder="reviewer@example.com">
             <label style="font-size:10px;color:var(--muted)">Note (internal)</label>
             <input type="text" id="mint-note" placeholder="Note (optional)">
+            <label style="font-size:10px;color:var(--muted)">Product</label>
+            <select id="mint-product"><option value="imaging">SPECTER Imaging (SPTR)</option><option value="sdr">SPECTER SDR (SSDR)</option></select>
             <label style="font-size:10px;color:var(--muted)">Type</label>
             <select id="mint-type">
               <option value="comp">Comp / review</option>
@@ -112,7 +114,7 @@
           <p style="font-size:11px;color:var(--muted)">For customers who already bought SPECTER and need a fresh key for a new machine or recovery. Enter the original key if available, or the purchase email.</p>
           <div class="toolbar" style="flex-direction:column;align-items:stretch;max-width:520px">
             <label style="font-size:10px;color:var(--muted)">Original license key (preferred)</label>
-            <input type="text" id="replace-original-key" placeholder="SPTR-XXXX-XXXX-XXXX-XXXX">
+            <input type="text" id="replace-original-key" placeholder="SPTR-XXXX-XXXX-XXXX-XXXX or SSDR-XXXX-XXXX-XXXX-XXXX">
             <label style="font-size:10px;color:var(--muted)">Purchase email (used if key is blank)</label>
             <input type="email" id="replace-email" placeholder="buyer@example.com">
             <label style="font-size:10px;color:var(--muted)">Reason / note</label>

@@ -11,7 +11,7 @@ const SPECTER_POSITIONING = `SPECTER is a paranormal-investigation instrument (h
 captures and analyzes environmental evidence — depth/3D sensing, RGB, thermal imaging, EVP audio capture,
 a wireless field sensor node, and remote phone monitoring — fused into a live anomaly score and a
 searchable evidence archive. It is sold as a detection and evidence-capture instrument for investigators
-and enthusiasts, one-time license, $399.`;
+and enthusiasts, one-time license, $199.`;
 
 const FORBIDDEN_NOTE = `Never mention or hint at, under any phrasing: ${FORBIDDEN_TERMS.join(', ')}, or any
 other hidden/producer-only feature. SPECTER is described ONLY as a detection/evidence-capture instrument.`;

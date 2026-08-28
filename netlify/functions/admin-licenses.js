@@ -30,6 +30,8 @@ exports.handler = async (event) => {
       licenses: records.map(r => ({
         key: r.key,
         email: r.email,
+        product: r.product || 'imaging',
+        purchaseProduct: r.purchaseProduct || r.product || 'imaging',
         type: r.type || 'retail',
         note: r.note,
         machineId: r.machineId ? `${r.machineId.slice(0, 8)}…` : null,
@@ -67,6 +69,8 @@ exports.handler = async (event) => {
         type: 'replacement',
         note,
         replacementFor: original.key,
+        product: original.product || 'imaging',
+        purchaseProduct: original.purchaseProduct || original.product || 'imaging',
       });
 
       const updatedOriginal = {
@@ -80,7 +84,7 @@ exports.handler = async (event) => {
       let emailSent = false;
       if (record.email) {
         try {
-          await sendLicenseEmail({ to: record.email, key: record.key, type: record.type });
+          await sendLicenseEmail({ to: record.email, key: record.key, type: record.type, product: record.product || 'imaging' });
           emailSent = true;
         } catch (e) {
           console.error('[admin-licenses] replacement email failed:', e.message);
@@ -101,9 +105,11 @@ exports.handler = async (event) => {
     }
 
     const type = body.type === 'dev' ? 'dev' : 'comp';
+    const product = body.product === 'sdr' ? 'sdr' : 'imaging';
     const record = await mintAndSave({
       email: body.email,
       type,
+      product,
       note: body.note || (type === 'comp' ? 'Complimentary key' : 'Dev key'),
     });
 

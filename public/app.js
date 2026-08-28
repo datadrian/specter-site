@@ -32,30 +32,29 @@ if (demoForm) {
 }
 
 // ---- STRIPE CHECKOUT ----
-const checkoutBtn = document.getElementById('checkoutBtn');
-if (checkoutBtn) {
-  checkoutBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    checkoutBtn.textContent = 'INITIALIZING...';
-    checkoutBtn.style.pointerEvents = 'none';
-    try {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error('No URL returned');
-      }
-    } catch {
-      checkoutBtn.textContent = 'ACQUIRE LICENSE, $399';
-      checkoutBtn.style.pointerEvents = 'auto';
-      alert('Checkout failed to initialize. Please try again.');
-    }
-  });
-}
+const checkoutButtons = document.querySelectorAll('[data-checkout-product]');
+checkoutButtons.forEach((checkoutBtn) => checkoutBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const original = checkoutBtn.textContent;
+  checkoutBtn.textContent = 'INITIALIZING...';
+  checkoutBtn.style.pointerEvents = 'none';
+  checkoutBtn.disabled = true;
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product: checkoutBtn.dataset.checkoutProduct || 'imaging' }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) throw new Error(data.error || 'No checkout URL returned');
+    window.location.href = data.url;
+  } catch (error) {
+    checkoutBtn.textContent = original;
+    checkoutBtn.style.pointerEvents = 'auto';
+    checkoutBtn.disabled = false;
+    alert(error.message || 'Checkout failed to initialize. Please try again.');
+  }
+}));
 
 /* ---- SCREENSHOT LIGHTBOX ---- */
 (function () {

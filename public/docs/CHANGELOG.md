@@ -31,4 +31,4 @@ _Operator-facing changelog. June 2026._
 
 ## Demo & licensing
 - **10-minute demo** per machine install, full UI.
-- **$399** one-time license per machine unlocks unlimited sessions and the licensed session program.
+- **$199** one-time license per machine unlocks unlimited sessions and the licensed session program.

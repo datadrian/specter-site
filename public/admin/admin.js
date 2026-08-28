@@ -207,6 +207,8 @@
       <div class="stat"><div class="stat-n">${s.total}</div><div class="stat-l">TOTAL KEYS</div></div>
       <div class="stat"><div class="stat-n">${s.activated}</div><div class="stat-l">ACTIVATED</div></div>
       <div class="stat"><div class="stat-n">${s.unactivated}</div><div class="stat-l">UNACTIVATED</div></div>
+      <div class="stat"><div class="stat-n">${s.imaging || 0}</div><div class="stat-l">IMAGING KEYS</div></div>
+      <div class="stat"><div class="stat-n">${s.sdr || 0}</div><div class="stat-l">SDR KEYS</div></div>
       <div class="stat"><div class="stat-n">${s.comp}</div><div class="stat-l">COMP KEYS</div></div>
       <div class="stat"><div class="stat-n">${s.replacement || 0}</div><div class="stat-l">REPLACEMENTS</div></div>
       <div class="stat"><div class="stat-n">${t.open}</div><div class="stat-l">OPEN TICKETS</div></div>
@@ -228,11 +230,12 @@
   function renderLicenses() {
     const q = ($('license-search').value || '').toLowerCase();
     const rows = licensesCache.filter(r =>
-      !q || (r.email || '').toLowerCase().includes(q) || (r.key || '').toLowerCase().includes(q)
+      !q || (r.email || '').toLowerCase().includes(q) || (r.key || '').toLowerCase().includes(q) || (r.product || 'imaging').includes(q)
     );
     $('licenses-body').innerHTML = rows.map(r => `
       <tr>
         <td><code>${r.key}</code></td>
+        <td><span class="badge">${(r.product || 'imaging').toUpperCase()}</span></td>
         <td><span class="badge ${r.type || 'retail'}">${r.type || 'retail'}</span></td>
         <td>${esc(r.email || '-')}</td>
         <td>${r.machineId || '-'}</td>
@@ -245,7 +248,7 @@
             : `<button type="button" class="btn secondary" data-replace-key="${r.key}" data-replace-email="${escAttr(r.email || '')}">Replace</button>`}
         </td>
       </tr>
-    `).join('') || '<tr><td colspan="8">No licenses yet</td></tr>';
+    `).join('') || '<tr><td colspan="9">No licenses yet</td></tr>';
 
     $('licenses-body').querySelectorAll('[data-replace-key]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -343,11 +346,12 @@
         email: $('mint-email').value.trim() || undefined,
         note: $('mint-note').value.trim(),
         type: $('mint-type').value,
+        product: $('mint-product').value,
       }),
     });
     const box = $('mint-result');
     box.classList.remove('hidden');
-    box.innerHTML = `<strong>Key:</strong> <code>${data.license.key}</code><br>
+    box.innerHTML = `<strong>Product:</strong> ${(data.license.product || 'imaging').toUpperCase()}<br><strong>Key:</strong> <code>${data.license.key}</code><br>
       ${data.emailSent ? 'Emailed to recipient.' : 'Copy the key, no email sent.'}`;
     loadDashboard();
   });
@@ -379,7 +383,7 @@
       });
 
       box.classList.remove('hidden');
-      box.innerHTML = `<strong>Replacement key:</strong> <code>${data.license.key}</code><br>
+      box.innerHTML = `<strong>Product:</strong> ${(data.license.product || 'imaging').toUpperCase()}<br><strong>Replacement key:</strong> <code>${data.license.key}</code><br>
         <strong>Original:</strong> <code>${data.original.key}</code><br>
         ${data.emailSent ? 'Emailed to purchaser.' : 'Copy the key, email was not sent.'}`;
 

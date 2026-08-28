@@ -1,69 +1,51 @@
 const Stripe = require('stripe');
+const { json, corsPreflight, readJson } = require('./_lib/http');
+
+const PRODUCTS = Object.freeze({
+  imaging: { name: 'SPECTER Imaging License', amount: 19900, env: 'STRIPE_PRICE_IMAGING_ID', legacyEnv: 'STRIPE_PRICE_ID', description: 'Permanent single-device SPECTER Imaging activation.' },
+  sdr: { name: 'SPECTER SDR License', amount: 19900, env: 'STRIPE_PRICE_SDR_ID', description: 'Permanent single-device SPECTER SDR activation.' },
+  bundle: { name: 'SPECTER Complete Bundle', amount: 34900, env: 'STRIPE_PRICE_BUNDLE_ID', description: 'Permanent SPECTER Imaging and SPECTER SDR activations.' },
+});
+
+function priceIdFor(product) {
+  const spec = PRODUCTS[product];
+  const configured = String(process.env[spec.env] || (spec.legacyEnv ? process.env[spec.legacyEnv] : '') || '').trim();
+  return configured.startsWith('price_') ? configured : '';
+}
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
-  }
-
+  if (event.httpMethod === 'OPTIONS') return corsPreflight();
+  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
   const secret = process.env.STRIPE_SECRET_KEY;
-  const configuredPriceId = String(process.env.STRIPE_PRICE_ID || '').trim();
-  const priceId = configuredPriceId.startsWith('price_') ? configuredPriceId : '';
-  const siteUrl = process.env.SITE_URL || process.env.URL || 'https://specter-imaging.com';
+  if (!secret) return json(503, { error: 'Stripe not configured.' });
 
-  if (!secret) {
-    return {
-      statusCode: 503,
-      body: JSON.stringify({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY on Netlify.' }),
-    };
-  }
+  const body = readJson(event);
+  const product = Object.hasOwn(PRODUCTS, body.product) ? body.product : 'imaging';
+  const spec = PRODUCTS[product];
+  const priceId = priceIdFor(product);
+  const imagingUrl = process.env.SITE_URL || process.env.URL || 'https://specter-imaging.com';
+  const sdrUrl = process.env.SDR_SITE_URL || 'https://specter-sdr.netlify.app';
+  const returnUrl = product === 'sdr' ? sdrUrl : imagingUrl;
+  const email = String(body.email || '').trim();
 
-  let email = '';
+  const lineItems = priceId ? [{ price: priceId, quantity: 1 }] : [{
+    price_data: { currency: 'usd', unit_amount: spec.amount, product_data: { name: spec.name, description: spec.description } },
+    quantity: 1,
+  }];
+
   try {
-    email = JSON.parse(event.body || '{}').email || '';
-  } catch (_) {}
-
-  const stripe = Stripe(secret);
-  if (configuredPriceId && !priceId) {
-    console.warn('[create-checkout] Ignoring STRIPE_PRICE_ID because it is not a price_ ID:', configuredPriceId);
-  }
-
-  const lineItems = priceId
-    ? [{ price: priceId, quantity: 1 }]
-    : [{
-        price_data: {
-          currency: 'usd',
-          unit_amount: 39900,
-          product_data: {
-            name: 'SPECTER // FIELD LICENSE',
-            description: 'Single-device permanent activation. Key delivered by email.',
-          },
-        },
-        quantity: 1,
-      }];
-
-  let session;
-  try {
-    session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      customer_email: email || undefined,
+    const session = await Stripe(secret).checkout.sessions.create({
+      mode: 'payment', payment_method_types: ['card'], customer_email: email || undefined,
       line_items: lineItems,
-      success_url: `${siteUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/#pricing`,
-      metadata: { product: 'specter-license' },
+      success_url: `${returnUrl}/success.html?product=${product}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${returnUrl}/#pricing`,
+      metadata: { product: `specter-${product}` },
     });
-  } catch (err) {
-    console.error('[create-checkout] Stripe session failed:', err.message);
-    return {
-      statusCode: 502,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Checkout failed to initialize. Please try again or contact support.' }),
-    };
+    return json(200, { url: session.url });
+  } catch (error) {
+    console.error('[create-checkout] Stripe session failed:', error.message);
+    return json(502, { error: 'Checkout failed to initialize. Please try again or contact support.' });
   }
-
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url: session.url }),
-  };
 };
+
+exports.PRODUCTS = PRODUCTS;
