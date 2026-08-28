@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://specter-sdr.netlify.app/sitemap.xml

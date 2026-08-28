@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPECTER SDR | Multi-Receiver Spectrum Workstation</title>
+  <meta name="description" content="SPECTER SDR is a professional Windows spectrum workstation for up to eight RTL-SDR receivers, with validated digital decoding, adaptive pattern recognition, automated RF search, array bearing inference, recording, ADS-B monitoring, and local evidence reports.">
+  <meta name="theme-color" content="#070a0f">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SPECTER SDR | Multi-Receiver Spectrum Workstation">
+  <meta property="og:description" content="One workstation for digital decoding, automated RF search, pattern recognition, multi-radio analysis, recording, and ADS-B traffic.">
+  <meta property="og:image" content="/assets/screenshots/specter-sdr-workstation.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SPECTER SDR",
+    "applicationCategory": "Radio spectrum analysis software",
+    "operatingSystem": "Windows 10, Windows 11",
+    "description": "Multi-receiver RTL-SDR spectrum workstation with validated digital decoding, spectrum, waterfall, automated search, pattern recognition, recording, bearing inference, and ADS-B monitoring.",
+    "offers": { "@type": "Offer", "price": "199", "priceCurrency": "USD" }
+  }
+  </script>
+  <link rel="stylesheet" href="site.css">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#top">SPECTER <span>SDR</span><small>// SIGNAL INTELLIGENCE WORKSTATION</small></a>
+      <div class="nav-links">
+        <a href="#capabilities">CAPABILITIES</a>
+        <a href="#decoder-lab">DECODERS</a>
+        <a href="#array">ARRAY</a>
+        <a href="#recording">RECORDING</a>
+        <a href="#aircraft">AIRCRAFT</a>
+        <a href="#pricing" class="nav-cta">$199 LICENSE</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="grid-bg"></div>
+      <div class="scanlines"></div>
+      <div class="hero-copy">
+        <div class="eyebrow">MULTI-RECEIVER SPECTRUM WORKSTATION</div>
+        <h1>SPECTER <span>SDR</span></h1>
+        <p class="hero-kicker">SEE THE BAND. HEAR THE SIGNAL. TRACK THE SOURCE.</p>
+        <p class="hero-desc">A focused Windows workstation for operating one to eight RTL-SDR receivers as a coordinated radio array. Decode validated digital traffic, monitor spectrum and waterfall activity, divide full-range sweeps across an array, automate multi-band searches, recognize unusual signal patterns, correlate simultaneous events, and preserve the evidence locally.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#capabilities">EXPLORE THE WORKSTATION</a>
+          <a class="btn-ghost" href="#pricing">VIEW LICENSING</a>
+        </div>
+        <div class="stats">
+          <div><strong>1-8</strong><span>RECEIVERS</span></div>
+          <i></i><div><strong>30</strong><span>FPS / RECEIVER</span></div>
+          <i></i><div><strong>13</strong><span>PROTOCOL FAMILIES</span></div>
+          <i></i><div><strong>$199</strong><span>ONE TIME</span></div>
+        </div>
+      </div>
+      <figure class="hero-shot">
+        <div class="shot-chrome"><span>LIVE ARRAY // FIVE RECEIVERS</span><span>LOCAL PROCESSING</span></div>
+        <img src="/assets/screenshots/specter-sdr-workstation.png" alt="SPECTER SDR multi-receiver workstation showing five stacked spectrum and waterfall panels with radio controls" width="1280" height="920">
+        <figcaption>STACKED RECEIVER WORKSPACE // SPECTRUM + WATERFALL + BAND PLAN</figcaption>
+      </figure>
+    </section>
+
+    <section class="intro section">
+      <div class="container narrow">
+        <div class="section-tag">// ONE RADIO DESK, EVERY RECEIVER</div>
+        <h2>Stop operating your array one dongle at a time.</h2>
+        <p>SPECTER SDR treats every connected receiver as part of one instrument. Each radio keeps its own tuning, gain, antenna role, bearing, squelch, DSP calibration, waveform holds, and recording tracks while the workstation gives you one synchronized operational view.</p>
+      </div>
+    </section>
+
+    <section class="section" id="capabilities">
+      <div class="container">
+        <div class="section-tag">// CORE CAPABILITIES</div>
+        <h2>A complete spectrum operations desk.</h2>
+        <p class="section-sub">Real controls, real local processing, and a workflow built for long monitoring sessions rather than quick single-radio checks.</p>
+        <div class="feature-grid">
+          <article><b>01</b><h3>STACKED LIVE WORKSPACES</h3><p>Every receiver gets its own spectrum, band plan, waterfall, signal meter, tuning state, hold controls, and focus mode.</p></article>
+          <article><b>02</b><h3>FULL DEMODULATION</h3><p>NFM, WFM, AM, DSB, LSB, USB, CW, and RAW modes with bandwidth, filter, shift, gain, squelch, and calibration controls.</p></article>
+          <article><b>03</b><h3>ARRAY CORRELATION</h3><p>Compare simultaneous events across antennas, infer direction from amplitude relationships, and flag movement across the array.</p></article>
+          <article><b>04</b><h3>WAVEFORM HOLDS</h3><p>Define frequency ranges and dB-over-floor thresholds per receiver, preserve peaks, and clear individual or array-wide holds.</p></article>
+          <article><b>05</b><h3>MULTI-CHANNEL AUDIO</h3><p>Hear every active receiver through one mixer with channel volume, mute, solo, live meters, and a master output.</p></article>
+          <article><b>06</b><h3>QUALIFIED ALERTS</h3><p>Build Notice, Alert, and Critical classes by threshold and band, then capture synchronized waveform evidence when they fire.</p></article>
+          <article><b>07</b><h3>AGGREGATE FULL-RANGE VIEW</h3><p>Split 24-1766 MHz across the connected array and stitch each receiver slice into one faster combined spectrum and waterfall.</p></article>
+          <article><b>08</b><h3>GPU DISPLAY ENGINE</h3><p>Render spectrum interpolation and waterfall palettes through WebGL2, with automatic high-performance canvas fallback.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section decoder-showcase" id="decoder-lab">
+      <div class="container split decoder-split">
+        <div>
+          <div class="section-tag">// DECODER LAB</div>
+          <h2>Decode the signal before you call it unknown.</h2>
+          <p>Decoder Lab is a primary workstation view, not an add-on. It validates Mode-S and ADS-B aircraft telemetry, AX.25 and APRS, POCSAG paging, and NOAA SAME weather alerts. Optional verified installers are available for AIS-catcher, rtl_433, and SatDump profiles.</p>
+          <ul class="signal-list">
+            <li>Five built-in live protocol profiles with checksum or frame validation</li>
+            <li>Source, destination, payload summary, frequency, receiver, and time</li>
+            <li>Verified one-click installers for supported third-party Windows engines</li>
+            <li>Clear separation between live decodes, installed engines, and band-only recognition</li>
+          </ul>
+          <a class='inline-link' href='/help/signal-intelligence'>READ THE DECODER AND SIGNAL INTELLIGENCE GUIDE</a>
+        </div>
+        <div class="decoder-console" aria-label="Stylized Decoder Lab packet display">
+          <header><span>DECODER LAB // LIVE</span><b>5 BUILT-IN PROFILES</b></header>
+          <article><div><strong>MODE-S / ADS-B</strong><span>DECODED</span></div><h3>UAL218 · ICAO A4B921</h3><p>1090.000000 MHz · ALT 28,900 FT · 446 KT · HDG 071°</p></article>
+          <article><div><strong>AX.25 / APRS</strong><span>VALID FCS</span></div><h3>N0CALL-1 → APRS</h3><p>144.390000 MHz · POSITION / STATUS FRAME</p></article>
+          <article class="candidate"><div><strong>RADIOSONDE TELEMETRY</strong><span>CANDIDATE</span></div><h3>402.700000 MHz</h3><p>Recognized band. No validated protocol frame yet.</p></article>
+          <footer>VALIDATED DECODES AND CANDIDATES ARE NEVER PRESENTED AS THE SAME THING</footer>
+        </div>
+      </div>
+    </section>
+
+    <section class="section split-section" id="array">
+      <div class="container split">
+        <div>
+          <div class="section-tag">// ROSEBUD ARRAY VIEW</div>
+          <h2>Turn separate antennas into one directional display.</h2>
+          <p>Assign names, physical slots, antenna types, and bearings, then move the array to a dedicated Rosebud window or second display. One receiver renders as a full 360-degree waterfall; larger arrays add comparative direction and confidence.</p>
+          <ul class="signal-list">
+            <li>One to eight receiver layouts</li>
+            <li>Omnidirectional, directional, and vertical reference roles</li>
+            <li>Inferred bearing and movement indicators</li>
+            <li>Touch and stylus annotation with PNG export</li>
+          </ul>
+        </div>
+        <div class="radar-card" aria-label="Stylized directional array diagram">
+          <div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div>
+          <div class="radar-axis horizontal"></div><div class="radar-axis vertical"></div>
+          <div class="bearing-beam"></div><div class="radar-core">72°<small>INFERRED</small></div>
+          <span class="north">N</span><span class="east">E</span><span class="south">S</span><span class="west">W</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="recording">
+      <div class="container">
+        <div class="section-tag">// SYNCHRONIZED EVIDENCE</div>
+        <h2>Record the session, not just the moment.</h2>
+        <div class="workflow">
+          <article><span>01</span><h3>CAPTURE</h3><p>Record one workspace or Rosebud composite, lossless timestamped spectrum tracks, and per-receiver BWF audio without spawning one video encoder per dongle.</p></article>
+          <article><span>02</span><h3>FLAG</h3><p>Drop event markers during the run. Alert classes automatically preserve frequency-labeled waveforms and synchronized array views.</p></article>
+          <article><span>03</span><h3>REVIEW</h3><p>Replay post-roll clips, navigate the timeline, export selected ranges, and open the exact saved Gallery event from the alert dialog.</p></article>
+          <article><span>04</span><h3>REPORT</h3><p>Generate printable HTML and PDF alert reports with signal metadata, session context, and embedded spectrum and waterfall evidence.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section aircraft" id="aircraft">
+      <div class="container split aircraft-grid">
+        <div class="aircraft-map" aria-hidden="true">
+          <div class="map-grid"></div>
+          <div class="plane p1">✈<small>N431SX<br>12,400 FT</small></div>
+          <div class="plane p2">✈<small>UAL218<br>28,900 FT</small></div>
+          <div class="plane p3">✈<small>SKY72<br>7,650 FT</small></div>
+          <div class="range-circle"></div>
+        </div>
+        <div>
+          <div class="section-tag">// 1090 MHZ ADS-B</div>
+          <h2>Keep aircraft context beside the spectrum.</h2>
+          <p>Reserve one receiver for continuous ADS-B monitoring or let periodic mode borrow an assigned radio for a 10-second check every minute. Traffic extends the window to 15 seconds, then the receiver returns to its previous tuning automatically.</p>
+          <ul class="signal-list">
+            <li>OpenStreetMap view with cursor zoom, pan, trails, and persistent manual framing</li>
+            <li>Callsign, ICAO, altitude, heading, speed, and position-pending contacts</li>
+            <li>Dedicated and periodic receiver modes</li>
+            <li>New-contact and persistent emergency-state alerts</li>
+            <li>Windows location support with manual coordinate fallback</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section research-showcase" id="research">
+      <div class="container">
+        <div class="section-tag">// OPT-IN ADVANCED RESEARCH</div>
+        <h2>Automate the search. Preserve the reasoning.</h2>
+        <p class="section-sub">Research Labs stays out of the normal workflow until enabled. When active, it learns the local RF environment, distributes search bands across available radios, and checks qualified events against ordinary explanations.</p>
+        <div class="research-feature-grid">
+          <article><b>PATTERN HUNTER</b><h3>ADAPTIVE BASELINE</h3><p>Learns each receiver's normal spectrum and flags explainable novelty, chirps, Doppler-like drift, hopping behavior, periodic bursts, and wideband events.</p></article>
+          <article><b>SEARCH DIRECTOR</b><h3>MULTI-RADIO SURVEY</h3><p>Assigns aerospace, digital discovery, or wide survey ranges across idle receivers, alternates sweep direction, and restores saved tuning when stopped.</p></article>
+          <article><b>SKYWATCH CORRELATOR</b><h3>CONTEXT CHECKS</h3><p>Compares findings with known protocol bands, live aircraft, visible satellites, array confirmation, bearing, and apparent movement before assigning a review status.</p></article>
+        </div>
+        <div class="research-disclaimer">A research score is an evidence-prioritization value, not a probability and not a claim about an object's identity or cause.</div>
+      </div>
+    </section>
+
+    <section class="section local-first">
+      <div class="container narrow">
+        <div class="section-tag">// LOCAL FIRST</div>
+        <h2>Your radios and recordings stay on your machine.</h2>
+        <p>No cloud service is required for receiver control, decoding, pattern analysis, alerting, correlation, recording, reports, or the local evidence library. Optional map tiles and satellite catalog updates use OpenStreetMap and CelesTrak when those features are requested. SPECTER Imaging integration is optional and limited to local alert and trigger handoff.</p>
+      </div>
+    </section>
+
+    <section class="section requirements">
+      <div class="container">
+        <div class="section-tag">// HARDWARE</div>
+        <h2>Start with one receiver. Build to eight.</h2>
+        <div class="requirements-grid">
+          <div><strong>WINDOWS</strong><span>Windows 10 or 11, 64-bit</span></div>
+          <div><strong>RADIOS</strong><span>One to eight RTL-SDR compatible receivers</span></div>
+          <div><strong>USB</strong><span>Powered hubs recommended for multi-radio arrays</span></div>
+          <div><strong>ANTENNAS</strong><span>Matched antennas and feed lines recommended for correlation</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pricing" id="pricing">
+      <div class="container">
+        <div class="section-tag">// LICENSING</div>
+        <h2>Permanent workstation license.</h2>
+        <p class="section-sub">No subscription and no required cloud service.</p>
+        <div class="price-layout">
+          <article class="price-card primary-card">
+            <div class="price-head"><span>SPECTER SDR</span><strong>$199<small>one time</small></strong></div>
+            <ul>
+              <li>Complete one to eight receiver workstation</li>
+              <li>All demodulation and DSP controls</li>
+              <li>Decoder Lab with validated ADS-B and AX.25/APRS decoding</li>
+              <li>Pattern Hunter, Search Director, and Skywatch correlation</li>
+              <li>Rosebud array and second-display modes</li>
+              <li>Continuous recording and event capture</li>
+              <li>ADS-B dedicated and periodic monitoring</li>
+              <li>Local Gallery, replay, export, and reports</li>
+              <li>Optional local SPECTER Imaging integration</li>
+            </ul>
+            <button class="btn-primary" type="button" data-checkout-product="sdr">ACQUIRE SPECTER SDR - $199</button>
+          </article>
+          <aside class="bundle-card">
+            <div class="bundle-tag">SPECTER FAMILY BUNDLE</div>
+            <h3>SPECTER IMAGING + SPECTER SDR</h3>
+            <div class="bundle-price"><s>$398</s><strong>$349</strong></div>
+            <p>Two separate applications. One optional local alert and trigger bridge. Purchase both together and save $49.</p>
+            <button class="btn-ghost" type="button" data-checkout-product="bundle">ACQUIRE BOTH - $349</button>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">SPECTER <span>SDR</span></div>
+      <div><a href='/download'>DOWNLOAD</a> // <a href="/help/">HELP</a> // <a href='/support'>SUPPORT</a> // <a href='/privacy'>PRIVACY</a></div>
+      <div>© 2026 SPECTER. ALL RIGHTS RESERVED.</div>
+    </div>
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>

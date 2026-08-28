@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Decoder and Signal Intelligence | SPECTER SDR Help</title><meta name="description" content="Operate Decoder Lab, Pattern Hunter, Search Director, and Skywatch Correlator in SPECTER SDR."><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/docs.css"><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"></head>
+<body><nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href='/download'>DOWNLOAD</a><a href='/support'>SUPPORT</a><a href="/help/" class="nav-cta">HELP</a></div></div></nav>
+<header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>Decoder and Signal Intelligence</h1><p>Use Decoder Lab for validated digital traffic, then automate wider searches with Pattern Hunter, Search Director, and Skywatch Correlator.</p></div></header>
+<main class="container docs-layout"><aside class="docs-nav"><strong>HOW TO + HELP</strong><a href='/help/'>Help overview</a><a href='/help/getting-started'>Getting started</a><a href='/help/receiver-setup'>Receiver setup</a><a href='/help/workstation'>Workstation controls</a><a class='active' href='/help/signal-intelligence'>Decoder and signal intelligence</a><a href='/help/array-setup'>Array and Rosebud</a><a href='/help/recording-alerts'>Recording and alerts</a><a href='/help/adsb'>ADS-B aircraft</a><a href='/help/imaging-integration'>Imaging integration</a><a href='/help/licensing'>Licensing</a><a href='/help/troubleshooting'>Troubleshooting</a></aside>
+<article class="docs-content">
+<h2>Decoder Lab and Research Labs</h2>
+<p>Decoder Lab handles known protocols and live packet output. Research Labs is optional and adds adaptive pattern discovery, distributed searching, and contextual checks.</p>
+<div class="callout">A decoded packet, a recognized allocation, and an unresolved pattern are different results. SPECTER SDR labels them separately and does not present a frequency match as a validated decode.</div>
+<h2>Open Decoder Lab</h2>
+<p>Press <strong>DECODER LAB</strong>, select a protocol, receiver, and frequency, then review the antenna guidance. The workstation warns when the selected receiver's configured antenna role is a poor match.</p>
+<h3>Built-in live decoders</h3>
+<table class="spec-table"><tr><th>Protocol</th><th>Typical frequency</th><th>Validation</th></tr><tr><td>Mode-S / ADS-B</td><td>1090 MHz</td><td>CRC-validated aircraft frames</td></tr><tr><td>APRS North America</td><td>144.390 MHz</td><td>AX.25 frame-check sequence</td></tr><tr><td>APRS International</td><td>144.800 / 145.175 MHz</td><td>AX.25 frame-check sequence</td></tr><tr><td>Paging / POCSAG</td><td>Regional VHF/UHF</td><td>BCH and message structure</td></tr><tr><td>NOAA Weather Radio / SAME</td><td>162.400-162.550 MHz</td><td>SAME header validation</td></tr></table>
+<h3>Optional decoder engines</h3>
+<p>Some profiles require separate open-source tools. When an official Windows build exists, <strong>INSTALL ENGINE</strong> downloads it from the project's official GitHub release, verifies a pinned SHA-256 digest, and extracts it locally. Nothing downloads until the operator presses the button.</p>
+<table class="spec-table"><tr><th>Protocol</th><th>Engine</th><th>Windows install</th></tr><tr><td>AIS Marine</td><td>AIS-catcher</td><td>One-click installer</td></tr><tr><td>315 / 433 / 868 / 915 MHz devices</td><td>rtl_433</td><td>One-click installer</td></tr><tr><td>NOAA APT weather satellite</td><td>SatDump</td><td>One-click installer</td></tr><tr><td>ACARS VHF</td><td>acarsdec</td><td>No official Windows build</td></tr><tr><td>Radiosonde telemetry</td><td>radiosonde_auto_rx</td><td>Linux or Docker only</td></tr></table>
+<div class="callout warning"><strong>Current engine status:</strong> installation and checksum verification are complete, but live engine output is not yet wired into the Decoder Lab packet feed. Installed profiles show <code>ENGINE INSTALLED</code>. The built-in decoders listed above are live today.</div>
+<h2>Research Labs</h2>
+<p>Press <strong>RESEARCH</strong> and enable the master switch. Research controls persist instead of resetting when panels refresh.</p>
+<h3>Pattern Hunter</h3>
+<p>Learns a per-receiver baseline and flags departures such as chirps, Doppler-like drift, hopping, periodic bursts, wideband events, and otherwise unclassified novelty. The novelty threshold ranges from 30 to 99 percent.</p>
+<h3>Search Director</h3>
+<p>Distributes a plan across available non-ADS-B receivers, then restores their previous tuning when stopped.</p>
+<table class="spec-table"><tr><th>Plan</th><th>Coverage</th></tr><tr><td>Aerospace Watch</td><td>VHF air, weather satellite, APRS/amateur, and radiosonde allocations</td></tr><tr><td>Digital Discovery</td><td>VHF/UHF digital and 433/915 MHz ISM ranges</td></tr><tr><td>Wide RF Survey</td><td>Low VHF through L-band, split across available radios</td></tr></table>
+<h3>Skywatch Correlator</h3>
+<p>Checks qualified findings against known allocations, tracked aircraft, cached CelesTrak orbital elements, multi-receiver confirmation, inferred bearing, and apparent movement. <strong>REFRESH TLE CATALOG</strong> updates the satellite catalogue.</p>
+<p>A research score prioritizes evidence for review. It is not a probability and does not identify a cause.</p>
+<h2>Evidence and lawful use</h2>
+<p>Qualified findings are stored locally with their reasons, spectral signature, and contextual checks. SPECTER SDR is receive-only. Monitoring laws vary by country and band, and decoded pager or ACARS traffic may contain private information. Confirm local law and do not redistribute private content.</p>
+</article></main>
+<footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href='/privacy'>PRIVACY</a><a href='/license-agreement'>LICENSE</a><a href='/support'>SUPPORT</a></div></footer></body></html>
