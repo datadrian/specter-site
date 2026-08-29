@@ -97,12 +97,12 @@
         <div>
           <div class="section-tag">// DECODER LAB</div>
           <h2>Decode the signal before you call it unknown.</h2>
-          <p>Decoder Lab is a primary workstation view, not an add-on. It validates Mode-S and ADS-B aircraft telemetry, AX.25 and APRS, POCSAG paging, and NOAA SAME weather alerts. Optional verified installers are available for AIS-catcher, rtl_433, and SatDump profiles.</p>
+          <p>Decoder Lab is a primary workstation view, not an add-on. It validates Mode-S and ADS-B aircraft telemetry, AX.25 and APRS packets, POCSAG paging, and NOAA SAME weather alerts through five built-in live protocol profiles.</p>
           <ul class="signal-list">
             <li>Five built-in live protocol profiles with checksum or frame validation</li>
             <li>Source, destination, payload summary, frequency, receiver, and time</li>
-            <li>Verified one-click installers for supported third-party Windows engines</li>
-            <li>Clear separation between live decodes, installed engines, and band-only recognition</li>
+            <li>Built-in live decoding without a required external service</li>
+            <li>Clear separation between validated frames and band-only recognition</li>
           </ul>
           <a class='inline-link' href='/help/signal-intelligence'>READ THE DECODER AND SIGNAL INTELLIGENCE GUIDE</a>
         </div>
@@ -110,8 +110,8 @@
           <header><span>DECODER LAB // LIVE</span><b>5 BUILT-IN PROFILES</b></header>
           <article><div><strong>MODE-S / ADS-B</strong><span>DECODED</span></div><h3>UAL218 · ICAO A4B921</h3><p>1090.000000 MHz · ALT 28,900 FT · 446 KT · HDG 071°</p></article>
           <article><div><strong>AX.25 / APRS</strong><span>VALID FCS</span></div><h3>N0CALL-1 → APRS</h3><p>144.390000 MHz · POSITION / STATUS FRAME</p></article>
-          <article class="candidate"><div><strong>RADIOSONDE TELEMETRY</strong><span>CANDIDATE</span></div><h3>402.700000 MHz</h3><p>Recognized band. No validated protocol frame yet.</p></article>
-          <footer>VALIDATED DECODES AND CANDIDATES ARE NEVER PRESENTED AS THE SAME THING</footer>
+          <article><div><strong>NOAA SAME WEATHER</strong><span>VALID HEADER</span></div><h3>WEATHER ALERT FRAME</h3><p>162.550000 MHz · ORIGINATOR / EVENT / LOCATION</p></article>
+          <footer>BUILT-IN DECODERS VALIDATE FRAME OR CHECKSUM STRUCTURE BEFORE DISPLAY</footer>
         </div>
       </div>
     </section>
