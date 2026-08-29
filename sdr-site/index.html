@@ -46,16 +46,16 @@
       <div class="hero-copy">
         <div class="eyebrow">MULTI-RECEIVER SPECTRUM WORKSTATION</div>
         <h1>SPECTER <span>SDR</span></h1>
-        <p class="hero-kicker">SEE THE BAND. HEAR THE SIGNAL. TRACK THE SOURCE.</p>
-        <p class="hero-desc">A focused Windows workstation for operating one to eight RTL-SDR receivers as a coordinated radio array. Decode validated digital traffic, monitor spectrum and waterfall activity, divide full-range sweeps across an array, automate multi-band searches, recognize unusual signal patterns, correlate simultaneous events, and preserve the evidence locally.</p>
+        <p class="hero-kicker">SCAN WITH FIVE RADIOS AT ONCE.</p>
+        <p class="hero-desc">Turn one to eight RTL-SDR receivers into a coordinated Windows radio array. Partition channel scans across every radio, hold on simultaneous signals, manage frequency libraries, capture and replay raw IQ, decode live traffic, connect remote receivers, and feed external radio tools.</p>
         <div class="hero-actions">
           <a class="btn-primary" href="#capabilities">EXPLORE THE WORKSTATION</a>
           <a class="btn-ghost" href="#pricing">VIEW LICENSING</a>
         </div>
         <div class="stats">
           <div><strong>1-8</strong><span>RECEIVERS</span></div>
-          <i></i><div><strong>30</strong><span>FPS / RECEIVER</span></div>
-          <i></i><div><strong>13</strong><span>PROTOCOL FAMILIES</span></div>
+          <i></i><div><strong>5X</strong><span>ARRAY SCAN</span></div>
+          <i></i><div><strong>5</strong><span>BUILT-IN DECODERS</span></div>
           <i></i><div><strong>$199</strong><span>ONE TIME</span></div>
         </div>
       </div>
@@ -92,17 +92,51 @@
       </div>
     </section>
 
+
+    <section class="section" id="scanner">
+      <div class="container">
+        <div class="section-tag">// ARRAY SQUELCH SCANNER</div>
+        <h2>Five radios sweep five times faster and hold on five signals at once.</h2>
+        <p class="section-sub">Choose a frequency range or a saved channel group. SPECTER SDR partitions the work across the connected array, attributes every hit to the receiver that heard it, and leaves a dedicated ADS-B radio untouched.</p>
+        <div class="workflow">
+          <article><span>01</span><h3>PARTITION</h3><p>Split contiguous ranges or saved channel groups across every available receiver.</p></article>
+          <article><span>02</span><h3>HOLD</h3><p>Pause each radio independently while active transmissions remain above the configured floor.</p></article>
+          <article><span>03</span><h3>PRIORITIZE</h3><p>Revisit priority channels, skip current activity, and persist nuisance-frequency lockouts.</p></article>
+          <article><span>04</span><h3>LOG</h3><p>Store time, frequency, strength, duration, detected CTCSS tone, and receiver identity.</p></article>
+        </div>
+        <a class="inline-link" href="/help/frequency-scanner">OPEN THE FREQUENCY MANAGER AND SCANNER GUIDE</a>
+      </div>
+    </section>
+
+    <section class="section split-section" id="interoperability">
+      <div class="container">
+        <div class="section-tag">// CAPTURE + CONNECT + CONTROL</div>
+        <h2>A complete radio desk that works with the rest of your toolchain.</h2>
+        <p class="section-sub">Move frequency lists, raw signal recordings, remote radios, aircraft data, audio, and tuning commands through established radio formats and protocols.</p>
+        <div class="feature-grid">
+          <article><b>01</b><h3>FREQUENCY MANAGER</h3><p>Search and group named frequencies, tune on double-click, and import or export CSV lists.</p></article>
+          <article><b>02</b><h3>CTCSS DETECT + SQUELCH</h3><p>Detect all 38 standard PL tones, filter NFM audio by tone, and stamp tones onto scanner hits.</p></article>
+          <article><b>03</b><h3>SIGMF IQ CAPTURE</h3><p>Record gapless cu8 baseband, then replay cu8 or cf32 files at real-time pace with metadata restored.</p></article>
+          <article><b>04</b><h3>REMOTE RTL_TCP RADIOS</h3><p>Add roof, field, or network receivers as full array elements with forwarded tuning and gain controls.</p></article>
+          <article><b>05</b><h3>SBS + ICECAST OUTPUT</h3><p>Feed decoded aircraft over BaseStation TCP and stream a receiver's MP3 audio to an Icecast mount.</p></article>
+          <article><b>06</b><h3>RIGCTL CONTROL</h3><p>Let hamlib-compatible software read and retune a chosen SPECTER receiver through a standard TCP endpoint.</p></article>
+        </div>
+        <a class="inline-link" href="/help/iq-remote">READ THE IQ AND REMOTE RECEIVER GUIDE</a>
+        <a class="inline-link" href="/help/network-output">READ THE NETWORK OUTPUT GUIDE</a>
+      </div>
+    </section>
+
     <section class="section decoder-showcase" id="decoder-lab">
       <div class="container split decoder-split">
         <div>
           <div class="section-tag">// DECODER LAB</div>
           <h2>Decode the signal before you call it unknown.</h2>
-          <p>Decoder Lab is a primary workstation view, not an add-on. It validates Mode-S and ADS-B aircraft telemetry, AX.25 and APRS packets, POCSAG paging, and NOAA SAME weather alerts through five built-in live protocol profiles.</p>
+          <p>Decoder Lab validates Mode-S and ADS-B aircraft telemetry, AX.25 and APRS packets, POCSAG paging, and NOAA SAME weather alerts through five built-in profiles. Supported live engines add rtl_433 devices, AIS Marine, DSD-FME digital-voice events, and NOAA APT processing.</p>
           <ul class="signal-list">
             <li>Five built-in live protocol profiles with checksum or frame validation</li>
             <li>Source, destination, payload summary, frequency, receiver, and time</li>
-            <li>Built-in live decoding without a required external service</li>
-            <li>Clear separation between validated frames and band-only recognition</li>
+            <li>Pinned one-click installation for supported live decoder engines</li>
+            <li>Engine packets flow into the same receiver-tagged live feed</li>
           </ul>
           <a class='inline-link' href='/help/signal-intelligence'>READ THE DECODER AND SIGNAL INTELLIGENCE GUIDE</a>
         </div>
@@ -221,7 +255,10 @@
             <ul>
               <li>Complete one to eight receiver workstation</li>
               <li>All demodulation and DSP controls</li>
-              <li>Decoder Lab with validated ADS-B and AX.25/APRS decoding</li>
+              <li>Built-in and supported live-engine protocol decoding</li>
+              <li>Array scanner, Frequency Manager, CTCSS, and hit log</li>
+              <li>SigMF IQ capture/replay and remote rtl_tcp receivers</li>
+              <li>SBS, Icecast, and rigctl network interoperability</li>
               <li>Pattern Hunter, Search Director, and Skywatch correlation</li>
               <li>Rosebud array and second-display modes</li>
               <li>Continuous recording and event capture</li>
