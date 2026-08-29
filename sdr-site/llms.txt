@@ -1,0 +1,13 @@
+# SPECTER SDR
+
+SPECTER SDR is multi-receiver SDR software for Windows. It coordinates one to eight RTL-SDR receivers for array scanning, spectrum and waterfall analysis, live decoding, SigMF IQ capture and replay, ADS-B tracking, recording, remote rtl_tcp receivers, and network output.
+
+- Product: https://specter-sdr.com/
+- Download: https://specter-sdr.com/download
+- Help Center: https://specter-sdr.com/help/
+- Frequency Manager and Array Scanner: https://specter-sdr.com/help/frequency-scanner
+- IQ Capture and Remote Receivers: https://specter-sdr.com/help/iq-remote
+- Decoder and Signal Intelligence: https://specter-sdr.com/help/signal-intelligence
+- Network Output and External Control: https://specter-sdr.com/help/network-output
+- ADS-B Aircraft Monitoring: https://specter-sdr.com/help/adsb
+- Pricing: $199 USD one-time license
