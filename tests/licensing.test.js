@@ -23,6 +23,13 @@ const { PRODUCTS } = require('../netlify/functions/create-checkout');
   assert.strictEqual(JSON.parse(result.body).ok, false);
   result = await activate.handler({ httpMethod: 'POST', body: JSON.stringify({ key: sdrRecord.key, email: 'buyer@example.com', machineId: 'machine-1', product: 'sdr' }), headers: {} });
   assert.strictEqual(JSON.parse(result.body).ok, true);
+  result = await activate.handler({ httpMethod: 'POST', body: JSON.stringify({ key: sdrRecord.key, email: 'buyer@example.com', machineId: 'machine-2', product: 'sdr' }), headers: {} });
+  let body = JSON.parse(result.body); assert.strictEqual(body.ok, false); assert.strictEqual(body.code, 'BOUND_TO_ANOTHER_MACHINE'); assert.strictEqual(body.canTransfer, true);
+  result = await activate.handler({ httpMethod: 'POST', body: JSON.stringify({ key: sdrRecord.key, email: 'wrong@example.com', machineId: 'machine-2', product: 'sdr', transfer: true }), headers: {} });
+  assert.strictEqual(JSON.parse(result.body).ok, false);
+  result = await activate.handler({ httpMethod: 'POST', body: JSON.stringify({ key: sdrRecord.key, email: 'buyer@example.com', machineId: 'machine-2', product: 'sdr', transfer: true }), headers: {} });
+  body = JSON.parse(result.body); assert.strictEqual(body.ok, true);
+  const transferred = await store.getRecord(sdrRecord.key); assert.strictEqual(transferred.machineId, 'machine-2'); assert.strictEqual(transferred.transferCount, 1); assert.strictEqual(transferred.previousMachineIds[0].machineId, 'machine-1');
 
   const session = { id: 'cs_bundle_test', customer_details: { email: '' }, metadata: { product: 'specter-bundle' } };
   const first = await fulfillSession(session);
