@@ -1126,7 +1126,7 @@ volatile int16_t magX = 0, magY = 0, magZ = 0;
 volatile bool    magPresent = false;   // set true if QMC5883L answers on I2C
 volatile int     proxVal = 0;
 volatile int     magDelta = 0;
-// ---- EVENT QUEUE: 4-deep single-producer/single-consumer ring (Core1 -&gt; Core0).
+// ---- EVENT QUEUE: 4-deep single-writer/single-reader ring (Core1 -&gt; Core0).
 // The old handoff was one slot behind an eventPending flag: two crossings inside
 // one 100ms drain window meant the second silently overwrote (or was skipped
 // over) the first, and the app had no way to detect the loss. Every event now
