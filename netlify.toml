@@ -33,6 +33,12 @@
   status = 200
 
 [[redirects]]
+  from = "/download.html"
+  to = "/download"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/download"
   to = "/download.html"
   status = 200
