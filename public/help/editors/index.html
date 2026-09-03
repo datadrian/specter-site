@@ -29,7 +29,7 @@
     <p class="lead">This guide is for the post team. It walks you through installing SPECTER, pointing it at the daily <code>Specter</code> media folder, and using the gallery, 3D depth orbits, EVP audio lab, and the recorded feeds so you can screen-capture clean evidence footage for the show.</p>
 
     <div class="callout">
-      <strong>Windows only.</strong> SPECTER is a Windows desktop application. There is no Mac or Linux build. Run it on a Windows 10/11 machine (a Parallels or Boot Camp Windows install on a Mac works too).
+      <strong>Windows only.</strong> SPECTER is a Windows desktop application. There is no Mac or Linux build. Run it on a Windows 10/11 x64 machine. An Intel Mac running Windows through Boot Camp or a compatible virtual machine may work for evidence review, but Mac-hosted Windows is not supported for live hardware capture.
     </div>
 
     <p><strong>On this page:</strong></p>
@@ -54,7 +54,7 @@
       <p><a onclick="window.specterTrackDownload && window.specterTrackDownload(this.href)" class="btn" href="https://github.com/datadrian/specter-site/releases/latest/download/SPECTER-Setup.exe">Download SPECTER for Windows</a></p>
       <ol>
         <li>Download and run <code>SPECTER-Setup.exe</code>.</li>
-        <li>If Windows SmartScreen shows a "Windows protected your PC" prompt, click <strong>More info</strong> then <strong>Run anyway</strong>. The app is safe; it is just not code-signed for mass distribution.</li>
+        <li>SPECTER installers are code-signed by <strong>Adrian Stucker</strong>. If Windows SmartScreen shows a "Windows protected your PC" prompt while the certificate builds reputation, click <strong>More info</strong> and confirm the publisher is <strong>Adrian Stucker</strong> before selecting <strong>Run anyway</strong>. If the publisher is missing or different, cancel the installation and contact support.</li>
         <li>Finish the installer and launch <strong>SPECTER</strong> from the Start menu.</li>
       </ol>
       <p class="fine">You do not need any sensor, camera, or hardware plugged in to review evidence. Editors run SPECTER purely as a viewer.</p>
@@ -147,7 +147,7 @@
         <figcaption>The 3D orbit: an orbitable point cloud of the scene at the moment of the detection. Drag to rotate, scroll to zoom.</figcaption>
       </figure>
       <div class="callout">
-        <strong>Capturing the orbit:</strong> start your screen recorder (see step 10), give the cloud a slow drag, and let the inertia carry the rotation while you record. You get a hands-off, steady orbit with no jitter.
+        <strong>Capturing the orbit:</strong> start your screen recorder (see step 11), give the cloud a slow drag, and let the inertia carry the rotation while you record. You get a hands-off, steady orbit with no jitter.
       </div>
       <p class="fine">If a detection only shows a still and no 3D option, that capture simply didn't include depth data. Not every detection does.</p>
     </section>
@@ -283,7 +283,7 @@
 
     <section id="shotlist">
       <h2>SUGGESTED SHOTS TO CAPTURE</h2>
-      <p>A repeatable checklist so every day's evidence gets grabbed the same way. Record each as a clean full-screen capture (see step 10). Aim for a few seconds of hold before and after each move so there's handle to trim.</p>
+      <p>A repeatable checklist so every day's evidence gets grabbed the same way. Record each as a clean full-screen capture (see step 11). Aim for a few seconds of hold before and after each move so there's handle to trim.</p>
 
       <h3>Per standout detection</h3>
       <ul>
