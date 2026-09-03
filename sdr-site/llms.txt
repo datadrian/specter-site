@@ -1,17 +1,32 @@
 # SPECTER SDR
 
-SPECTER SDR is multi-receiver SDR software for Windows. It coordinates one to eight RTL-SDR, LimeSDR, bladeRF, or remote rtl_tcp receivers for array scanning, spectrum and waterfall analysis, live decoding, SigMF IQ capture and replay, ADS-B tracking, recording, remote rtl_tcp receivers, and network output.
+SPECTER SDR is a local-first multi-receiver signal intelligence workstation for Windows. It coordinates one to eight supported local or remote receiver sources for parallel scanning, four-view 2D and 3D analysis, live decoding, synchronized recording, and evidence review.
 
+Core capabilities:
+- Fourteen guided Decoder Lab profiles
+- Five built-in frame or checksum validating profiles for Mode-S and ADS-B, APRS, POCSAG, and NOAA SAME
+- Wireless sensor decoding on 315, 433, 868, and 915 MHz through rtl_433
+- Radiosonde telemetry through auto_rx
+- AIS through AIS-catcher, ACARS through acarsdec, NOAA APT through SatDump, and digital voice events through DSD-FME
+- One to six simultaneous Advanced Display visualizers
+- One to eight coordinated receiver sources, full-array scanning, Frequency Manager, CTCSS, and synchronized session review
+- SigMF IQ capture and playback, remote rtl_tcp receivers, ADS-B mapping, SBS output, Icecast streaming, and rigctl control
+
+Receiver status:
+- Validated paths include RTL2832U receivers, bladeRF 1.x and 2.0 micro, and remote rtl_tcp sources.
+- LimeSDR Original and Mini integration is included, but current Windows physical hardware validation remains in progress.
+
+Key pages:
 - Product: https://specter-sdr.com/
 - Download: https://specter-sdr.com/download
 - Help Center: https://specter-sdr.com/help/
-- Supported Radios: https://specter-sdr.com/help/supported-radios
+- Sensor and Radiosonde Decoding: https://specter-sdr.com/help/sensor-decoding
 - Decoder Lab: https://specter-sdr.com/help/decoder-lab
-- Signal Visualizers: https://specter-sdr.com/help/visualizers
+- Advanced Display and Visualizers: https://specter-sdr.com/help/visualizers
+- Supported Radios: https://specter-sdr.com/help/supported-radios
 - Multi-Receiver SDR Software: https://specter-sdr.com/multi-receiver-sdr-software
 - Frequency Manager and Array Scanner: https://specter-sdr.com/help/frequency-scanner
 - IQ Capture and Remote Receivers: https://specter-sdr.com/help/iq-remote
-- Decoder and Signal Intelligence: https://specter-sdr.com/help/signal-intelligence
 - Network Output and External Control: https://specter-sdr.com/help/network-output
 - ADS-B Aircraft Monitoring: https://specter-sdr.com/help/adsb
 - Pricing: $199 USD one-time license
