@@ -6,7 +6,7 @@
   <title>Multi-Receiver SDR, Sensor Decoding and 3D Analysis | SPECTER SDR</title>
   <meta name="description" content="Coordinate up to eight SDR receivers, decode wireless sensors and radiosondes, run 14 guided protocol profiles, and analyze live RF in synchronized 2D and 3D views.">
   <meta name="theme-color" content="#070a0f">
-  <link rel="stylesheet" href="/site.css?v=20260903-lightbox">
+  <link rel="stylesheet" href="/site.css?v=20260907-tinysa">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
   <meta name="robots" content="index, follow, max-image-preview:large">
@@ -107,7 +107,9 @@
           <div><strong>REMOTE RTL_TCP</strong><span>Network receivers join as controllable array elements with forwarded tuning and gain.</span></div>
           <div><strong>LIMESDR VALIDATION</strong><span>Original and Mini integration is included, but current Windows hardware validation is still in progress.</span></div>
         </div>
+        <div class="instrument-callout"><div><strong>TINYSA SPECTRUM ANALYZERS</strong><p>Add a tinySA or tinySA Ultra as a spectrum-only source beside the radio array. SPECTER reads the instrument's own frequency limits, sweeps power against frequency, and routes the trace into its spectrum, waterfall, timeline, recording, and optional analyzer-alert tools.</p></div><span>USB SERIAL // DEVICE-RANGE SWEEPS // NO AUDIO OR IQ</span></div>
         <a class="inline-link" href="/help/supported-radios">CHECK RADIO AND DRIVER COMPATIBILITY</a>
+        <a class="inline-link" href="/help/tinysa">SET UP A TINYSA SPECTRUM ANALYZER</a>
       </div>
     </section>
 
@@ -189,9 +191,9 @@
 
     <section class="section product-tour" id="visualizers">
       <div class="container">
-        <div class="section-tag">// FOUR-VIEW ADVANCED DISPLAY</div>
-        <h2>See the same RF environment four different ways at once.</h2>
-        <p class="section-sub">Build a one-to-four-tile Advanced Display from any connected receiver. Mix interactive 3D terrain, 3D spectrum, 3D waterfall history, conventional spectrum and waterfall, Persistence, or Spectrum Tunnel, then review every tile against one synchronized timeline.</p>
+        <div class="section-tag">// UP TO SIX-VIEW ADVANCED DISPLAY</div>
+        <h2>See the same RF environment up to six different ways at once.</h2>
+        <p class="section-sub">Build a one-to-six-tile Advanced Display from any connected receiver. Mix interactive 3D terrain, 3D spectrum, 3D waterfall history, conventional spectrum and waterfall, Persistence, or Spectrum Tunnel, then review every tile against one synchronized timeline.</p>
         <figure class="advanced-hero-shot"><img src="/assets/screenshots/specter-sdr-four-view-advanced-display.webp" alt="SPECTER SDR Advanced Display showing four synchronized receiver views with three interactive 3D terrain plots and one spectrum waterfall" width="1024" height="543" loading="lazy" decoding="async"><figcaption>ADVANCED DISPLAY // FOUR RECEIVERS // SYNCHRONIZED 3D TERRAIN AND SPECTRUM REVIEW</figcaption></figure>
         <div class="feature-grid">
           <article><b>01</b><h3>SPECTRUM + WATERFALL</h3><p>Inspect exact frequency, bandwidth, level, and scrolling history with adaptive scaling and palette controls.</p></article>
@@ -213,6 +215,7 @@
         <div class="section-tag">// INSIDE THE WORKSTATION</div>
         <h2>Move from the radio wall to directional and automated analysis.</h2>
         <p class="section-sub">The same receiver array powers the Rosebud radial display and Research Labs without leaving the local workstation.</p>
+        <figure class="advanced-hero-shot combined-workspace-shot"><img src="/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" alt="SPECTER SDR workstation with three SDR receivers and a TinySA spectrum analyzer alongside a four-tile Advanced Display" width="1024" height="618" loading="lazy" decoding="async"><figcaption>FULL WORKSTATION + ADVANCED DISPLAY // THREE SDR RECEIVERS // TINYSA SPECTRUM ANALYZER</figcaption></figure>
         <div class="screenshot-grid">
           <figure class="product-shot"><img src="/assets/screenshots/specter-sdr-rosebud-radial-array.webp" alt="Rosebud radial SDR array display comparing five directional receivers by compass bearing" width="1024" height="522" loading="lazy" decoding="async"><figcaption><strong>ROSEBUD RADIAL ARRAY</strong><span>Five receiver sectors, timeline review, and directional comparison.</span></figcaption></figure>
           <figure class="product-shot"><img src="/assets/screenshots/specter-sdr-research-labs.webp" alt="SPECTER SDR Research Labs showing Pattern Hunter and Skywatch findings across multiple receivers" width="1024" height="630" loading="lazy" decoding="async"><figcaption><strong>ADVANCED RESEARCH LABS</strong><span>Adaptive baselines, distributed search, and contextual RF findings.</span></figcaption></figure>
@@ -324,7 +327,7 @@
               <li>SigMF IQ capture/replay and remote rtl_tcp receivers</li>
               <li>SBS, Icecast, and rigctl network interoperability</li>
               <li>Pattern Hunter, Search Director, and Skywatch correlation</li>
-              <li>Rosebud array and second-display modes</li>
+              <li>Rosebud array and second-display modes</li><li>TinySA spectrum-analyzer integration</li>
               <li>Continuous recording and event capture</li>
               <li>ADS-B dedicated and periodic monitoring</li>
               <li>Local Gallery, replay, export, and reports</li>

@@ -24,6 +24,7 @@ Key pages:
 - Decoder Lab: https://specter-sdr.com/help/decoder-lab
 - Advanced Display and Visualizers: https://specter-sdr.com/help/visualizers
 - Supported Radios: https://specter-sdr.com/help/supported-radios
+- TinySA Spectrum Analyzers: https://specter-sdr.com/help/tinysa
 - Multi-Receiver SDR Software: https://specter-sdr.com/multi-receiver-sdr-software
 - Frequency Manager and Array Scanner: https://specter-sdr.com/help/frequency-scanner
 - IQ Capture and Remote Receivers: https://specter-sdr.com/help/iq-remote
