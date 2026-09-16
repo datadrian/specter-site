@@ -53,9 +53,25 @@ assert(analytics.includes("safeGet(consentKey) !== 'granted'"), 'analytics must 
 assert(analytics.includes('globalPrivacyControl') && analytics.includes('doNotTrack'), 'privacy signals are not honored');
 assert(analytics.includes('clearAnalytics'), 'analytics identifier cleanup is missing');
 
+const download = read('public/download.html');
+const success = read('public/success.html');
+const editorGuide = read('public/help/editors/index.html');
+const openSource = read('public/open-source.html');
+for (const page of [download, success, editorGuide]) assert(page.includes('SPECTER-Customer-Setup-12.49.4.exe'), 'every Imaging customer download path must use the immutable 12.49.4 installer');
+assert(download.includes('674,359,376 bytes') && download.includes('cc050e9cf9f5c8875893e2463a4d8e92260bd43683d7a06a911197dcc5d8fb18'), 'download page must publish the verified Imaging installer size and checksum');
+assert(openSource.includes('SPECTER-Imaging-Open-Source-Components-12.49.4.zip') && openSource.includes('cf7687b6e88f5808dd206390e62ea56746047cd11630b440651a851a84e76f08'), 'open-source page must publish the verified 12.49.4 source archive and checksum');
+assert(!Array.from(walk(path.join(root, 'public'))).filter((file) => file.endsWith('.html')).some((file) => read(path.relative(root, file)).includes('releases/latest/download/SPECTER-Setup.exe')), 'stale generic Imaging installer links must be removed');
+
 const sitemap = read('public/sitemap.xml');
 for (const page of ['terms-of-sale.html', 'refund-policy.html', 'privacy.html', 'open-source.html']) {
   assert(sitemap.includes(`https://specter-imaging.com/${page}`), `sitemap is missing ${page}`);
+}
+
+function* walk(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) yield* walk(full); else yield full;
+  }
 }
 
 console.log('Imaging sale-readiness tests PASS');
