@@ -6,6 +6,11 @@ const PRODUCTS = Object.freeze({
   sdr: { name: 'SPECTER SDR License', amount: 19900, env: 'STRIPE_PRICE_SDR_ID', description: 'Permanent single-device SPECTER SDR activation.' },
   bundle: { name: 'SPECTER Complete Bundle', amount: 34900, env: 'STRIPE_PRICE_BUNDLE_ID', description: 'Permanent SPECTER Imaging and SPECTER SDR activations.' },
 });
+const LEGAL_VERSIONS = Object.freeze({
+  imaging: { terms: 'imaging-1.0', eula: 'imaging-2.0', privacy: 'imaging-2.0', refund: 'imaging-1.0' },
+  sdr: { terms: 'sdr-1.0', eula: 'sdr-2.0', privacy: 'sdr-2.0', refund: 'sdr-1.0' },
+  bundle: { terms: 'imaging-1.0+sdr-1.0', eula: 'imaging-2.0+sdr-2.0', privacy: 'imaging-2.0+sdr-2.0', refund: 'imaging-1.0+sdr-1.0' },
+});
 
 function priceIdFor(product) {
   const spec = PRODUCTS[product];
@@ -27,11 +32,11 @@ exports.handler = async (event) => {
   const sdrUrl = process.env.SDR_SITE_URL || 'https://specter-sdr.netlify.app';
   const returnUrl = product === 'sdr' ? sdrUrl : imagingUrl;
   const email = String(body.email || '').trim();
-  const requiresSdrAgreement = product === 'sdr' || product === 'bundle';
-  if (requiresSdrAgreement && body.acceptedLegal !== true) {
-    return json(400, { error: 'Accept the SPECTER SDR legal terms before checkout.' });
+  if (body.acceptedLegal !== true) {
+    return json(400, { error: 'Accept the applicable legal terms before checkout.' });
   }
-  const legalAcceptedAt = requiresSdrAgreement ? new Date().toISOString() : '';
+  const legalAcceptedAt = new Date().toISOString();
+  const legalVersions = LEGAL_VERSIONS[product];
 
   const lineItems = priceId ? [{ price: priceId, quantity: 1 }] : [{
     price_data: { currency: 'usd', unit_amount: spec.amount, product_data: { name: spec.name, description: spec.description } },
@@ -46,15 +51,15 @@ exports.handler = async (event) => {
       cancel_url: `${returnUrl}/#pricing`,
       metadata: {
         product: `specter-${product}`,
-        legal_accepted: String(requiresSdrAgreement),
+        legal_accepted: 'true',
         legal_accepted_at: legalAcceptedAt,
         legal_source: String(body.legalSource || '').slice(0, 40),
-        terms_version: String(body.termsVersion || '').slice(0, 20),
-        eula_version: String(body.eulaVersion || '').slice(0, 20),
-        privacy_version: String(body.privacyVersion || '').slice(0, 20),
-        refund_version: String(body.refundVersion || '').slice(0, 20),
+        terms_version: legalVersions.terms,
+        eula_version: legalVersions.eula,
+        privacy_version: legalVersions.privacy,
+        refund_version: legalVersions.refund,
       },
-      custom_text: requiresSdrAgreement ? { submit: { message: 'By paying, you confirm your acceptance of the SPECTER SDR Terms of Sale, License Agreement, Refund Policy, and Privacy Policy.' } } : undefined,
+      custom_text: { submit: { message: 'By paying, you confirm your acceptance of the applicable SPECTER Terms of Sale, License Agreement, Refund Policy, and Privacy Policy.' } },
     });
     return json(200, { url: session.url });
   } catch (error) {
@@ -64,3 +69,4 @@ exports.handler = async (event) => {
 };
 
 exports.PRODUCTS = PRODUCTS;
+exports.LEGAL_VERSIONS = LEGAL_VERSIONS;

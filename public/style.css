@@ -1311,3 +1311,7 @@ a { color: var(--cyan); text-decoration: none; }
 .checkout-acceptance{display:flex;gap:.65rem;align-items:flex-start;margin:1rem 0;font-size:.78rem;line-height:1.45;color:var(--text-dim,#9da8b3)}
 .checkout-acceptance input{margin-top:.2rem;flex:0 0 auto;accent-color:var(--accent,#d32027)}
 .checkout-acceptance a{color:var(--accent,#d32027)}
+.analytics-consent{position:fixed;z-index:10000;left:1rem;right:1rem;bottom:1rem;max-width:760px;margin:auto;padding:1rem 1.15rem;background:var(--panel,#10151a);border:1px solid var(--border,#29323a);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.analytics-consent p{margin:0 0:.75rem;color:var(--text,#dbe7ec);font-size:.86rem;line-height:1.5}
+.analytics-consent-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.analytics-consent button{font:600 .78rem inherit;letter-spacing:.06em;padding:.55rem .85rem;cursor:pointer}

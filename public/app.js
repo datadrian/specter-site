@@ -37,8 +37,8 @@ checkoutButtons.forEach((checkoutBtn) => checkoutBtn.addEventListener('click', a
   e.preventDefault();
   const product = checkoutBtn.dataset.checkoutProduct || 'imaging';
   const consent = checkoutBtn.closest('.pricing-card')?.querySelector('[data-checkout-consent]');
-  if (product !== 'imaging' && !consent?.checked) {
-    alert('Accept the SDR Terms of Sale, License Agreement, Refund Policy, and Privacy Policy before checkout.');
+  if (!consent?.checked) {
+    alert('Accept the Terms of Sale, applicable License Agreement, Refund Policy, and Privacy Policy before checkout.');
     consent?.focus();
     return;
   }
@@ -50,7 +50,7 @@ checkoutButtons.forEach((checkoutBtn) => checkoutBtn.addEventListener('click', a
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product, acceptedLegal: product === 'imaging' ? false : true, legalSource: 'specter-imaging', termsVersion: '1.0', eulaVersion: '2.0', privacyVersion: '2.0', refundVersion: '1.0' }),
+      body: JSON.stringify({ product, acceptedLegal: true, legalSource: 'specter-imaging-checkout' }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.url) throw new Error(data.error || 'No checkout URL returned');

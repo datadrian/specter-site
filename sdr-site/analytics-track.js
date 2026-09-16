@@ -60,6 +60,7 @@
   }
 
   function ready() {
+    if (!safeGet(consentKey)) clearAnalytics();
     if (privacySignal()) { clearAnalytics(); safeSet(consentKey, 'denied'); }
     document.getElementById('privacy-decline-analytics')?.addEventListener('click', function () { decide('denied'); });
     if (safeGet(consentKey) === 'granted') startAnalytics(); else showBanner();
