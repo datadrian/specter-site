@@ -1,6 +1,6 @@
-// admin-outreach-communities.js — list/inspect communities, and let Adrian vet
+// admin-outreach-communities.js - list/inspect communities, and let Adrian vet
 // them: promote to vetted_allowlisted (optionally with auto_post_enabled), or
-// reject. This is the ONLY path that can ever set status=vetted_allowlisted —
+// reject. This is the ONLY path that can ever set status=vetted_allowlisted -
 // the discovery/analysis engine never does this itself.
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');

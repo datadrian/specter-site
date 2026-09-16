@@ -1,7 +1,7 @@
-// outreach-scheduled.js — the weekly automatic pass: discover new
+// outreach-scheduled.js - the weekly automatic pass: discover new
 // communities, analyze rules for a small batch, draft posts for a small
 // batch, and log a summary. Auto-posting is intentionally NOT invoked here
-// yet — Phase 1 is discover+draft only; posting (even to the allow-list)
+// yet - Phase 1 is discover+draft only; posting (even to the allow-list)
 // stays a manual "mark as posted" action from the admin console until an
 // auto-post executor is built and proven. Scheduled via netlify.toml
 // ([functions."outreach-scheduled"] schedule = "@weekly").
@@ -17,7 +17,7 @@ const { discoverCommunities, analyzeCommunity, draftForCommunity } = require('./
 
 const BATCH_SIZE = 3;
 // analyze runs 2 LLM calls per community now (rules + the search-grounded
-// activity check) instead of 1 — use a smaller batch here since this function
+// activity check) instead of 1 - use a smaller batch here since this function
 // already does discover+analyze+draft in one invocation and needs headroom.
 const ANALYZE_BATCH_SIZE = 2;
 

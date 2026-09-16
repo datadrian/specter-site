@@ -1,7 +1,7 @@
-// admin-outreach-settings.js — outreach-wide settings, currently just the
+// admin-outreach-settings.js - outreach-wide settings, currently just the
 // auto-poster kill switch (autoPostPaused). This is checked server-side by
 // admin-outreach-ready-to-post.js, so flipping it is an ACTUAL stop, not a
-// cosmetic UI flag — it takes effect on the very next queue check regardless
+// cosmetic UI flag - it takes effect on the very next queue check regardless
 // of what the scheduled agent step is doing.
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');

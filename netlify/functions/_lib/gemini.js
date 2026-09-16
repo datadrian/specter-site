@@ -1,14 +1,14 @@
-// gemini.js — thin wrapper around the Gemini API. This IS the "brain" for the
+// gemini.js - thin wrapper around the Gemini API. This IS the "brain" for the
 // outreach bot: community discovery (via Google Search grounding), forum-rule
 // judgment, post drafting, and a semantic compliance re-check all go through
-// here. Runs server-side on the SPECTER admin backend only — never exposed
+// here. Runs server-side on the SPECTER admin backend only - never exposed
 // to the public site.
 //
 // Required env (Netlify): GEMINI_API_KEY.
 //
 // Model choice:
-//   MODEL_FLASH (gemini-3.5-flash) — volume work: discovery search, drafting.
-//   MODEL_PRO   (gemini-3.1-pro-preview) — judgment work: reading a forum's
+//   MODEL_FLASH (gemini-3.5-flash) - volume work: discovery search, drafting.
+//   MODEL_PRO   (gemini-3.1-pro-preview) - judgment work: reading a forum's
 //               rules and deciding what they actually allow, and the final
 //               semantic compliance re-check on a draft.
 

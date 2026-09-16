@@ -1,11 +1,11 @@
-// outreach-store.js — Netlify Blobs storage for the community-outreach bot.
+// outreach-store.js - Netlify Blobs storage for the community-outreach bot.
 // Mirrors the proven ticket-store.js pattern: one Blobs store, connectLambda(event)
 // per request, in-memory fallback for local `netlify dev` without Blobs configured.
 //
 // Three record kinds share one store, distinguished by key prefix:
-//   community:<id>   — a discovered/vetted/rejected community
-//   draft:<id>        — a drafted post for a community
-//   postlog:<id>      — an audit record of an executed auto-post
+//   community:<id>   - a discovered/vetted/rejected community
+//   draft:<id>        - a drafted post for a community
+//   postlog:<id>      - an audit record of an executed auto-post
 
 const crypto = require('crypto');
 
@@ -148,7 +148,7 @@ async function createCommunity(fields) {
     activityNotes: fields.activityNotes || '',
     autoPostEnabled: Boolean(fields.autoPostEnabled),
     // Recency-of-activity signal (added per Adrian's request: don't allow-list dead
-    // communities — a real forum should have visible activity from today/very recent).
+    // communities - a real forum should have visible activity from today/very recent).
     // Combined with memberCount above into the quality-bar auto-reject check in
     // analyzeCommunity() - unverified is never auto-approved OR auto-rejected.
     mostRecentActivityDate: fields.mostRecentActivityDate || null, // YYYY-MM-DD or null if unknown
@@ -251,7 +251,7 @@ async function createPostLog(fields) {
 // ---- Settings (singleton) ----
 // One global settings record. Currently just the auto-poster kill switch, but
 // the shape leaves room to grow. autoPostPaused is checked server-side by
-// admin-outreach-ready-to-post.js — this is the actual stop mechanism, not
+// admin-outreach-ready-to-post.js - this is the actual stop mechanism, not
 // just a UI flag, so hitting Stop takes effect immediately regardless of
 // what the scheduled agent step does.
 const SETTINGS_KEY = 'settings:global';
@@ -270,7 +270,7 @@ async function updateSettings(patch) {
 }
 
 // ---- Agent log (for the live "what's the agent doing" console widget) ----
-// Stored as ONE blob holding a capped array, not one-blob-per-line — this is a
+// Stored as ONE blob holding a capped array, not one-blob-per-line - this is a
 // high-frequency append/read pattern and per-line blobs would proliferate fast.
 const AGENT_LOG_KEY = 'agentlog:main';
 const AGENT_LOG_MAX = 200;

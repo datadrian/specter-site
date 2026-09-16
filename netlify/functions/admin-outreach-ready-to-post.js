@@ -1,5 +1,5 @@
-// admin-outreach-ready-to-post.js — the queue the auto-poster (a scheduled
-// agent step, not a Netlify function — browser automation isn't something a
+// admin-outreach-ready-to-post.js - the queue the auto-poster (a scheduled
+// agent step, not a Netlify function - browser automation isn't something a
 // serverless function can do) checks before attempting anything.
 //
 // Eligibility requires ALL THREE, independently:

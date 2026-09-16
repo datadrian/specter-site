@@ -2,8 +2,10 @@
   'use strict';
   const API='https://specter-imaging.com/api';
   document.querySelectorAll('[data-checkout-product]').forEach(button=>button.addEventListener('click',async()=>{
-    const original=button.textContent;button.disabled=true;button.textContent='INITIALIZING CHECKOUT...';
-    try{const response=await fetch(`${API}/create-checkout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:button.dataset.checkoutProduct})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.url)throw new Error(data.error||'Checkout unavailable');location.href=data.url}catch(error){button.disabled=false;button.textContent=original;alert(error.message||'Checkout could not be started.');}
+    const original=button.textContent;const product=button.dataset.checkoutProduct;const consent=button.closest('.price-card,.bundle-card')?.querySelector('[data-checkout-consent]');
+    if(!consent?.checked){alert('Accept the Terms of Sale, License Agreement, Refund Policy, and Privacy Policy before checkout.');consent?.focus();return;}
+    button.disabled=true;button.textContent='INITIALIZING CHECKOUT...';
+    try{const response=await fetch(`${API}/create-checkout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product,acceptedLegal:true,legalSource:'specter-sdr',termsVersion:'1.0',eulaVersion:'2.0',privacyVersion:'2.0',refundVersion:'1.0'})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.url)throw new Error(data.error||'Checkout unavailable');location.href=data.url}catch(error){button.disabled=false;button.textContent=original;alert(error.message||'Checkout could not be started.');}
   }));
   const zoomableImages=Array.from(document.querySelectorAll('main img'));
   if(zoomableImages.length){

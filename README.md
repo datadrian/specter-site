@@ -29,7 +29,7 @@ The SPECTER desktop app lives in a separate repo: [spectral-imaging-unit](https:
 
 1. Connect this repo to Netlify
 2. Base directory: **repo root** (publish = `public`)
-3. Set env vars — see `docs/NETLIFY-SETUP.md` and `.env.example`
+3. Set env vars - see `docs/NETLIFY-SETUP.md` and `.env.example`
 4. Custom domain: **specter-imaging.com**
 
 ## Email

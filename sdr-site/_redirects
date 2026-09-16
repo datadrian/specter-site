@@ -1,2 +1,12 @@
 https://specter-sdr.netlify.app/* https://specter-sdr.com/:splat 301!
 https://www.specter-sdr.com/* https://specter-sdr.com/:splat 301!
+
+/terms-of-sale  /terms-of-sale.html  200
+
+/refund-policy  /refund-policy.html  200
+
+/license-agreement  /license-agreement.html  200
+
+/privacy  /privacy.html  200
+
+/open-source  /open-source.html  200

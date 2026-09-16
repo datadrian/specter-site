@@ -1,4 +1,4 @@
-// admin-outreach-postlog.js — read-only audit trail of every post recorded
+// admin-outreach-postlog.js - read-only audit trail of every post recorded
 // (manual today; auto once a posting executor is wired in). Lets Adrian see
 // exactly what went out where and when if a community's mods ever push back.
 const { json, corsPreflight } = require('./_lib/http');

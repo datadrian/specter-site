@@ -1,6 +1,6 @@
-// admin-outreach-run.js — triggers a batch of the discovery/analysis/drafting
+// admin-outreach-run.js - triggers a batch of the discovery/analysis/drafting
 // pipeline. Kept as small batches per call (not one giant "run everything")
-// to stay well inside Netlify's function time limit — the admin console (or
+// to stay well inside Netlify's function time limit - the admin console (or
 // the weekly scheduled function) calls this repeatedly/step-by-step.
 const { json, corsPreflight, readJson } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
@@ -89,7 +89,7 @@ exports.handler = async (event) => {
 
     if (action === 'draft_one') {
       // On-demand single-community draft, triggered from the Community detail
-      // panel's "Generate draft now" button — doesn't wait for the weekly batch
+      // panel's "Generate draft now" button - doesn't wait for the weekly batch
       // cadence or the general eligibility batch. Still runs the exact same
       // draftForCommunity() pipeline (redraft-on-failure + semantic check), and
       // still refuses to create a second draft for a community that already has

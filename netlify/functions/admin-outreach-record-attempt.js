@@ -1,7 +1,7 @@
-// admin-outreach-record-attempt.js — called by the auto-poster (a scheduled
+// admin-outreach-record-attempt.js - called by the auto-poster (a scheduled
 // agent step using browser automation) after it actually attempts a post.
 // This is the ONLY place a Draft can move to status='posted' via automation,
-// and every attempt (success or failure) is written to PostLog for audit —
+// and every attempt (success or failure) is written to PostLog for audit -
 // same guarantee as manual posting, per the standing guardrail that every
 // post must be logged.
 //

@@ -31,3 +31,8 @@ Key pages:
 - Network Output and External Control: https://specter-sdr.com/help/network-output
 - ADS-B Aircraft Monitoring: https://specter-sdr.com/help/adsb
 - Pricing: $199 USD one-time license
+
+Legal: https://specter-sdr.com/terms-of-sale
+Refund Policy: https://specter-sdr.com/refund-policy
+Privacy: https://specter-sdr.com/privacy
+Open Source Components: https://specter-sdr.com/open-source

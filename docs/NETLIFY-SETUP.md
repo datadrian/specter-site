@@ -1,4 +1,4 @@
-# Netlify setup — specter-imaging.com
+# Netlify setup - specter-imaging.com
 
 Repo: **https://github.com/datadrian/specter-site**
 
@@ -16,10 +16,10 @@ Deploy this repository (root) to Netlify. Publish directory: **`public`**.
 | `LICENSE_SALT` | License key checksum salt |
 | `STRIPE_SECRET_KEY` | Stripe secret key |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
-| `STRIPE_PRICE_ID` | Optional Stripe Price ID (`price_...`) — if unset or invalid, checkout uses inline $399 price |
+| `STRIPE_PRICE_ID` | Optional Stripe Price ID (`price_...`) - if unset or invalid, checkout uses inline $399 price |
 | `DOWNLOAD_URL` | Optional reference URL for the Windows installer |
 | `SITE_URL` | `https://specter-imaging.com` (optional; Netlify sets `URL`) |
-| `INBOUND_WEBHOOK_SECRET` | Optional — protect inbound email webhook |
+| `INBOUND_WEBHOOK_SECRET` | Optional - protect inbound email webhook |
 
 **Never commit API keys to git.**
 

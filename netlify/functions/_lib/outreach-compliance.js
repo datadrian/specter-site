@@ -1,4 +1,4 @@
-// outreach-compliance.js — the hard content-safety guardrail for every
+// outreach-compliance.js - the hard content-safety guardrail for every
 // outreach draft. SPECTER is marketed EXCLUSIVELY as a detection /
 // evidence-capture instrument. No draft may ever reference internal
 // producer-side or hidden features, regardless of how "native" a community's
@@ -6,9 +6,9 @@
 // specter-imaging.com's public marketing.
 //
 // Two layers, both must pass:
-//   1. FORBIDDEN_TERMS keyword scan — fast, deterministic, catches literal terms.
+//   1. FORBIDDEN_TERMS keyword scan - fast, deterministic, catches literal terms.
 //   2. Gemini semantic re-check (done by the caller via gemini.js, MODEL_PRO)
-//      — catches paraphrased/indirect references the keyword scan would miss.
+//      - catches paraphrased/indirect references the keyword scan would miss.
 
 const FORBIDDEN_TERMS = [
   'ghost injection', 'ghost-injection', 'profile injection', 'profile-injection',
@@ -26,12 +26,12 @@ function scanForbiddenTerms(text) {
   return { passed: hits.length === 0, hits };
 }
 
-// Em-dash (—) is banned from outreach drafts too, same house style as the
-// public site (see the site's own no-em-dash rule) — Adrian wants this
+// The Unicode em-dash code point is banned from outreach drafts too, matching
+// the public site house style. Adrian wants this
 // enforced on every draft, not just the marketing site.
 function scanEmDash(text) {
-  const hasEmDash = /—/.test(String(text || ''));
-  return { passed: !hasEmDash, hits: hasEmDash ? ['em-dash character (—) is not allowed, use a comma or period instead'] : [] };
+  const hasEmDash = /\u2014/.test(String(text || ''));
+  return { passed: !hasEmDash, hits: hasEmDash ? ['em-dash character is not allowed, use a comma or period instead'] : [] };
 }
 
 module.exports = { FORBIDDEN_TERMS, scanForbiddenTerms, scanEmDash };

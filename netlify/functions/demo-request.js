@@ -18,9 +18,9 @@ exports.handler = async (event) => {
   try {
     await brevoSend({
       to: notify,
-      subject: `SPECTER website question — ${name}`,
+      subject: `SPECTER website question - ${name}`,
       html: `<p><strong>Website question before download</strong></p>
-        <p>Name: ${name}<br>Email: ${email}<br>Team: ${team || '—'}</p>
+        <p>Name: ${name}<br>Email: ${email}<br>Team: ${team || '-'}</p>
         <p>The public demo download is available at <a href="https://specter-imaging.com/download.html">specter-imaging.com/download.html</a>.</p>`,
     });
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };

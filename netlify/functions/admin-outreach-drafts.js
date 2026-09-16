@@ -1,4 +1,4 @@
-// admin-outreach-drafts.js — list/inspect drafts, approve/reject, and record
+// admin-outreach-drafts.js - list/inspect drafts, approve/reject, and record
 // manual posting. Phase 1 has no automatic posting execution: approving a
 // draft for a vetted_allowlisted community marks it ready, but Adrian marks
 // it "posted" himself once he's actually posted it (manually, or later once
@@ -42,14 +42,14 @@ exports.handler = async (event) => {
     }
 
     if (body.status === 'pending_review') {
-      // "un-approve" — send an approved-by-mistake draft back to review, clearing any posted state.
+      // "un-approve" - send an approved-by-mistake draft back to review, clearing any posted state.
       const updated = await updateDraft(id, { status: 'pending_review', postedAt: null });
       return json(200, { ok: true, draft: updated });
     }
 
     if (body.status === 'posted') {
       // Only meaningful once approved; record as a manual post + audit log entry.
-      // postUrl / postedAsUsername are optional but strongly encouraged — they're
+      // postUrl / postedAsUsername are optional but strongly encouraged - they're
       // what let the console show "View post" links and who it was posted as.
       const updated = await updateDraft(id, {
         status: 'posted',

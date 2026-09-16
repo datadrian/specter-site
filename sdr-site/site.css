@@ -18,3 +18,11 @@ main img.image-zoomable{cursor:zoom-in;transition:filter .18s ease,box-shadow .1
 @media(max-width:1100px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:112px}.hero-copy{text-align:center}.hero-desc{margin:auto}.hero-actions,.stats{justify-content:center}.hero-shot-system{width:min(1040px,100%);margin:auto}.visual-first-heading{align-items:start;flex-direction:column;gap:1rem}}
 @media(max-width:720px){.hero{padding:92px 1rem 2.5rem;gap:1.8rem}.hero h1{font-size:clamp(4.2rem,24vw,6rem)}.hero-kicker{font-size:.78rem;margin:1.2rem 0 .8rem}.hero-desc{font-size:.9rem}.hero-actions{margin:1.25rem 0 1.5rem}.stats{gap:.65rem}.stats strong{font-size:1.15rem}.shot-chrome{gap:.4rem;flex-wrap:wrap}.visual-first{padding:3rem 0}.visual-first-heading h2{font-size:2rem}.visual-stage-head{align-items:flex-start;flex-direction:column}.visual-gallery{grid-template-columns:1fr}.visual-stage figcaption{font-size:8px}.visual-first-actions a{width:100%;text-align:center}}
 @media(max-width:720px){.hero-copy{display:contents}.hero .eyebrow{order:1;text-align:center;margin-bottom:0}.hero h1{order:2;text-align:center}.hero-kicker{order:3;text-align:center}.hero-shot-system{order:4}.hero-desc{order:5;text-align:center}.hero-actions{order:6}.hero .stats{order:7}.hero>*{position:relative;z-index:1}.hero .grid-bg,.hero .scanlines{position:fixed}}
+
+.checkout-acceptance{display:flex;gap:.65rem;align-items:flex-start;margin:1rem 0;font-size:.78rem;line-height:1.45;color:var(--text-dim)}
+.checkout-acceptance input{margin-top:.2rem;flex:0 0 auto;accent-color:var(--accent)}
+.checkout-acceptance a{color:var(--accent)}
+.analytics-consent{position:fixed;z-index:10000;left:1rem;right:1rem;bottom:1rem;max-width:760px;margin:auto;padding:1rem 1.15rem;background:var(--panel);border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.analytics-consent p{margin:0 0:.75rem;color:var(--text);font-size:.86rem;line-height:1.5}
+.analytics-consent-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.analytics-consent button{font:600 .78rem 'Rajdhani',sans-serif;letter-spacing:.06em;padding:.55rem .85rem;cursor:pointer}

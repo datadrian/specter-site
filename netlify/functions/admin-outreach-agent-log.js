@@ -1,4 +1,4 @@
-// admin-outreach-agent-log.js — backs the "what's the agent doing" console
+// admin-outreach-agent-log.js - backs the "what's the agent doing" console
 // widget in the admin header. The auto-poster (a scheduled agent step running
 // browser automation, not a Netlify function) POSTs a line here at each key
 // step of a run; the console GETs recent lines and polls for a live feel.

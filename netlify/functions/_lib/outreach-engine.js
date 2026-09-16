@@ -1,4 +1,4 @@
-// outreach-engine.js — the actual discovery / rule-analysis / drafting logic.
+// outreach-engine.js - the actual discovery / rule-analysis / drafting logic.
 // All LLM judgment calls live here, calling out to gemini.js. Endpoint files
 // (admin-outreach-run.js, outreach-scheduled.js) just orchestrate batches of
 // these calls and persist results via outreach-store.js.
@@ -8,8 +8,8 @@ const { FORBIDDEN_TERMS, scanForbiddenTerms, scanEmDash } = require('./outreach-
 const store = require('./outreach-store');
 
 const SPECTER_POSITIONING = `SPECTER is a paranormal-investigation instrument (hardware + software) that
-captures and analyzes environmental evidence — depth/3D sensing, RGB, thermal imaging, EVP audio capture,
-a wireless field sensor node, and remote phone monitoring — fused into a live anomaly score and a
+captures and analyzes environmental evidence - depth/3D sensing, RGB, thermal imaging, EVP audio capture,
+a wireless field sensor node, and remote phone monitoring - fused into a live anomaly score and a
 searchable evidence archive. It is sold as a detection and evidence-capture instrument for investigators
 and enthusiasts, one-time license, $199.`;
 
@@ -22,7 +22,7 @@ parentheses instead wherever you would normally reach for a dash.`;
 // Adrian's quality bar (added per his request): only pursue communities that
 // are both large (5,000+ members) and demonstrably active. This note nudges
 // discovery to surface bigger, established communities in the first place;
-// the REAL enforcement is the verified check in evaluateQualityBar() below —
+// the REAL enforcement is the verified check in evaluateQualityBar() below -
 // discovery's own guesses about size aren't trustworthy enough to gate on.
 const SIZE_PREFERENCE_NOTE = `Strongly prefer larger, well-established communities with a meaningfully
 large, active membership (thousands of members) over small, obscure, or low-traffic ones.`;
@@ -39,7 +39,7 @@ const DISCOVERY_QUERIES = [
     platformType: 'reddit',
     label: 'Reddit',
     prompt: `Search for currently active subreddits (real, existing, still-active communities) where people
-discuss paranormal investigation, ghost hunting, EVP research, or related equipment/gadgets — include at
+discuss paranormal investigation, ghost hunting, EVP research, or related equipment/gadgets - include at
 least one general skeptic or DIY-electronics subreddit that sometimes discusses this gear too. ${SIZE_PREFERENCE_NOTE}
 Return the 3-5 best real matches you can verify exist right now.`,
   },
@@ -47,7 +47,7 @@ Return the 3-5 best real matches you can verify exist right now.`,
     platformType: 'forum',
     label: 'Dedicated paranormal forums',
     prompt: `Search for currently active dedicated paranormal/ghost-hunting discussion forums (standalone
-forum websites, not Reddit or Facebook — e.g. things like AboveTopSecret or similar long-running paranormal
+forum websites, not Reddit or Facebook - e.g. things like AboveTopSecret or similar long-running paranormal
 community forums). ${SIZE_PREFERENCE_NOTE} Return the 3-5 best real, currently-reachable matches you can
 verify exist right now.`,
   },
@@ -146,7 +146,7 @@ async function fetchPageText(url) {
 
 // ---- Recency-of-activity + size check ----
 // Adrian's rule: a community should have visible activity from today (or very
-// recent), AND a real membership of 5,000+, before it's worth allow-listing —
+// recent), AND a real membership of 5,000+, before it's worth allow-listing -
 // don't waste posts on dead or tiny forums. Uses live Google Search grounding
 // (not just the one scraped URL) since several platform types (Reddit, Facebook
 // Groups) commonly block server-side scraping but ARE well-indexed by Google,
@@ -157,7 +157,7 @@ async function checkActivityAndSize(community) {
   const prompt = `Today's date is ${today}. Using web search, research the online community "${community.name}"
 (${community.url}, platform: ${community.platformType}) and determine two things:
 
-1. Its approximate member/subscriber count — a real number, taken from the platform's own member-count
+1. Its approximate member/subscriber count - a real number, taken from the platform's own member-count
    display, About page, or a reliable secondary source. Not a guess.
 2. How recently it has had real activity (a new post, thread, or comment). Find the most recent visible
    post/thread you can and note its date.
@@ -193,7 +193,7 @@ honestly in the summaries. Do not guess or assume a count or activity just becau
 
 // Judges the verified activity/size check against Adrian's quality bar. Only
 // auto-rejects on POSITIVE evidence of failing (a real verified count under
-// the bar, or confirmed staleness) — same "never assume fine, never assume
+// the bar, or confirmed staleness) - same "never assume fine, never assume
 // failure, on unknown" pattern already used for the self-promotion rule below:
 // a community we couldn't verify still goes to needs_review for Adrian's own
 // eyes, it just isn't thrown out automatically for lack of data.
@@ -220,13 +220,13 @@ function evaluateQualityBar(activity) {
     meetsBar: fullyVerified ? true : null, // null = passes so far, but unverified - not a confirmed pass
     note: fullyVerified
       ? `Meets quality bar: ~${activity.memberCount.toLocaleString()} members, active.`
-      : 'Member count and/or activity could not be fully verified — needs a manual look.',
+      : 'Member count and/or activity could not be fully verified - needs a manual look.',
   };
 }
 
 async function analyzeCommunity(community) {
   // Run the page scrape and the (independent) search-grounded activity+size
-  // check CONCURRENTLY, not sequentially — this used to be two serial awaits,
+  // check CONCURRENTLY, not sequentially - this used to be two serial awaits,
   // which combined with the rules-analysis call afterward was pushing analyze
   // batches past Netlify's function time limit. They don't depend on each other.
   const [pageTextResult, activity] = await Promise.all([
@@ -266,8 +266,8 @@ async function analyzeCommunity(community) {
     return store.updateCommunity(community.id, {
       ...sizeActivityFields,
       rulesSummary: fetchError
-        ? `Unavailable — could not retrieve page (${fetchError}). May require login or JavaScript.`
-        : 'Unavailable — page returned little to no readable content.',
+        ? `Unavailable - could not retrieve page (${fetchError}). May require login or JavaScript.`
+        : 'Unavailable - page returned little to no readable content.',
       allowsSelfPromotion: 'unknown',
       status: 'needs_review',
     });
@@ -277,7 +277,7 @@ async function analyzeCommunity(community) {
 so we can decide whether to introduce a product there. Community: ${community.name} (${community.url}),
 platform: ${community.platformType}.
 
-Here is text scraped from its rules/about/sidebar page (may include unrelated boilerplate — ignore that):
+Here is text scraped from its rules/about/sidebar page (may include unrelated boilerplate - ignore that):
 """${pageText.slice(0, 8000)}"""
 
 Judge: does this community allow self-promotion / product mentions, and under what conditions? Respond
@@ -286,7 +286,7 @@ with ONLY JSON in this exact shape:
  "rulesSummary": "1-3 sentence summary of the actual self-promo/advertising rule",
  "selfPromoNotes": "specific conditions if any, e.g. only in a weekly self-promo thread, or empty string",
  "activityNotes": "brief note on the community's tone/culture relevant to how a post should sound"}
-If the text doesn't clearly state a self-promotion policy, use "unknown" — do not guess.`;
+If the text doesn't clearly state a self-promotion policy, use "unknown" - do not guess.`;
 
   const text = await generate({ model: MODEL_PRO, prompt, temperature: 0.2 });
   const j = extractJson(text);
@@ -297,7 +297,7 @@ If the text doesn't clearly state a self-promotion policy, use "unknown" — do 
     allowsSelfPromotion: ['yes', 'conditional', 'no', 'unknown'].includes(j.allowsSelfPromotion) ? j.allowsSelfPromotion : 'unknown',
     selfPromoNotes: j.selfPromoNotes || '',
     activityNotes: j.activityNotes || '',
-    status: 'needs_review', // analysis never self-allowlists — only Adrian can promote to vetted_allowlisted
+    status: 'needs_review', // analysis never self-allowlists - only Adrian can promote to vetted_allowlisted
   });
 }
 
@@ -315,7 +315,7 @@ not a shortened or modified form) - write it naturally in a sentence the same wa
 website, e.g. "check it out at ${link}".`;
   const prompt = `${SPECTER_POSITIONING}\n\n${LINK_NOTE}\n\n${FORBIDDEN_NOTE}\n\n${EM_DASH_NOTE}\n\nWrite a single forum/social post introducing
 SPECTER to this specific community, written to sound like a genuine long-time member sharing something
-useful — NOT like an advertisement. Community: ${community.name} (${community.platformType}).
+useful - NOT like an advertisement. Community: ${community.name} (${community.platformType}).
 Self-promotion policy: ${community.allowsSelfPromotion}. Notes: ${community.selfPromoNotes || 'none'}.
 Community tone: ${community.activityNotes || 'unknown, keep it neutral and genuine'}.
 
@@ -326,7 +326,7 @@ Rules for the post itself:
 - If "yes" or "unknown": lead with a real discussion hook (a question or observation), THEN mention SPECTER
   naturally as something you built/use, without a hard sales pitch or superlatives.
 - Match the platform's normal post length and tone (Reddit posts read differently than forum posts).
-- Disclose you're associated with SPECTER if you mention it at all — never pretend to be a random satisfied
+- Disclose you're associated with SPECTER if you mention it at all - never pretend to be a random satisfied
   customer with no connection.
 ${redraftNote || ''}
 
@@ -339,8 +339,8 @@ Respond with ONLY JSON in this exact shape:
 }
 
 async function semanticComplianceCheck(draftText) {
-  const prompt = `Check this forum/social post draft for any reference — even indirect, paraphrased, or
-hinted-at — to these forbidden internal concepts: ${FORBIDDEN_TERMS.join(', ')}, or any other hidden/producer-only
+  const prompt = `Check this forum/social post draft for any reference - even indirect, paraphrased, or
+hinted-at - to these forbidden internal concepts: ${FORBIDDEN_TERMS.join(', ')}, or any other hidden/producer-only
 feature of a product called SPECTER (which must be described only as a detection/evidence-capture instrument).
 
 Draft:
@@ -411,10 +411,10 @@ Respond with ONLY JSON in this exact shape: {"text": "the rewritten text with no
   const cleaned = j.text || '';
   // Safety net: refuse to accept an empty or suspiciously short rewrite rather than
   // risk overwriting real draft content with garbage (this is exactly the class of
-  // bug that previously destroyed 5 real drafts — an un-interpolated prompt
+  // bug that previously destroyed 5 real drafts - an un-interpolated prompt
   // placeholder caused the model to echo back a literal token instead of real text).
   if (!cleaned || cleaned.length < draftText.length * 0.5) {
-    throw new Error('purgeEmDashFromDraft: rewrite looked invalid (empty or too short) — refusing to overwrite original draft text');
+    throw new Error('purgeEmDashFromDraft: rewrite looked invalid (empty or too short) - refusing to overwrite original draft text');
   }
   return cleaned;
 }

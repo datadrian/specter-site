@@ -60,5 +60,5 @@ Here are the 5 screenshot references embedded in the HTML, along with exactly wh
 
 ---
 
-## 5. Em-Dash (—) and HTML `&mdash;` Compliance Check
-* **Final Scan Result**: **ZERO (0)** em-dash characters or `&mdash;` codes are present in the updated file. All dashes have been replaced with regular hyphens or standard phrase structures.
+## 5. Em-Dash (-) and HTML `-` Compliance Check
+* **Final Scan Result**: **ZERO (0)** em-dash characters or `-` codes are present in the updated file. All dashes have been replaced with regular hyphens or standard phrase structures.

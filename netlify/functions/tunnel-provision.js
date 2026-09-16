@@ -1,4 +1,4 @@
-// tunnel-provision.js — hands a licensed SPECTER install a stable subdomain
+// tunnel-provision.js - hands a licensed SPECTER install a stable subdomain
 // under specter-imaging.com plus a cloudflared connector token, so INTERNET
 // mode gives a permanent trusted-HTTPS URL with ZERO user setup.
 //
@@ -60,7 +60,7 @@ function names(machineId, generation = 0) {
 async function ensureTunnel(accountId, tunnelName) {
   const list = await cf(`/accounts/${accountId}/cfd_tunnel?name=${encodeURIComponent(tunnelName)}&is_deleted=false`);
   if (Array.isArray(list) && list.length) {
-    // Reuse — fetch its token below.
+    // Reuse - fetch its token below.
     return list[0];
   }
   // config_src 'cloudflare' = remotely-managed (config/ingress set via API).
