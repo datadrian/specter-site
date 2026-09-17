@@ -28,6 +28,30 @@
   status = 200
 
 [[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/help/index.html"
+  to = "/help/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/help/field-guide"
+  to = "/help/field-guide.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/help/field-guide/"
+  to = "/help/field-guide.html"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/help"
   to = "/help/index.html"
   status = 200

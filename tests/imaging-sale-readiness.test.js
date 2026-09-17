@@ -62,7 +62,23 @@ assert(download.includes('674,359,376 bytes') && download.includes('cc050e9cf9f5
 assert(openSource.includes('SPECTER-Imaging-Open-Source-Components-12.49.4.zip') && openSource.includes('cf7687b6e88f5808dd206390e62ea56746047cd11630b440651a851a84e76f08'), 'open-source page must publish the verified 12.49.4 source archive and checksum');
 assert(!Array.from(walk(path.join(root, 'public'))).filter((file) => file.endsWith('.html')).some((file) => read(path.relative(root, file)).includes('releases/latest/download/SPECTER-Setup.exe')), 'stale generic Imaging installer links must be removed');
 
+const expedition = read('public/specter-detection-system-expedition-x.html');
+for (const phrase of ['SPECTER Detection System', 'Expedition X', 'Josh Gates', 'Heather Amaro', 'Phil Torres']) {
+  assert(expedition.includes(phrase), `Expedition X landing page is missing ${phrase}`);
+  assert(index.includes(phrase), `homepage SEO is missing ${phrase}`);
+}
+assert(expedition.includes('https://specter-imaging.com/specter-detection-system-expedition-x.html'), 'Expedition X canonical URL is missing');
+assert(expedition.includes('FAQPage') && expedition.includes('SoftwareApplication'), 'Expedition X structured data is incomplete');
+assert(!expedition.includes('John Gates') && !expedition.includes('Phil Tores'), 'misspelled Expedition X names must not be published');
+assert(read('public/download.html').includes('name="description"'), 'download page description is missing');
+assert(read('public/help/index.html').includes('name="description"'), 'Help Center description is missing');
+assert(read('public/support.html').includes('name="description"'), 'support page description is missing');
+const netlifyConfig = read('netlify.toml');
+for (const duplicate of ['/index.html', '/help/index.html', '/help/field-guide/']) assert(netlifyConfig.includes(`from = "${duplicate}"`), `canonical redirect missing for ${duplicate}`);
+
 const sitemap = read('public/sitemap.xml');
+assert(sitemap.includes('https://specter-imaging.com/specter-detection-system-expedition-x.html'), 'sitemap is missing the Expedition X landing page');
+assert(sitemap.includes('<lastmod>2026-09-16</lastmod>'), 'sitemap freshness signal is missing');
 for (const page of ['terms-of-sale.html', 'refund-policy.html', 'privacy.html', 'open-source.html']) {
   assert(sitemap.includes(`https://specter-imaging.com/${page}`), `sitemap is missing ${page}`);
 }
