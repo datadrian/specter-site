@@ -30,7 +30,7 @@ Key pages:
 - IQ Capture and Remote Receivers: https://specter-sdr.com/help/iq-remote
 - Network Output and External Control: https://specter-sdr.com/help/network-output
 - ADS-B Aircraft Monitoring: https://specter-sdr.com/help/adsb
-- Pricing: $199 USD one-time license
+- Pricing: $49.99 USD one-time license
 
 Legal: https://specter-sdr.com/terms-of-sale
 Refund Policy: https://specter-sdr.com/refund-policy

@@ -15,7 +15,7 @@ const { PRODUCTS } = require('../netlify/functions/create-checkout');
   assert(/^SPTR-/.test(imagingKey)); assert(/^SSDR-/.test(sdrKey));
   assert.strictEqual(validateKey(imagingKey, process.env.LICENSE_SALT).product, 'imaging');
   assert.strictEqual(validateKey(sdrKey, process.env.LICENSE_SALT).product, 'sdr');
-  assert.strictEqual(PRODUCTS.imaging.amount, 19900); assert.strictEqual(PRODUCTS.sdr.amount, 19900); assert.strictEqual(PRODUCTS.bundle.amount, 34900);
+  assert.strictEqual(PRODUCTS.imaging.amount, 4999); assert.strictEqual(PRODUCTS.sdr.amount, 4999); assert.strictEqual(PRODUCTS.bundle.amount, 34900);
   assert.strictEqual(purchaseProduct('specter-bundle'), 'bundle');
 
   const sdrRecord = await store.mintAndSave({ email: 'buyer@example.com', type: 'retail', product: 'sdr' });

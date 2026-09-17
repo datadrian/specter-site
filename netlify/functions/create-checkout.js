@@ -2,8 +2,8 @@ const Stripe = require('stripe');
 const { json, corsPreflight, readJson } = require('./_lib/http');
 
 const PRODUCTS = Object.freeze({
-  imaging: { name: 'SPECTER Imaging License', amount: 19900, env: 'STRIPE_PRICE_IMAGING_ID', legacyEnv: 'STRIPE_PRICE_ID', description: 'Permanent single-device SPECTER Imaging activation.' },
-  sdr: { name: 'SPECTER SDR License', amount: 19900, env: 'STRIPE_PRICE_SDR_ID', description: 'Permanent single-device SPECTER SDR activation.' },
+  imaging: { name: 'SPECTER Imaging License', amount: 4999, env: 'STRIPE_PRICE_IMAGING_ID', legacyEnv: 'STRIPE_PRICE_ID', description: 'Permanent single-device SPECTER Imaging activation.' },
+  sdr: { name: 'SPECTER SDR License', amount: 4999, env: 'STRIPE_PRICE_SDR_ID', description: 'Permanent single-device SPECTER SDR activation.' },
   bundle: { name: 'SPECTER Complete Bundle', amount: 34900, env: 'STRIPE_PRICE_BUNDLE_ID', description: 'Permanent SPECTER Imaging and SPECTER SDR activations.' },
 });
 const LEGAL_VERSIONS = Object.freeze({
@@ -29,7 +29,7 @@ exports.handler = async (event) => {
   const spec = PRODUCTS[product];
   const priceId = priceIdFor(product);
   const imagingUrl = process.env.SITE_URL || process.env.URL || 'https://specter-imaging.com';
-  const sdrUrl = process.env.SDR_SITE_URL || 'https://specter-sdr.netlify.app';
+  const sdrUrl = process.env.SDR_SITE_URL || 'https://specter-sdr.com';
   const returnUrl = product === 'sdr' ? sdrUrl : imagingUrl;
   const email = String(body.email || '').trim();
   if (body.acceptedLegal !== true) {
@@ -44,7 +44,14 @@ exports.handler = async (event) => {
   }];
 
   try {
-    const session = await Stripe(secret).checkout.sessions.create({
+    const stripe = Stripe(secret);
+    if (priceId) {
+      const configuredPrice = await stripe.prices.retrieve(priceId);
+      if (!configuredPrice.active || configuredPrice.currency !== 'usd' || configuredPrice.unit_amount !== spec.amount || configuredPrice.recurring) {
+        throw new Error('Configured Stripe price does not match the advertised one-time price');
+      }
+    }
+    const session = await stripe.checkout.sessions.create({
       mode: 'payment', payment_method_types: ['card'], customer_email: email || undefined,
       line_items: lineItems,
       success_url: `${returnUrl}/success.html?product=${product}&session_id={CHECKOUT_SESSION_ID}`,

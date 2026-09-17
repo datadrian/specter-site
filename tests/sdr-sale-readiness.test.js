@@ -19,7 +19,7 @@ assert(eula.includes('Colorado law'), 'the agreement must use the seller jurisdi
 assert(!eula.includes('State of California'), 'the stale California clause must be removed');
 
 const terms = read('sdr-site/terms-of-sale.html');
-assert(terms.includes('USD 199') && terms.includes('USD 349'), 'terms must state current prices');
+assert(terms.includes('USD 49.99') && terms.includes('USD 349'), 'terms must state current prices');
 assert(terms.includes('No recurring subscription'), 'terms must state that checkout is not recurring');
 const refunds = read('sdr-site/refund-policy.html');
 assert(refunds.includes('14 calendar days') && refunds.includes('original payment method'), 'refund terms must be clear');

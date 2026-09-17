@@ -22,7 +22,7 @@ assert(eula.includes('/terms-of-sale.html') && eula.includes('/privacy.html'), '
 const terms = read('public/terms-of-sale.html');
 const refunds = read('public/refund-policy.html');
 const privacy = read('public/privacy.html');
-assert(terms.includes('USD 199') && terms.includes('USD 349'), 'current product and bundle prices are missing');
+assert(terms.includes('USD 49.99') && terms.includes('USD 349'), 'current product and bundle prices are missing');
 assert(/14-day request period/i.test(refunds), '14-day refund request period is missing');
 assert(privacy.includes('Local-first investigation data'), 'local-first application disclosure is missing');
 assert(privacy.includes('Cloudflare Tunnel') && privacy.includes('Web Push'), 'optional remote-service disclosure is incomplete');
