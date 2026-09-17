@@ -13,7 +13,7 @@
   function makeId(prefix) { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : prefix + '_' + Math.random().toString(36).slice(2) + '_' + Date.now().toString(36); }
   function cookieGet(key) { try { var part = document.cookie.split(';').map(function (x) { return x.trim(); }).find(function (x) { return x.indexOf(key + '=') === 0; }); return part ? decodeURIComponent(part.slice(key.length + 1)) : ''; } catch (_) { return ''; } }
   function cookieSet(key, value, maxAge) { try { document.cookie = key + '=' + encodeURIComponent(value) + '; path=/; max-age=' + maxAge + '; SameSite=Lax; Secure'; } catch (_) {} }
-  function post(payload) { try { fetch('/api/track-event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true }).catch(function () {}); } catch (_) {} }
+  function post(payload) { if (safeGet(consentKey) !== 'granted' || privacySignal()) return; try { fetch('/api/track-event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true }).catch(function () {}); } catch (_) {} }
 
   function startAnalytics() {
     if (started || safeGet(consentKey) !== 'granted' || privacySignal()) return;
@@ -29,10 +29,10 @@
     var firstSeen = safeGet('specter_first_seen') || cookieGet('specter_first_seen');
     if (!firstSeen) { safeSet('specter_first_seen', String(now)); cookieSet('specter_first_seen', String(now), 365 * 24 * 60 * 60); }
     var query = new URLSearchParams(location.search);
-    var utm = { utmSource: query.get('utm_source') || '', utmMedium: query.get('utm_medium') || '', utmCampaign: query.get('utm_campaign') || '' };
-    if (utm.utmSource || utm.utmMedium || utm.utmCampaign) safeSet('specter_utm', JSON.stringify(utm));
+    var utm = { utmSource: query.get('utm_source') || '', utmMedium: query.get('utm_medium') || '', utmCampaign: query.get('utm_campaign') || '', utmContent: query.get('utm_content') || '' };
+    if (utm.utmSource || utm.utmMedium || utm.utmCampaign || utm.utmContent) safeSet('specter_utm', JSON.stringify(utm));
     else { try { utm = JSON.parse(safeGet('specter_utm') || '{}'); } catch (_) {} }
-    post({ type: 'pageview', path: location.pathname, referrer: document.referrer || '', sessionId: sessionId, visitorId: visitorId, timestamp: new Date().toISOString(), isReturningVisitor: !!firstSeen, utmSource: utm.utmSource || '', utmMedium: utm.utmMedium || '', utmCampaign: utm.utmCampaign || '' });
+    post({ type: 'pageview', path: location.pathname, referrer: document.referrer || '', sessionId: sessionId, visitorId: visitorId, timestamp: new Date().toISOString(), isReturningVisitor: !!firstSeen, utmSource: utm.utmSource || '', utmMedium: utm.utmMedium || '', utmCampaign: utm.utmCampaign || '', utmContent: utm.utmContent || '' });
     var start = Date.now(), sent = false;
     function heartbeat() { if (sent) return; sent = true; post({ type: 'session_heartbeat', path: location.pathname, sessionId: sessionId, durationMs: Date.now() - start, timestamp: new Date().toISOString() }); }
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') heartbeat(); });

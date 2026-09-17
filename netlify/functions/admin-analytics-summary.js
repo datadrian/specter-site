@@ -9,7 +9,7 @@ function getDaysAgo(date, days) {
   return d.toISOString().slice(0, 10);
 }
 
-function getReferrerHost(ref) {
+function getReferrerHost(ref, site = 'imaging') {
   if (!ref) return 'direct/none';
   const trimmed = ref.trim().toLowerCase();
   if (trimmed === 'direct' || trimmed === 'none' || trimmed === 'direct/none') {
@@ -22,7 +22,7 @@ function getReferrerHost(ref) {
       host = host.slice(4);
     }
     // Check for same-origin or localhost
-    if (host === 'specter-imaging.com' || host === 'localhost' || host.endsWith('.netlify.app')) {
+    if (host === (site === 'sdr' ? 'specter-sdr.com' : 'specter-imaging.com') || host === 'localhost' || host.endsWith('.netlify.app')) {
       return 'direct/none';
     }
     return host || 'direct/none';
@@ -60,6 +60,8 @@ exports.handler = async (event) => {
     
     configureStore(event);
     
+    const site = event.queryStringParameters?.site || 'imaging';
+    if (!['imaging', 'sdr'].includes(site)) return json(400, { error: 'Invalid analytics site' });
     const range = event.queryStringParameters?.range || '7d';
     const today = new Date();
     const todayStr = today.toISOString().slice(0, 10);
@@ -85,7 +87,7 @@ exports.handler = async (event) => {
       end = temp;
     }
     
-    const events = await listEventsInRange(start, end);
+    const events = (await listEventsInRange(start, end)).filter(evt => (evt.site || 'imaging') === site);
     const dates = getDatesInRange(start, end);
     
     // Calculate Totals
@@ -115,6 +117,8 @@ exports.handler = async (event) => {
     const countryMap = {};
     const utmSourceMap = {};
     const utmCampaignMap = {};
+    const utmContentMap = {};
+    const utmMediumMap = {};
     const outreachReferralMap = {};
     // First pageview per anonymous visitor in the selected range determines
     // whether that visitor was new or returning at the start of the range.
@@ -143,7 +147,7 @@ exports.handler = async (event) => {
         const path = evt.path || '/';
         pageViewsMap[path] = (pageViewsMap[path] || 0) + 1;
         
-        const host = getReferrerHost(evt.referrer);
+        const host = getReferrerHost(evt.referrer, site);
         referrersMap[host] = (referrersMap[host] || 0) + 1;
         
         if (evt.userAgent) {
@@ -155,6 +159,8 @@ exports.handler = async (event) => {
         
         if (evt.country) bump(countryMap, evt.country);
         if (evt.utmSource) bump(utmSourceMap, evt.utmSource);
+        if (evt.utmContent) bump(utmContentMap, evt.utmContent);
+        if (evt.utmMedium) bump(utmMediumMap, evt.utmMedium);
         if (evt.utmCampaign) bump(utmCampaignMap, evt.utmCampaign);
         
         if (evt.sessionId) {
@@ -239,6 +245,9 @@ exports.handler = async (event) => {
       
     return json(200, {
       ok: true,
+      site,
+      topUtmContents: topN(utmContentMap, 10).map(([content, views]) => ({ content, views })),
+      topUtmMediums: topN(utmMediumMap, 10).map(([medium, views]) => ({ medium, views })),
       range: { start, end },
       totals,
       daily,

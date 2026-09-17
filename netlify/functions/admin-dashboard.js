@@ -28,8 +28,8 @@ exports.handler = async (event) => {
   
   const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'waiting').length;
   
-  const todayPageviews = todayEvents.filter(e => e.type === 'pageview').length;
-  const todayDownloads = todayEvents.filter(e => e.type === 'download').length;
+  const todayPageviews = todayEvents.filter(e => (e.site || 'imaging') === 'imaging' && e.type === 'pageview').length;
+  const todayDownloads = todayEvents.filter(e => (e.site || 'imaging') === 'imaging' && e.type === 'download').length;
 
   return json(200, {
     ok: true,

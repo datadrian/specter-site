@@ -47,7 +47,8 @@
         <button type="button" data-panel="mint">Mint comp key</button>
         <button type="button" data-panel="replacement">Issue replacement</button>
         <button type="button" data-panel="outreach">Outreach</button>
-        <button type="button" data-panel="analytics">Analytics</button>
+        <button type="button" data-panel="analytics">Imaging Analytics</button>
+        <button type="button" data-panel="sdr-analytics">SDR Analytics</button>
       </nav>
       <main class="content">
         <section id="panel-dashboard" class="panel active">
@@ -200,7 +201,7 @@
 
         <section id="panel-analytics" class="panel">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-            <h2 style="margin:0">Site analytics</h2>
+            <h2 style="margin:0">SPECTER Imaging analytics</h2>
             <div style="display:flex;gap:8px;align-items:center">
               <select id="analytics-range">
                 <option value="today">Today</option>
@@ -215,6 +216,7 @@
             </div>
           </div>
 
+          <p style="color:var(--muted);font-size:12px">specter-imaging.com | Consented traffic only. Dates use UTC. Download counts are clicks, not completed installs. No purchase attribution is configured.</p>
           <div class="stats" id="analytics-stats-grid" style="margin-bottom:14px"></div>
 
           <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px">
@@ -265,6 +267,82 @@
                 <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Outreach link clicks (by community)</div>
                 <table><tbody id="analytics-top-outreach-referrals"></tbody></table>
               </div>
+              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">UTM medium</div><table><tbody id="analytics-top-utm-mediums"></tbody></table></div>
+              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Ad creative (UTM content)</div><table><tbody id="analytics-top-utm-contents"></tbody></table></div>
+            </div>
+          </details>
+        </section>
+
+        <section id="panel-sdr-analytics" class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <h2 style="margin:0">SPECTER SDR analytics</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="sdr-analytics-range">
+                <option value="today">Today</option>
+                <option value="7d" selected>Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+                <option value="custom">Custom range</option>
+              </select>
+              <input type="date" id="sdr-analytics-start" class="hidden">
+              <input type="date" id="sdr-analytics-end" class="hidden">
+              <button type="button" id="sdr-analytics-refresh" class="btn secondary">Refresh</button>
+            </div>
+          </div>
+
+          <p style="color:var(--muted);font-size:12px">specter-sdr.com | Consented traffic only. Collection enabled September 17, 2026; earlier visits cannot be reconstructed. Dates use UTC. Download counts are clicks, not completed installs. No purchase attribution is configured.</p>
+          <div class="stats" id="sdr-analytics-stats-grid" style="margin-bottom:14px"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Visits over time</div>
+            <div style="font-size:10px;color:var(--muted)"><span style="color:var(--accent)">&#9632;</span> Pageviews &nbsp; <span style="color:var(--danger)">&#9632;</span> Downloads</div>
+          </div>
+          <canvas id="sdr-analytics-chart" height="110" style="width:100%;max-width:100%;height:110px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,0.02)"></canvas>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+            <div>
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top pages</div>
+              <table><tbody id="sdr-analytics-top-pages"></tbody></table>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Traffic sources</div>
+              <table><tbody id="sdr-analytics-top-referrers"></tbody></table>
+            </div>
+          </div>
+
+          <details style="margin-top:14px">
+            <summary style="cursor:pointer;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">More breakdowns (devices, browsers, campaigns...)</summary>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px">
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Device</div>
+                <table><tbody id="sdr-analytics-top-devices"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Browser</div>
+                <table><tbody id="sdr-analytics-top-browsers"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">OS</div>
+                <table><tbody id="sdr-analytics-top-os"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Country</div>
+                <table><tbody id="sdr-analytics-top-countries"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM source</div>
+                <table><tbody id="sdr-analytics-top-utm-sources"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM campaign</div>
+                <table><tbody id="sdr-analytics-top-utm-campaigns"></tbody></table>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Outreach link clicks (by community)</div>
+                <table><tbody id="sdr-analytics-top-outreach-referrals"></tbody></table>
+              </div>
+              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">UTM medium</div><table><tbody id="sdr-analytics-top-utm-mediums"></tbody></table></div>
+              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Ad creative (UTM content)</div><table><tbody id="sdr-analytics-top-utm-contents"></tbody></table></div>
             </div>
           </details>
         </section>
@@ -272,6 +350,6 @@
     </div>
   </div>
 
-  <script src="admin.js"></script>
+  <script src="admin.js?v=20260917-sdr-analytics"></script>
 </body>
 </html>

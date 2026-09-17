@@ -10,3 +10,5 @@ https://www.specter-sdr.com/* https://specter-sdr.com/:splat 301!
 /privacy  /privacy.html  200
 
 /open-source  /open-source.html  200
+
+/api/track-event https://specter-imaging.com/.netlify/functions/track-sdr-event 200!

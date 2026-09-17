@@ -132,6 +132,8 @@
 
   function initialPanel() {
     const target = `${location.pathname} ${location.hash}`.toLowerCase();
+    if (target.includes('sdr-analytics')) return 'sdr-analytics';
+    if (target.includes('analytics')) return 'analytics';
     if (target.includes('ticket')) return 'tickets';
     if (target.includes('mint')) return 'mint';
     if (target.includes('replace')) return 'replacement';
@@ -153,7 +155,8 @@
     if (panel === 'licenses') loadLicenses();
     if (panel === 'tickets') loadTickets();
     if (panel === 'outreach') loadOutreach();
-    if (panel === 'analytics') loadAnalytics();
+    if (panel === 'analytics') loadAnalytics('imaging');
+    if (panel === 'sdr-analytics') loadAnalytics('sdr');
   }
 
   function showApp() {
@@ -873,7 +876,8 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
   }
 
-  function drawAnalyticsChart(daily) {
+  function drawAnalyticsChart(daily, site = 'imaging') {
+    const $ = id => document.getElementById(site === 'sdr' ? 'sdr-' + id : id);
     const canvas = $('analytics-chart');
     if (!canvas) return;
     const dpr = window.devicePixelRatio || 1;
@@ -946,7 +950,11 @@
     return `${m}m ${s2}s`;
   }
 
-  async function loadAnalytics() {
+  const analyticsRequests = {};
+  async function loadAnalytics(site = 'imaging') {
+    const $ = id => document.getElementById(site === 'sdr' ? 'sdr-' + id : id);
+    const requestId = (analyticsRequests[site] || 0) + 1;
+    analyticsRequests[site] = requestId;
     const range = $('analytics-range').value;
     const startInput = $('analytics-start');
     const endInput = $('analytics-end');
@@ -954,7 +962,7 @@
     startInput.classList.toggle('hidden', !isCustom);
     endInput.classList.toggle('hidden', !isCustom);
 
-    let qs = `range=${encodeURIComponent(range)}`;
+    let qs = `site=${site}&range=${encodeURIComponent(range)}`;
     if (isCustom) {
       if (!startInput.value || !endInput.value) return;
       qs += `&start=${encodeURIComponent(startInput.value)}&end=${encodeURIComponent(endInput.value)}`;
@@ -964,23 +972,25 @@
     try {
       data = await api(`admin-analytics-summary?${qs}`);
     } catch (err) {
+      if (analyticsRequests[site] !== requestId) return;
       $('analytics-stats-grid').innerHTML = `<div class="stat"><div class="stat-l" style="color:var(--danger)">Failed to load analytics: ${esc(err.message || 'unknown error')}</div></div>`;
       return;
     }
 
+    if (analyticsRequests[site] !== requestId) return;
     const t = data.totals || {};
     const totalNewRet = (t.newVisitors || 0) + (t.returningVisitors || 0);
     const returningPct = totalNewRet > 0 ? Math.round((t.returningVisitors / totalNewRet) * 100) : 0;
     $('analytics-stats-grid').innerHTML = `
       <div class="stat"><div class="stat-n">${t.pageviews || 0}</div><div class="stat-l">PAGEVIEWS</div></div>
       <div class="stat"><div class="stat-n">${t.uniqueVisitors || 0}</div><div class="stat-l">UNIQUE VISITORS</div></div>
-      <div class="stat"><div class="stat-n">${t.downloads || 0}</div><div class="stat-l">DOWNLOADS</div></div>
-      <div class="stat"><div class="stat-n">${fmtSeconds(t.avgSessionDurationSec)}</div><div class="stat-l">AVG TIME ON SITE</div></div>
+      <div class="stat"><div class="stat-n">${t.downloads || 0}</div><div class="stat-l">DOWNLOAD CLICKS</div></div>
+      <div class="stat"><div class="stat-n">${fmtSeconds(t.avgSessionDurationSec)}</div><div class="stat-l">AVG RECORDED PAGE TIME</div></div>
       <div class="stat"><div class="stat-n">${t.avgPagesPerSession || 0}</div><div class="stat-l">PAGES / SESSION</div></div>
       <div class="stat"><div class="stat-n">${returningPct}%</div><div class="stat-l">RETURNING VISITORS</div></div>
     `;
 
-    drawAnalyticsChart(data.daily || []);
+    drawAnalyticsChart(data.daily || [], site);
 
     const pages = (data.topPages || []).slice(0, 5);
     $('analytics-top-pages').innerHTML = pages.map(p => `
@@ -1006,22 +1016,26 @@
     renderSmallTable('analytics-top-os', data.topOS, 'os', 'views', 'No OS data yet.');
     renderSmallTable('analytics-top-countries', data.topCountries, 'country', 'views', 'No country data available.');
     renderSmallTable('analytics-top-utm-sources', data.topUtmSources, 'source', 'views', 'No campaign traffic yet.');
+    renderSmallTable('analytics-top-utm-contents', data.topUtmContents, 'content', 'views', 'No ad-creative data yet.');
+    renderSmallTable('analytics-top-utm-mediums', data.topUtmMediums, 'medium', 'views', 'No campaign traffic yet.');
     renderSmallTable('analytics-top-utm-campaigns', data.topUtmCampaigns, 'campaign', 'views', 'No campaign traffic yet.');
     renderSmallTable('analytics-top-outreach-referrals', data.topOutreachReferrals, 'community', 'clicks', 'No outreach link clicks yet.');
   }
 
-  $('analytics-range').addEventListener('change', loadAnalytics);
-  $('analytics-start').addEventListener('change', loadAnalytics);
-  $('analytics-end').addEventListener('change', loadAnalytics);
-  $('analytics-refresh').addEventListener('click', loadAnalytics);
-  window.addEventListener('resize', () => {
-    if ($('panel-analytics') && $('panel-analytics').classList.contains('active')) loadAnalytics();
-  });
-  let analyticsAutoRefreshTimer = null;
-  function analyticsMaybeAutoRefresh() {
-    if ($('panel-analytics') && $('panel-analytics').classList.contains('active')) loadAnalytics();
+  for (const site of ['imaging', 'sdr']) {
+    const prefix = site === 'sdr' ? 'sdr-' : '';
+    for (const id of ['range', 'start', 'end']) $(prefix + 'analytics-' + id).addEventListener('change', () => loadAnalytics(site));
+    $(prefix + 'analytics-refresh').addEventListener('click', () => loadAnalytics(site));
   }
-  analyticsAutoRefreshTimer = setInterval(analyticsMaybeAutoRefresh, 10000);
+  function analyticsMaybeAutoRefresh() {
+    if (document.hidden || !token) return;
+    for (const site of ['imaging', 'sdr']) {
+      const id = site === 'sdr' ? 'panel-sdr-analytics' : 'panel-analytics';
+      if ($(id)?.classList.contains('active')) loadAnalytics(site);
+    }
+  }
+  window.addEventListener('resize', analyticsMaybeAutoRefresh);
+  setInterval(analyticsMaybeAutoRefresh, 30000);
 
 
   if (token) {

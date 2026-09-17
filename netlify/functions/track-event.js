@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     configureStore(event);
     
     const body = readJson(event);
-    const { type, path, referrer, sessionId, visitorId, durationMs, timestamp, isReturningVisitor, utmSource, utmMedium, utmCampaign } = body;
+    const { type, path, referrer, sessionId, visitorId, durationMs, timestamp, isReturningVisitor, utmSource, utmMedium, utmCampaign, utmContent } = body;
     
     // Basic validation. If invalid, we respond with 200 ok: true but do not store.
     const allowedTypes = ['pageview', 'download', 'session_heartbeat'];
@@ -59,6 +59,7 @@ exports.handler = async (event) => {
     const geo = parseGeo(event);
     
     const eventObj = {
+      site: event.analyticsSite === 'sdr' ? 'sdr' : 'imaging',
       type,
       path: path.trim(),
       referrer: typeof referrer === 'string' ? referrer.trim() : '',
@@ -77,6 +78,7 @@ exports.handler = async (event) => {
       eventObj.isReturningVisitor = Boolean(isReturningVisitor);
       eventObj.utmSource = typeof utmSource === 'string' ? utmSource.trim().slice(0, 100) : '';
       eventObj.utmMedium = typeof utmMedium === 'string' ? utmMedium.trim().slice(0, 100) : '';
+      eventObj.utmContent = typeof utmContent === 'string' ? utmContent.trim().slice(0, 100) : '';
       eventObj.utmCampaign = typeof utmCampaign === 'string' ? utmCampaign.trim().slice(0, 100) : '';
     }
     
