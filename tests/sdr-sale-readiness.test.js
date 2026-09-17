@@ -45,6 +45,7 @@ assert((Array.from(walk(path.join(root, 'sdr-site'))).filter((file) => file.ends
 const sdrCss = read('sdr-site/site.css');
 assert(sdrCss.includes('background:rgba(12,16,24,.98)') && sdrCss.includes('grid-template-columns:minmax(0,1fr) auto'), 'analytics consent must render as an opaque, non-overlapping desktop panel');
 assert(sdrCss.includes('.analytics-consent-actions{display:grid;grid-template-columns:1fr 1fr'), 'analytics consent actions must fit narrow mobile screens');
+assert(sdrCss.includes('@media(min-width:701px)') && sdrCss.includes('width:min(760px,calc(100% - 2.5rem))'), 'desktop analytics consent must stay clear of the primary hero actions');
 assert(sdrCss.includes('@media(max-width:1180px)') && sdrCss.includes('@media(max-width:920px)'), 'navigation must have tablet formatting breakpoints');
 assert(sdrCss.includes('@media(max-width:1160px)') && sdrCss.includes('font-size:clamp(5.4rem,7.3vw,7.4rem)'), 'hero must stack before it becomes cramped and keep its title clear of the workstation image');
 assert(!/analytics-consent[^}]*var\(--panel\)/.test(sdrCss), 'analytics panel must not use an undefined color token');
