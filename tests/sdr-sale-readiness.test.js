@@ -42,6 +42,11 @@ assert(privacy.includes('Accept Analytics') && privacy.includes('Global Privacy 
 assert(tracker.includes("safeGet(consentKey) !== 'granted'"), 'analytics must not start without consent');
 assert(tracker.includes('navigator.globalPrivacyControl') && tracker.includes('navigator.doNotTrack'), 'analytics must honor browser privacy signals');
 assert((Array.from(walk(path.join(root, 'sdr-site'))).filter((file) => file.endsWith('.html'))).every((file) => read(path.relative(root, file)).includes('analytics-track.js')), 'every SDR page must load the consent gate');
+const sdrCss = read('sdr-site/site.css');
+assert(sdrCss.includes('background:rgba(12,16,24,.98)') && sdrCss.includes('grid-template-columns:minmax(0,1fr) auto'), 'analytics consent must render as an opaque, non-overlapping desktop panel');
+assert(sdrCss.includes('.analytics-consent-actions{display:grid;grid-template-columns:1fr 1fr'), 'analytics consent actions must fit narrow mobile screens');
+assert(sdrCss.includes('@media(max-width:1180px)') && sdrCss.includes('@media(max-width:920px)'), 'navigation must have tablet formatting breakpoints');
+assert(!/analytics-consent[^}]*var\(--panel\)/.test(sdrCss), 'analytics panel must not use an undefined color token');
 
 const { scanEmDash } = require('../netlify/functions/_lib/outreach-compliance');
 assert(scanEmDash('radio-frequency').passed, 'ordinary hyphens must remain allowed in outreach');

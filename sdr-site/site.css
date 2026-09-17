@@ -19,10 +19,65 @@ main img.image-zoomable{cursor:zoom-in;transition:filter .18s ease,box-shadow .1
 @media(max-width:720px){.hero{padding:92px 1rem 2.5rem;gap:1.8rem}.hero h1{font-size:clamp(4.2rem,24vw,6rem)}.hero-kicker{font-size:.78rem;margin:1.2rem 0 .8rem}.hero-desc{font-size:.9rem}.hero-actions{margin:1.25rem 0 1.5rem}.stats{gap:.65rem}.stats strong{font-size:1.15rem}.shot-chrome{gap:.4rem;flex-wrap:wrap}.visual-first{padding:3rem 0}.visual-first-heading h2{font-size:2rem}.visual-stage-head{align-items:flex-start;flex-direction:column}.visual-gallery{grid-template-columns:1fr}.visual-stage figcaption{font-size:8px}.visual-first-actions a{width:100%;text-align:center}}
 @media(max-width:720px){.hero-copy{display:contents}.hero .eyebrow{order:1;text-align:center;margin-bottom:0}.hero h1{order:2;text-align:center}.hero-kicker{order:3;text-align:center}.hero-shot-system{order:4}.hero-desc{order:5;text-align:center}.hero-actions{order:6}.hero .stats{order:7}.hero>*{position:relative;z-index:1}.hero .grid-bg,.hero .scanlines{position:fixed}}
 
-.checkout-acceptance{display:flex;gap:.65rem;align-items:flex-start;margin:1rem 0;font-size:.78rem;line-height:1.45;color:var(--text-dim)}
-.checkout-acceptance input{margin-top:.2rem;flex:0 0 auto;accent-color:var(--accent)}
-.checkout-acceptance a{color:var(--accent)}
-.analytics-consent{position:fixed;z-index:10000;left:1rem;right:1rem;bottom:1rem;max-width:760px;margin:auto;padding:1rem 1.15rem;background:var(--panel);border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.checkout-acceptance{display:flex;gap:.65rem;align-items:flex-start;margin:1rem 0;font-size:.78rem;line-height:1.45;color:var(--dim)}
+.checkout-acceptance input{margin-top:.2rem;flex:0 0 auto;accent-color:var(--cyan)}
+.checkout-acceptance a{color:var(--cyan)}
+.analytics-consent{position:fixed;z-index:10000;left:1rem;right:1rem;bottom:1rem;max-width:760px;margin:auto;padding:1rem 1.15rem;background:var(--bg2);border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.45)}
 .analytics-consent p{margin:0 0:.75rem;color:var(--text);font-size:.86rem;line-height:1.5}
 .analytics-consent-actions{display:flex;gap:.6rem;flex-wrap:wrap}
 .analytics-consent button{font:600 .78rem 'Rajdhani',sans-serif;letter-spacing:.06em;padding:.55rem .85rem;cursor:pointer}
+
+/* Responsive polish for the marketing header, hero, and analytics choice. */
+.analytics-consent{
+  left:1.25rem;
+  right:1.25rem;
+  bottom:1.25rem;
+  width:min(980px,calc(100% - 2.5rem));
+  max-width:none;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:1.4rem;
+  margin:auto;
+  padding:1rem 1.15rem;
+  background:rgba(12,16,24,.98);
+  border:1px solid rgba(0,229,255,.45);
+  box-shadow:0 18px 60px rgba(0,0,0,.7),0 0 30px rgba(0,229,255,.08);
+  backdrop-filter:blur(16px);
+}
+.analytics-consent p{margin:0;color:var(--text);font-size:.84rem;line-height:1.45}
+.analytics-consent p strong{font:700 .78rem var(--heading);letter-spacing:.09em;color:#f3fbff}
+.analytics-consent a{color:var(--cyan);border-bottom:1px solid rgba(0,229,255,.45)}
+.analytics-consent-actions{display:flex;align-items:center;justify-content:flex-end;gap:.65rem;flex-wrap:nowrap}
+.analytics-consent button{min-width:132px;white-space:nowrap;font:700 .72rem var(--mono);letter-spacing:.08em;padding:.7rem 1rem}
+.checkout-acceptance{color:var(--dim)}
+.checkout-acceptance input{accent-color:var(--cyan)}
+.checkout-acceptance a{color:var(--cyan)}
+
+@media(max-width:1180px){
+  .nav-inner{width:calc(100% - 2rem)}
+  .nav-logo small{display:none}
+  .nav-links{gap:1rem}
+  .nav-links a{font-size:10px}
+}
+@media(max-width:920px){
+  .nav-links a:nth-child(3),
+  .nav-links a:nth-child(5),
+  .nav-links a:nth-child(6){display:none}
+}
+@media(max-width:700px){
+  .nav-inner{width:calc(100% - 1.5rem)}
+  .nav-links a:not(.nav-cta){display:none}
+  .analytics-consent{
+    left:.75rem;
+    right:.75rem;
+    bottom:.75rem;
+    width:calc(100% - 1.5rem);
+    grid-template-columns:1fr;
+    gap:.8rem;
+    padding:.9rem;
+  }
+  .analytics-consent p{font-size:.78rem}
+  .analytics-consent-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .analytics-consent button{min-width:0;width:100%;padding:.68rem .55rem}
+}
