@@ -65,8 +65,11 @@ assert(!Array.from(walk(path.join(root, 'public'))).filter((file) => file.endsWi
 const expedition = read('public/specter-detection-system-expedition-x.html');
 for (const phrase of ['SPECTER Detection System', 'Expedition X', 'Josh Gates', 'Heather Amaro', 'Phil Torres']) {
   assert(expedition.includes(phrase), `Expedition X landing page is missing ${phrase}`);
-  assert(index.includes(phrase), `homepage SEO is missing ${phrase}`);
 }
+const indexHead = index.split('</head>')[0];
+const indexBody = index.split('<body>')[1] || '';
+for (const phrase of ['SPECTER Detection System', 'Expedition X', 'Josh Gates', 'Heather Amaro', 'Phil Torres']) assert(indexHead.includes(phrase), `homepage metadata is missing ${phrase}`);
+assert(!indexBody.includes('Expedition X') && !indexBody.includes('Heather Amaro') && !indexBody.includes('Josh Gates') && !indexBody.includes('Phil Torres'), 'Expedition X references must not appear in visible homepage content');
 assert(expedition.includes('https://specter-imaging.com/specter-detection-system-expedition-x.html'), 'Expedition X canonical URL is missing');
 assert(expedition.includes('FAQPage') && expedition.includes('SoftwareApplication'), 'Expedition X structured data is incomplete');
 assert(expedition.includes('/style.css?v=20260916-expedition-x') && expedition.includes('class="nav"') && expedition.includes('class="hero expedition-hero"'), 'Expedition X page must use the main marketing-site design system');
