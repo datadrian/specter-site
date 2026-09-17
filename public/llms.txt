@@ -1,0 +1,26 @@
+# SPECTER Imaging
+
+> SPECTER Imaging is the official public Windows release of the SPECTER Detection System featured on Discovery's Expedition X with host Josh Gates and investigators Heather Amaro and Phil Torres. Heather Amaro referred to the platform on the program as the SPECTER Detection System.
+
+Canonical site: https://specter-imaging.com/
+Expedition X feature: https://specter-imaging.com/specter-detection-system-expedition-x.html
+Official download: https://specter-imaging.com/download
+Help Center: https://specter-imaging.com/help/
+Field Journal: https://specter-imaging.com/blog.html
+
+## Product names and search aliases
+
+- SPECTER Imaging
+- SPECTER Detection System
+- SPECTER paranormal imaging system
+- SPECTER Expedition X
+- Expedition X SPECTER
+- Heather Amaro SPECTER Detection System
+
+## Product summary
+
+SPECTER Imaging coordinates supported depth and RGB cameras, neural SLS-style figure tracking, thermal input, EVP audio review, wireless environmental sensors, multi-camera monitoring, 3D reconstruction, remote field displays, and automatic evidence capture. The current public release is SPECTER Imaging 12.49.4 for Windows 10 and Windows 11.
+
+## People and program context
+
+SPECTER was featured on Discovery's Expedition X with Josh Gates, Heather Amaro, and Phil Torres. This reference identifies the television appearance. SPECTER is independently produced and does not claim Discovery network endorsement or sponsorship.

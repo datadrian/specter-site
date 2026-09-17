@@ -69,7 +69,18 @@ for (const phrase of ['SPECTER Detection System', 'Expedition X', 'Josh Gates', 
 }
 assert(expedition.includes('https://specter-imaging.com/specter-detection-system-expedition-x.html'), 'Expedition X canonical URL is missing');
 assert(expedition.includes('FAQPage') && expedition.includes('SoftwareApplication'), 'Expedition X structured data is incomplete');
+assert(expedition.includes('/style.css?v=20260916-expedition-x') && expedition.includes('class="nav"') && expedition.includes('class="hero expedition-hero"'), 'Expedition X page must use the main marketing-site design system');
+assert(!expedition.includes('/docs.css') && !expedition.includes('class="docs-layout"') && !expedition.includes('class="site-nav"'), 'Expedition X page must not fall back to the documentation design');
+assert((expedition.match(/class="feature-card"/g) || []).length === 6, 'Expedition X page must present all six system capability cards');
 assert(!expedition.includes('John Gates') && !expedition.includes('Phil Tores'), 'misspelled Expedition X names must not be published');
+for (const rel of ['public/index.html', 'public/blog.html', 'public/help/index.html', 'public/download.html', 'public/support.html', 'public/site.webmanifest', 'public/llms.txt']) {
+  const seo = read(rel);
+  assert(seo.includes('SPECTER Detection System'), `${rel} is missing the product search alias`);
+}
+for (const rel of ['public/index.html', 'public/blog.html', 'public/help/index.html', 'public/llms.txt']) {
+  const seo = read(rel);
+  for (const phrase of ['Expedition X', 'Heather Amaro', 'Josh Gates', 'Phil Torres']) assert(seo.includes(phrase), `${rel} is missing ${phrase}`);
+}
 assert(read('public/download.html').includes('name="description"'), 'download page description is missing');
 assert(read('public/help/index.html').includes('name="description"'), 'Help Center description is missing');
 assert(read('public/support.html').includes('name="description"'), 'support page description is missing');
