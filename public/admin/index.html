@@ -216,7 +216,7 @@
             </div>
           </div>
 
-          <p style="color:var(--muted);font-size:12px">specter-imaging.com | Consented traffic only. Dates use UTC. Download counts are clicks, not completed installs. No purchase attribution is configured.</p>
+          <p style="color:var(--muted);font-size:12px">specter-imaging.com | Anonymous page and download-click counts. No tracking popup, visitor IDs, sessions or profiles. Dates use UTC. Repeated visits count again; these are not unique people or completed installs. Earlier consented page/download counts remain included. SDR tracking began September 17, 2026.</p>
           <div class="stats" id="analytics-stats-grid" style="margin-bottom:14px"></div>
 
           <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px">
@@ -225,52 +225,7 @@
           </div>
           <canvas id="analytics-chart" height="110" style="width:100%;max-width:100%;height:110px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,0.02)"></canvas>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
-            <div>
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top pages</div>
-              <table><tbody id="analytics-top-pages"></tbody></table>
-            </div>
-            <div>
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Traffic sources</div>
-              <table><tbody id="analytics-top-referrers"></tbody></table>
-            </div>
-          </div>
-
-          <details style="margin-top:14px">
-            <summary style="cursor:pointer;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">More breakdowns (devices, browsers, campaigns...)</summary>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px">
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Device</div>
-                <table><tbody id="analytics-top-devices"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Browser</div>
-                <table><tbody id="analytics-top-browsers"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">OS</div>
-                <table><tbody id="analytics-top-os"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Country</div>
-                <table><tbody id="analytics-top-countries"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM source</div>
-                <table><tbody id="analytics-top-utm-sources"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM campaign</div>
-                <table><tbody id="analytics-top-utm-campaigns"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Outreach link clicks (by community)</div>
-                <table><tbody id="analytics-top-outreach-referrals"></tbody></table>
-              </div>
-              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">UTM medium</div><table><tbody id="analytics-top-utm-mediums"></tbody></table></div>
-              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Ad creative (UTM content)</div><table><tbody id="analytics-top-utm-contents"></tbody></table></div>
-            </div>
-          </details>
+          <div style="margin-top:16px"><h3>Top pages</h3><table><tbody id="analytics-top-pages"></tbody></table></div>
         </section>
 
         <section id="panel-sdr-analytics" class="panel">
@@ -290,7 +245,7 @@
             </div>
           </div>
 
-          <p style="color:var(--muted);font-size:12px">specter-sdr.com | Consented traffic only. Collection enabled September 17, 2026; earlier visits cannot be reconstructed. Dates use UTC. Download counts are clicks, not completed installs. No purchase attribution is configured.</p>
+          <p style="color:var(--muted);font-size:12px">specter-sdr.com | Anonymous page and download-click counts. No tracking popup, visitor IDs, sessions or profiles. Dates use UTC. Repeated visits count again; these are not unique people or completed installs. Earlier consented page/download counts remain included. SDR tracking began September 17, 2026.</p>
           <div class="stats" id="sdr-analytics-stats-grid" style="margin-bottom:14px"></div>
 
           <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px">
@@ -299,57 +254,12 @@
           </div>
           <canvas id="sdr-analytics-chart" height="110" style="width:100%;max-width:100%;height:110px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,0.02)"></canvas>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
-            <div>
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top pages</div>
-              <table><tbody id="sdr-analytics-top-pages"></tbody></table>
-            </div>
-            <div>
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Traffic sources</div>
-              <table><tbody id="sdr-analytics-top-referrers"></tbody></table>
-            </div>
-          </div>
-
-          <details style="margin-top:14px">
-            <summary style="cursor:pointer;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">More breakdowns (devices, browsers, campaigns...)</summary>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px">
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Device</div>
-                <table><tbody id="sdr-analytics-top-devices"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Browser</div>
-                <table><tbody id="sdr-analytics-top-browsers"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">OS</div>
-                <table><tbody id="sdr-analytics-top-os"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Country</div>
-                <table><tbody id="sdr-analytics-top-countries"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM source</div>
-                <table><tbody id="sdr-analytics-top-utm-sources"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">UTM campaign</div>
-                <table><tbody id="sdr-analytics-top-utm-campaigns"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Outreach link clicks (by community)</div>
-                <table><tbody id="sdr-analytics-top-outreach-referrals"></tbody></table>
-              </div>
-              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">UTM medium</div><table><tbody id="sdr-analytics-top-utm-mediums"></tbody></table></div>
-              <div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Ad creative (UTM content)</div><table><tbody id="sdr-analytics-top-utm-contents"></tbody></table></div>
-            </div>
-          </details>
+          <div style="margin-top:16px"><h3>Top pages</h3><table><tbody id="sdr-analytics-top-pages"></tbody></table></div>
         </section>
       </main>
     </div>
   </div>
 
-  <script src="admin.js?v=20260917-sdr-analytics"></script>
+  <script src="admin.js?v=20260917-anonymous"></script>
 </body>
 </html>

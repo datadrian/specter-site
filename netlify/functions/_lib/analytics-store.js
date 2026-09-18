@@ -52,7 +52,7 @@ async function recordEvent(eventObj) {
   const store = getBlobStore();
   const ts = eventObj.ts || new Date().toISOString();
   const dateStr = ts.slice(0, 10);
-  const rand = crypto.randomBytes(3).toString('hex');
+  const rand = crypto.randomBytes(12).toString('hex');
   const safeTs = ts.replace(/:/g, '-');
   const key = `evt/${dateStr}/${safeTs}-${rand}`;
   

@@ -7,9 +7,9 @@ const PRODUCTS = Object.freeze({
   bundle: { name: 'SPECTER Complete Bundle', amount: 34900, env: 'STRIPE_PRICE_BUNDLE_ID', description: 'Permanent SPECTER Imaging and SPECTER SDR activations.' },
 });
 const LEGAL_VERSIONS = Object.freeze({
-  imaging: { terms: 'imaging-1.0', eula: 'imaging-2.0', privacy: 'imaging-2.0', refund: 'imaging-1.0' },
-  sdr: { terms: 'sdr-1.0', eula: 'sdr-2.0', privacy: 'sdr-2.0', refund: 'sdr-1.0' },
-  bundle: { terms: 'imaging-1.0+sdr-1.0', eula: 'imaging-2.0+sdr-2.0', privacy: 'imaging-2.0+sdr-2.0', refund: 'imaging-1.0+sdr-1.0' },
+  imaging: { terms: 'imaging-1.0', eula: 'imaging-2.0', privacy: 'imaging-2.1', refund: 'imaging-1.0' },
+  sdr: { terms: 'sdr-1.0', eula: 'sdr-2.0', privacy: 'sdr-2.1', refund: 'sdr-1.0' },
+  bundle: { terms: 'imaging-1.0+sdr-1.0', eula: 'imaging-2.0+sdr-2.0', privacy: 'imaging-2.1+sdr-2.1', refund: 'imaging-1.0+sdr-1.0' },
 });
 
 function priceIdFor(product) {

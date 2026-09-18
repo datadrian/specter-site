@@ -9,7 +9,7 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 for (const page of ['terms-of-sale.html', 'refund-policy.html', 'license-agreement.html', 'privacy.html', 'open-source.html']) {
   const html = read(`sdr-site/${page}`);
   assert(html.length > 3000, `${page} must be substantive`);
-  assert(html.includes('September 16, 2026'), `${page} must show the effective date`);
+  assert(html.includes(page === 'privacy.html' ? 'September 17, 2026' : 'September 16, 2026'), `${page} must show the effective date`);
   assert(html.includes('support@specter-imaging.com'), `${page} must identify the support contact`);
 }
 const eula = read('sdr-site/license-agreement.html');
@@ -38,8 +38,8 @@ for (const field of ['legal_accepted_at', 'terms_version', 'eula_version', 'priv
 
 const privacy = read('sdr-site/privacy.html');
 const tracker = read('sdr-site/analytics-track.js');
-assert(privacy.includes('Accept Analytics') && privacy.includes('Global Privacy Control'), 'privacy policy must explain consent and privacy signals');
-assert(tracker.includes("safeGet(consentKey) !== 'granted'"), 'analytics must not start without consent');
+assert(privacy.includes('Anonymous website usage counts') && privacy.includes('Global Privacy Control'), 'privacy policy must explain consent and privacy signals');
+assert(tracker.includes('function optedOut()') && !tracker.includes('function makeId'), 'anonymous counting must honor opt-out without making IDs');
 assert(tracker.includes('navigator.globalPrivacyControl') && tracker.includes('navigator.doNotTrack'), 'analytics must honor browser privacy signals');
 assert((Array.from(walk(path.join(root, 'sdr-site'))).filter((file) => file.endsWith('.html'))).every((file) => read(path.relative(root, file)).includes('analytics-track.js')), 'every SDR page must load the consent gate');
 const sdrCss = read('sdr-site/site.css');

@@ -1,268 +1,42 @@
 const { json, corsPreflight } = require('./_lib/http');
 const { requireAdmin } = require('./_lib/auth');
 const { configureStore, listEventsInRange, getDatesInRange } = require('./_lib/analytics-store');
-const { parseUserAgent } = require('./_lib/ua-parse');
-
-function getDaysAgo(date, days) {
-  const d = new Date(date);
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString().slice(0, 10);
-}
-
-function getReferrerHost(ref, site = 'imaging') {
-  if (!ref) return 'direct/none';
-  const trimmed = ref.trim().toLowerCase();
-  if (trimmed === 'direct' || trimmed === 'none' || trimmed === 'direct/none') {
-    return 'direct/none';
-  }
-  try {
-    const u = new URL(ref);
-    let host = u.hostname;
-    if (host.startsWith('www.')) {
-      host = host.slice(4);
-    }
-    // Check for same-origin or localhost
-    if (host === (site === 'sdr' ? 'specter-sdr.com' : 'specter-imaging.com') || host === 'localhost' || host.endsWith('.netlify.app')) {
-      return 'direct/none';
-    }
-    return host || 'direct/none';
-  } catch (_) {
-    return 'direct/none';
-  }
-}
-
-function bump(map, key) {
-  if (!key) return;
-  map[key] = (map[key] || 0) + 1;
-}
-
-function topN(map, n) {
-  return Object.entries(map)
-    .map(([k, v]) => [k, v])
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n);
-}
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return corsPreflight();
-  }
-  
-  if (event.httpMethod !== 'GET') {
-    return json(405, { error: 'Method not allowed' });
-  }
-  
+  if (event.httpMethod === 'OPTIONS') return corsPreflight();
+  if (event.httpMethod !== 'GET') return json(405, { error: 'Method not allowed' });
+  const auth = requireAdmin(event);
+  if (!auth.authorized) return auth.response;
+  const query = event.queryStringParameters || {};
+  const site = query.site || 'imaging';
+  if (!['imaging', 'sdr'].includes(site)) return json(400, { error: 'Invalid analytics site' });
+  const today = new Date().toISOString().slice(0,10);
+  const range = query.range || '7d';
+  const days = { today: 1, '7d': 7, '30d': 30, '90d': 90 };
+  if (!(range in days) && range !== 'custom') return json(400, { error: 'Invalid date range' });
+  let end = range === 'custom' ? (query.end || today) : today;
+  let start = range === 'custom' ? (query.start || today) : new Date(Date.parse(today) - (days[range] - 1) * 86400000).toISOString().slice(0,10);
+  const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value;
+  if (!validDate(start) || !validDate(end)) return json(400, { error: 'Invalid date' });
+  if (start > end) [start, end] = [end, start];
+  if ((Date.parse(end) - Date.parse(start)) / 86400000 >= 366) return json(400, { error: 'Choose no more than 366 days' });
   try {
-    const auth = requireAdmin(event);
-    if (!auth.authorized) {
-      return auth.response;
-    }
-    
     configureStore(event);
-    
-    const site = event.queryStringParameters?.site || 'imaging';
-    if (!['imaging', 'sdr'].includes(site)) return json(400, { error: 'Invalid analytics site' });
-    const range = event.queryStringParameters?.range || '7d';
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
-    
-    let start = todayStr;
-    let end = todayStr;
-    
-    if (range === '7d') {
-      start = getDaysAgo(today, 6);
-    } else if (range === '30d') {
-      start = getDaysAgo(today, 29);
-    } else if (range === '90d') {
-      start = getDaysAgo(today, 89);
-    } else if (range === 'custom') {
-      start = event.queryStringParameters?.start || todayStr;
-      end = event.queryStringParameters?.end || todayStr;
+    const events = (await listEventsInRange(start, end)).filter(e => (e.site || 'imaging') === site);
+    const dailyMap = Object.fromEntries(getDatesInRange(start,end).map(date => [date,{date,pageviews:0,downloads:0}]));
+    const pages = new Map();
+    const totals = { pageviews: 0, downloads: 0 };
+    for (const e of events) {
+      if (!['pageview','download'].includes(e.type)) continue;
+      const day = String(e.ts || e.timestamp || '').slice(0,10);
+      if (!dailyMap[day]) continue;
+      const key = e.type === 'pageview' ? 'pageviews' : 'downloads';
+      totals[key]++;dailyMap[day][key]++;
+      if (e.type === 'pageview') pages.set(e.path || '/', (pages.get(e.path || '/') || 0) + 1);
     }
-    
-    // Ensure start is before or equal to end
-    if (start > end) {
-      const temp = start;
-      start = end;
-      end = temp;
-    }
-    
-    const events = (await listEventsInRange(start, end)).filter(evt => (evt.site || 'imaging') === site);
-    const dates = getDatesInRange(start, end);
-    
-    // Calculate Totals
-    let pageviews = 0;
-    let downloads = 0;
-    let totalDurationMs = 0;
-    let durationCount = 0;
-    const uniqueSessionsSet = new Set();
-    const uniqueVisitorsSet = new Set();
-    
-    const dailyMap = {};
-    for (const d of dates) {
-      dailyMap[d] = {
-        date: d,
-        pageviews: 0,
-        uniqueSessionsSet: new Set(),
-        uniqueVisitorsSet: new Set(),
-        downloads: 0
-      };
-    }
-    
-    const pageViewsMap = {};
-    const referrersMap = {};
-    const deviceMap = {};
-    const browserMap = {};
-    const osMap = {};
-    const countryMap = {};
-    const utmSourceMap = {};
-    const utmCampaignMap = {};
-    const utmContentMap = {};
-    const utmMediumMap = {};
-    const outreachReferralMap = {};
-    // First pageview per anonymous visitor in the selected range determines
-    // whether that visitor was new or returning at the start of the range.
-    const visitorFirstSeen = {}; // visitorId (legacy fallback: sessionId) -> state
-    const pageviewsBySession = {}; // sessionId -> count, for pages-per-session
-    
-    for (const evt of events) {
-      const ts = evt.ts || evt.timestamp || new Date().toISOString();
-      const dateStr = ts.slice(0, 10);
-      
-      if (evt.type === 'pageview') {
-        const visitorKey = evt.visitorId || evt.sessionId;
-        if (visitorKey) {
-          uniqueVisitorsSet.add(visitorKey);
-          if (dailyMap[dateStr]) dailyMap[dateStr].uniqueVisitorsSet.add(visitorKey);
-        }
-        if (evt.sessionId) {
-          uniqueSessionsSet.add(evt.sessionId);
-          if (dailyMap[dateStr]) dailyMap[dateStr].uniqueSessionsSet.add(evt.sessionId);
-        }
-        pageviews++;
-        if (dailyMap[dateStr]) {
-          dailyMap[dateStr].pageviews++;
-        }
-        
-        const path = evt.path || '/';
-        pageViewsMap[path] = (pageViewsMap[path] || 0) + 1;
-        
-        const host = getReferrerHost(evt.referrer, site);
-        referrersMap[host] = (referrersMap[host] || 0) + 1;
-        
-        if (evt.userAgent) {
-          const { device, browser, os } = parseUserAgent(evt.userAgent);
-          bump(deviceMap, device);
-          bump(browserMap, browser);
-          bump(osMap, os);
-        }
-        
-        if (evt.country) bump(countryMap, evt.country);
-        if (evt.utmSource) bump(utmSourceMap, evt.utmSource);
-        if (evt.utmContent) bump(utmContentMap, evt.utmContent);
-        if (evt.utmMedium) bump(utmMediumMap, evt.utmMedium);
-        if (evt.utmCampaign) bump(utmCampaignMap, evt.utmCampaign);
-        
-        if (evt.sessionId) {
-          pageviewsBySession[evt.sessionId] = (pageviewsBySession[evt.sessionId] || 0) + 1;
-        }
-        if (visitorKey && (!(visitorKey in visitorFirstSeen) || ts < (visitorFirstSeen[visitorKey].ts || ts))) {
-          visitorFirstSeen[visitorKey] = { isReturning: Boolean(evt.isReturningVisitor), ts };
-        }
-        
-      } else if (evt.type === 'download') {
-        downloads++;
-        if (dailyMap[dateStr]) {
-          dailyMap[dateStr].downloads++;
-        }
-      } else if (evt.type === 'outreach_referral') {
-        // Clicks through a /r/<slug> outreach link - see outreach-go.js. Counted
-        // separately from regular pageviews since the click is logged by the
-        // redirect function itself, before the resulting pageview fires.
-        const label = evt.communityName || evt.trackingSlug || 'unknown';
-        bump(outreachReferralMap, label);
-      }
-      
-      if (evt.durationMs !== undefined && evt.durationMs !== null && !isNaN(evt.durationMs)) {
-        totalDurationMs += Number(evt.durationMs);
-        durationCount++;
-      }
-    }
-    
-    const avgSessionDurationSec = durationCount > 0 ? (totalDurationMs / durationCount) / 1000 : 0;
-    
-    let newVisitors = 0;
-    let returningVisitors = 0;
-    for (const visitorId of Object.keys(visitorFirstSeen)) {
-      if (visitorFirstSeen[visitorId].isReturning) returningVisitors++;
-      else newVisitors++;
-    }
-    
-    const sessionCountForAvgPages = Object.keys(pageviewsBySession).length;
-    const avgPagesPerSession = sessionCountForAvgPages > 0
-      ? Number((pageviews / sessionCountForAvgPages).toFixed(1))
-      : 0;
-    
-    const totals = {
-      pageviews,
-      uniqueVisitors: uniqueVisitorsSet.size,
-      uniqueSessions: uniqueSessionsSet.size,
-      downloads,
-      avgSessionDurationSec: Number(avgSessionDurationSec.toFixed(1)),
-      newVisitors,
-      returningVisitors,
-      avgPagesPerSession,
-    };
-    
-    const daily = dates.map(d => {
-      const entry = dailyMap[d];
-      return {
-        date: entry.date,
-        pageviews: entry.pageviews,
-        uniqueVisitors: entry.uniqueVisitorsSet.size,
-        uniqueSessions: entry.uniqueSessionsSet.size,
-        downloads: entry.downloads,
-      };
-    });
-    
-    const topPages = Object.entries(pageViewsMap)
-      .map(([path, views]) => ({ path, views }))
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 10);
-      
-    const topReferrers = Object.entries(referrersMap)
-      .map(([referrer, visits]) => ({ referrer, visits }))
-      .sort((a, b) => b.visits - a.visits)
-      .slice(0, 10);
-    
-    const topDevices = topN(deviceMap, 10).map(([k, v]) => ({ device: k, views: v }));
-    const topBrowsers = topN(browserMap, 10).map(([k, v]) => ({ browser: k, views: v }));
-    const topOS = topN(osMap, 10).map(([k, v]) => ({ os: k, views: v }));
-    const topCountries = topN(countryMap, 10).map(([k, v]) => ({ country: k, views: v }));
-    const topUtmSources = topN(utmSourceMap, 10).map(([k, v]) => ({ source: k, views: v }));
-    const topUtmCampaigns = topN(utmCampaignMap, 10).map(([k, v]) => ({ campaign: k, views: v }));
-    const topOutreachReferrals = topN(outreachReferralMap, 10).map(([k, v]) => ({ community: k, clicks: v }));
-      
-    return json(200, {
-      ok: true,
-      site,
-      topUtmContents: topN(utmContentMap, 10).map(([content, views]) => ({ content, views })),
-      topUtmMediums: topN(utmMediumMap, 10).map(([medium, views]) => ({ medium, views })),
-      range: { start, end },
-      totals,
-      daily,
-      topPages,
-      topReferrers,
-      topDevices,
-      topBrowsers,
-      topOS,
-      topCountries,
-      topUtmSources,
-      topUtmCampaigns,
-      topOutreachReferrals,
-    });
-  } catch (err) {
-    console.error('[admin-analytics-summary] Error generating summary:', err);
-    return json(500, { ok: false, error: 'Internal server error while compiling stats.' });
+    return json(200, { ok: true, site, collectionMode: 'anonymous-counts', range:{start,end}, totals, daily:Object.values(dailyMap), topPages:[...pages].map(([path,views]) => ({path,views})).sort((a,b) => b.views-a.views).slice(0,10) });
+  } catch (_) {
+    console.error('[admin-analytics-summary] Counter summary unavailable');
+    return json(500, { ok:false, error:'Unable to load usage counts' });
   }
 };

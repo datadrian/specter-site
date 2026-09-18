@@ -49,7 +49,7 @@ for (const field of ['legal_accepted_at', 'terms_version', 'eula_version', 'priv
 
 const analytics = read('public/analytics-track.js');
 assert(analytics.includes('specter_analytics_consent_v1'), 'analytics consent key is missing');
-assert(analytics.includes("safeGet(consentKey) !== 'granted'"), 'analytics must not start before consent');
+assert(analytics.includes("function optedOut()") && !analytics.includes("function makeId"), "anonymous counting must honor opt-out without making IDs");
 assert(analytics.includes('globalPrivacyControl') && analytics.includes('doNotTrack'), 'privacy signals are not honored');
 assert(analytics.includes('clearAnalytics'), 'analytics identifier cleanup is missing');
 
