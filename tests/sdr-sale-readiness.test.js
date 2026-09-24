@@ -55,14 +55,14 @@ assert(scanEmDash('radio-frequency').passed, 'ordinary hyphens must remain allow
 assert(!scanEmDash('before' + String.fromCodePoint(0x2014) + 'after').passed, 'the outreach em-dash guardrail must remain active');
 
 const sourcePage = read('sdr-site/open-source.html');
-assert(sourcePage.includes('SPECTER-SDR-Open-Source-Components-1.7.38.zip'), 'source page must link the compliance release archive');
-assert(sourcePage.includes('e7af96c3218639d67c75dfc4c4432a8aa53b54cae1326dce16945d6eca69a8b1'), 'source page must publish the verified source archive checksum');
+assert(sourcePage.includes('SPECTER-SDR-Open-Source-Components-1.7.41.zip'), 'source page must link the compliance release archive');
+assert(sourcePage.includes('9ed452d06b84686694713439d0098523d84e75f433c4e821e7a844c290d9a33d'), 'source page must publish the verified source archive checksum');
 const downloadPage = read('sdr-site/download.html');
 const successPage = read('sdr-site/success.html');
-for (const page of [downloadPage, successPage]) assert(page.includes('SPECTER-SDR-Setup-1.7.38.exe'), 'every customer download path must use 1.7.38');
-assert(downloadPage.includes('8290a25a71a58a97aff7d15e4ab2b7cdc1e8293ca52da32629123834fe65f765'), 'download page must publish the verified installer checksum');
-assert(downloadPage.includes('420,242,312 bytes'), 'download page must publish the verified installer size');
-assert(!Array.from(walk(path.join(root, 'sdr-site'))).filter((file) => file.endsWith('.html')).some((file) => read(path.relative(root, file)).includes('SPECTER-SDR-Setup-1.7.37.exe')), 'stale 1.7.37 installer links must be removed');
+for (const page of [downloadPage, successPage]) assert(page.includes('SPECTER-SDR-Setup-1.7.41.exe'), 'every customer download path must use 1.7.41');
+assert(downloadPage.includes('6105159d63427922819c36e3c0685f11135e6646ecb3c421402d96373ff29aca'), 'download page must publish the verified installer checksum');
+assert(downloadPage.includes('382,456,936 bytes'), 'download page must publish the verified installer size');
+assert(!Array.from(walk(path.join(root, 'sdr-site'))).filter((file) => file.endsWith('.html')).some((file) => read(path.relative(root, file)).includes('SPECTER-SDR-Setup-1.7.38.exe')), 'stale 1.7.38 installer links must be removed');
 assert(sourcePage.includes('GPL-3.0-or-later') && sourcePage.includes('h264_mf'), 'source page must explain the sidecar and FFmpeg boundary');
 
 for (const file of walk(root)) {
