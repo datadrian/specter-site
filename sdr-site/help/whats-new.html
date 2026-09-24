@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>What's New and Version Availability | SPECTER SDR Help</title>
+<meta content="Version-specific help for SPECTER SDR 1.7.39, 1.7.40, and the latest 1.7.41 source changes." name="description"/>
+<link href="/favicon.ico" rel="icon"/>
+<link href="/site.css?v=20260917-format3" rel="stylesheet"/>
+<link href="/docs.css?v=20260924-help" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Rajdhani:wght@400;600;700&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<meta content="index, follow, max-image-preview:large" name="robots"/>
+<link href="https://specter-sdr.com/help/whats-new" rel="canonical"/>
+<meta content="article" property="og:type"/>
+<meta content="SPECTER SDR" property="og:site_name"/>
+<meta content="What's New and Version Availability | SPECTER SDR Help" property="og:title"/>
+<meta content="Version-specific help for SPECTER SDR 1.7.39, 1.7.40, and the latest 1.7.41 source changes." property="og:description"/>
+<meta content="https://specter-sdr.com/help/whats-new" property="og:url"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" property="og:image"/>
+<meta content="1024" property="og:image:width"/>
+<meta content="618" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="What's New and Version Availability | SPECTER SDR Help" name="twitter:title"/>
+<meta content="Version-specific help for SPECTER SDR 1.7.39, 1.7.40, and the latest 1.7.41 source changes." name="twitter:description"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" name="twitter:image"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"What's New and Version Availability","description":"Version-specific help for SPECTER SDR 1.7.39, 1.7.40, and the latest 1.7.41 source changes.","url":"https://specter-sdr.com/help/whats-new","image":"https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp","dateModified":"2026-09-24","inLanguage":"en-US","publisher":{"@type":"Organization","name":"SPECTER","url":"https://specter-sdr.com/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SPECTER SDR","item":"https://specter-sdr.com/"},{"@type":"ListItem","position":2,"name":"Help Center","item":"https://specter-sdr.com/help/"},{"@type":"ListItem","position":3,"name":"What's New and Version Availability","item":"https://specter-sdr.com/help/whats-new"}]}]}</script>
+<script defer="" src="/analytics-track.js?v=20260917-anonymous"></script></head>
+<body>
+<nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href="/download">DOWNLOAD</a><a href="/support">SUPPORT</a><a class="nav-cta" href="/help/">HELP</a></div></div></nav>
+<header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>What's New and Version Availability</h1><p>Version-specific help for SPECTER SDR 1.7.39, 1.7.40, and the latest 1.7.41 source changes.</p></div></header>
+<main class="container docs-layout">
+<aside class="docs-nav"><strong>HOW TO + HELP</strong><a href="/help/">Help overview</a><a aria-current="page" class="active" href="/help/whats-new">What's New and versions</a><a href="/help/getting-started">Getting started</a><a href="/help/receiver-setup">Receiver setup</a><a href="/help/supported-radios">Supported radios</a><a href="/help/tinysa">TinySA spectrum analyzers</a><a href="/help/workstation">Workstation controls</a><a href="/help/visualizers">Visualizers and Advanced Display</a><a href="/help/frequency-scanner">Frequency Manager and scanner</a><a href="/help/channel-activity">Channel Activity Watch</a><a href="/help/iq-remote">IQ and remote receivers</a><a href="/help/network-output">Network output and rigctl</a><a href="/help/decoder-lab">Decoder Lab</a><a href="/help/sensor-decoding">Sensors and radiosondes</a><a href="/help/signal-intelligence">Research and signal intelligence</a><a href="/help/array-setup">Array and Rosebud</a><a href="/help/recording-alerts">Recording and alerts</a><a href="/help/radiation">Radiation counter and timeline</a><a href="/help/adsb">ADS-B aircraft</a><a href="/help/imaging-integration">Imaging integration</a><a href="/help/licensing">Licensing</a><a href="/help/troubleshooting">Troubleshooting</a></aside>
+<article class="docs-content"><p class="docs-reviewed">Reviewed September 24, 2026 against source v1.7.41. Features and fixes are labeled by version. <a href="/help/whats-new">Check release availability</a>.</p>
+<h2>Check your installed version</h2>
+<div class="callout"><strong>Checked September 24, 2026:</strong> the latest public release is <strong>v1.7.41</strong>, published September 24. These guides were checked against source commit <strong>b577b42</strong>. The v1.7.41 changes below are included in that public release; earlier installed versions can behave differently.</div>
+<p>Check the version shown in SPECTER before following version-specific instructions. Older website download links or installations can lag the latest release. Consult the <a href="https://github.com/datadrian/specter-sdr-releases/releases/latest" rel="noopener" target="_blank">public release page</a> for current availability. This documentation update does not itself install an application update.</p>
+<h2>v1.7.41: current public release</h2>
+<ul><li><strong>Event-clip eligibility:</strong> enabled alert classes, receiver alert switches and thresholds, and spectrum-analyzer alert permission now govern event clips as well as alert qualification. Hiding popups or applying popup cooldown does not discard evidence of an otherwise qualified RF alert.</li><li><strong>TinySA range confirmation:</strong> start and stop are applied as one center-and-span change. The displayed confirmation follows the instrument's current range rather than combining a new width with an old center.</li><li><strong>Workspace order:</strong> SDR radios at the top, spectrum analyzers beneath them, and the radiation strip at the bottom. Slot assignments and sweep partitioning are not changed by the visual order.</li><li><strong>Bounded logs:</strong> <code>Logs\sidecar.log</code> is capped at 10 MB, with the previous capped log kept as <code>sidecar.log.1</code>. An oversized inherited log is trimmed to its newest 10 MB on the first write.</li><li><strong>Activity tone pacing:</strong> live activity sounds honor their repeat gap instead of using the Settings preview override.</li></ul>
+<h2>v1.7.40: channel activity and audible alerts</h2>
+<ul><li><a href="/help/channel-activity">ACTIVITY WATCH</a> monitors a tuned receiver channel and can play audio, sound a tone, show a dialog, and save WAV audio with available pre-roll.</li><li><a href="/help/recording-alerts#audible-alerts">Audible alerts</a> give new aircraft, NOTICE, ALERT, and CRITICAL their own separately enabled sounds.</li><li>The <a href="/help/radiation">Geiger trace</a> has its own row so stacked receivers do not squeeze it.</li></ul>
+<h2>v1.7.39: tinySA and receiver identity</h2>
+<ul><li>The <a href="/help/tinysa">tinySA scan loop</a> keeps autonomous display sweeps paused between app-requested scans, avoiding the old wide-span reply mix-up. Normal display sweeping is restored when the app releases the instrument.</li><li>A <a href="/help/receiver-setup#new-receiver">new-receiver dialog</a> offers name, antenna, and bearing without reopening the setup wizard.</li><li><a href="/help/receiver-setup#unique-serial">GIVE UNIQUE SERIAL</a> assigns a supported factory-serial RTL dongle a persistent hardware identity, with verification and a required unplug/replug afterward.</li><li>The receiver engine is installed as a directory instead of unpacking a large single-file bundle on every launch. Startup no longer incurs that repeated extraction; actual launch time still depends on the computer and security software.</li></ul>
+<h2>Related guides</h2>
+<p>Start with <a href="/help/getting-started">Getting started</a>, then use <a href="/help/workstation">Workstation controls</a>, <a href="/help/recording-alerts">Recording and alerts</a>, and <a href="/help/troubleshooting">Troubleshooting</a>. Existing screenshots show real application views but may predate these controls or layout changes.</p>
+</article>
+</main>
+<footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href="/terms-of-sale">TERMS</a><a href="/refund-policy">REFUNDS</a><a href="/privacy">PRIVACY</a><a href="/license-agreement">LICENSE</a><a href="/open-source">OPEN SOURCE</a><a href="mailto:support@specter-imaging.com">SUPPORT@SPECTER-IMAGING.COM</a></div></footer>
+<script src="/app.js?v=20260903-lightbox"></script>
+</body>
+</html>

@@ -12,3 +12,12 @@ https://www.specter-sdr.com/* https://specter-sdr.com/:splat 301!
 /open-source  /open-source.html  200
 
 /api/track-event https://specter-imaging.com/.netlify/functions/track-sdr-event 200!
+
+/help/channel-activity.html /help/channel-activity 301!
+/help/channel-activity /help/channel-activity.html 200
+
+/help/radiation.html /help/radiation 301!
+/help/radiation /help/radiation.html 200
+
+/help/whats-new.html /help/whats-new 301!
+/help/whats-new /help/whats-new.html 200

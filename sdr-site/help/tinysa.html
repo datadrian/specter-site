@@ -1,82 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TinySA Spectrum Analyzer Setup | SPECTER SDR Help</title>
-  <meta name="description" content="Connect a tinySA or tinySA Ultra to SPECTER SDR as a spectrum-only source, configure sweep controls, record traces, and set analyzer-specific alerts.">
-  <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/site.css?v=20260917-format3">
-  <link rel="stylesheet" href="/docs.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <link rel="canonical" href="https://specter-sdr.com/help/tinysa">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="SPECTER SDR">
-  <meta property="og:title" content="TinySA Spectrum Analyzer Setup | SPECTER SDR Help">
-  <meta property="og:description" content="Use a TinySA as a spectrum-only source beside the SPECTER SDR radio array.">
-  <meta property="og:url" content="https://specter-sdr.com/help/tinysa">
-  <meta property="og:image" content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp">
-  <meta property="og:image:width" content="1024">
-  <meta property="og:image:height" content="618">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="TinySA Spectrum Analyzer Setup | SPECTER SDR Help">
-  <meta name="twitter:description" content="Connect, sweep, visualize, record, and alert from a TinySA spectrum analyzer in SPECTER SDR.">
-  <meta name="twitter:image" content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp">
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"TinySA Spectrum Analyzer Setup","description":"Connect a tinySA or tinySA Ultra to SPECTER SDR as a spectrum-only source, configure sweep controls, record traces, and set analyzer-specific alerts.","url":"https://specter-sdr.com/help/tinysa","image":"https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp","dateModified":"2026-09-07","inLanguage":"en-US","publisher":{"@type":"Organization","name":"SPECTER","url":"https://specter-sdr.com/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SPECTER SDR","item":"https://specter-sdr.com/"},{"@type":"ListItem","position":2,"name":"Help Center","item":"https://specter-sdr.com/help/"},{"@type":"ListItem","position":3,"name":"TinySA Spectrum Analyzers","item":"https://specter-sdr.com/help/tinysa"}]}]}</script>
-<script src="/analytics-track.js?v=20260917-anonymous" defer></script></head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>TinySA Spectrum Analyzer Setup | SPECTER SDR Help</title>
+<meta content="Connect a tinySA or tinySA Ultra to SPECTER SDR as a spectrum-only source, configure sweep controls, record traces, and set analyzer-specific alerts." name="description"/>
+<link href="/favicon.ico" rel="icon"/>
+<link href="/site.css?v=20260917-format3" rel="stylesheet"/>
+<link href="/docs.css?v=20260924-help" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Rajdhani:wght@400;600;700&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<meta content="index, follow, max-image-preview:large" name="robots"/>
+<link href="https://specter-sdr.com/help/tinysa" rel="canonical"/>
+<meta content="article" property="og:type"/>
+<meta content="SPECTER SDR" property="og:site_name"/>
+<meta content="TinySA Spectrum Analyzer Setup | SPECTER SDR Help" property="og:title"/>
+<meta content="Use a TinySA as a spectrum-only source beside the SPECTER SDR radio array." property="og:description"/>
+<meta content="https://specter-sdr.com/help/tinysa" property="og:url"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" property="og:image"/>
+<meta content="1024" property="og:image:width"/>
+<meta content="618" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="TinySA Spectrum Analyzer Setup | SPECTER SDR Help" name="twitter:title"/>
+<meta content="Connect, sweep, visualize, record, and alert from a TinySA spectrum analyzer in SPECTER SDR." name="twitter:description"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" name="twitter:image"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"TinySA Spectrum Analyzer Setup","description":"Connect a tinySA or tinySA Ultra to SPECTER SDR as a spectrum-only source, configure sweep controls, record traces, and set analyzer-specific alerts.","url":"https://specter-sdr.com/help/tinysa","image":"https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp","dateModified":"2026-09-24","inLanguage":"en-US","publisher":{"@type":"Organization","name":"SPECTER","url":"https://specter-sdr.com/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SPECTER SDR","item":"https://specter-sdr.com/"},{"@type":"ListItem","position":2,"name":"Help Center","item":"https://specter-sdr.com/help/"},{"@type":"ListItem","position":3,"name":"TinySA Spectrum Analyzers","item":"https://specter-sdr.com/help/tinysa"}]}]}</script>
+<script defer="" src="/analytics-track.js?v=20260917-anonymous"></script></head>
 <body>
-  <nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href="/download">DOWNLOAD</a><a href="/support">SUPPORT</a><a href="/help/" class="nav-cta">HELP</a></div></div></nav>
-  <header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>TinySA Spectrum Analyzers</h1><p>Add wide-range power-versus-frequency sweeps to the same local workstation, timeline, recording, and visual analysis system used by the radio array.</p></div></header>
-  <main class="container docs-layout">
-    <aside class="docs-nav"><strong>HOW TO + HELP</strong><a href="/help/">Help overview</a><a href="/help/getting-started">Getting started</a><a href="/help/receiver-setup">Receiver setup</a><a href="/help/supported-radios">Supported radios</a><a class="active" href="/help/tinysa">TinySA spectrum analyzers</a><a href="/help/workstation">Workstation controls</a><a href="/help/visualizers">Visualizers and Advanced Display</a><a href="/help/frequency-scanner">Frequency Manager and scanner</a><a href="/help/iq-remote">IQ and remote receivers</a><a href="/help/network-output">Network output and rigctl</a><a href="/help/decoder-lab">Decoder Lab</a><a href="/help/sensor-decoding">Sensors and radiosondes</a><a href="/help/signal-intelligence">Research and signal intelligence</a><a href="/help/array-setup">Array and Rosebud</a><a href="/help/recording-alerts">Recording and alerts</a><a href="/help/adsb">ADS-B aircraft</a><a href="/help/imaging-integration">Imaging integration</a><a href="/help/licensing">Licensing</a><a href="/help/troubleshooting">Troubleshooting</a></aside>
-    <article class="docs-content">
-      <figure class="docs-shot"><img src="/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" alt="SPECTER SDR workstation with three SDR receivers and a TinySA spectrum analyzer beside a four-tile Advanced Display" width="1024" height="618" loading="eager" decoding="async"><figcaption>THREE SDR RECEIVERS + TINYSA // WORKSTATION AND ADVANCED DISPLAY</figcaption></figure>
-
-      <h2>What TinySA support means</h2>
-      <p>SPECTER supports TinySA-family instruments that identify through the TinySA USB serial shell. The analyzer appears beside connected radios as a named spectrum-only source. SPECTER asks the instrument for its actual sweep limits instead of assuming a model, so available spans follow the connected hardware. A TinySA Ultra+ can reach approximately 5.4 GHz, while earlier models report lower limits.</p>
-      <div class="callout"><strong>Spectrum only:</strong> A TinySA measures power against frequency. It does not produce complex IQ samples, receiver audio, demodulated voice, protocol packets, or coherent receiver channels.</div>
-
-      <h2>Connect and enable the analyzer</h2>
-      <ol>
-        <li>Connect the TinySA to the Windows computer with a USB data cable and switch the instrument on.</li>
-        <li>Open <strong>Settings</strong>, then <strong>System</strong>.</li>
-        <li>Enable <strong>Spectrum analyzers (TinySA)</strong> and save settings.</li>
-        <li>Use <strong>Check USB Connection</strong> if the analyzer does not appear.</li>
-        <li>Select the TinySA from the active-source list and assign a clear name.</li>
-      </ol>
-      <p>TinySA uses the Windows USB CDC serial path and normally needs no custom driver. A charge-only cable can power the instrument without creating a data connection, so try a known data cable before changing Windows drivers.</p>
-
-      <h2>Analyzer controls</h2>
-      <div class="help-table-wrap"><table><thead><tr><th>Control</th><th>Purpose</th></tr></thead><tbody>
-        <tr><td>Center frequency</td><td>Places the selected sweep around a specific part of the instrument's supported range.</td></tr>
-        <tr><td>Sweep span</td><td>Selects widths from focused local sweeps through the full device-reported range.</td></tr>
-        <tr><td>Sweep points</td><td>Choose 101, 145, 290, 450, or 900 points. Lower counts update faster; higher counts provide more frequency detail.</td></tr>
-        <tr><td>Resolution bandwidth</td><td>Use automatic RBW or select 3, 10, 30, 100, 300, or 600 kHz when the instrument supports it.</td></tr>
-        <tr><td>Attenuator</td><td>Use automatic attenuation or select 0, 10, 20, or 30 dB for strong-signal environments.</td></tr>
-        <tr><td>Low-noise amplifier</td><td>Enable the TinySA LNA when appropriate for weak signals and the connected model.</td></tr>
-      </tbody></table></div>
-
-      <h2>Visualize, record, and review</h2>
-      <p>TinySA sweeps are translated into the same timestamped spectrum-frame format used by SPECTER's visual pipeline. You can place the analyzer in the main workstation or Advanced Display, view spectrum and waterfall history, preserve its trace in a recording session, and review it against the shared timeline. The analyzer remains independently identified so its data is never mistaken for IQ from a radio receiver.</p>
-
-      <h2>Analyzer-specific alerts</h2>
-      <p>Enable <strong>Spectrum analyzer alerts</strong> only when you need them. A wide analyzer sweep can encounter many active signals, so SPECTER uses a separate threshold measured in dB above the analyzer's own sweep floor. Start conservatively, observe the local baseline, and use the analyzer's per-source alert override when the general threshold is too active.</p>
-
-      <h2>Functions that require a radio</h2>
-      <ul>
-        <li>Audio monitoring and demodulation modes</li>
-        <li>IQ recording, replay, and constellation views</li>
-        <li>Decoder Lab, ADS-B, and external protocol engines</li>
-        <li>Coherent receiver pairing and relative-amplitude radio direction comparison</li>
-        <li>Radio squelch scanning and CTCSS detection</li>
-      </ul>
-      <div class="callout">Use TinySA for broad spectral reach and measured sweep context. Use an SDR receiver when the task needs live IQ, audio, demodulation, protocol decoding, or radio-array correlation.</div>
-    </article>
-  </main>
-  <footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href="/terms-of-sale">TERMS</a><a href="/refund-policy">REFUNDS</a><a href="/privacy">PRIVACY</a><a href="/license-agreement">LICENSE</a><a href="/open-source">OPEN SOURCE</a><a href="mailto:support@specter-imaging.com">SUPPORT@SPECTER-IMAGING.COM</a></div></footer>
-  <script src="/app.js?v=20260903-lightbox"></script>
+<nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href="/download">DOWNLOAD</a><a href="/support">SUPPORT</a><a class="nav-cta" href="/help/">HELP</a></div></div></nav>
+<header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>TinySA Spectrum Analyzers</h1><p>Add wide-range power-versus-frequency sweeps to the same local workstation, timeline, recording, and visual analysis system used by the radio array.</p></div></header>
+<main class="container docs-layout">
+<aside class="docs-nav"><strong>HOW TO + HELP</strong><a href="/help/">Help overview</a><a href="/help/whats-new">What's New and versions</a><a href="/help/getting-started">Getting started</a><a href="/help/receiver-setup">Receiver setup</a><a href="/help/supported-radios">Supported radios</a><a aria-current="page" class="active" href="/help/tinysa">TinySA spectrum analyzers</a><a href="/help/workstation">Workstation controls</a><a href="/help/visualizers">Visualizers and Advanced Display</a><a href="/help/frequency-scanner">Frequency Manager and scanner</a><a href="/help/channel-activity">Channel Activity Watch</a><a href="/help/iq-remote">IQ and remote receivers</a><a href="/help/network-output">Network output and rigctl</a><a href="/help/decoder-lab">Decoder Lab</a><a href="/help/sensor-decoding">Sensors and radiosondes</a><a href="/help/signal-intelligence">Research and signal intelligence</a><a href="/help/array-setup">Array and Rosebud</a><a href="/help/recording-alerts">Recording and alerts</a><a href="/help/radiation">Radiation counter and timeline</a><a href="/help/adsb">ADS-B aircraft</a><a href="/help/imaging-integration">Imaging integration</a><a href="/help/licensing">Licensing</a><a href="/help/troubleshooting">Troubleshooting</a></aside>
+<article class="docs-content"><p class="docs-reviewed">Reviewed September 24, 2026 against source v1.7.41. Features and fixes are labeled by version. <a href="/help/whats-new">Check release availability</a>.</p>
+<figure class="docs-shot"><img alt="SPECTER SDR workstation with three SDR receivers and a TinySA spectrum analyzer beside a four-tile Advanced Display" decoding="async" height="618" loading="eager" src="/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" width="1024"/><figcaption>THREE SDR RECEIVERS + TINYSA // WORKSTATION AND ADVANCED DISPLAY</figcaption></figure>
+<h2>What TinySA support means</h2>
+<p>SPECTER supports TinySA-family instruments that identify through the TinySA USB serial shell. The analyzer appears beside connected radios as a named spectrum-only source. SPECTER asks the instrument for its actual sweep limits instead of assuming a model, so available spans follow the connected hardware. A TinySA Ultra+ can reach approximately 5.4 GHz, while earlier models report lower limits.</p>
+<div class="callout"><strong>Spectrum only:</strong> A TinySA measures power against frequency. It does not produce complex IQ samples, receiver audio, demodulated voice, protocol packets, or coherent receiver channels.</div>
+<h2>Connect and enable the analyzer</h2>
+<ol>
+<li>Connect the TinySA to the Windows computer with a USB data cable and switch the instrument on.</li>
+<li>Open <strong>Settings</strong>, then <strong>System</strong>.</li>
+<li>Enable <strong>Spectrum analyzers (TinySA)</strong> and save settings.</li>
+<li>Use <strong>Check USB Connection</strong> if the analyzer does not appear.</li>
+<li>Select the TinySA from the active-source list and assign a clear name.</li>
+</ol>
+<p>TinySA uses the Windows USB CDC serial path and normally needs no custom driver. A charge-only cable can power the instrument without creating a data connection, so try a known data cable before changing Windows drivers.</p>
+<h2>Analyzer controls</h2>
+<div class="help-table-wrap"><table><thead><tr><th>Control</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Center frequency</td><td>Places the selected sweep around a specific part of the instrument's supported range.</td></tr>
+<tr><td>Sweep span</td><td>Selects widths from focused local sweeps through the full device-reported range.</td></tr>
+<tr><td>Sweep points</td><td>Choose 101, 145, 290, or 450 points, subject to the instrument-reported ceiling. More points add frequency detail; wide-span sweep time is dominated by span and resolution bandwidth, not simply point count.</td></tr>
+<tr><td>Resolution bandwidth</td><td>Use automatic RBW or select 3, 10, 30, 100, 300, or 600 kHz when the instrument supports it.</td></tr>
+<tr><td>Attenuator</td><td>Use automatic attenuation or select 0, 10, 20, or 30 dB for strong-signal environments.</td></tr>
+<tr><td>Low-noise amplifier</td><td>Enable the TinySA LNA when appropriate for weak signals and the connected model.</td></tr>
+</tbody></table></div>
+<h2>Visualize, record, and review</h2>
+<p>TinySA sweeps are translated into the same timestamped spectrum-frame format used by SPECTER's visual pipeline. You can place the analyzer in the main workstation or Advanced Display, view spectrum and waterfall history, preserve its trace in a recording session, and review it against the shared timeline. The analyzer remains independently identified so its data is never mistaken for IQ from a radio receiver.</p>
+<h2>Analyzer-specific alerts</h2>
+<p>Enable <strong>Spectrum analyzer alerts</strong> only when you need them. A wide analyzer sweep can encounter many active signals, so SPECTER uses a separate threshold measured in dB above the analyzer's own sweep floor. Start conservatively, observe the local baseline, and use the analyzer's per-source alert override when the general threshold is too active.</p>
+<h2>Functions that require a radio</h2>
+<ul>
+<li>Audio monitoring and demodulation modes</li>
+<li>IQ recording, replay, and constellation views</li>
+<li>Decoder Lab, ADS-B, and external protocol engines</li>
+<li>Coherent receiver pairing and relative-amplitude radio direction comparison</li>
+<li>Radio squelch scanning and CTCSS detection</li>
+</ul>
+<div class="callout">Use TinySA for broad spectral reach and measured sweep context. Use an SDR receiver when the task needs live IQ, audio, demodulation, protocol decoding, or radio-array correlation.</div>
+<h2 id="wide-sweep">Set an exact start and stop</h2><ol><li>Select the tinySA and open its analyzer controls.</li><li>In <strong>SWEEP RANGE</strong>, enter Start and Stop in MHz. For 100 MHz through 5.3 GHz, enter <strong>100</strong> and <strong>5300</strong>: the span is 5200 MHz.</li><li>Press <strong>APPLY RANGE</strong>, or choose <strong>FULL RANGE</strong> for the connected instrument's reported limits.</li><li>Allow a complete sweep and check the confirmed range and arriving trace, not only the text you entered.</li></ol><p><strong>v1.7.41:</strong> center and span are sent as one range change and confirmation follows the current instrument range. Earlier versions could briefly sweep a new width around the old center, or report that a valid range did not take. See <a href="/help/whats-new">version availability</a>.</p><h2>Wide sweeps, RBW, and expected update time</h2><p>Start with <strong>Resolution BW: Auto</strong>. Sweep span is the total frequency range; resolution bandwidth is the measurement filter width. They are not interchangeable. A broader span or narrower RBW takes longer to measure.</p><table class="spec-table"><thead><tr><th>RBW</th><th>Reference sweep time across 5.4 GHz</th></tr></thead><tbody><tr><td>Auto</td><td>About 9.5 seconds</td></tr><tr><td>600 kHz</td><td>About 15.5 seconds</td></tr><tr><td>300 kHz</td><td>About 28 seconds</td></tr><tr><td>100 kHz</td><td>About 90 seconds; not a usable live setting at this span</td></tr></tbody></table><p>These are reference measurements from an Ultra+ documented with the implementation, not guaranteed rates for every model, firmware, USB connection, or computer. SPECTER refuses RBW choices it estimates would take more than a minute per sweep at the current span. Prefer Auto for a full-range overview, then narrow the span for fine-resolution inspection.</p><h2>What changed after the wide-span freeze</h2><p><strong>From v1.7.39</strong>, SPECTER keeps the instrument's autonomous display sweep paused between its own requested scans. This avoids a delayed pause acknowledgement being mistaken for the next scan's response. The app still requests measured scans and gives the instrument its own sweep back when it releases the port. A deliberate pause between app scans is not, by itself, a fault.</p><p>If the app stops receiving new traces, first note the installed version, exact Start/Stop, RBW, and sweep-point count. Test a narrower span and Auto RBW. If Auto is already shown but you suspect a retained hardware setting, select 600 kHz and then Auto to send the setting again. Do not assume adding other radios proves a USB fault: compare the same range with and without them and collect the <a href="/help/troubleshooting#sidecar-log">sidecar log</a>.</p><h2>Radio features remain separate</h2><p>ACTIVITY WATCH, audio recordings, and Decoder Lab require a receiver with samples or audio. They do not become available because a tinySA appears in the same workspace. Enable <strong>Spectrum analyzer alerts</strong> only when wanted, and use the analyzer's own receiver alert switch and threshold to avoid broad-band activity dominating radio alerts.</p></article>
+</main>
+<footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href="/terms-of-sale">TERMS</a><a href="/refund-policy">REFUNDS</a><a href="/privacy">PRIVACY</a><a href="/license-agreement">LICENSE</a><a href="/open-source">OPEN SOURCE</a><a href="mailto:support@specter-imaging.com">SUPPORT@SPECTER-IMAGING.COM</a></div></footer>
+<script src="/app.js?v=20260903-lightbox"></script>
 </body>
 </html>

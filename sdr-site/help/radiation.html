@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Radiation Counter and Timeline | SPECTER SDR Help</title>
+<meta content="Connect a supported GQ GMC counter, view its own trace, and compare radiation readings with RF session timing." name="description"/>
+<link href="/favicon.ico" rel="icon"/>
+<link href="/site.css?v=20260917-format3" rel="stylesheet"/>
+<link href="/docs.css?v=20260924-help" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Rajdhani:wght@400;600;700&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<meta content="index, follow, max-image-preview:large" name="robots"/>
+<link href="https://specter-sdr.com/help/radiation" rel="canonical"/>
+<meta content="article" property="og:type"/>
+<meta content="SPECTER SDR" property="og:site_name"/>
+<meta content="Radiation Counter and Timeline | SPECTER SDR Help" property="og:title"/>
+<meta content="Connect a supported GQ GMC counter, view its own trace, and compare radiation readings with RF session timing." property="og:description"/>
+<meta content="https://specter-sdr.com/help/radiation" property="og:url"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" property="og:image"/>
+<meta content="1024" property="og:image:width"/>
+<meta content="618" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Radiation Counter and Timeline | SPECTER SDR Help" name="twitter:title"/>
+<meta content="Connect a supported GQ GMC counter, view its own trace, and compare radiation readings with RF session timing." name="twitter:description"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" name="twitter:image"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Radiation Counter and Timeline","description":"Connect a supported GQ GMC counter, view its own trace, and compare radiation readings with RF session timing.","url":"https://specter-sdr.com/help/radiation","image":"https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp","dateModified":"2026-09-24","inLanguage":"en-US","publisher":{"@type":"Organization","name":"SPECTER","url":"https://specter-sdr.com/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SPECTER SDR","item":"https://specter-sdr.com/"},{"@type":"ListItem","position":2,"name":"Help Center","item":"https://specter-sdr.com/help/"},{"@type":"ListItem","position":3,"name":"Radiation Counter and Timeline","item":"https://specter-sdr.com/help/radiation"}]}]}</script>
+<script defer="" src="/analytics-track.js?v=20260917-anonymous"></script></head>
+<body>
+<nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href="/download">DOWNLOAD</a><a href="/support">SUPPORT</a><a class="nav-cta" href="/help/">HELP</a></div></div></nav>
+<header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>Radiation Counter and Timeline</h1><p>Connect a supported GQ GMC counter, view its own trace, and compare radiation readings with RF session timing.</p></div></header>
+<main class="container docs-layout">
+<aside class="docs-nav"><strong>HOW TO + HELP</strong><a href="/help/">Help overview</a><a href="/help/whats-new">What's New and versions</a><a href="/help/getting-started">Getting started</a><a href="/help/receiver-setup">Receiver setup</a><a href="/help/supported-radios">Supported radios</a><a href="/help/tinysa">TinySA spectrum analyzers</a><a href="/help/workstation">Workstation controls</a><a href="/help/visualizers">Visualizers and Advanced Display</a><a href="/help/frequency-scanner">Frequency Manager and scanner</a><a href="/help/channel-activity">Channel Activity Watch</a><a href="/help/iq-remote">IQ and remote receivers</a><a href="/help/network-output">Network output and rigctl</a><a href="/help/decoder-lab">Decoder Lab</a><a href="/help/sensor-decoding">Sensors and radiosondes</a><a href="/help/signal-intelligence">Research and signal intelligence</a><a href="/help/array-setup">Array and Rosebud</a><a href="/help/recording-alerts">Recording and alerts</a><a aria-current="page" class="active" href="/help/radiation">Radiation counter and timeline</a><a href="/help/adsb">ADS-B aircraft</a><a href="/help/imaging-integration">Imaging integration</a><a href="/help/licensing">Licensing</a><a href="/help/troubleshooting">Troubleshooting</a></aside>
+<article class="docs-content"><p class="docs-reviewed">Reviewed September 24, 2026 against source v1.7.41. Features and fixes are labeled by version. <a href="/help/whats-new">Check release availability</a>.</p>
+<h2>A separate instrument, not a radio channel</h2>
+<p>SPECTER SDR can read compatible GQ GMC counters through their USB serial protocol. The radiation trace is separate from the SDR cards and tinySA spectrum sweeps. A counter does not provide RF spectrum, demodulated audio, IQ samples, or protocol decoding.</p>
+<h2>Connect and enable</h2>
+<ol><li>Connect the powered counter with a USB data cable and close other software that owns its serial port.</li><li>Open <strong>Settings &gt; System</strong>, enable <strong>Geiger counter (GQ GMC)</strong>, and save.</li><li>Wait for identification and a live counts-per-minute readout. If it does not appear, use Check USB Connection and inspect the sidecar log.</li></ol>
+<p>Do not replace the counter's serial driver with the RTL-SDR WinUSB driver. Follow the counter manufacturer's driver and calibration guidance. Protocol compatibility does not imply that every GQ model has been physically validated.</p>
+<h2>Read the strip</h2>
+<p>In v1.7.40 the Geiger trace has its own row above the receivers, so adding radios no longer squeezes it. <strong>In v1.7.41</strong>, the workspace places radios first, spectrum analyzers below them, and the radiation strip at the bottom. A counter that disconnects after being seen remains visible as disconnected. See <a href="/help/whats-new">version availability</a>.</p>
+<h2>Background-based alerts and recordings</h2>
+<p>The app compares readings with a learned local background rather than a single fixed CPM threshold. The default excursion sensitivity is four sigma. <strong>Radiation alerts</strong> controls notifications; turning it off does not turn off the live trace or radiation telemetry in an active session recording.</p>
+<p>Start a <a href="/help/recording-alerts">session recording</a> to retain counter readings on the same timeline as RF observations. A time coincidence is something to review, not proof that one measurement caused another.</p>
+<div class="callout warning">Use the counter's calibration, manufacturer instructions, and appropriate radiation-safety procedures for safety decisions. SPECTER's background comparison is an analysis aid, not a calibrated dose assessment or a safety clearance.</div>
+<h2>If the trace stops</h2>
+<p>Check power, the data cable, the port in use, and whether another application has opened it. A disconnected label is not a zero-radiation reading. Include the exact counter model and relevant <a href="/help/troubleshooting">sidecar log</a> lines in a private support ticket.</p>
+</article>
+</main>
+<footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href="/terms-of-sale">TERMS</a><a href="/refund-policy">REFUNDS</a><a href="/privacy">PRIVACY</a><a href="/license-agreement">LICENSE</a><a href="/open-source">OPEN SOURCE</a><a href="mailto:support@specter-imaging.com">SUPPORT@SPECTER-IMAGING.COM</a></div></footer>
+<script src="/app.js?v=20260903-lightbox"></script>
+</body>
+</html>

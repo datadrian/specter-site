@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Channel Activity Watch | SPECTER SDR Help</title>
+<meta content="Watch a tuned radio channel, configure audible and visual responses, and save transmission audio with pre-roll." name="description"/>
+<link href="/favicon.ico" rel="icon"/>
+<link href="/site.css?v=20260917-format3" rel="stylesheet"/>
+<link href="/docs.css?v=20260924-help" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Rajdhani:wght@400;600;700&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<meta content="index, follow, max-image-preview:large" name="robots"/>
+<link href="https://specter-sdr.com/help/channel-activity" rel="canonical"/>
+<meta content="article" property="og:type"/>
+<meta content="SPECTER SDR" property="og:site_name"/>
+<meta content="Channel Activity Watch | SPECTER SDR Help" property="og:title"/>
+<meta content="Watch a tuned radio channel, configure audible and visual responses, and save transmission audio with pre-roll." property="og:description"/>
+<meta content="https://specter-sdr.com/help/channel-activity" property="og:url"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" property="og:image"/>
+<meta content="1024" property="og:image:width"/>
+<meta content="618" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Channel Activity Watch | SPECTER SDR Help" name="twitter:title"/>
+<meta content="Watch a tuned radio channel, configure audible and visual responses, and save transmission audio with pre-roll." name="twitter:description"/>
+<meta content="https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp" name="twitter:image"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Channel Activity Watch","description":"Watch a tuned radio channel, configure audible and visual responses, and save transmission audio with pre-roll.","url":"https://specter-sdr.com/help/channel-activity","image":"https://specter-sdr.com/assets/screenshots/specter-sdr-workstation-and-advanced-display.webp","dateModified":"2026-09-24","inLanguage":"en-US","publisher":{"@type":"Organization","name":"SPECTER","url":"https://specter-sdr.com/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SPECTER SDR","item":"https://specter-sdr.com/"},{"@type":"ListItem","position":2,"name":"Help Center","item":"https://specter-sdr.com/help/"},{"@type":"ListItem","position":3,"name":"Channel Activity Watch","item":"https://specter-sdr.com/help/channel-activity"}]}]}</script>
+<script defer="" src="/analytics-track.js?v=20260917-anonymous"></script></head>
+<body>
+<nav class="nav"><div class="nav-inner"><a class="nav-logo" href="/">SPECTER <span>SDR</span><small>// HELP CENTER</small></a><div class="nav-links"><a href="/">PRODUCT</a><a href="/download">DOWNLOAD</a><a href="/support">SUPPORT</a><a class="nav-cta" href="/help/">HELP</a></div></div></nav>
+<header class="docs-hero"><div class="container"><div class="section-tag">// SPECTER SDR HELP</div><h1>Channel Activity Watch</h1><p>Watch a tuned radio channel, configure audible and visual responses, and save transmission audio with pre-roll.</p></div></header>
+<main class="container docs-layout">
+<aside class="docs-nav"><strong>HOW TO + HELP</strong><a href="/help/">Help overview</a><a href="/help/whats-new">What's New and versions</a><a href="/help/getting-started">Getting started</a><a href="/help/receiver-setup">Receiver setup</a><a href="/help/supported-radios">Supported radios</a><a href="/help/tinysa">TinySA spectrum analyzers</a><a href="/help/workstation">Workstation controls</a><a href="/help/visualizers">Visualizers and Advanced Display</a><a href="/help/frequency-scanner">Frequency Manager and scanner</a><a aria-current="page" class="active" href="/help/channel-activity">Channel Activity Watch</a><a href="/help/iq-remote">IQ and remote receivers</a><a href="/help/network-output">Network output and rigctl</a><a href="/help/decoder-lab">Decoder Lab</a><a href="/help/sensor-decoding">Sensors and radiosondes</a><a href="/help/signal-intelligence">Research and signal intelligence</a><a href="/help/array-setup">Array and Rosebud</a><a href="/help/recording-alerts">Recording and alerts</a><a href="/help/radiation">Radiation counter and timeline</a><a href="/help/adsb">ADS-B aircraft</a><a href="/help/imaging-integration">Imaging integration</a><a href="/help/licensing">Licensing</a><a href="/help/troubleshooting">Troubleshooting</a></aside>
+<article class="docs-content"><p class="docs-reviewed">Reviewed September 24, 2026 against source v1.7.41. Features and fixes are labeled by version. <a href="/help/whats-new">Check release availability</a>.</p>
+<h2>Watch a channel, not an entire band</h2>
+<p><strong>Available in v1.7.40 and later.</strong> ACTIVITY WATCH monitors RF power inside the selected receiver's tuned passband. It learns that channel's quiet background and reacts to a sustained increase. It is not speech recognition, a protocol decoder, or proof of a particular transmitter.</p>
+<ol><li>Tune an audio-capable receiver to the channel and choose the correct demodulation mode and filter width.</li><li>Allow a quiet interval so the watch can learn the background.</li><li>Open <strong>Settings &gt; Alerts &gt; Channel Activity Watch</strong> and choose what happens on activity.</li><li>Press <strong>ACTIVITY WATCH</strong> beside PATTERN on that receiver's card. Press it again to stop watching.</li></ol>
+<div class="callout warning">No receiver is watched by default. Once you enable a watch, its default actions are <strong>Alert sound on</strong> and <strong>Record the audio on</strong>; speaker playback and the alert dialog start off. Review these choices before monitoring or recording. Follow applicable laws and permissions.</div>
+<h2>Choose the response</h2>
+<table class="spec-table"><thead><tr><th>Settings control</th><th>Behavior</th></tr></thead><tbody>
+<tr><td>Play it over the speaker</td><td>Temporarily enables that receiver's audio while activity is present. Audio you enabled manually stays on afterward.</td></tr>
+<tr><td>Alert sound</td><td>Plays the channel's short low-high tone. This is separate from NOTICE, ALERT, CRITICAL, and new-aircraft sounds.</td></tr>
+<tr><td>Alert dialog</td><td>Shows the receiver and frequency. It respects the event-alert switch, popup cooldown, and temporary mute.</td></tr>
+<tr><td>Record the audio</td><td>Saves demodulated audio and metadata, independently of the continuous session RECORD button.</td></tr>
+</tbody></table>
+<h2>Threshold and hold time</h2>
+<p><strong>Activity threshold</strong> defaults to 8 dB above the channel's learned background and can be set from 3 to 40 dB. Lower values catch weaker changes but also more noise. The detector requires about 250 ms above threshold before declaring activity and uses hysteresis to avoid rapid on/off switching.</p>
+<p><strong>Hold after signal drops</strong> defaults to 2 seconds and can be set from 0.5 to 30 seconds. It keeps short pauses within one transmission. Changing frequency, mode, or channel width resets the learned channel background. A constant carrier already present when learning begins can become background rather than a new event.</p>
+<h2>Find the recordings</h2>
+<p>Use <strong>OPEN ACTIVITY RECORDINGS</strong> in Settings &gt; Alerts. Files are stored under your selected data folder in <code>Activity\YYYY-MM-DD\</code>, grouped by the local date. With the default data folder this is <code>Documents\SPECTER SDR\Activity\</code>.</p>
+<p>Each capture is a 48 kHz mono, 16-bit WAV plus a JSON metadata file containing receiver identity, frequency, mode, timing, peak excess over background, and any truncation flag. The recorder retains approximately 1.5 seconds of available pre-roll. A just-enabled watch may not yet have that much audio buffered.</p>
+<p>A continuously active channel is capped at about 10 minutes of audio per capture; it is not automatically split into an unlimited series of files. The capture is finalized when activity ends, the watch stops, or the application closes normally. Keep the JSON beside its WAV.</p>
+<h2>Use a receiver that stays on the channel</h2>
+<p>A scanner, Search Director, Decoder Lab profile, linked tuning, or periodic ADS-B assignment can move a receiver. For a reliable channel watch, dedicate a radio to the channel instead of retuning it for other work. The watch follows tuning changes; it does not reserve the radio.</p>
+<p>TinySA analyzers have no demodulated audio and are excluded from channel activity watching. Use their <a href="/help/tinysa">spectrum and analyzer alerts</a> instead. Activity recordings are also distinct from <a href="/help/recording-alerts">class-qualified RF event clips</a> and <a href="/help/iq-remote">raw IQ captures</a>.</p>
+<h2>Troubleshoot missed or repeated activity</h2>
+<ul><li>Confirm the watch is enabled on the intended receiver and the mode and filter cover the signal.</li><li>If a steady carrier was present during learning, test with a quiet interval followed by a new transmission.</li><li>For repeated noise detections, increase threshold or hold time. Lowering squelch alone does not change the RF detector's threshold.</li><li>If a WAV has no useful audio, verify demodulation, squelch, audio delivery, and disk access. RF activity does not guarantee intelligible speech.</li><li>In v1.7.41, the live activity tone observes its repeat gap rather than behaving like a Settings preview. See <a href="/help/whats-new">version availability</a>.</li></ul>
+</article>
+</main>
+<footer><div class="footer-inner"><div class="footer-logo">SPECTER <span>SDR</span></div><a href="/terms-of-sale">TERMS</a><a href="/refund-policy">REFUNDS</a><a href="/privacy">PRIVACY</a><a href="/license-agreement">LICENSE</a><a href="/open-source">OPEN SOURCE</a><a href="mailto:support@specter-imaging.com">SUPPORT@SPECTER-IMAGING.COM</a></div></footer>
+<script src="/app.js?v=20260903-lightbox"></script>
+</body>
+</html>

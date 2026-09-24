@@ -7,3 +7,5 @@
 .docs-content code{overflow-wrap:anywhere;word-break:break-all}
 
 @media(max-width:820px){.docs-layout{width:calc(100vw - 2rem);min-width:0}.docs-nav,.docs-content{width:100%;min-width:0}.callout{max-width:100%;overflow-wrap:anywhere}}
+
+.docs-reviewed{font:11px/1.6 var(--mono);color:var(--dim);border-bottom:1px solid var(--border);padding-bottom:1rem;margin:0 0 1.5rem}.docs-content .spec-table{table-layout:fixed}.docs-content .spec-table td,.docs-content .spec-table th{overflow-wrap:anywhere}.docs-content h2[id],.docs-content h3[id]{scroll-margin-top:95px}

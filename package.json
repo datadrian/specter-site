@@ -4,7 +4,7 @@
   "description": "SPECTER \u2014 specter-imaging.com marketing, licensing, support, and admin",
   "scripts": {
     "dev": "netlify dev",
-    "test": "node tests/licensing.test.js && node tests/sdr-sale-readiness.test.js && node tests/imaging-sale-readiness.test.js && node tests/analytics-sites.test.js"
+    "test": "node tests/licensing.test.js && node tests/sdr-sale-readiness.test.js && node tests/imaging-sale-readiness.test.js && node tests/analytics-sites.test.js && node tests/sdr-help-refresh.test.js"
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0",

@@ -36,3 +36,15 @@ Legal: https://specter-sdr.com/terms-of-sale
 Refund Policy: https://specter-sdr.com/refund-policy
 Privacy: https://specter-sdr.com/privacy
 Open Source Components: https://specter-sdr.com/open-source
+
+## September 24, 2026 help refresh
+
+The help center is reviewed against source v1.7.41 (b577b42). The latest public release is v1.7.41, published September 24, 2026. Version-specific instructions distinguish its behavior from earlier installed releases.
+
+- [What's New and version availability](https://specter-sdr.com/help/whats-new): Version boundaries for 1.7.39, 1.7.40, and 1.7.41.
+- [Channel Activity Watch](https://specter-sdr.com/help/channel-activity): RF-background-based detection on a tuned receiver, response settings, pre-roll WAV recording, and limitations.
+- [Radiation counter and timeline](https://specter-sdr.com/help/radiation): GQ GMC serial instruments, background-based excursions, display placement, and session telemetry.
+- [Receiver identity](https://specter-sdr.com/help/receiver-setup#unique-serial): New receiver naming and verified unique serials for supported factory-serial local RTL dongles.
+- [Audible alerts](https://specter-sdr.com/help/recording-alerts#audible-alerts): Separate aircraft and RF-class tones, defaults, and output routing.
+
+The SDR demo is 30 elapsed minutes from first launch, not ten minutes and not accumulated active time. TinySA sweep-point choices are 101, 145, 290, and 450 subject to the device ceiling. Advanced Display supports one to six tiles. Channel activity is not a packet decode or speech recognition.
